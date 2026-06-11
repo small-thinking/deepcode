@@ -1,3 +1,5 @@
+const THEME_KEY = "deepcode-theme";
+
 const state = {
   problems: [],
   categories: [],
@@ -14,10 +16,48 @@ const state = {
   error: null,
   loading: true,
   running: false,
+  theme: initialTheme(),
 };
 
 const app = document.querySelector("#app");
 let codeEditor = null;
+
+function initialTheme() {
+  const stored = localStorage.getItem(THEME_KEY);
+  return stored === "light" || stored === "dark" ? stored : "dark";
+}
+
+function applyTheme() {
+  document.body.setAttribute("data-theme", state.theme);
+  setEditorTheme();
+}
+
+function setEditorTheme() {
+  if (!codeEditor || !window.ace) return;
+  codeEditor.setTheme(state.theme === "dark" ? "ace/theme/tomorrow_night" : "ace/theme/chrome");
+}
+
+function toggleTheme() {
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, state.theme);
+  applyTheme();
+  updateThemeToggle();
+}
+
+function themeToggleLabel() {
+  return `Dark mode: ${state.theme === "dark" ? "On" : "Off"}`;
+}
+
+function themeToggleButton() {
+  return `<button class="ghost-button theme-toggle" id="theme-toggle" aria-pressed="${state.theme === "dark"}">${themeToggleLabel()}</button>`;
+}
+
+function updateThemeToggle() {
+  const toggle = document.querySelector("#theme-toggle");
+  if (!toggle) return;
+  toggle.textContent = themeToggleLabel();
+  toggle.setAttribute("aria-pressed", String(state.theme === "dark"));
+}
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -142,7 +182,7 @@ function mountEditor() {
   aceContainer.hidden = false;
   window.ace.config.set("basePath", "/vendor/ace");
   codeEditor = window.ace.edit(aceContainer);
-  codeEditor.setTheme("ace/theme/tomorrow_night");
+  setEditorTheme();
   codeEditor.session.setMode("ace/mode/python");
   codeEditor.session.setUseWorker(false);
   codeEditor.setOptions({
@@ -249,7 +289,10 @@ function renderList() {
             <p>${state.problems.length} local problem${state.problems.length === 1 ? "" : "s"}</p>
           </div>
         </div>
-        <button class="ghost-button" id="random-problem">Random</button>
+        <div class="topbar-actions">
+          <button class="ghost-button" id="random-problem">Random</button>
+          ${themeToggleButton()}
+        </div>
       </header>
 
       <section class="stat-grid" aria-label="Collection status">
@@ -325,10 +368,7 @@ function renderDetail() {
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
       <header class="problem-topbar">
         <button class="ghost-button" id="problem-back-button">← Problems</button>
-        <div class="problem-topbar-title">
-          <strong>${escapeHtml(problem.title)}</strong>
-          <span>#${escapeHtml(problem.id)} · ${escapeHtml(problem.category)} · ${escapeHtml(problem.difficulty)}</span>
-        </div>
+        ${themeToggleButton()}
       </header>
       <section class="detail-layout">
         <article class="detail-panel">
@@ -452,6 +492,7 @@ function renderResults() {
 
 function bindEvents() {
   document.querySelector("#random-problem")?.addEventListener("click", randomProblem);
+  document.querySelector("#theme-toggle")?.addEventListener("click", toggleTheme);
   document.querySelector("#apply-filters")?.addEventListener("click", () => {
     state.filters.search = document.querySelector("#search").value.trim();
     state.filters.category = document.querySelector("#category").value;
@@ -499,4 +540,5 @@ window.addEventListener("hashchange", () => {
   }
 });
 
+applyTheme();
 bootFromHash();

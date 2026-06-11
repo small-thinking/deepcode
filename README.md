@@ -51,6 +51,13 @@ uv run python -m deepcode --host 127.0.0.1 --port 8000
 
 The editor uses Ace Editor from jsDelivr, so syntax highlighting and editor keybindings require network access the first time the browser loads the editor asset.
 
+## Project Layout
+
+- `deepcode/`: backend server, API routing, problem loading, and local code runner.
+- `frontend/`: browser UI assets served by the backend.
+- `problems/`: file-backed problem definitions and evaluator test cases.
+- `tests/`: backend and static UI regression tests.
+
 ## Project Environment
 
 DeepCode uses `uv` to pin and sync the local Python environment. The project currently has no third-party runtime dependencies, but the lockfile keeps development and CI reproducible as ML evaluation dependencies are added later.
