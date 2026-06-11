@@ -3,11 +3,23 @@
   --bg: #050505;
   --panel: #111214;
   --panel-2: #18191c;
+  --filter-bg: #0c0d0f;
+  --table-head: #141519;
+  --row-hover: #1b1d21;
+  --panel-header-bg: #141519;
+  --inset-bg: #0d0e10;
+  --mini-bg: #090a0c;
+  --code-bg: #08090b;
+  --code-text: #f7f7f7;
+  --body-copy: #d9dbe0;
   --line: #2b2d33;
   --line-bright: #545965;
   --text: #f6f7f8;
   --muted: #a0a4ae;
   --faint: #696e79;
+  --primary-bg: var(--text);
+  --primary-text: #0a0a0a;
+  --mark-bg: linear-gradient(145deg, #1c1d21, #0d0e10);
   --green: #22c55e;
   --green-soft: rgba(34, 197, 94, 0.16);
   --amber: #f5b301;
@@ -17,7 +29,45 @@
   --blue: #5aa7ff;
   --blue-soft: rgba(90, 167, 255, 0.16);
   --purple: #a78bfa;
+  --pill-text: #08100b;
+  --pill-hard-text: #140506;
   --shadow: 0 20px 80px rgba(0, 0, 0, 0.32);
+}
+
+body[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --panel-2: #eef1f6;
+  --filter-bg: #eef1f6;
+  --table-head: #eef1f6;
+  --row-hover: #f1f4f9;
+  --panel-header-bg: #f5f7fb;
+  --inset-bg: #f8fafc;
+  --mini-bg: #ffffff;
+  --code-bg: #f8fafc;
+  --code-text: #111827;
+  --body-copy: #242832;
+  --line: #d6dbe5;
+  --line-bright: #aeb7c7;
+  --text: #14171f;
+  --muted: #5c6472;
+  --faint: #7b8494;
+  --primary-bg: #14171f;
+  --primary-text: #ffffff;
+  --mark-bg: linear-gradient(145deg, #ffffff, #e7ebf2);
+  --green: #16823a;
+  --green-soft: rgba(22, 130, 58, 0.14);
+  --amber: #b7791f;
+  --amber-soft: rgba(183, 121, 31, 0.14);
+  --red: #dc2626;
+  --red-soft: rgba(220, 38, 38, 0.12);
+  --blue: #2563eb;
+  --blue-soft: rgba(37, 99, 235, 0.12);
+  --purple: #7c3aed;
+  --pill-text: #f8fafc;
+  --pill-hard-text: #ffffff;
+  --shadow: 0 18px 50px rgba(29, 42, 68, 0.12);
 }
 
 * {
@@ -73,7 +123,7 @@ button {
   border-radius: 8px;
   display: grid;
   place-items: center;
-  background: linear-gradient(145deg, #1c1d21, #0d0e10);
+  background: var(--mark-bg);
   border: 1px solid var(--line);
   color: var(--green);
   font-weight: 800;
@@ -108,8 +158,8 @@ button {
 
 .primary-button {
   padding: 0 14px;
-  background: var(--text);
-  color: #0a0a0a;
+  background: var(--primary-bg);
+  color: var(--primary-text);
   font-weight: 700;
 }
 
@@ -126,6 +176,16 @@ button {
 
 .icon-button {
   width: 36px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  min-width: 128px;
 }
 
 .primary-button:hover,
@@ -173,7 +233,7 @@ button {
 .filters {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #0c0d0f;
+  background: var(--filter-bg);
   padding: 10px;
   margin-bottom: 24px;
 }
@@ -219,7 +279,7 @@ th {
   text-align: left;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: #141519;
+  background: var(--table-head);
   height: 40px;
 }
 
@@ -235,7 +295,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: #1b1d21;
+  background: var(--row-hover);
 }
 
 .num-cell {
@@ -259,7 +319,7 @@ tbody tr:hover {
   min-width: 78px;
   padding: 3px 10px;
   border-radius: 6px;
-  color: #08100b;
+  color: var(--pill-text);
   font-size: 13px;
   font-weight: 800;
   text-transform: lowercase;
@@ -275,7 +335,7 @@ tbody tr:hover {
 
 .pill.hard {
   background: var(--red);
-  color: #140506;
+  color: var(--pill-hard-text);
 }
 
 .detail-layout {
@@ -288,6 +348,7 @@ tbody tr:hover {
 .problem-topbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 14px;
   margin-bottom: 14px;
 }
@@ -300,7 +361,7 @@ tbody tr:hover {
   min-height: 54px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--line);
-  background: #141519;
+  background: var(--panel-header-bg);
 }
 
 .panel-title {
@@ -353,7 +414,7 @@ tbody tr:hover {
 }
 
 .problem-body p {
-  color: #d9dbe0;
+  color: var(--body-copy);
   line-height: 1.6;
 }
 
@@ -362,7 +423,7 @@ tbody tr:hover {
 .test-list {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #0d0e10;
+  background: var(--inset-bg);
   padding: 14px;
   margin-top: 14px;
 }
@@ -410,8 +471,8 @@ pre {
   min-height: 430px;
   border: 0;
   outline: none;
-  background: #08090b;
-  color: #f7f7f7;
+  background: var(--code-bg);
+  color: var(--code-text);
   line-height: 1.55;
   font-size: 14px;
   tab-size: 4;
@@ -429,7 +490,7 @@ pre {
 
 .results {
   border-top: 1px solid var(--line);
-  background: #0d0e10;
+  background: var(--inset-bg);
   padding: 14px;
   max-height: 330px;
   overflow: auto;
@@ -497,7 +558,7 @@ pre {
 .mini-block {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #090a0c;
+  background: var(--mini-bg);
   padding: 10px;
   min-width: 0;
 }

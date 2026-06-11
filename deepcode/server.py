@@ -12,7 +12,7 @@ from deepcode.problem_store import ProblemStore
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-STATIC_DIR = BASE_DIR / "static"
+FRONTEND_DIR = BASE_DIR / "frontend"
 PROBLEMS_DIR = BASE_DIR / "problems"
 
 
@@ -59,11 +59,11 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
     def _handle_static(self, request_path: str):
         path = request_path.strip("/")
         if not path:
-            file_path = STATIC_DIR / "index.html"
+            file_path = FRONTEND_DIR / "index.html"
         else:
-            file_path = (STATIC_DIR / path).resolve()
-            if not str(file_path).startswith(str(STATIC_DIR.resolve())) or not file_path.exists():
-                file_path = STATIC_DIR / "index.html"
+            file_path = (FRONTEND_DIR / path).resolve()
+            if not str(file_path).startswith(str(FRONTEND_DIR.resolve())) or not file_path.exists():
+                file_path = FRONTEND_DIR / "index.html"
 
         if not file_path.exists():
             self.send_error(404, "Static asset not found")
