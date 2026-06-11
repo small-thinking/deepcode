@@ -122,13 +122,13 @@ For example, `[2.3333, 2.3333]` can match `[2.3333333333, 2.3333333333]`, but a 
 6. Run the test suite:
 
 ```bash
-python3 -m unittest discover -s tests
+uv run python -m unittest discover -s tests
 ```
 
 7. Start the app and solve the new problem once through the browser:
 
 ```bash
-python3 -m deepcode --port 8000
+uv run python -m deepcode --port 8000
 ```
 
 ## Good ML Coding Problem Shape

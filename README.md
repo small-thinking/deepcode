@@ -8,7 +8,7 @@ Think LeetCode for deep learning foundations: matrix operations, metrics, baseli
 
 Requirements:
 
-- Python 3.11 or newer
+- `uv`
 - A browser
 
 Clone the repo and start the local server:
@@ -16,7 +16,8 @@ Clone the repo and start the local server:
 ```bash
 git clone https://github.com/small-thinking/deepcode.git
 cd deepcode
-python3 -m deepcode --port 8000
+./scripts/setup.sh
+uv run python -m deepcode --port 8000
 ```
 
 Open `http://127.0.0.1:8000`.
@@ -34,26 +35,44 @@ Submissions execute on your machine as short-lived Python subprocesses with a ti
 
 ## Local Deployment
 
-DeepCode is a single Python server that serves the static UI and JSON API. No database, account system, or hosted backend is required.
+DeepCode is a single Python server that serves the static UI and JSON API. No database, account system, hosted backend, or web framework is required.
 
 Run on the default loopback host:
 
 ```bash
-python3 -m deepcode
+uv run python -m deepcode
 ```
 
 Run on a custom host and port:
 
 ```bash
-python3 -m deepcode --host 127.0.0.1 --port 8000
+uv run python -m deepcode --host 127.0.0.1 --port 8000
 ```
 
 The editor uses Ace Editor from jsDelivr, so syntax highlighting and editor keybindings require network access the first time the browser loads the editor asset.
 
+## Project Environment
+
+DeepCode uses `uv` to pin and sync the local Python environment. The project currently has no third-party runtime dependencies, but the lockfile keeps development and CI reproducible as ML evaluation dependencies are added later.
+
+Set up or refresh the environment:
+
+```bash
+./scripts/setup.sh
+```
+
+Equivalent direct command:
+
+```bash
+uv sync
+```
+
+The Python version is pinned in `.python-version`, and exact dependency resolution is recorded in `uv.lock`.
+
 ## Run Tests
 
 ```bash
-python3 -m unittest discover -s tests
+uv run python -m unittest discover -s tests
 ```
 
 ## Add Problems
