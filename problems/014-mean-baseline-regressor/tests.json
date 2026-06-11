@@ -1,0 +1,20 @@
+[
+  {
+    "name": "three predictions",
+    "input": "train_y = [1.0, 2.0, 4.0], n_predictions = 3",
+    "test": "print(mean_baseline([1.0, 2.0, 4.0], 3))",
+    "expected_output": "[2.3333, 2.3333, 2.3333]"
+  },
+  {
+    "name": "integer labels",
+    "input": "train_y = [2, 2, 8], n_predictions = 2",
+    "test": "print(mean_baseline([2, 2, 8], 2))",
+    "expected_output": "[4.0, 4.0]"
+  },
+  {
+    "name": "no requested predictions",
+    "input": "train_y = [10, 20], n_predictions = 0",
+    "test": "print(mean_baseline([10, 20], 0))",
+    "expected_output": "[]"
+  }
+]

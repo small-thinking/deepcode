@@ -1,0 +1,87 @@
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from typing import Any
+from urllib.parse import unquote
+
+from deepcode.problem_store import ProblemStore
+from deepcode.runner import run_submission
+
+
+@dataclass(frozen=True)
+class ApiContext:
+    store: ProblemStore
+
+
+def handle_api_request(
+    context: ApiContext,
+    method: str,
+    path: str,
+    query: dict[str, list[str]],
+    body: bytes | None,
+) -> tuple[int, dict[str, Any]]:
+    try:
+        return _handle_api_request(context, method.upper(), path, query, body)
+    except KeyError:
+        return 404, {"error": "Problem not found"}
+    except json.JSONDecodeError:
+        return 400, {"error": "Invalid JSON body"}
+    except ValueError as error:
+        return 400, {"error": str(error)}
+
+
+def _handle_api_request(
+    context: ApiContext,
+    method: str,
+    path: str,
+    query: dict[str, list[str]],
+    body: bytes | None,
+) -> tuple[int, dict[str, Any]]:
+    parts = [unquote(part) for part in path.strip("/").split("/") if part]
+    if parts == ["api", "health"] and method == "GET":
+        return 200, {"status": "ok"}
+
+    if parts == ["api", "problems"] and method == "GET":
+        problems = context.store.list_problems(
+            category=_first(query, "category"),
+            difficulty=_first(query, "difficulty"),
+            search=_first(query, "search"),
+            sort=_first(query, "sort") or "id",
+        )
+        return 200, {
+            "problems": problems,
+            "categories": context.store.categories(),
+            "difficulties": context.store.difficulties(),
+            "total": len(problems),
+        }
+
+    if len(parts) == 3 and parts[:2] == ["api", "problems"] and method == "GET":
+        return 200, {"problem": context.store.get_problem(parts[2])}
+
+    if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "run" and method == "POST":
+        problem = context.store.get_problem(parts[2])
+        payload = json.loads((body or b"{}").decode("utf-8"))
+        code = payload.get("code")
+        if not isinstance(code, str) or not code.strip():
+            raise ValueError("Request body must include non-empty `code`")
+
+        environment = problem.get("environment", {})
+        result = run_submission(
+            code=code,
+            tests=problem.get("tests", []),
+            timeout_seconds=environment.get("timeout_seconds", 2),
+            comparator=environment.get("comparator", "exact"),
+        )
+        return 200, result
+
+    if parts[:2] == ["api", "problems"]:
+        return 405, {"error": "Method not allowed"}
+    return 404, {"error": "Route not found"}
+
+
+def _first(query: dict[str, list[str]], key: str) -> str | None:
+    values = query.get(key)
+    if not values:
+        return None
+    return values[0] or None
