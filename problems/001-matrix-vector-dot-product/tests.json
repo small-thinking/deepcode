@@ -1,0 +1,20 @@
+[
+  {
+    "name": "two rows",
+    "input": "matrix = [[1, 2], [3, 4]], vector = [10, 1]",
+    "test": "print(matrix_vector_dot([[1, 2], [3, 4]], [10, 1]))",
+    "expected_output": "[12, 34]"
+  },
+  {
+    "name": "empty matrix",
+    "input": "matrix = [], vector = [1, 2, 3]",
+    "test": "print(matrix_vector_dot([], [1, 2, 3]))",
+    "expected_output": "[]"
+  },
+  {
+    "name": "shape mismatch",
+    "input": "matrix = [[1, 2, 3], [4, 5]], vector = [1, 1, 1]",
+    "test": "print(matrix_vector_dot([[1, 2, 3], [4, 5]], [1, 1, 1]))",
+    "expected_output": "-1"
+  }
+]

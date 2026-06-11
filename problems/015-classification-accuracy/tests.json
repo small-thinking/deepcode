@@ -1,0 +1,20 @@
+[
+  {
+    "name": "half correct",
+    "input": "y_true = [1, 0, 1, 1], y_pred = [1, 1, 1, 0]",
+    "test": "print(classification_accuracy([1, 0, 1, 1], [1, 1, 1, 0]))",
+    "expected_output": "0.5"
+  },
+  {
+    "name": "all correct strings",
+    "input": "y_true = ['cat', 'dog'], y_pred = ['cat', 'dog']",
+    "test": "print(classification_accuracy(['cat', 'dog'], ['cat', 'dog']))",
+    "expected_output": "1.0"
+  },
+  {
+    "name": "invalid shapes",
+    "input": "y_true = [1, 0], y_pred = [1]",
+    "test": "print(classification_accuracy([1, 0], [1]))",
+    "expected_output": "-1"
+  }
+]

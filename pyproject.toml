@@ -1,0 +1,8 @@
+[project]
+name = "deepcode"
+version = "0.1.0"
+description = "A local, file-backed coding challenge runner for ML-style problems."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
