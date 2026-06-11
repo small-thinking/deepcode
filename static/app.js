@@ -325,10 +325,6 @@ function renderDetail() {
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
       <header class="problem-topbar">
         <button class="ghost-button" id="problem-back-button">← Problems</button>
-        <div class="problem-topbar-title">
-          <strong>${escapeHtml(problem.title)}</strong>
-          <span>#${escapeHtml(problem.id)} · ${escapeHtml(problem.category)} · ${escapeHtml(problem.difficulty)}</span>
-        </div>
       </header>
       <section class="detail-layout">
         <article class="detail-panel">

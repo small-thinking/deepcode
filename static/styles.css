@@ -292,25 +292,6 @@ tbody tr:hover {
   margin-bottom: 14px;
 }
 
-.problem-topbar-title {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.problem-topbar-title strong {
-  font-size: 18px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.problem-topbar-title span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
 .panel-header {
   display: flex;
   align-items: center;
