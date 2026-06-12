@@ -43,6 +43,12 @@ Example:
     "packages": [],
     "comparator": "numeric"
   },
+  "references": [
+    {
+      "label": "scikit-learn DummyRegressor",
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html"
+    }
+  ],
   "evaluation": {
     "type": "ml_coding"
   },
@@ -67,6 +73,7 @@ Recommended fields:
 - `evaluation.type`: Evaluator backend. Omit it or use `ml_coding` for current problems.
 - `environment.timeout_seconds`: Per-test timeout. Keep ML coding tasks short.
 - `environment.comparator`: `exact` or `numeric`.
+- `references`: Optional background links shown on the problem page. Use a list of `{ "label": "...", "url": "https://..." }` objects. URLs must be `http` or `https`.
 - `created_at`: ISO date for review history.
 
 Current limitations:

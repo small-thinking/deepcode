@@ -16,5 +16,29 @@
     "input": "X = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], y = [1.0, 2.0, 3.0], weights = [0.0, 0.0], bias = 0.0, learning_rate = 0.1",
     "test": "import numpy as np\nX = np.asarray([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])\ny = np.asarray([1.0, 2.0, 3.0])\nweights = np.asarray([0.0, 0.0])\nnew_weights, new_bias = linear_regression_step(X, y, weights, 0.0, 0.1)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
     "expected_output": "[[0.2667, 0.3333], 0.4]"
+  },
+  {
+    "name": "plain list inputs",
+    "input": "X = [[2.0, -1.0], [0.0, 3.0]], y = [1.0, -2.0], weights = [0.5, -0.5], bias = -0.25, learning_rate = 0.2",
+    "test": "import numpy as np\nX = [[2.0, -1.0], [0.0, 3.0]]\ny = [1.0, -2.0]\nweights = [0.5, -0.5]\nnew_weights, new_bias = linear_regression_step(X, y, weights, -0.25, 0.2)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
+    "expected_output": "[[0.4, -0.6], -0.35]"
+  },
+  {
+    "name": "does not mutate ndarray weights",
+    "input": "X = [[2.0, -1.0], [0.0, 3.0]], y = [1.0, -2.0], weights = [0.5, -0.5], bias = -0.25, learning_rate = 0.2",
+    "test": "import numpy as np\nX = np.asarray([[2.0, -1.0], [0.0, 3.0]])\ny = np.asarray([1.0, -2.0])\nweights = np.asarray([0.5, -0.5])\nnew_weights, new_bias = linear_regression_step(X, y, weights, -0.25, 0.2)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4), np.round(weights, 4).tolist()])",
+    "expected_output": "[[0.4, -0.6], -0.35, [0.5, -0.5]]"
+  },
+  {
+    "name": "zero features bias only update",
+    "input": "X = [[0.0, 0.0], [0.0, 0.0]], y = [2.0, -4.0], weights = [1.0, -1.0], bias = 0.5, learning_rate = 0.1",
+    "test": "import numpy as np\nX = np.asarray([[0.0, 0.0], [0.0, 0.0]])\ny = np.asarray([2.0, -4.0])\nweights = np.asarray([1.0, -1.0])\nnew_weights, new_bias = linear_regression_step(X, y, weights, 0.5, 0.1)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
+    "expected_output": "[[1.0, -1.0], 0.2]"
+  },
+  {
+    "name": "single sample batch",
+    "input": "X = [[3.0, -2.0]], y = [4.0], weights = [1.0, 2.0], bias = -1.0, learning_rate = 0.1",
+    "test": "import numpy as np\nX = np.asarray([[3.0, -2.0]])\ny = np.asarray([4.0])\nweights = np.asarray([1.0, 2.0])\nnew_weights, new_bias = linear_regression_step(X, y, weights, -1.0, 0.1)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
+    "expected_output": "[[4.6, -0.4], 0.2]"
   }
 ]

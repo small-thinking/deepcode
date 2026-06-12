@@ -19,6 +19,16 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("data-theme", app_js)
         self.assertIn("body[data-theme=\"light\"]", styles_css)
 
+    def test_problem_references_render_as_background_links(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("renderReferences", app_js)
+        self.assertIn('class="reference-list"', app_js)
+        self.assertIn('target="_blank"', app_js)
+        self.assertIn('rel="noopener noreferrer"', app_js)
+        self.assertIn(".reference-list", styles_css)
+
     def test_problem_workspace_has_resizable_pane_hooks(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

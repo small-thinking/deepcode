@@ -490,12 +490,40 @@ body.is-resizing {
 
 .example-box,
 .env-grid,
-.test-list {
+.test-list,
+.reference-list {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--inset-bg);
   padding: 14px;
   margin-top: 14px;
+}
+
+.reference-list {
+  display: grid;
+  gap: 10px;
+}
+
+.reference-list > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reference-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--blue);
+  text-decoration: none;
+  background: var(--mini-bg);
+}
+
+.reference-list a:hover {
+  border-color: var(--blue);
 }
 
 .example-row,

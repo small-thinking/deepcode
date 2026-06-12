@@ -5,12 +5,12 @@
   "category": "Machine Learning",
   "difficulty": "easy",
   "tags": ["metrics", "classification"],
-  "prompt": "Write a function `classification_accuracy(y_true, y_pred)` that returns the fraction of matching labels rounded to four decimal places. If the inputs have different lengths or are empty, return `-1`.",
-  "starter_code": "def classification_accuracy(y_true, y_pred):\n    # Return rounded accuracy, or -1 for invalid input.\n    pass\n",
+  "prompt": "Write a function `classification_accuracy(y_true, y_pred)` for single-label classification. `y_true` and `y_pred` are sequences of labels. If either input is empty or the lengths differ, return `-1`. Otherwise count same-position matches using Python equality (`y_true[i] == y_pred[i]`) and return `round(matches / len(y_true), 4)` as a fraction from `0.0` to `1.0`, not a percentage.",
+  "starter_code": "def classification_accuracy(y_true, y_pred):\n    # Return -1 for empty inputs or length mismatch; otherwise return rounded fraction correct.\n    pass\n",
   "example": {
-    "input": "y_true = [1, 0, 1, 1], y_pred = [1, 1, 1, 0]",
-    "output": "0.5",
-    "reasoning": "Two of four predictions match the labels."
+    "input": "y_true = [0, 1, 2], y_pred = [0, 2, 2]",
+    "output": "0.6667",
+    "reasoning": "Two of three same-position labels match, so accuracy is round(2 / 3, 4)."
   },
   "environment": {
     "language": "python",
@@ -18,5 +18,15 @@
     "packages": [],
     "comparator": "numeric"
   },
+  "references": [
+    {
+      "label": "scikit-learn: accuracy_score",
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html"
+    },
+    {
+      "label": "Wikipedia: Confusion matrix",
+      "url": "https://en.wikipedia.org/wiki/Confusion_matrix"
+    }
+  ],
   "created_at": "2026-06-10"
 }

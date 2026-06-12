@@ -5,12 +5,12 @@
   "category": "Machine Learning",
   "difficulty": "medium",
   "tags": ["numpy", "regression", "optimization"],
-  "prompt": "Write a function `linear_regression_step(X, y, weights, bias, learning_rate)` that performs one full-batch gradient descent update for mean squared error linear regression. Use predictions `X @ weights + bias`, error `predictions - y`, gradients `2 / n * X.T @ error` and `2 / n * sum(error)`, then return `(new_weights, new_bias)`. The function may return `new_weights` as either a NumPy array or a list.",
-  "starter_code": "import numpy as np\n\n\ndef linear_regression_step(X, y, weights, bias, learning_rate):\n    # Convert inputs to NumPy arrays and return one gradient descent update.\n    pass\n",
+  "prompt": "Write a function `linear_regression_step(X, y, weights, bias, learning_rate)` that returns one simultaneous full-batch gradient descent update for ordinary least-squares linear regression using the mean squared error objective `MSE = (1 / n_samples) * sum((X @ weights + bias - y) ** 2)`. Inputs may be Python lists or NumPy arrays. Treat `X` as shape `(n_samples, n_features)`, `y` as shape `(n_samples,)`, `weights` as shape `(n_features,)`, and `bias` and `learning_rate` as numeric scalars. Convert inputs to numeric NumPy arrays as needed, but do not mutate the caller's inputs. Compute `predictions = X @ weights + bias`, `error = predictions - y`, `weight_gradient = (2 / n_samples) * (X.T @ error)`, and `bias_gradient = (2 / n_samples) * error.sum()`. Return `(new_weights, new_bias)`, where `new_weights = weights - learning_rate * weight_gradient` and `new_bias = bias - learning_rate * bias_gradient`. `new_weights` may be either a NumPy array or a list; `new_bias` should be a numeric scalar.",
+  "starter_code": "import numpy as np\n\n\ndef linear_regression_step(X, y, weights, bias, learning_rate):\n    # Return one simultaneous full-batch MSE gradient descent update.\n    pass\n",
   "example": {
     "input": "X = [[1.0, 2.0], [3.0, 4.0]], y = [1.0, 2.0], weights = [0.1, -0.2], bias = 0.3, learning_rate = 0.05",
     "output": "([0.48, 0.34], 0.46)",
-    "reasoning": "The batch gradients are [-7.6, -10.8] for the weights and -3.2 for the bias, so the update adds [0.38, 0.54] to the weights and 0.16 to the bias."
+    "reasoning": "Predictions are [0.0, -0.2], errors are [-1.0, -2.2], and n_samples = 2. The gradients are [-7.6, -10.8] for the weights and -3.2 for the bias, so subtracting learning_rate times each gradient gives weights [0.48, 0.34] and bias 0.46."
   },
   "environment": {
     "language": "python",
@@ -21,5 +21,19 @@
   "evaluation": {
     "type": "ml_coding"
   },
+  "references": [
+    {
+      "label": "NumPy: matmul",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html"
+    },
+    {
+      "label": "scikit-learn: mean_squared_error",
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"
+    },
+    {
+      "label": "scikit-learn: SGD overview",
+      "url": "https://scikit-learn.org/stable/modules/sgd.html"
+    }
+  ],
   "created_at": "2026-06-12"
 }

@@ -16,5 +16,35 @@
     "input": "train_y = [10, 20], n_predictions = 0",
     "test": "print(mean_baseline([10, 20], 0))",
     "expected_output": "[]"
+  },
+  {
+    "name": "rounds repeating decimal mean",
+    "input": "train_y = [1, 2, 2], n_predictions = 2",
+    "test": "print(mean_baseline([1, 2, 2], 2))",
+    "expected_output": "[1.6667, 1.6667]"
+  },
+  {
+    "name": "negative targets",
+    "input": "train_y = [-3.0, -1.0, 2.0], n_predictions = 3",
+    "test": "print(mean_baseline([-3.0, -1.0, 2.0], 3))",
+    "expected_output": "[-0.6667, -0.6667, -0.6667]"
+  },
+  {
+    "name": "empty training targets",
+    "input": "train_y = [], n_predictions = 2",
+    "test": "print(mean_baseline([], 2))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "negative prediction count",
+    "input": "train_y = [1.0, 2.0], n_predictions = -1",
+    "test": "print(mean_baseline([1.0, 2.0], -1))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "zero predictions with empty training targets",
+    "input": "train_y = [], n_predictions = 0",
+    "test": "print(mean_baseline([], 0))",
+    "expected_output": "[]"
   }
 ]
