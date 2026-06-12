@@ -32,6 +32,8 @@
   --pill-text: #08100b;
   --pill-hard-text: #140506;
   --shadow: 0 20px 80px rgba(0, 0, 0, 0.32);
+  --page-gutter: clamp(16px, 2vw, 32px);
+  --page-max-width: 1440px;
 }
 
 body[data-theme="light"] {
@@ -98,9 +100,14 @@ button {
 }
 
 .page {
-  width: min(1440px, 100%);
+  width: calc(100% - var(--page-gutter) - var(--page-gutter));
+  max-width: var(--page-max-width);
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 0;
+}
+
+.page-detail {
+  max-width: none;
 }
 
 .topbar {
@@ -778,7 +785,7 @@ pre {
 
 @media (max-width: 920px) {
   .page {
-    padding: 16px;
+    padding: 16px 0;
   }
 
   .topbar,

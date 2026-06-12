@@ -90,6 +90,18 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".problem-test-case", styles_css)
         self.assertIn(".problem-meta-grid", styles_css)
 
+    def test_detail_workspace_uses_responsive_full_width_layout(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('<main class="page page-detail">', app_js)
+        self.assertIn("--page-gutter", styles_css)
+        self.assertIn("--page-max-width", styles_css)
+        self.assertIn("width: calc(100% - var(--page-gutter) - var(--page-gutter))", styles_css)
+        self.assertIn("max-width: var(--page-max-width)", styles_css)
+        self.assertIn(".page-detail", styles_css)
+        self.assertIn("max-width: none", styles_css)
+
     def test_ui_uses_codex_like_system_fonts(self):
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
