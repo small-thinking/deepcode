@@ -12,15 +12,21 @@ const state = {
   },
   selected: null,
   activeTab: "description",
+  activeResultIndex: 0,
   runResult: null,
   error: null,
   loading: true,
   running: false,
   theme: initialTheme(),
+  layout: {
+    problemRatio: 0.46,
+    resultsRatio: 0.32,
+  },
 };
 
 const app = document.querySelector("#app");
 let codeEditor = null;
+let activePaneResize = null;
 
 function initialTheme() {
   const stored = localStorage.getItem(THEME_KEY);
@@ -90,6 +96,99 @@ function markdownLite(value) {
     .replace(/\n/g, "<br>");
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function percent(value) {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function paneLayoutStyle() {
+  return `style="--problem-pane-width: ${percent(state.layout.problemRatio)}; --results-pane-height: ${percent(
+    state.layout.resultsRatio
+  )};"`;
+}
+
+function applyPaneSizes() {
+  const layout = document.querySelector(".detail-layout");
+  if (!layout) return;
+  layout.style.setProperty("--problem-pane-width", percent(state.layout.problemRatio));
+  layout.style.setProperty("--results-pane-height", percent(state.layout.resultsRatio));
+  codeEditor?.resize();
+}
+
+function startPaneResize(event) {
+  const handle = event.currentTarget;
+  activePaneResize = handle.dataset.resizeHandle;
+  document.body.classList.add("is-resizing");
+  handle.setPointerCapture?.(event.pointerId);
+  window.addEventListener("pointermove", updatePaneResize);
+  window.addEventListener("pointerup", stopPaneResize, { once: true });
+  updatePaneResize(event);
+  event.preventDefault();
+}
+
+function updatePaneResize(event) {
+  if (!activePaneResize) return;
+
+  if (activePaneResize === "problem-code") {
+    const layout = document.querySelector(".detail-layout");
+    if (!layout) return;
+    const rect = layout.getBoundingClientRect();
+    state.layout.problemRatio = clamp((event.clientX - rect.left) / rect.width, 0.28, 0.68);
+  }
+
+  if (activePaneResize === "code-results") {
+    const panel = document.querySelector(".editor-panel");
+    if (!panel) return;
+    const rect = panel.getBoundingClientRect();
+    const headerHeight = panel.querySelector(".panel-header")?.getBoundingClientRect().height ?? 0;
+    const usableHeight = Math.max(1, rect.height - headerHeight);
+    state.layout.resultsRatio = clamp((rect.bottom - event.clientY) / usableHeight, 0.18, 0.62);
+  }
+
+  applyPaneSizes();
+}
+
+function stopPaneResize() {
+  activePaneResize = null;
+  document.body.classList.remove("is-resizing");
+  window.removeEventListener("pointermove", updatePaneResize);
+}
+
+function handlePaneResizeKeydown(event) {
+  const handle = event.currentTarget;
+  const step = event.shiftKey ? 0.05 : 0.025;
+  let handled = false;
+
+  if (handle.dataset.resizeHandle === "problem-code") {
+    if (event.key === "ArrowLeft") {
+      state.layout.problemRatio = clamp(state.layout.problemRatio - step, 0.28, 0.68);
+      handled = true;
+    }
+    if (event.key === "ArrowRight") {
+      state.layout.problemRatio = clamp(state.layout.problemRatio + step, 0.28, 0.68);
+      handled = true;
+    }
+  }
+
+  if (handle.dataset.resizeHandle === "code-results") {
+    if (event.key === "ArrowUp") {
+      state.layout.resultsRatio = clamp(state.layout.resultsRatio + step, 0.18, 0.62);
+      handled = true;
+    }
+    if (event.key === "ArrowDown") {
+      state.layout.resultsRatio = clamp(state.layout.resultsRatio - step, 0.18, 0.62);
+      handled = true;
+    }
+  }
+
+  if (!handled) return;
+  event.preventDefault();
+  applyPaneSizes();
+}
+
 function paramsFromFilters() {
   const params = new URLSearchParams();
   Object.entries(state.filters).forEach(([key, value]) => {
@@ -119,6 +218,7 @@ async function loadProblems() {
 async function loadProblem(identifier) {
   state.error = null;
   state.runResult = null;
+  state.activeResultIndex = 0;
   state.loading = true;
   render();
   try {
@@ -211,6 +311,7 @@ async function runTests() {
   saveCode(code);
   state.running = true;
   state.runResult = null;
+  state.activeResultIndex = 0;
   state.error = null;
   render();
   try {
@@ -230,6 +331,7 @@ function resetCode() {
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), state.selected.starter_code || "");
   state.runResult = null;
+  state.activeResultIndex = 0;
   render();
 }
 
@@ -242,6 +344,7 @@ function randomProblem() {
 function backToList() {
   state.selected = null;
   state.runResult = null;
+  state.activeResultIndex = 0;
   state.error = null;
   location.hash = "";
   render();
@@ -260,6 +363,7 @@ function render() {
   }
   bindEvents();
   mountEditor();
+  applyPaneSizes();
 }
 
 function renderList() {
@@ -370,7 +474,7 @@ function renderDetail() {
         <button class="ghost-button" id="problem-back-button">← Problems</button>
         ${themeToggleButton()}
       </header>
-      <section class="detail-layout">
+      <section class="detail-layout" ${paneLayoutStyle()}>
         <article class="detail-panel">
           <div class="panel-header">
             <div class="panel-title">
@@ -386,6 +490,15 @@ function renderDetail() {
           <div class="problem-body">${renderProblemTab(problem, env)}</div>
         </article>
 
+        <div
+          class="pane-resizer problem-code-resizer"
+          data-resize-handle="problem-code"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize problem and editor panes"
+          tabindex="0"
+        ></div>
+
         <section class="editor-panel">
           <div class="panel-header">
             <div class="editor-actions">
@@ -395,8 +508,20 @@ function renderDetail() {
               ${state.running ? "Running..." : "Run tests"}
             </button>
           </div>
-          <div id="code-editor" class="code-editor ace-editor"></div>
-          <textarea id="code-editor-fallback" class="code-editor fallback-editor" spellcheck="false">${escapeHtml(currentCode())}</textarea>
+          <div class="code-pane">
+            <div id="code-editor" class="code-editor ace-editor"></div>
+            <textarea id="code-editor-fallback" class="code-editor fallback-editor" spellcheck="false">${escapeHtml(
+              currentCode()
+            )}</textarea>
+          </div>
+          <div
+            class="pane-resizer code-results-resizer"
+            data-resize-handle="code-results"
+            role="separator"
+            aria-orientation="horizontal"
+            aria-label="Resize editor and results panes"
+            tabindex="0"
+          ></div>
           <div class="results">${renderResults()}</div>
         </section>
       </section>
@@ -466,18 +591,24 @@ function renderResults() {
   }
 
   const result = state.runResult;
-  const items = result.results
+  const results = result.results || [];
+  const activeIndex = results.length ? clamp(Number(state.activeResultIndex) || 0, 0, results.length - 1) : 0;
+  const tabs = results
     .map(
-      (item) => `
-    <div class="result-item ${item.passed ? "pass" : "fail"}">
-      <h4><span class="status-dot"></span>${escapeHtml(item.name || "test")}</h4>
-      <div class="mini-block result-input"><span>Input</span><pre>${escapeHtml(item.input || item.test || "")}</pre></div>
-      <div class="result-columns">
-        <div class="mini-block"><span>Expected</span><pre>${escapeHtml(item.expected_output)}</pre></div>
-        <div class="mini-block"><span>Actual</span><pre>${escapeHtml(item.actual_output)}</pre></div>
-      </div>
-    </div>
-  `
+      (item, index) => `
+        <button
+          class="result-tab ${index === activeIndex ? "active" : ""} ${item.passed ? "pass" : "fail"}"
+          type="button"
+          role="tab"
+          id="result-tab-${index}"
+          aria-selected="${index === activeIndex}"
+          aria-controls="result-case-${index}"
+          data-result-index="${index}"
+        >
+          <span class="status-dot"></span>
+          <span>${escapeHtml(item.name || `Case ${index + 1}`)}</span>
+        </button>
+      `
     )
     .join("");
 
@@ -486,7 +617,28 @@ function renderResults() {
       <strong>${escapeHtml(result.status)}</strong>
       <span>${result.passed} / ${result.total} passed</span>
     </div>
-    ${items}
+    <div class="result-tabs" role="tablist" aria-label="Test cases">${tabs}</div>
+    ${renderResultCase(results[activeIndex], activeIndex)}
+  `;
+}
+
+function renderResultCase(item, index) {
+  if (!item) return "";
+
+  return `
+    <div
+      class="result-case ${item.passed ? "pass" : "fail"}"
+      role="tabpanel"
+      id="result-case-${index}"
+      aria-labelledby="result-tab-${index}"
+    >
+      <h4><span class="status-dot"></span>${escapeHtml(item.name || "test")}</h4>
+      <div class="mini-block result-input"><span>Input</span><pre>${escapeHtml(item.input || item.test || "")}</pre></div>
+      <div class="result-columns">
+        <div class="mini-block"><span>Expected</span><pre>${escapeHtml(item.expected_output)}</pre></div>
+        <div class="mini-block"><span>Actual</span><pre>${escapeHtml(item.actual_output)}</pre></div>
+      </div>
+    </div>
   `;
 }
 
@@ -510,6 +662,17 @@ function bindEvents() {
     tab.addEventListener("click", () => {
       saveCode(editorCode());
       state.activeTab = tab.dataset.tab;
+      render();
+    });
+  });
+  document.querySelectorAll("[data-resize-handle]").forEach((handle) => {
+    handle.addEventListener("pointerdown", startPaneResize);
+    handle.addEventListener("keydown", handlePaneResizeKeydown);
+  });
+  document.querySelectorAll(".result-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      saveCode(editorCode());
+      state.activeResultIndex = Number(tab.dataset.resultIndex) || 0;
       render();
     });
   });
