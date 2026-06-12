@@ -271,6 +271,30 @@ class ProblemStoreTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "missing `test`"):
                 ProblemStore(root).get_problem("modeling")
 
+    def test_rejects_ml_torch_modeling_tests_without_check_script(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "torch-modeling",
+                {
+                    "id": "104",
+                    "slug": "torch-modeling",
+                    "title": "Torch Modeling",
+                    "category": "Transformers",
+                    "difficulty": "hard",
+                    "prompt": "Debug a module.",
+                    "starter_code": "class Module:\n    pass\n",
+                    "example": {"input": "x", "output": "y", "reasoning": "Toy example."},
+                    "evaluation": {"type": "ml_torch_modeling"},
+                    "environment": {"language": "python", "timeout_seconds": 10, "packages": ["torch"]},
+                },
+                [{"name": "missing script"}],
+            )
+
+            with self.assertRaisesRegex(ValueError, "missing `test`"):
+                ProblemStore(root).get_problem("torch-modeling")
+
     def _write_problem(self, root, folder, problem, tests):
         problem_dir = root / folder
         problem_dir.mkdir()

@@ -111,6 +111,19 @@ object state, metrics, seeded randomness, or statistical ranges instead of
 matching stdout. Modeling cases may omit `expected_output`; the evaluator shows
 `All assertions pass` by default.
 
+PyTorch modeling and debugging problems should use `ml_torch_modeling`:
+
+```json
+"evaluation": {
+  "type": "ml_torch_modeling"
+}
+```
+
+`ml_torch_modeling` uses the same assertion-style checks as `ml_modeling`, but
+the problem metadata should list `torch` in `environment.packages`. Keep these
+checks CPU-friendly: tiny tensors, seeded randomness when needed, and no long
+training loops.
+
 Modeling problems may also declare local data and artifact folders:
 
 ```json
@@ -164,6 +177,11 @@ Required fields for `ml_modeling`:
 
 - `test`: Python code that exercises the user's model with assertions. A passing
   process exit means the case passed.
+
+Required fields for `ml_torch_modeling`:
+
+- `test`: Python code that exercises the user's PyTorch code with assertions. A
+  passing process exit means the case passed.
 
 Recommended test fields:
 
@@ -225,6 +243,8 @@ Good current-scope problems are deterministic and fast:
 - Metrics such as accuracy, precision, recall, mean squared error, and cross entropy.
 - Simple baselines such as majority-class prediction or mean regression.
 - Small NumPy-backed updates such as one gradient descent step or array reshaping.
+- Small PyTorch debugging tasks such as attention masks, tensor reshapes, loss
+  functions, and compact module behavior.
 - Data splitting, batching, token counting, padding, masking, and top-k selection.
 
 Avoid hidden randomness, long training loops, external downloads, large datasets, and undeclared dependencies until the runner explicitly supports those evaluation modes.

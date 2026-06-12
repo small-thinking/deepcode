@@ -44,6 +44,38 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertEqual(result["results"][0]["expected_output"], "All assertions pass")
         self.assertEqual(result["results"][0]["actual_output"], "ok")
 
+    def test_dispatches_ml_torch_modeling_assertion_checks(self):
+        self.assertEqual(get_evaluator("ml_torch_modeling").name, "ml_torch_modeling")
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=(
+                    "import torch\n\n"
+                    "def double_tensor(values):\n"
+                    "    return torch.tensor(values, dtype=torch.float32) * 2\n"
+                ),
+                problem={"evaluation": {"type": "ml_torch_modeling"}},
+                tests=[
+                    {
+                        "name": "tiny torch tensor behavior",
+                        "input": "values = [1.0, -2.0, 0.5]",
+                        "test": (
+                            "import torch\n"
+                            "actual = double_tensor([1.0, -2.0, 0.5])\n"
+                            "expected = torch.tensor([2.0, -4.0, 1.0])\n"
+                            "assert torch.allclose(actual, expected)\n"
+                            "print('ok')\n"
+                        ),
+                    }
+                ],
+                environment={"timeout_seconds": 10, "packages": ["torch"]},
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], 1)
+        self.assertEqual(result["results"][0]["actual_output"], "ok")
+
     def test_ml_modeling_normalizes_mixed_tab_indentation(self):
         result = evaluate_submission(
             EvaluationRequest(
