@@ -1,4 +1,4 @@
-name: Tests
+name: Quality Gate
 
 on:
   push:
@@ -6,7 +6,45 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
+  repository-hygiene:
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository without LFS smudge
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Verify no whitespace errors
+        run: git diff --check
+
+      - name: Verify no tracked platform files
+        run: |
+          tracked_platform_files=$(git ls-files .DS_Store '*/.DS_Store')
+          if [ -n "$tracked_platform_files" ]; then
+            echo "$tracked_platform_files"
+            echo "Tracked .DS_Store files are not allowed."
+            exit 1
+          fi
+
+      - name: Verify architecture image is stored with Git LFS
+        run: |
+          git check-attr filter -- docs/assets/deepcode-local-architecture.png
+          git check-attr filter -- docs/assets/deepcode-local-architecture.png | grep 'filter: lfs'
+          test "$(git cat-file -s HEAD:docs/assets/deepcode-local-architecture.png)" -lt 1000
+
+      - name: Verify README architecture image target exists
+        run: test -f docs/assets/deepcode-local-architecture.png
+
   unittest:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
