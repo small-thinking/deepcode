@@ -537,7 +537,7 @@ function renderDetail() {
   const problem = state.selected;
   const env = problem.environment || {};
   app.innerHTML = `
-    <main class="page">
+    <main class="page page-detail">
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
       <header class="problem-topbar">
         <button class="ghost-button" id="problem-back-button">← Problems</button>
