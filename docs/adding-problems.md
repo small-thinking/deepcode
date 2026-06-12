@@ -72,7 +72,8 @@ Recommended fields:
 Current limitations:
 
 - `language` should be `python`.
-- `packages` is reserved for future dependency handling. Current problems should rely on the Python standard library.
+- Current problems may rely on dependencies declared in `pyproject.toml`. NumPy is available by default.
+- `packages` documents the packages a problem expects, but the runner does not install per-problem dependencies yet.
 - The runner evaluates printed output from test snippets.
 
 ## Evaluator Types
@@ -180,11 +181,12 @@ uv run python -m deepcode --port 8000
 
 ## Good ML Coding Problem Shape
 
-Good current-scope problems are pure Python, deterministic, and fast:
+Good current-scope problems are deterministic and fast:
 
 - Linear algebra primitives such as dot products, matrix-vector products, and normalization.
 - Metrics such as accuracy, precision, recall, mean squared error, and cross entropy.
 - Simple baselines such as majority-class prediction or mean regression.
+- Small NumPy-backed updates such as one gradient descent step or array reshaping.
 - Data splitting, batching, token counting, padding, masking, and top-k selection.
 
-Avoid hidden randomness, long training loops, external downloads, large datasets, and dependencies until the runner explicitly supports those evaluation modes.
+Avoid hidden randomness, long training loops, external downloads, large datasets, and undeclared dependencies until the runner explicitly supports those evaluation modes.

@@ -1,0 +1,25 @@
+{
+  "id": "16",
+  "slug": "linear-regression-gradient-step",
+  "title": "Linear Regression Gradient Step",
+  "category": "Machine Learning",
+  "difficulty": "medium",
+  "tags": ["numpy", "regression", "optimization"],
+  "prompt": "Write a function `linear_regression_step(X, y, weights, bias, learning_rate)` that performs one full-batch gradient descent update for mean squared error linear regression. Use predictions `X @ weights + bias`, error `predictions - y`, gradients `2 / n * X.T @ error` and `2 / n * sum(error)`, then return `(new_weights, new_bias)`. The function may return `new_weights` as either a NumPy array or a list.",
+  "starter_code": "import numpy as np\n\n\ndef linear_regression_step(X, y, weights, bias, learning_rate):\n    # Convert inputs to NumPy arrays and return one gradient descent update.\n    pass\n",
+  "example": {
+    "input": "X = [[1.0, 2.0], [3.0, 4.0]], y = [1.0, 2.0], weights = [0.1, -0.2], bias = 0.3, learning_rate = 0.05",
+    "output": "([0.48, 0.34], 0.46)",
+    "reasoning": "The batch gradients are [-7.6, -10.8] for the weights and -3.2 for the bias, so the update adds [0.38, 0.54] to the weights and 0.16 to the bias."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": ["numpy"],
+    "comparator": "numeric"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-06-12"
+}
