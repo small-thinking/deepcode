@@ -593,6 +593,26 @@ body.is-resizing {
   min-width: 0;
 }
 
+.test-case-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.test-case-heading strong {
+  min-width: 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.run-case-button {
+  min-height: 32px;
+  min-width: 64px;
+  flex: 0 0 auto;
+}
+
 .reference-list {
   display: flex;
   flex-wrap: wrap;

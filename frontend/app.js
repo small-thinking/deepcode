@@ -23,6 +23,7 @@ const state = {
   runResult: null,
   runStartedAt: null,
   runElapsedSeconds: 0,
+  runningTestIndex: null,
   error: null,
   loading: true,
   running: false,
@@ -372,7 +373,7 @@ function mountEditor() {
   codeEditor.commands.addCommand({
     name: "runTests",
     bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
-    exec: runTests,
+    exec: () => runTests(),
   });
 }
 
@@ -397,14 +398,17 @@ function updateRunElapsed() {
   if (elapsed) elapsed.textContent = `${state.runElapsedSeconds}s elapsed`;
 }
 
-async function runTests() {
+async function runTests(testIndex = null) {
   if (!state.selected) return;
   const code = normalizePythonIndentation(editorCode());
   setEditorCode(code);
   saveCode(code);
+  const payload = { code };
+  if (Number.isInteger(testIndex)) payload.test_index = testIndex;
   state.running = true;
   state.runResult = null;
   state.activeResultIndex = 0;
+  state.runningTestIndex = Number.isInteger(testIndex) ? testIndex : null;
   state.error = null;
   startRunTimer();
   render();
@@ -412,7 +416,7 @@ async function runTests() {
   try {
     state.runResult = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/run`, {
       method: "POST",
-      body: JSON.stringify({ code }),
+      body: JSON.stringify(payload),
     });
     if (state.runResult.problem_status) {
       syncProblemStatus(state.selected.slug, state.runResult.problem_status);
@@ -423,6 +427,7 @@ async function runTests() {
     stopRunTimer();
     state.running = false;
     state.runStartedAt = null;
+    state.runningTestIndex = null;
     render();
   }
 }
@@ -616,7 +621,7 @@ function renderDetail() {
   const runButtonState = state.running ? "disabled" : "";
   const runButtonContent = state.running
     ? `<span class="button-spinner" aria-hidden="true"></span><span>Running checks</span>`
-    : "Run tests";
+    : "Run all tests";
   app.innerHTML = `
     <main class="page page-detail">
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
@@ -739,7 +744,17 @@ function renderProblemTests(tests) {
     .map(
       (test, index) => `
         <div class="mini-block problem-test-case">
-          <span>${escapeHtml(test.name || `Test ${index + 1}`)}</span>
+          <div class="test-case-heading">
+            <strong>${escapeHtml(test.name || `Test ${index + 1}`)}</strong>
+            <button
+              class="ghost-button run-case-button"
+              type="button"
+              data-run-test-index="${index}"
+              ${state.running ? "disabled" : ""}
+            >
+              Run
+            </button>
+          </div>
           <div class="test-detail-grid">
             <div>
               <span>Input</span>
@@ -844,14 +859,20 @@ function renderResults() {
 }
 
 function renderRunningResults() {
-  const testCount = state.selected?.tests?.length || 0;
+  const selectedTest = Number.isInteger(state.runningTestIndex)
+    ? state.selected?.tests?.[state.runningTestIndex]
+    : null;
+  const testCount = selectedTest ? 1 : state.selected?.tests?.length || 0;
   const countLabel = testCount === 1 ? "1 visible check" : `${testCount} visible checks`;
+  const targetLabel = selectedTest
+    ? `Test ${state.runningTestIndex + 1}: ${selectedTest.name || "visible check"}`
+    : countLabel;
   return `
     <div class="running-results" aria-live="polite" aria-busy="true">
       <span class="run-spinner" aria-hidden="true"></span>
       <div>
         <strong>Running checks...</strong>
-        <p><span id="run-elapsed">${state.runElapsedSeconds}s elapsed</span> · ${countLabel} running locally</p>
+        <p><span id="run-elapsed">${state.runElapsedSeconds}s elapsed</span> · ${escapeHtml(targetLabel)} running locally</p>
       </div>
     </div>
   `;
@@ -912,7 +933,10 @@ function bindEvents() {
     });
   });
   document.querySelector("#problem-back-button")?.addEventListener("click", backToList);
-  document.querySelector("#run-tests")?.addEventListener("click", runTests);
+  document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
+  document.querySelectorAll("[data-run-test-index]").forEach((button) => {
+    button.addEventListener("click", () => runTests(Number(button.dataset.runTestIndex)));
+  });
   document.querySelector("#reset-code")?.addEventListener("click", resetCode);
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));
 }

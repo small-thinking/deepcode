@@ -78,6 +78,19 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("const code = normalizePythonIndentation(editorCode())", app_js)
         self.assertIn("setEditorCode(code)", app_js)
 
+    def test_visible_tests_can_run_individually(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("async function runTests(testIndex = null)", app_js)
+        self.assertIn("Number.isInteger(testIndex)", app_js)
+        self.assertIn("payload.test_index = testIndex", app_js)
+        self.assertIn('data-run-test-index="${index}"', app_js)
+        self.assertIn("runTests(Number(button.dataset.runTestIndex))", app_js)
+        self.assertIn("Run all tests", app_js)
+        self.assertIn(".test-case-heading", styles_css)
+        self.assertIn(".run-case-button", styles_css)
+
     def test_returning_from_direct_detail_load_refreshes_problem_catalog(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         back_to_list = app_js.split("function backToList() {", maxsplit=1)[1].split(
