@@ -1,0 +1,32 @@
+{
+  "id": "102",
+  "slug": "source-attribution-highlighter",
+  "title": "Source Attribution Highlighter",
+  "category": "NLP Processing",
+  "difficulty": "medium",
+  "tags": ["nlp", "string-processing", "intervals", "citation"],
+  "prompt": "Implement `highlight_sources(document, sources)` for a source-attribution highlighter.\n\nFind every exact, case-sensitive occurrence of each source in `document`, but only when the source appears as a complete token or phrase. A match is invalid if the character immediately before or after it is a word character (`str.isalnum()` or `_`). For example, source `aa` does not match inside `aaaa`.\n\nReturn `(tagged_document, counts, citations)`:\n- `tagged_document` is the original document with merged matched spans wrapped in `<yellow>` and `</yellow>`.\n- `counts` maps every source string to its number of valid occurrences.\n- `citations` has one entry per highlighted span, in document order. Each entry is a sorted list of source strings that contributed to that merged span.\n\nIf matched spans overlap or touch, merge them into one highlighted span and combine their citation sources. Empty source strings should be ignored for matching and counted as `0` if present in `sources`.",
+  "starter_code": "def highlight_sources(document, sources):\n    # Return (tagged_document, counts, citations) for exact whole-token source matches.\n    pass\n",
+  "example": {
+    "input": "document = \"Harvey cites alpha and beta.\"; sources = [\"Harvey\", \"alpha\", \"beta\"]",
+    "output": "(\"<yellow>Harvey</yellow> cites <yellow>alpha</yellow> and <yellow>beta</yellow>.\", {\"Harvey\": 1, \"alpha\": 1, \"beta\": 1}, [[\"Harvey\"], [\"alpha\"], [\"beta\"]])",
+    "reasoning": "Each source appears as a complete token, so each span is highlighted and cited separately."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "references": [
+    {
+      "label": "Python: str.find",
+      "url": "https://docs.python.org/3/library/stdtypes.html#str.find"
+    },
+    {
+      "label": "Python: str.isalnum",
+      "url": "https://docs.python.org/3/library/stdtypes.html#str.isalnum"
+    }
+  ],
+  "created_at": "2026-06-12"
+}

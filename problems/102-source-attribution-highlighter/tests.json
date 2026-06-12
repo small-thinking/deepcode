@@ -1,0 +1,50 @@
+[
+  {
+    "name": "separate whole-token matches",
+    "input": "document = 'Harvey cites alpha and beta.'; sources = ['Harvey', 'alpha', 'beta']",
+    "test": "print(highlight_sources('Harvey cites alpha and beta.', ['Harvey', 'alpha', 'beta']))",
+    "expected_output": "('<yellow>Harvey</yellow> cites <yellow>alpha</yellow> and <yellow>beta</yellow>.', {'Harvey': 1, 'alpha': 1, 'beta': 1}, [['Harvey'], ['alpha'], ['beta']])"
+  },
+  {
+    "name": "substring inside token is not a match",
+    "input": "document = 'aaaa'; sources = ['aa']",
+    "test": "print(highlight_sources('aaaa', ['aa']))",
+    "expected_output": "('aaaa', {'aa': 0}, [])"
+  },
+  {
+    "name": "counts repeated token occurrences",
+    "input": "document = 'aa aa, aa.'; sources = ['aa']",
+    "test": "print(highlight_sources('aa aa, aa.', ['aa']))",
+    "expected_output": "('<yellow>aa</yellow> <yellow>aa</yellow>, <yellow>aa</yellow>.', {'aa': 3}, [['aa'], ['aa'], ['aa']])"
+  },
+  {
+    "name": "merges overlapping source intervals",
+    "input": "document = 'New York City office'; sources = ['New York', 'York City']",
+    "test": "print(highlight_sources('New York City office', ['New York', 'York City']))",
+    "expected_output": "('<yellow>New York City</yellow> office', {'New York': 1, 'York City': 1}, [['New York', 'York City']])"
+  },
+  {
+    "name": "punctuation separates adjacent matches",
+    "input": "document = 'alpha-beta'; sources = ['alpha', 'beta']",
+    "test": "print(highlight_sources('alpha-beta', ['alpha', 'beta']))",
+    "expected_output": "('<yellow>alpha</yellow>-<yellow>beta</yellow>', {'alpha': 1, 'beta': 1}, [['alpha'], ['beta']])"
+  },
+  {
+    "name": "case-sensitive exact match",
+    "input": "document = 'Harvey harvey HARVEY'; sources = ['Harvey', 'harvey']",
+    "test": "print(highlight_sources('Harvey harvey HARVEY', ['Harvey', 'harvey']))",
+    "expected_output": "('<yellow>Harvey</yellow> <yellow>harvey</yellow> HARVEY', {'Harvey': 1, 'harvey': 1}, [['Harvey'], ['harvey']])"
+  },
+  {
+    "name": "underscore keeps substring inside token invalid",
+    "input": "document = 'source_id source'; sources = ['source']",
+    "test": "print(highlight_sources('source_id source', ['source']))",
+    "expected_output": "('source_id <yellow>source</yellow>', {'source': 1}, [['source']])"
+  },
+  {
+    "name": "empty document and empty source",
+    "input": "document = ''; sources = ['', 'alpha']",
+    "test": "print(highlight_sources('', ['', 'alpha']))",
+    "expected_output": "('', {'': 0, 'alpha': 0}, [])"
+  }
+]
