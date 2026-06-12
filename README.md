@@ -51,6 +51,10 @@ uv run python -m deepcode --host 127.0.0.1 --port 8000
 
 The editor uses Ace Editor from jsDelivr, so syntax highlighting and editor keybindings require network access the first time the browser loads the editor asset.
 
+## Architecture
+
+See [docs/architecture.md](docs/architecture.md) for the local system architecture chart and maintainer diagram.
+
 ## Project Layout
 
 - `deepcode/`: backend server, API routing, problem loading, and local code runner.
