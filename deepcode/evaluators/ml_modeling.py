@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -12,6 +13,12 @@ from deepcode.evaluators.ml_coding import _build_script, _resource_limiter, _run
 
 
 ResourceLimiterFactory = Callable[[], Callable[[], None]]
+_TRACEBACK_HEADER = "Traceback (most recent call last):"
+_TRACEBACK_FRAME_RE = re.compile(
+    r'^(?P<indent>\s*)File "(?P<path>[^"]+)", line (?P<line>\d+), in (?P<context>.+)$'
+)
+_SUBMISSION_SCRIPT_NAMES = {"submission_check.py", "submission_test.py"}
+_SUBMISSION_PATH_RE = re.compile(r'File "[^"]*[\\/](submission_(?:check|test)\.py)"')
 
 
 class MlModelingEvaluator:
@@ -110,7 +117,70 @@ def _modeling_env(runtime: dict[str, Any]) -> dict[str, str]:
 
 def _format_output(returncode: int, stdout: str, stderr: str) -> str:
     if returncode != 0:
-        return stderr or stdout or f"Process exited with code {returncode}"
+        return _format_failure_output(stderr) or stdout or f"Process exited with code {returncode}"
     if stderr:
         return f"{stdout}\n{stderr}".strip()
     return stdout
+
+
+def _format_failure_output(stderr: str) -> str:
+    return _strip_internal_traceback_frames(stderr)
+
+
+def _strip_internal_traceback_frames(stderr: str) -> str:
+    lines = stderr.splitlines()
+    if not lines:
+        return stderr
+    if lines[0] != _TRACEBACK_HEADER:
+        return _rewrite_submission_paths(stderr)
+
+    output = [lines[0]]
+    kept_frame = False
+    index = 1
+    while index < len(lines):
+        frame_match = _TRACEBACK_FRAME_RE.match(lines[index])
+        if not frame_match:
+            output.extend(lines[index:])
+            break
+
+        frame_lines = [_format_traceback_frame(frame_match)]
+        index += 1
+        while (
+            index < len(lines)
+            and not _TRACEBACK_FRAME_RE.match(lines[index])
+            and _is_frame_context_line(lines[index])
+        ):
+            frame_lines.append(lines[index])
+            index += 1
+
+        if _is_submission_script(frame_match.group("path")):
+            output.extend(frame_lines)
+            kept_frame = True
+
+    if not kept_frame:
+        return _rewrite_submission_paths(stderr)
+    return "\n".join(output)
+
+
+def _format_traceback_frame(frame_match: re.Match[str]) -> str:
+    script_name = _path_basename(frame_match.group("path"))
+    return (
+        f'{frame_match.group("indent")}File "{script_name}", '
+        f'line {frame_match.group("line")}, in {frame_match.group("context")}'
+    )
+
+
+def _is_frame_context_line(line: str) -> bool:
+    return line.startswith("    ")
+
+
+def _is_submission_script(path: str) -> bool:
+    return _path_basename(path) in _SUBMISSION_SCRIPT_NAMES
+
+
+def _path_basename(path: str) -> str:
+    return path.replace("\\", "/").rsplit("/", 1)[-1]
+
+
+def _rewrite_submission_paths(output: str) -> str:
+    return _SUBMISSION_PATH_RE.sub(r'File "\1"', output)

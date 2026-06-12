@@ -59,7 +59,9 @@ submission. The snippet should use `assert` statements and may print a short
 diagnostic. A case passes when the script exits with code 0. Assertion failures,
 exceptions, and timeouts are reported per case without stopping later cases.
 Submitted code gets the same leading-tab indentation normalization as
-`ml_coding`.
+`ml_coding`. Runtime tracebacks are trimmed to the generated submission script
+frames so users see the relevant failing check and implementation line without
+temporary runner paths or framework internals.
 
 Modeling problems may also reserve local data and artifact paths:
 

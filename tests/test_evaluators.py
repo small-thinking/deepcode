@@ -98,6 +98,31 @@ class EvaluatorRegistryTest(unittest.TestCase):
             ml_torch_modeling._torch_resource_limiter,
         )
 
+    def test_ml_torch_modeling_shows_submission_focused_tracebacks(self):
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=(
+                    "import torch\n"
+                    "from torch import nn\n\n"
+                    "class BrokenModule(nn.Module):\n"
+                    "    def forward(self, x):\n"
+                    "        return x.masked_fill(torch.ones(2, dtype=torch.bool), 0)\n"
+                ),
+                problem={"evaluation": {"type": "ml_torch_modeling"}},
+                tests=[{"name": "shape mismatch", "test": "BrokenModule()(torch.ones(4))"}],
+                environment={"timeout_seconds": 10, "packages": ["torch"]},
+            )
+        )
+
+        actual_output = result["results"][0]["actual_output"]
+        self.assertEqual(result["status"], "failed")
+        self.assertIn('File "submission_check.py"', actual_output)
+        self.assertIn("return x.masked_fill", actual_output)
+        self.assertIn("RuntimeError", actual_output)
+        self.assertNotIn("site-packages", actual_output)
+        self.assertNotIn("torch/nn/modules/module.py", actual_output)
+        self.assertNotIn("deepcode-modeling-", actual_output)
+
     def test_ml_modeling_normalizes_mixed_tab_indentation(self):
         result = evaluate_submission(
             EvaluationRequest(
