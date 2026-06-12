@@ -5,7 +5,7 @@
   "category": "Machine Learning",
   "difficulty": "easy",
   "tags": ["baseline", "regression"],
-  "prompt": "Write a function `mean_baseline(train_y, n_predictions)` for a constant regression baseline. `train_y` is a sequence of numeric target values and `n_predictions` is the integer number of predictions to return. If `n_predictions` is `0`, return `[]` without computing a mean. If `n_predictions` is negative, or if `train_y` is empty while predictions are requested, return `-1`. Otherwise return a Python list containing `n_predictions` copies of `round(sum(train_y) / len(train_y), 4)`.",
+  "prompt": "Implement `mean_baseline(train_y, n_predictions)` for a constant regression baseline.\n\nRules:\n- If `n_predictions == 0`, return `[]`.\n- If `n_predictions < 0`, return `-1`.\n- If predictions are requested but `train_y` is empty, return `-1`.\n\nOtherwise return a list with `n_predictions` copies of `round(sum(train_y) / len(train_y), 4)`.",
   "starter_code": "def mean_baseline(train_y, n_predictions):\n    # Return repeated round(mean(train_y), 4), [] for zero predictions, or -1 for invalid input.\n    pass\n",
   "example": {
     "input": "train_y = [1.0, 2.0, 4.0], n_predictions = 3",

@@ -63,6 +63,22 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("const code = normalizePythonIndentation(editorCode())", app_js)
         self.assertIn("setEditorCode(code)", app_js)
 
+    def test_problem_prompt_renders_structured_copy(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('class="problem-prompt"', app_js)
+        self.assertNotIn("<p>${markdownLite(problem.prompt)}</p>", app_js)
+        self.assertIn('line.startsWith("- ")', app_js)
+        self.assertIn(".problem-prompt ul", styles_css)
+
+    def test_ui_uses_codex_like_system_fonts(self):
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("font-family: ui-sans-serif", styles_css)
+        self.assertIn("font-family: ui-monospace", styles_css)
+        self.assertNotIn("font-family: Inter,", styles_css)
+
 
 if __name__ == "__main__":
     unittest.main()

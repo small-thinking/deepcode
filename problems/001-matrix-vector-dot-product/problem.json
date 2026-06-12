@@ -5,7 +5,7 @@
   "category": "Linear Algebra",
   "difficulty": "easy",
   "tags": ["matrix", "vectors"],
-  "prompt": "Write a function `matrix_vector_dot(matrix, vector)` that returns the matrix-vector product as a plain Python list. Treat `matrix` as a list of rows and `vector` as a one-dimensional list. A valid input has a non-empty matrix, a non-empty vector, every row non-empty, and every row length equal to `len(vector)`. For valid input, return one dot product per matrix row by summing `row[i] * vector[i]` across all indices. For any invalid shape, return `-1` instead of raising an exception. Invalid shapes include an empty matrix, an empty vector, an empty row, ragged rows, or any row/vector length mismatch. Assume entries are numbers.",
+  "prompt": "Implement `matrix_vector_dot(matrix, vector)` and return the matrix-vector product as a plain Python list.\n\nValid input:\n- `matrix` is a non-empty list of non-empty rows.\n- `vector` is a non-empty one-dimensional list.\n- Every row length equals `len(vector)`.\n\nFor valid input, return one dot product per row. Return `-1` for any invalid shape: empty inputs, empty rows, ragged rows, or row/vector length mismatch. Assume entries are numbers.",
   "starter_code": "def matrix_vector_dot(matrix, vector):\n    # Return row-wise dot products, or -1 for any empty or invalid shape.\n    pass\n",
   "example": {
     "input": "matrix = [[1, 2], [3, 4]], vector = [10, 1]",
