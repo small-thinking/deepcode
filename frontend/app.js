@@ -491,6 +491,10 @@ function difficultyPill(difficulty) {
   return `<span class="pill ${escapeHtml(difficulty)}">${escapeHtml(difficulty)}</span>`;
 }
 
+function problemDisplayId(problem) {
+  return problem?.display_id ?? problem?.id ?? "";
+}
+
 function render() {
   teardownEditor();
   if (state.selected) {
@@ -576,7 +580,7 @@ function problemTable() {
     .map(
       (problem) => `
       <tr data-slug="${escapeHtml(problem.slug)}">
-        <td class="num-cell">${escapeHtml(problem.id)}</td>
+        <td class="num-cell">${escapeHtml(problemDisplayId(problem))}</td>
         <td class="status-cell">${problemStatusBadge(problem)}</td>
         <td class="title-cell">${escapeHtml(problem.title)}</td>
         <td>${difficultyPill(problem.difficulty)}</td>
@@ -617,6 +621,7 @@ function problemStatusBadge(problem) {
 
 function renderDetail() {
   const problem = state.selected;
+  const displayId = problemDisplayId(state.selected);
   const env = problem.environment || {};
   const runButtonState = state.running ? "disabled" : "";
   const runButtonContent = state.running
@@ -634,7 +639,7 @@ function renderDetail() {
           <div class="panel-header">
             <div class="panel-title">
               <h2>${escapeHtml(problem.title)}</h2>
-              <p>#${escapeHtml(problem.id)} / ${escapeHtml(problem.category)} / ${escapeHtml(problem.difficulty)}</p>
+              <p>#${escapeHtml(displayId)} / ${escapeHtml(problem.category)} / ${escapeHtml(problem.difficulty)}</p>
             </div>
             <div class="tabs">
               ${tabButton("description", "Problem")}

@@ -58,7 +58,7 @@ Example:
 
 Required fields:
 
-- `id`: Display and sort id. Numeric strings sort numerically.
+- `id`: Stable catalog id used for ordering and lookup. Numeric strings sort numerically.
 - `slug`: Stable URL identifier. Users can open `/problems/<slug>`.
 - `title`: Human-readable problem title.
 - `category`: Broad topic such as `Linear Algebra`, `Machine Learning`, or `Metrics`.
@@ -75,6 +75,10 @@ Recommended fields:
 - `environment.comparator`: `exact` or `numeric`.
 - `references`: Optional background links shown on the problem page. Use a list of `{ "label": "...", "url": "https://..." }` objects. URLs must be `http` or `https`.
 - `created_at`: ISO date for review history.
+
+The browser-facing `#` is generated as `display_id` after the catalog loads, so
+problem authors do not need to renumber existing problem files when adding a new
+question.
 
 Current limitations:
 
@@ -218,7 +222,7 @@ For example, `[2.3333, 2.3333]` can match `[2.3333333333, 2.3333333333]`, but a 
 
 ## Authoring Checklist
 
-1. Choose the next numeric id and a stable slug.
+1. Choose a stable id for ordering and a stable slug.
 2. Write a prompt that states the function name, arguments, return value, and edge cases.
 3. Keep starter code minimal and easy to rewrite by hand.
 4. Add visible tests for the main behavior and edge cases.

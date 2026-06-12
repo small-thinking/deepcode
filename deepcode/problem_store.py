@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 
 SUMMARY_FIELDS = (
     "id",
+    "display_id",
     "slug",
     "title",
     "category",
@@ -93,7 +94,10 @@ class ProblemStore:
             self._validate(problem, problem_dir)
             problems.append(problem)
 
-        return sorted(problems, key=lambda problem: self._id_sort_value(problem.get("id")))
+        sorted_problems = sorted(problems, key=lambda problem: self._id_sort_value(problem.get("id")))
+        for display_id, problem in enumerate(sorted_problems, start=1):
+            problem["display_id"] = display_id
+        return sorted_problems
 
     def _summary(self, problem: dict[str, Any]) -> dict[str, Any]:
         return {key: deepcopy(problem[key]) for key in SUMMARY_FIELDS if key in problem}

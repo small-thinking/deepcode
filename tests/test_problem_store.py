@@ -66,9 +66,11 @@ class ProblemStoreTest(unittest.TestCase):
             store = ProblemStore(root)
 
             self.assertEqual([problem["id"] for problem in store.list_problems()], ["3", "20"])
+            self.assertEqual([problem["display_id"] for problem in store.list_problems()], [1, 2])
             self.assertEqual(store.categories(), ["Linear Algebra", "Machine Learning"])
             self.assertEqual(store.get_problem("mean-prediction")["tests"][0]["name"], "basic")
             self.assertEqual(store.get_problem("20")["slug"], "mean-prediction")
+            self.assertEqual(store.get_problem("20")["display_id"], 2)
 
     def test_filters_problem_list_by_category_difficulty_and_search(self):
         with tempfile.TemporaryDirectory() as tmp:
