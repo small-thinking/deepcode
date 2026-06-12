@@ -117,6 +117,72 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertNotIn("tests", filtered[0])
             self.assertNotIn("starter_code", filtered[0])
 
+    def test_includes_reference_links_in_problem_summaries_and_details(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "with-links",
+                {
+                    "id": "8",
+                    "slug": "with-links",
+                    "title": "With Links",
+                    "category": "Machine Learning",
+                    "difficulty": "easy",
+                    "tags": ["links"],
+                    "prompt": "Return one.",
+                    "starter_code": "def one():\n    pass\n",
+                    "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                    "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                    "references": [{"label": "Background", "url": "https://example.com/background"}],
+                },
+                [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+            )
+
+            store = ProblemStore(root)
+
+            self.assertEqual(
+                store.list_problems()[0]["references"],
+                [{"label": "Background", "url": "https://example.com/background"}],
+            )
+            self.assertEqual(
+                store.get_problem("with-links")["references"],
+                [{"label": "Background", "url": "https://example.com/background"}],
+            )
+
+    def test_rejects_invalid_reference_links(self):
+        invalid_values = [
+            "https://example.com",
+            [{"label": "Missing URL"}],
+            [{"url": "https://example.com"}],
+            [{"label": "Unsafe", "url": "javascript:alert(1)"}],
+        ]
+
+        for references in invalid_values:
+            with self.subTest(references=references), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                self._write_problem(
+                    root,
+                    "bad-links",
+                    {
+                        "id": "9",
+                        "slug": "bad-links",
+                        "title": "Bad Links",
+                        "category": "Machine Learning",
+                        "difficulty": "easy",
+                        "tags": ["links"],
+                        "prompt": "Return one.",
+                        "starter_code": "def one():\n    pass\n",
+                        "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                        "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                        "references": references,
+                    },
+                    [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+                )
+
+                with self.assertRaisesRegex(ValueError, "references"):
+                    ProblemStore(root).get_problem("bad-links")
+
     def test_supports_private_runtime_paths_for_future_modeling_tasks(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -6,15 +6,51 @@
     "expected_output": "[12, 34]"
   },
   {
-    "name": "empty matrix",
-    "input": "matrix = [], vector = [1, 2, 3]",
-    "test": "print(matrix_vector_dot([], [1, 2, 3]))",
-    "expected_output": "[]"
+    "name": "negative and zero values",
+    "input": "matrix = [[0, 1, -1], [2, -3, 4], [-5, 0, 6]], vector = [3, 10, -2]",
+    "test": "print(matrix_vector_dot([[0, 1, -1], [2, -3, 4], [-5, 0, 6]], [3, 10, -2]))",
+    "expected_output": "[12, -32, -27]"
   },
   {
-    "name": "shape mismatch",
+    "name": "single column matrix",
+    "input": "matrix = [[7], [-3], [0]], vector = [6]",
+    "test": "print(matrix_vector_dot([[7], [-3], [0]], [6]))",
+    "expected_output": "[42, -18, 0]"
+  },
+  {
+    "name": "empty matrix is invalid",
+    "input": "matrix = [], vector = [1, 2, 3]",
+    "test": "print(matrix_vector_dot([], [1, 2, 3]))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "empty vector is invalid",
+    "input": "matrix = [[1, 2]], vector = []",
+    "test": "print(matrix_vector_dot([[1, 2]], []))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "empty row is invalid",
+    "input": "matrix = [[], [1]], vector = [1]",
+    "test": "print(matrix_vector_dot([[], [1]], [1]))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "ragged matrix is invalid",
     "input": "matrix = [[1, 2, 3], [4, 5]], vector = [1, 1, 1]",
     "test": "print(matrix_vector_dot([[1, 2, 3], [4, 5]], [1, 1, 1]))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "vector too short",
+    "input": "matrix = [[1, 2, 3]], vector = [1, 2]",
+    "test": "print(matrix_vector_dot([[1, 2, 3]], [1, 2]))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "vector too long",
+    "input": "matrix = [[1, 2]], vector = [1, 2, 3]",
+    "test": "print(matrix_vector_dot([[1, 2]], [1, 2, 3]))",
     "expected_output": "-1"
   }
 ]

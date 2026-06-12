@@ -4,6 +4,7 @@ import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 SUMMARY_FIELDS = (
@@ -16,6 +17,7 @@ SUMMARY_FIELDS = (
     "example",
     "evaluation",
     "environment",
+    "references",
     "created_at",
 )
 
@@ -134,6 +136,7 @@ class ProblemStore:
 
         self._validate_relative_path(problem, problem_dir, "data", "path")
         self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")
+        self._validate_references(problem, problem_dir)
 
     def _read_json(self, path: Path) -> Any:
         with path.open(encoding="utf-8") as file:
@@ -170,6 +173,28 @@ class ProblemStore:
         path = Path(raw_path)
         if path.is_absolute() or ".." in path.parts:
             raise ValueError(f"{problem_dir}/problem.json field `{section}.{key}` must be problem-relative")
+
+    def _validate_references(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        references = problem.get("references")
+        if references is None:
+            return
+        if not isinstance(references, list):
+            raise ValueError(f"{problem_dir}/problem.json field `references` must be a list")
+
+        for index, reference in enumerate(references, start=1):
+            if not isinstance(reference, dict):
+                raise ValueError(f"{problem_dir}/problem.json field `references[{index}]` must be an object")
+
+            label = reference.get("label")
+            url = reference.get("url")
+            if not isinstance(label, str) or not label.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `references[{index}].label` must be non-empty")
+            if not isinstance(url, str) or not url.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `references[{index}].url` must be non-empty")
+
+            parsed = urlparse(url)
+            if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+                raise ValueError(f"{problem_dir}/problem.json field `references[{index}].url` must be http(s)")
 
     def _id_sort_value(self, value: Any):
         text = str(value)

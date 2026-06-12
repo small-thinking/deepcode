@@ -5,8 +5,8 @@
   "category": "Linear Algebra",
   "difficulty": "easy",
   "tags": ["matrix", "vectors"],
-  "prompt": "Write a function `matrix_vector_dot(matrix, vector)` that multiplies every row of a matrix by a vector. Return a list of row dot products. If the matrix has no rows, return an empty list. If any row length does not match the vector length, return `-1`.",
-  "starter_code": "def matrix_vector_dot(matrix, vector):\n    # Return a list of row dot products, or -1 for incompatible shapes.\n    pass\n",
+  "prompt": "Write a function `matrix_vector_dot(matrix, vector)` that returns the matrix-vector product as a plain Python list. Treat `matrix` as a list of rows and `vector` as a one-dimensional list. A valid input has a non-empty matrix, a non-empty vector, every row non-empty, and every row length equal to `len(vector)`. For valid input, return one dot product per matrix row by summing `row[i] * vector[i]` across all indices. For any invalid shape, return `-1` instead of raising an exception. Invalid shapes include an empty matrix, an empty vector, an empty row, ragged rows, or any row/vector length mismatch. Assume entries are numbers.",
+  "starter_code": "def matrix_vector_dot(matrix, vector):\n    # Return row-wise dot products, or -1 for any empty or invalid shape.\n    pass\n",
   "example": {
     "input": "matrix = [[1, 2], [3, 4]], vector = [10, 1]",
     "output": "[12, 34]",
@@ -18,5 +18,15 @@
     "packages": [],
     "comparator": "exact"
   },
+  "references": [
+    {
+      "label": "Math Insight: Matrix-vector multiplication",
+      "url": "https://mathinsight.org/matrix_vector_multiplication"
+    },
+    {
+      "label": "Wikipedia: Matrix times vector",
+      "url": "https://en.wikipedia.org/wiki/Matrix_multiplication#Matrix_times_vector"
+    }
+  ],
   "created_at": "2026-06-10"
 }

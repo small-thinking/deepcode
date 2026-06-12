@@ -16,5 +16,35 @@
     "input": "y_true = [1, 0], y_pred = [1]",
     "test": "print(classification_accuracy([1, 0], [1]))",
     "expected_output": "-1"
+  },
+  {
+    "name": "rounds repeating fraction",
+    "input": "y_true = [0, 1, 2], y_pred = [0, 2, 2]",
+    "test": "print(classification_accuracy([0, 1, 2], [0, 2, 2]))",
+    "expected_output": "0.6667"
+  },
+  {
+    "name": "none correct",
+    "input": "y_true = ['spam', 'ham', 'ham'], y_pred = ['ham', 'spam', 'spam']",
+    "test": "print(classification_accuracy(['spam', 'ham', 'ham'], ['ham', 'spam', 'spam']))",
+    "expected_output": "0.0"
+  },
+  {
+    "name": "both inputs empty",
+    "input": "y_true = [], y_pred = []",
+    "test": "print(classification_accuracy([], []))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "empty predictions",
+    "input": "y_true = [1], y_pred = []",
+    "test": "print(classification_accuracy([1], []))",
+    "expected_output": "-1"
+  },
+  {
+    "name": "case-sensitive string labels",
+    "input": "y_true = ['cat', 'Cat'], y_pred = ['cat', 'cat']",
+    "test": "print(classification_accuracy(['cat', 'Cat'], ['cat', 'cat']))",
+    "expected_output": "0.5"
   }
 ]

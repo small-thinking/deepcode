@@ -582,6 +582,30 @@ function renderProblemTab(problem, env) {
       <div class="example-row"><div class="label">Output</div><pre>${escapeHtml(problem.example?.output || "")}</pre></div>
       <div class="example-row"><div class="label">Reasoning</div><div>${escapeHtml(problem.example?.reasoning || "")}</div></div>
     </div>
+    ${renderReferences(problem.references)}
+  `;
+}
+
+function renderReferences(references) {
+  if (!Array.isArray(references) || references.length === 0) return "";
+
+  const links = references
+    .filter((reference) => reference && reference.label && reference.url)
+    .map(
+      (reference) => `
+        <a href="${escapeHtml(reference.url)}" target="_blank" rel="noopener noreferrer">
+          ${escapeHtml(reference.label)}
+        </a>
+      `
+    )
+    .join("");
+
+  if (!links) return "";
+  return `
+    <div class="reference-list" aria-label="Background references">
+      <div class="label">Background</div>
+      <div>${links}</div>
+    </div>
   `;
 }
 
