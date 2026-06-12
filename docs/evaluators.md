@@ -28,6 +28,7 @@ If a problem omits `evaluation`, it defaults to `ml_coding`.
 `ml_coding` is the current LeetCode-style evaluator. It:
 
 - appends each test snippet below the submitted Python code
+- expands leading indentation tabs to four spaces before execution
 - runs every case in a fresh local subprocess
 - applies a per-case timeout
 - compares stdout with either `exact` or `numeric` comparison
@@ -57,6 +58,8 @@ Each `tests.json` entry must include `test`, a Python snippet appended below the
 submission. The snippet should use `assert` statements and may print a short
 diagnostic. A case passes when the script exits with code 0. Assertion failures,
 exceptions, and timeouts are reported per case without stopping later cases.
+Submitted code gets the same leading-tab indentation normalization as
+`ml_coding`.
 
 Modeling problems may also reserve local data and artifact paths:
 

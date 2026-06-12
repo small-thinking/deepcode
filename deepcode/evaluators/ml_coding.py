@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from deepcode.evaluators.base import EvaluationRequest
+from deepcode.evaluators.submission import normalize_python_indentation
 
 
 NUMBER_PATTERN = re.compile(r"-?\d+(?:\.\d+)?(?:e[+-]?\d+)?", re.IGNORECASE)
@@ -114,7 +115,8 @@ def _run_single_test(code: str, test_code: str, timeout_seconds: int | float) ->
 
 
 def _build_script(code: str, test_code: str) -> str:
-    return f"{code.rstrip()}\n\n{test_code.rstrip()}\n"
+    formatted_code = normalize_python_indentation(code)
+    return f"{formatted_code.rstrip()}\n\n{test_code.rstrip()}\n"
 
 
 def _normalize_text(value: str) -> str:

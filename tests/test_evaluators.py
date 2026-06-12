@@ -44,6 +44,18 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertEqual(result["results"][0]["expected_output"], "All assertions pass")
         self.assertEqual(result["results"][0]["actual_output"], "ok")
 
+    def test_ml_modeling_normalizes_mixed_tab_indentation(self):
+        result = evaluate_submission(
+            EvaluationRequest(
+                code="def classify(value):\n\tif value > 0:\n        return 'positive'\n\treturn 'other'\n",
+                problem={"evaluation": {"type": "ml_modeling"}},
+                tests=[{"name": "positive", "test": "assert classify(1) == 'positive'"}],
+                environment={"timeout_seconds": 2},
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+
     def test_ml_modeling_reports_assertion_failures_without_stopping(self):
         result = evaluate_submission(
             EvaluationRequest(
