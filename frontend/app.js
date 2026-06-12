@@ -411,11 +411,16 @@ function randomProblem() {
 }
 
 function backToList() {
+  const needsProblemCatalog = state.problems.length === 0;
   state.selected = null;
   state.runResult = null;
   state.activeResultIndex = 0;
   state.error = null;
   location.hash = "";
+  if (needsProblemCatalog) {
+    loadProblems();
+    return;
+  }
   render();
 }
 
