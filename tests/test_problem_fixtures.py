@@ -188,6 +188,62 @@ class NGramCharModel:
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], 6)
 
+    def test_source_attribution_highlighter_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("source-attribution-highlighter")
+        solution = r"""def highlight_sources(document, sources):
+    def is_word_char(char):
+        return char.isalnum() or char == "_"
+
+    def is_whole_token_match(start, end):
+        left_ok = start == 0 or not is_word_char(document[start - 1])
+        right_ok = end == len(document) or not is_word_char(document[end])
+        return left_ok and right_ok
+
+    matches = []
+    counts = {source: 0 for source in sources}
+    for source in sources:
+        if not source:
+            continue
+        start = document.find(source)
+        while start != -1:
+            end = start + len(source)
+            if is_whole_token_match(start, end):
+                matches.append((start, end, source))
+                counts[source] += 1
+            start = document.find(source, start + 1)
+
+    intervals = []
+    for start, end, source in sorted(matches, key=lambda item: (item[0], item[1], item[2])):
+        if not intervals or start > intervals[-1][1]:
+            intervals.append([start, end, {source}])
+            continue
+        intervals[-1][1] = max(intervals[-1][1], end)
+        intervals[-1][2].add(source)
+
+    pieces = []
+    cursor = 0
+    citations = []
+    for start, end, interval_sources in intervals:
+        pieces.append(document[cursor:start])
+        pieces.append("<yellow>")
+        pieces.append(document[start:end])
+        pieces.append("</yellow>")
+        citations.append(sorted(interval_sources))
+        cursor = end
+    pieces.append(document[cursor:])
+    return "".join(pieces), counts, citations
+"""
+
+        result = run_submission(
+            code=solution,
+            tests=problem["tests"],
+            timeout_seconds=problem["environment"]["timeout_seconds"],
+            comparator=problem["environment"]["comparator"],
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
 
 if __name__ == "__main__":
     unittest.main()
