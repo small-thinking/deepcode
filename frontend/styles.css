@@ -511,23 +511,44 @@ body.is-resizing {
   line-height: 1.6;
 }
 
-.example-box,
-.env-grid,
-.test-list,
+.problem-section + .problem-section {
+  margin-top: 14px;
+}
+
+.problem-body .problem-section-title {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.problem-section-body {
+  min-width: 0;
+}
+
+.problem-example,
+.problem-meta-grid,
+.problem-test-list,
 .reference-list {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--inset-bg);
   padding: 14px;
-  margin-top: 14px;
 }
 
+.problem-test-list,
 .reference-list {
   display: grid;
   gap: 10px;
 }
 
-.reference-list > div:last-child {
+.problem-test-case {
+  min-width: 0;
+}
+
+.reference-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -549,8 +570,7 @@ body.is-resizing {
   border-color: var(--blue);
 }
 
-.example-row,
-.env-row {
+.problem-meta-row {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr);
   gap: 12px;
@@ -800,8 +820,7 @@ pre {
 
   .result-columns,
   .test-detail-grid,
-  .example-row,
-  .env-row {
+  .problem-meta-row {
     grid-template-columns: 1fr;
   }
 

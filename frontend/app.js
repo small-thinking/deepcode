@@ -1,4 +1,11 @@
 const THEME_KEY = "deepcode-theme";
+const PROBLEM_SECTION_CLASSES = {
+  prompt: "problem-section problem-prompt-section",
+  example: "problem-section problem-example-section",
+  references: "problem-section problem-references-section",
+  tests: "problem-section problem-tests-section",
+  environment: "problem-section problem-environment-section",
+};
 
 const state = {
   problems: [],
@@ -598,54 +605,98 @@ function tabButton(tab, label) {
 
 function renderProblemTab(problem, env) {
   if (state.activeTab === "tests") {
-    return `
-      <div class="test-list">
-        ${(problem.tests || [])
-          .map(
-            (test, index) => `
-          <div class="mini-block">
-            <span>${escapeHtml(test.name || `Test ${index + 1}`)}</span>
-            <div class="test-detail-grid">
-              <div>
-                <span>Input</span>
-                <pre>${escapeHtml(test.input || test.test)}</pre>
-              </div>
-              <div>
-                <span>Call</span>
-                <pre>${escapeHtml(test.test)}</pre>
-              </div>
-            </div>
-            <hr />
-            <span>Expected</span>
-            <pre>${escapeHtml(test.expected_output)}</pre>
-          </div>
-        `
-          )
-          .join("")}
-      </div>
-    `;
+    return renderProblemTests(problem.tests || []);
   }
 
   if (state.activeTab === "environment") {
-    return `
-      <div class="env-grid">
-        <div class="env-row"><div class="label">Language</div><div>${escapeHtml(env.language || "python")}</div></div>
-        <div class="env-row"><div class="label">Timeout</div><div>${escapeHtml(env.timeout_seconds || 2)} seconds per test</div></div>
-        <div class="env-row"><div class="label">Comparator</div><div>${escapeHtml(env.comparator || "exact")}</div></div>
-        <div class="env-row"><div class="label">Packages</div><div>${escapeHtml((env.packages || []).join(", ") || "standard library")}</div></div>
-      </div>
-    `;
+    return renderProblemEnvironment(env);
   }
 
+  return renderProblemDescription(problem);
+}
+
+function renderProblemBlock(sectionClass, title, body) {
+  const content = String(body ?? "").trim();
+  if (!content) return "";
+
   return `
-    <div class="problem-prompt">${markdownLite(problem.prompt)}</div>
-    <div class="example-box">
-      <div class="example-row"><div class="label">Input</div><pre>${escapeHtml(problem.example?.input || "")}</pre></div>
-      <div class="example-row"><div class="label">Output</div><pre>${escapeHtml(problem.example?.output || "")}</pre></div>
-      <div class="example-row"><div class="label">Reasoning</div><div>${escapeHtml(problem.example?.reasoning || "")}</div></div>
-    </div>
-    ${renderReferences(problem.references)}
+    <section class="${sectionClass}">
+      <h3 class="problem-section-title">${escapeHtml(title)}</h3>
+      <div class="problem-section-body">${content}</div>
+    </section>
   `;
+}
+
+function renderProblemDescription(problem) {
+  return [
+    renderProblemBlock(
+      PROBLEM_SECTION_CLASSES.prompt,
+      "Prompt",
+      `<div class="problem-prompt">${markdownLite(problem.prompt)}</div>`
+    ),
+    renderProblemExample(problem.example),
+    renderReferences(problem.references),
+  ].join("");
+}
+
+function renderProblemExample(example) {
+  return renderProblemBlock(
+    PROBLEM_SECTION_CLASSES.example,
+    "Example",
+    `
+      <div class="problem-example">
+        <div class="problem-meta-row"><div class="label">Input</div><pre>${escapeHtml(example?.input || "")}</pre></div>
+        <div class="problem-meta-row"><div class="label">Output</div><pre>${escapeHtml(example?.output || "")}</pre></div>
+        <div class="problem-meta-row"><div class="label">Reasoning</div><div>${escapeHtml(example?.reasoning || "")}</div></div>
+      </div>
+    `
+  );
+}
+
+function renderProblemTests(tests) {
+  const cases = tests
+    .map(
+      (test, index) => `
+        <div class="mini-block problem-test-case">
+          <span>${escapeHtml(test.name || `Test ${index + 1}`)}</span>
+          <div class="test-detail-grid">
+            <div>
+              <span>Input</span>
+              <pre>${escapeHtml(test.input || test.test)}</pre>
+            </div>
+            <div>
+              <span>Call</span>
+              <pre>${escapeHtml(test.test)}</pre>
+            </div>
+          </div>
+          <hr />
+          <span>Expected</span>
+          <pre>${escapeHtml(test.expected_output)}</pre>
+        </div>
+      `
+    )
+    .join("");
+
+  return renderProblemBlock(
+    PROBLEM_SECTION_CLASSES.tests,
+    "Visible Tests",
+    `<div class="problem-test-list">${cases}</div>`
+  );
+}
+
+function renderProblemEnvironment(env) {
+  return renderProblemBlock(
+    PROBLEM_SECTION_CLASSES.environment,
+    "Environment",
+    `
+      <div class="problem-meta-grid">
+        <div class="problem-meta-row"><div class="label">Language</div><div>${escapeHtml(env.language || "python")}</div></div>
+        <div class="problem-meta-row"><div class="label">Timeout</div><div>${escapeHtml(env.timeout_seconds || 2)} seconds per test</div></div>
+        <div class="problem-meta-row"><div class="label">Comparator</div><div>${escapeHtml(env.comparator || "exact")}</div></div>
+        <div class="problem-meta-row"><div class="label">Packages</div><div>${escapeHtml((env.packages || []).join(", ") || "standard library")}</div></div>
+      </div>
+    `
+  );
 }
 
 function renderReferences(references) {
@@ -663,12 +714,11 @@ function renderReferences(references) {
     .join("");
 
   if (!links) return "";
-  return `
-    <div class="reference-list" aria-label="Background references">
-      <div class="label">Background</div>
-      <div>${links}</div>
-    </div>
-  `;
+  return renderProblemBlock(
+    PROBLEM_SECTION_CLASSES.references,
+    "Background",
+    `<div class="reference-list" aria-label="Background references">${links}</div>`
+  );
 }
 
 function renderResults() {

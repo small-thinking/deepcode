@@ -72,6 +72,24 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('line.startsWith("- ")', app_js)
         self.assertIn(".problem-prompt ul", styles_css)
 
+    def test_problem_detail_uses_shared_display_blocks(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("function renderProblemBlock", app_js)
+        self.assertIn("function renderProblemDescription", app_js)
+        self.assertIn('prompt: "problem-section problem-prompt-section"', app_js)
+        self.assertIn('example: "problem-section problem-example-section"', app_js)
+        self.assertIn('references: "problem-section problem-references-section"', app_js)
+        self.assertIn('tests: "problem-section problem-tests-section"', app_js)
+        self.assertIn('environment: "problem-section problem-environment-section"', app_js)
+        self.assertIn('class="${sectionClass}"', app_js)
+        self.assertIn(".problem-section", styles_css)
+        self.assertIn(".problem-section-title", styles_css)
+        self.assertIn(".problem-example", styles_css)
+        self.assertIn(".problem-test-case", styles_css)
+        self.assertIn(".problem-meta-grid", styles_css)
+
     def test_ui_uses_codex_like_system_fonts(self):
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
