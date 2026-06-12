@@ -14,6 +14,7 @@ SUMMARY_FIELDS = (
     "difficulty",
     "tags",
     "example",
+    "evaluation",
     "environment",
     "created_at",
 )
@@ -83,8 +84,10 @@ class ProblemStore:
             tests = self._read_json(tests_path) if tests_path.exists() else []
             problem.setdefault("slug", problem_dir.name)
             problem.setdefault("tags", [])
+            problem.setdefault("evaluation", {"type": "ml_coding"})
             problem.setdefault("environment", {"language": "python", "timeout_seconds": 2, "packages": []})
             problem["tests"] = tests
+            problem["_runtime"] = self._runtime_paths(problem, problem_dir)
             self._validate(problem, problem_dir)
             problems.append(problem)
 
@@ -114,17 +117,59 @@ class ProblemStore:
             missing_text = ", ".join(missing)
             raise ValueError(f"{problem_dir} is missing required field(s): {missing_text}")
 
+        if not isinstance(problem["evaluation"], dict):
+            raise ValueError(f"{problem_dir}/problem.json field `evaluation` must be an object")
+        evaluation_type = problem["evaluation"].get("type", "ml_coding")
+        if not isinstance(evaluation_type, str) or not evaluation_type.strip():
+            raise ValueError(f"{problem_dir}/problem.json field `evaluation.type` must be a non-empty string")
+
         if not isinstance(problem["tests"], list):
             raise ValueError(f"{problem_dir}/tests.json must contain a list")
 
-        for index, test in enumerate(problem["tests"], start=1):
-            for key in ("test", "expected_output"):
-                if key not in test:
-                    raise ValueError(f"{problem_dir}/tests.json test {index} is missing `{key}`")
+        if evaluation_type == "ml_coding":
+            for index, test in enumerate(problem["tests"], start=1):
+                for key in ("test", "expected_output"):
+                    if key not in test:
+                        raise ValueError(f"{problem_dir}/tests.json test {index} is missing `{key}`")
+
+        self._validate_relative_path(problem, problem_dir, "data", "path")
+        self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")
 
     def _read_json(self, path: Path) -> Any:
         with path.open(encoding="utf-8") as file:
             return json.load(file)
+
+    def _runtime_paths(self, problem: dict[str, Any], problem_dir: Path) -> dict[str, str]:
+        runtime = {"problem_dir": str(problem_dir)}
+        data = problem.get("data", {})
+        if isinstance(data, dict) and isinstance(data.get("path"), str) and data["path"].strip():
+            runtime["data_path"] = str(problem_dir / data["path"])
+
+        artifacts = problem.get("artifacts", {})
+        if (
+            isinstance(artifacts, dict)
+            and isinstance(artifacts.get("results_path"), str)
+            and artifacts["results_path"].strip()
+        ):
+            runtime["results_path"] = str(problem_dir / artifacts["results_path"])
+        return runtime
+
+    def _validate_relative_path(self, problem: dict[str, Any], problem_dir: Path, section: str, key: str) -> None:
+        value = problem.get(section)
+        if value is None:
+            return
+        if not isinstance(value, dict):
+            raise ValueError(f"{problem_dir}/problem.json field `{section}` must be an object")
+        if key not in value:
+            return
+
+        raw_path = value[key]
+        if not isinstance(raw_path, str) or not raw_path.strip():
+            raise ValueError(f"{problem_dir}/problem.json field `{section}.{key}` must be a non-empty string")
+
+        path = Path(raw_path)
+        if path.is_absolute() or ".." in path.parts:
+            raise ValueError(f"{problem_dir}/problem.json field `{section}.{key}` must be problem-relative")
 
     def _id_sort_value(self, value: Any):
         text = str(value)

@@ -43,6 +43,9 @@ Example:
     "packages": [],
     "comparator": "numeric"
   },
+  "evaluation": {
+    "type": "ml_coding"
+  },
   "created_at": "2026-06-10"
 }
 ```
@@ -61,6 +64,7 @@ Required fields:
 Recommended fields:
 
 - `tags`: Short searchable labels.
+- `evaluation.type`: Evaluator backend. Omit it or use `ml_coding` for current problems.
 - `environment.timeout_seconds`: Per-test timeout. Keep ML coding tasks short.
 - `environment.comparator`: `exact` or `numeric`.
 - `created_at`: ISO date for review history.
@@ -70,6 +74,49 @@ Current limitations:
 - `language` should be `python`.
 - `packages` is reserved for future dependency handling. Current problems should rely on the Python standard library.
 - The runner evaluates printed output from test snippets.
+
+## Evaluator Types
+
+Current problems should use the default evaluator:
+
+```json
+"evaluation": {
+  "type": "ml_coding"
+}
+```
+
+`ml_coding` expects `tests.json` to contain per-case Python snippets with
+`test` and `expected_output`.
+
+Future modeling problems should use a separate evaluator type rather than
+overloading `ml_coding`:
+
+```json
+{
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "data": {
+    "path": "data",
+    "required": true
+  },
+  "artifacts": {
+    "results_path": "eval-results"
+  }
+}
+```
+
+`data.path` and `artifacts.results_path` are relative to the problem folder and
+may be local symbolic links into ignored workspace folders:
+
+```text
+problems/101-small-mlp/data -> ../../data/small-mlp
+problems/101-small-mlp/eval-results -> ../../runs/101-small-mlp
+```
+
+The actual datasets, checkpoints, logs, API keys, and run outputs stay local and
+are ignored by git. See [evaluator architecture](evaluators.md) for the extension
+boundary.
 
 ## tests.json
 

@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import unquote
 
+from deepcode.evaluators import EvaluationRequest, UnsupportedEvaluatorError, evaluate_submission
 from deepcode.problem_store import ProblemStore
-from deepcode.runner import run_submission
 
 
 @dataclass(frozen=True)
@@ -25,6 +25,8 @@ def handle_api_request(
         return _handle_api_request(context, method.upper(), path, query, body)
     except KeyError:
         return 404, {"error": "Problem not found"}
+    except UnsupportedEvaluatorError as error:
+        return 501, {"error": str(error)}
     except json.JSONDecodeError:
         return 400, {"error": "Invalid JSON body"}
     except ValueError as error:
@@ -57,7 +59,7 @@ def _handle_api_request(
         }
 
     if len(parts) == 3 and parts[:2] == ["api", "problems"] and method == "GET":
-        return 200, {"problem": context.store.get_problem(parts[2])}
+        return 200, {"problem": _public_problem(context.store.get_problem(parts[2]))}
 
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "run" and method == "POST":
         problem = context.store.get_problem(parts[2])
@@ -67,11 +69,14 @@ def _handle_api_request(
             raise ValueError("Request body must include non-empty `code`")
 
         environment = problem.get("environment", {})
-        result = run_submission(
-            code=code,
-            tests=problem.get("tests", []),
-            timeout_seconds=environment.get("timeout_seconds", 2),
-            comparator=environment.get("comparator", "exact"),
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=code,
+                problem=problem,
+                tests=problem.get("tests", []),
+                environment=environment,
+                runtime=problem.get("_runtime", {}),
+            )
         )
         return 200, result
 
@@ -85,3 +90,7 @@ def _first(query: dict[str, list[str]], key: str) -> str | None:
     if not values:
         return None
     return values[0] or None
+
+
+def _public_problem(problem: dict[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in problem.items() if not key.startswith("_")}
