@@ -56,6 +56,13 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".result-tab", styles_css)
         self.assertIn(".result-case", styles_css)
 
+    def test_run_tests_normalizes_indentation_before_submit(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+
+        self.assertIn("function normalizePythonIndentation", app_js)
+        self.assertIn("const code = normalizePythonIndentation(editorCode())", app_js)
+        self.assertIn("setEditorCode(code)", app_js)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -251,6 +251,26 @@ function editorCode() {
   return document.querySelector("#code-editor-fallback")?.value ?? currentCode();
 }
 
+function normalizePythonIndentation(code) {
+  return String(code ?? "")
+    .split("\n")
+    .map((line) => {
+      const match = line.match(/^[\t ]+/);
+      if (!match) return line;
+      return `${match[0].replaceAll("\t", "    ")}${line.slice(match[0].length)}`;
+    })
+    .join("\n");
+}
+
+function setEditorCode(value) {
+  if (codeEditor) {
+    if (codeEditor.getValue() !== value) codeEditor.setValue(value, -1);
+    return;
+  }
+  const fallback = document.querySelector("#code-editor-fallback");
+  if (fallback) fallback.value = value;
+}
+
 function saveCode(value) {
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), value);
@@ -307,7 +327,8 @@ function mountEditor() {
 
 async function runTests() {
   if (!state.selected) return;
-  const code = editorCode();
+  const code = normalizePythonIndentation(editorCode());
+  setEditorCode(code);
   saveCode(code);
   state.running = true;
   state.runResult = null;

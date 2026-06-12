@@ -1,5 +1,6 @@
 import unittest
 
+from deepcode.evaluators.submission import normalize_python_indentation
 from deepcode.runner import run_submission
 
 
@@ -62,6 +63,25 @@ class RunnerTest(unittest.TestCase):
         )
 
         self.assertEqual(result["status"], "passed")
+
+    def test_normalizes_mixed_tab_indentation_before_running(self):
+        result = run_submission(
+            code="def classify(value):\n\tif value > 0:\n        return 'positive'\n\treturn 'other'\n",
+            tests=[{"name": "positive", "test": "print(classify(3))", "expected_output": "positive"}],
+            timeout_seconds=2,
+            comparator="exact",
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["results"][0]["actual_output"], "positive")
+
+    def test_preserves_tabs_outside_leading_indentation(self):
+        source = "def text():\n\treturn 'a\tb'\n"
+
+        normalized = normalize_python_indentation(source)
+
+        self.assertNotIn("\treturn", normalized)
+        self.assertIn("'a\tb'", normalized)
 
     def test_reports_wrong_answer_without_stopping_later_tests(self):
         result = run_submission(
