@@ -53,6 +53,8 @@ The editor uses Ace Editor from jsDelivr, so syntax highlighting and editor keyb
 
 ## Architecture
 
+![DeepCode local architecture](docs/assets/deepcode-local-architecture.png)
+
 See [docs/architecture.md](docs/architecture.md) for the local system architecture chart and maintainer diagram.
 
 ## Project Layout
