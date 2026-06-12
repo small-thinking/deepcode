@@ -399,11 +399,20 @@ async function runTests() {
   }
 }
 
-function resetCode() {
+async function resetCode() {
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), state.selected.starter_code || "");
   state.runResult = null;
   state.activeResultIndex = 0;
+  state.error = null;
+  try {
+    const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/reset`, { method: "POST" });
+    if (payload.problem_status) {
+      syncProblemStatus(state.selected.slug, payload.problem_status);
+    }
+  } catch (error) {
+    state.error = error.message;
+  }
   render();
 }
 

@@ -91,6 +91,25 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["problem_status"]["completed"], True)
             self.assertEqual(user_state.status_for("toy")["completed"], True)
 
+    def test_reset_submission_status_marks_problem_incomplete(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+            user_state.mark_completed("toy")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, user_state=user_state),
+                "POST",
+                "/api/problems/toy/reset",
+                {},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["problem_status"], {"completed": False, "completed_at": None})
+            self.assertEqual(user_state.status_for("toy")["completed"], False)
+
     def test_returns_501_for_unregistered_evaluator(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = ProblemStore(Path(tmp))

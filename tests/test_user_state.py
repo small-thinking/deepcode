@@ -24,6 +24,37 @@ class UserStateStoreTest(unittest.TestCase):
             self.assertTrue(path.exists())
             self.assertIn('"toy"', path.read_text(encoding="utf-8"))
 
+    def test_ensure_exists_creates_empty_state_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ".deepcode" / "user-state.json"
+            store = UserStateStore(path)
+
+            store.ensure_exists()
+
+            self.assertTrue(path.exists())
+            self.assertEqual(path.read_text(encoding="utf-8"), '{\n  "problems": {}\n}\n')
+
+    def test_reset_problem_removes_completed_status(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ".deepcode" / "user-state.json"
+            store = UserStateStore(path)
+            store.mark_completed("toy")
+
+            status = store.reset_problem("toy")
+
+            self.assertEqual(status, {"completed": False, "completed_at": None})
+            self.assertNotIn('"toy"', path.read_text(encoding="utf-8"))
+
+    def test_reset_problem_creates_missing_state_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ".deepcode" / "user-state.json"
+            store = UserStateStore(path)
+
+            status = store.reset_problem("toy")
+
+            self.assertEqual(status, {"completed": False, "completed_at": None})
+            self.assertTrue(path.exists())
+
     def test_annotate_does_not_mutate_problem_metadata(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")

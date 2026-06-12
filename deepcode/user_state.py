@@ -13,6 +13,11 @@ class UserStateStore:
     def __init__(self, path: str | Path):
         self.path = Path(path)
 
+    def ensure_exists(self) -> None:
+        if self.path.exists():
+            return
+        self._write({"problems": {}})
+
     def annotate(self, problem: dict[str, Any]) -> dict[str, Any]:
         annotated = deepcopy(problem)
         annotated["personal_status"] = self.status_for(str(problem.get("slug", "")))
@@ -29,6 +34,12 @@ class UserStateStore:
         status = problems.setdefault(slug, {})
         status["completed"] = True
         status["completed_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+        self._write(data)
+        return self.status_for(slug)
+
+    def reset_problem(self, slug: str) -> dict[str, Any]:
+        data = self._read()
+        data.setdefault("problems", {}).pop(slug, None)
         self._write(data)
         return self.status_for(slug)
 

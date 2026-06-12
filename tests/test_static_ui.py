@@ -127,6 +127,17 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".completion-badge.completed", styles_css)
         self.assertIn(".status-cell", styles_css)
 
+    def test_reset_code_clears_local_completion_status(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+
+        reset_code = app_js.split("async function resetCode() {", maxsplit=1)[1].split(
+            "\n}\n\nfunction problemCompleted", maxsplit=1
+        )[0]
+
+        self.assertIn("/reset", reset_code)
+        self.assertIn('method: "POST"', reset_code)
+        self.assertIn("syncProblemStatus", reset_code)
+
     def test_ui_uses_codex_like_system_fonts(self):
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 

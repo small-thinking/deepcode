@@ -33,7 +33,7 @@ From the browser you can:
 
 Submissions execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 
-When a submission passes, DeepCode records your personal completion status in `.deepcode/user-state.json`. That local state is separate from the committed problem definitions and is ignored by git by default.
+DeepCode creates `.deepcode/user-state.json` on local startup and records personal completion status there when a submission passes. That local state is separate from the committed problem definitions and is ignored by git by default. Resetting a problem clears both the editor code and that problem's completion status.
 
 ## Local Deployment
 

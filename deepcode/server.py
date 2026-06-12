@@ -82,6 +82,8 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
 
 
 def run(host: str = "127.0.0.1", port: int = 8000):
+    if DeepCodeHandler.context.user_state:
+        DeepCodeHandler.context.user_state.ensure_exists()
     server = ThreadingHTTPServer((host, port), DeepCodeHandler)
     print(f"DeepCode is running at http://{host}:{port}")
     print(f"Problem folders: {PROBLEMS_DIR}")

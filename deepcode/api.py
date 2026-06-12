@@ -86,6 +86,12 @@ def _handle_api_request(
             result["problem_status"] = context.user_state.mark_completed(str(problem.get("slug", parts[2])))
         return 200, result
 
+    if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "reset" and method == "POST":
+        problem = context.store.get_problem(parts[2])
+        if context.user_state:
+            return 200, {"problem_status": context.user_state.reset_problem(str(problem.get("slug", parts[2])))}
+        return 200, {"problem_status": {"completed": False, "completed_at": None}}
+
     if parts[:2] == ["api", "problems"]:
         return 405, {"error": "Method not allowed"}
     return 404, {"error": "Route not found"}
