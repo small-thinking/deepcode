@@ -38,6 +38,11 @@ class CiQualityGateTest(unittest.TestCase):
                 if evaluation_type == "ml_coding":
                     self.assertIn("expected_output", test)
 
+    def test_local_user_state_directory_is_ignored(self):
+        gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+
+        self.assertIn(".deepcode/", gitignore)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -113,6 +113,20 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".page-detail", styles_css)
         self.assertIn("max-width: none", styles_css)
 
+    def test_problem_list_renders_local_completion_status(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("function problemCompleted", app_js)
+        self.assertIn("function problemStatusBadge", app_js)
+        self.assertIn("personal_status", app_js)
+        self.assertIn("<th>Status</th>", app_js)
+        self.assertIn('class="status-cell"', app_js)
+        self.assertIn("✓", app_js)
+        self.assertIn(".completion-badge", styles_css)
+        self.assertIn(".completion-badge.completed", styles_css)
+        self.assertIn(".status-cell", styles_css)
+
     def test_ui_uses_codex_like_system_fonts(self):
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 

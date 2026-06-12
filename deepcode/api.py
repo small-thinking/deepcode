@@ -7,11 +7,13 @@ from urllib.parse import unquote
 
 from deepcode.evaluators import EvaluationRequest, UnsupportedEvaluatorError, evaluate_submission
 from deepcode.problem_store import ProblemStore
+from deepcode.user_state import UserStateStore
 
 
 @dataclass(frozen=True)
 class ApiContext:
     store: ProblemStore
+    user_state: UserStateStore | None = None
 
 
 def handle_api_request(
@@ -51,6 +53,7 @@ def _handle_api_request(
             search=_first(query, "search"),
             sort=_first(query, "sort") or "id",
         )
+        problems = _with_personal_status(context, problems)
         return 200, {
             "problems": problems,
             "categories": context.store.categories(),
@@ -59,7 +62,8 @@ def _handle_api_request(
         }
 
     if len(parts) == 3 and parts[:2] == ["api", "problems"] and method == "GET":
-        return 200, {"problem": _public_problem(context.store.get_problem(parts[2]))}
+        problem = _public_problem(context.store.get_problem(parts[2]))
+        return 200, {"problem": _with_personal_status(context, [problem])[0]}
 
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "run" and method == "POST":
         problem = context.store.get_problem(parts[2])
@@ -78,6 +82,8 @@ def _handle_api_request(
                 runtime=problem.get("_runtime", {}),
             )
         )
+        if context.user_state and result.get("status") == "passed":
+            result["problem_status"] = context.user_state.mark_completed(str(problem.get("slug", parts[2])))
         return 200, result
 
     if parts[:2] == ["api", "problems"]:
@@ -94,3 +100,9 @@ def _first(query: dict[str, list[str]], key: str) -> str | None:
 
 def _public_problem(problem: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in problem.items() if not key.startswith("_")}
+
+
+def _with_personal_status(context: ApiContext, problems: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not context.user_state:
+        return problems
+    return [context.user_state.annotate(problem) for problem in problems]

@@ -3,21 +3,24 @@ from __future__ import annotations
 import argparse
 import json
 import mimetypes
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from deepcode.api import ApiContext, handle_api_request
 from deepcode.problem_store import ProblemStore
+from deepcode.user_state import UserStateStore
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 PROBLEMS_DIR = BASE_DIR / "problems"
+USER_STATE_PATH = Path(os.environ.get("DEEPCODE_USER_STATE_PATH", BASE_DIR / ".deepcode" / "user-state.json"))
 
 
 class DeepCodeHandler(BaseHTTPRequestHandler):
-    context = ApiContext(store=ProblemStore(PROBLEMS_DIR))
+    context = ApiContext(store=ProblemStore(PROBLEMS_DIR), user_state=UserStateStore(USER_STATE_PATH))
 
     def do_GET(self):
         self._dispatch()

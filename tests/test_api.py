@@ -5,6 +5,7 @@ from pathlib import Path
 
 from deepcode.api import ApiContext, handle_api_request
 from deepcode.problem_store import ProblemStore
+from deepcode.user_state import UserStateStore
 
 
 class ApiTest(unittest.TestCase):
@@ -24,6 +25,24 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["problems"][0]["slug"], "toy")
             self.assertEqual(payload["categories"], ["Machine Learning"])
             self.assertEqual(payload["difficulties"], ["easy"])
+
+    def test_lists_problems_with_local_personal_status(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+            user_state.mark_completed("toy")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, user_state=user_state),
+                "GET",
+                "/api/problems",
+                {},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["problems"][0]["personal_status"]["completed"], True)
 
     def test_fetches_problem_detail(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -52,6 +71,25 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(payload["status"], "passed")
             self.assertEqual(payload["passed"], 1)
+
+    def test_passing_submission_marks_problem_complete(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, user_state=user_state),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return x\n"}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "passed")
+            self.assertEqual(payload["problem_status"]["completed"], True)
+            self.assertEqual(user_state.status_for("toy")["completed"], True)
 
     def test_returns_501_for_unregistered_evaluator(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -111,7 +149,7 @@ class ApiTest(unittest.TestCase):
 
     def _write_problem(self, root, folder, problem_id, problem_overrides=None, tests=None):
         problem_dir = root / folder
-        problem_dir.mkdir()
+        problem_dir.mkdir(parents=True)
         problem = {
             "id": problem_id,
             "slug": folder,

@@ -211,7 +211,7 @@ button {
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -309,6 +309,31 @@ tbody tr:hover {
   width: 64px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+
+.status-cell {
+  width: 76px;
+}
+
+.completion-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--mini-bg);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.completion-badge.completed {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
 }
 
 .title-cell {
@@ -831,8 +856,8 @@ pre {
     grid-template-columns: 1fr;
   }
 
-  th:nth-child(4),
-  td:nth-child(4) {
+  th:nth-child(5),
+  td:nth-child(5) {
     display: none;
   }
 }

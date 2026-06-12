@@ -33,6 +33,8 @@ From the browser you can:
 
 Submissions execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 
+When a submission passes, DeepCode records your personal completion status in `.deepcode/user-state.json`. That local state is separate from the committed problem definitions and is ignored by git by default.
+
 ## Local Deployment
 
 DeepCode is a single Python server that serves the static UI and JSON API. No database, account system, hosted backend, or web framework is required.
@@ -63,6 +65,7 @@ See [docs/architecture.md](docs/architecture.md) for the local system architectu
 - `deepcode/evaluators/`: evaluator interfaces and registered evaluation backends.
 - `frontend/`: browser UI assets served by the backend.
 - `problems/`: file-backed problem definitions and evaluator test cases.
+- `.deepcode/`: local-only user state such as completed problems, ignored by git.
 - `data/` and `runs/`: optional local-only folders for future dataset-backed tasks and run artifacts.
 - `tests/`: backend and static UI regression tests.
 
