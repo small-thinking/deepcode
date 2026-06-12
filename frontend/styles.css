@@ -339,10 +339,80 @@ tbody tr:hover {
 }
 
 .detail-layout {
+  --problem-pane-width: 46%;
+  --results-pane-height: 32%;
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
-  gap: 14px;
+  grid-template-columns: minmax(300px, var(--problem-pane-width)) 12px minmax(380px, 1fr);
+  gap: 0;
   min-height: calc(100vh - 104px);
+}
+
+.detail-panel,
+.editor-panel {
+  min-width: 0;
+}
+
+.pane-resizer {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  touch-action: none;
+  outline: none;
+}
+
+.pane-resizer::before {
+  content: "";
+  display: block;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.pane-resizer:hover::before,
+.pane-resizer:focus-visible::before,
+body.is-resizing .pane-resizer::before {
+  background: var(--blue);
+}
+
+.problem-code-resizer {
+  min-width: 12px;
+  cursor: col-resize;
+}
+
+.problem-code-resizer::before {
+  width: 2px;
+  min-height: 56px;
+  height: 18%;
+}
+
+.problem-code-resizer:hover::before,
+.problem-code-resizer:focus-visible::before,
+body.is-resizing .problem-code-resizer::before {
+  transform: scaleX(1.8);
+}
+
+.code-results-resizer {
+  min-height: 12px;
+  cursor: row-resize;
+}
+
+.code-results-resizer::before {
+  width: 18%;
+  min-width: 56px;
+  height: 2px;
+}
+
+.code-results-resizer:hover::before,
+.code-results-resizer:focus-visible::before,
+body.is-resizing .code-results-resizer::before {
+  transform: scaleY(1.8);
+}
+
+body.is-resizing {
+  user-select: none;
 }
 
 .problem-topbar {
@@ -454,8 +524,8 @@ pre {
 }
 
 .editor-panel {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(220px, 1fr) 12px minmax(140px, var(--results-pane-height));
   min-height: 0;
 }
 
@@ -465,10 +535,16 @@ pre {
   gap: 8px;
 }
 
+.code-pane {
+  min-height: 0;
+  overflow: hidden;
+  background: var(--code-bg);
+}
+
 .code-editor {
-  flex: 1;
   width: 100%;
-  min-height: 430px;
+  height: 100%;
+  min-height: 0;
   border: 0;
   outline: none;
   background: var(--code-bg);
@@ -479,20 +555,20 @@ pre {
 }
 
 .ace-editor {
-  height: 55vh;
-  min-height: 430px;
+  height: 100%;
+  min-height: 0;
 }
 
 .fallback-editor {
-  resize: vertical;
+  resize: none;
   padding: 18px;
 }
 
 .results {
-  border-top: 1px solid var(--line);
   background: var(--inset-bg);
   padding: 14px;
-  max-height: 330px;
+  min-height: 0;
+  max-height: none;
   overflow: auto;
 }
 
@@ -504,24 +580,66 @@ pre {
   color: var(--muted);
 }
 
-.result-item {
+.result-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.result-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  max-width: 220px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.result-tab span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-tab.active {
+  color: var(--text);
+  border-color: var(--line-bright);
+  background: var(--panel-2);
+}
+
+.result-tab.pass.active {
+  border-color: var(--green);
+}
+
+.result-tab.fail.active {
+  border-color: var(--red);
+}
+
+.result-case {
   border: 1px solid var(--line);
   border-left-width: 4px;
   border-radius: 8px;
   background: var(--panel);
   padding: 12px;
-  margin-bottom: 10px;
 }
 
-.result-item.pass {
+.result-case.pass {
   border-left-color: var(--green);
 }
 
-.result-item.fail {
+.result-case.fail {
   border-left-color: var(--red);
 }
 
-.result-item h4 {
+.result-case h4 {
   margin: 0 0 10px;
   display: flex;
   align-items: center;
@@ -607,9 +725,25 @@ pre {
 
   .detail-layout {
     min-height: auto;
+    gap: 14px;
+  }
+
+  .pane-resizer {
+    display: none;
+  }
+
+  .editor-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .code-pane {
+    min-height: 360px;
   }
 
   .code-editor {
+    height: 360px;
     min-height: 360px;
   }
 
