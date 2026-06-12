@@ -125,3 +125,8 @@ Keep torch checks small and deterministic: tiny tensors, seeded randomness when
 needed, CPU execution, and short behavioral assertions. This evaluator is a good
 fit for debugging attention blocks, tensor shape code, loss functions, autograd
 behavior, and compact neural network modules.
+
+Unlike the standard modeling evaluator, `ml_torch_modeling` does not apply the
+default 512 MB address-space cap to child processes. PyTorch imports can exceed
+that limit on Linux even for tiny CPU examples, so rely on per-case timeouts and
+small deterministic checks instead.

@@ -5,10 +5,13 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from deepcode.evaluators.base import EvaluationRequest
 from deepcode.evaluators.ml_coding import _build_script, _resource_limiter, _runner_env
+
+
+ResourceLimiterFactory = Callable[[], Callable[[], None]]
 
 
 class MlModelingEvaluator:
@@ -28,6 +31,7 @@ def run_modeling_checks(
     tests: list[dict[str, Any]],
     timeout_seconds: int | float = 5,
     runtime: dict[str, Any] | None = None,
+    resource_limiter_factory: ResourceLimiterFactory | None = _resource_limiter,
 ) -> dict[str, Any]:
     results = []
     for test in tests:
@@ -37,6 +41,7 @@ def run_modeling_checks(
             test_code=test["test"],
             timeout_seconds=case_timeout,
             runtime=runtime or {},
+            resource_limiter_factory=resource_limiter_factory,
         )
         results.append(
             {
@@ -64,6 +69,7 @@ def _run_single_check(
     test_code: str,
     timeout_seconds: int | float,
     runtime: dict[str, Any],
+    resource_limiter_factory: ResourceLimiterFactory | None,
 ) -> tuple[bool, str]:
     script = _build_script(code, test_code)
     with tempfile.TemporaryDirectory(prefix="deepcode-modeling-") as tmp:
@@ -77,7 +83,7 @@ def _run_single_check(
                 capture_output=True,
                 text=True,
                 timeout=timeout_seconds,
-                preexec_fn=_resource_limiter() if os.name == "posix" else None,
+                preexec_fn=resource_limiter_factory() if os.name == "posix" and resource_limiter_factory else None,
             )
         except subprocess.TimeoutExpired:
             return False, f"Timed out after {timeout_seconds} seconds"

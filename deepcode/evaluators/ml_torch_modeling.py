@@ -15,4 +15,17 @@ class MlTorchModelingEvaluator:
             tests=request.tests,
             timeout_seconds=request.environment.get("timeout_seconds", 5),
             runtime=request.runtime,
+            resource_limiter_factory=_torch_resource_limiter,
         )
+
+
+def _torch_resource_limiter():
+    def limit_resources():
+        try:
+            import resource
+
+            resource.setrlimit(resource.RLIMIT_FSIZE, (1_000_000, 1_000_000))
+        except Exception:
+            pass
+
+    return limit_resources

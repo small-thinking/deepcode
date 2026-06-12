@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
 
 from deepcode.evaluators import EvaluationRequest, UnsupportedEvaluatorError, evaluate_submission, get_evaluator
+from deepcode.evaluators import ml_torch_modeling
 
 
 class EvaluatorRegistryTest(unittest.TestCase):
@@ -75,6 +77,26 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], 1)
         self.assertEqual(result["results"][0]["actual_output"], "ok")
+
+    def test_ml_torch_modeling_uses_torch_resource_limiter(self):
+        request = EvaluationRequest(
+            code="import torch\n",
+            problem={"evaluation": {"type": "ml_torch_modeling"}},
+            tests=[{"name": "noop", "test": "import torch\n"}],
+            environment={"timeout_seconds": 10, "packages": ["torch"]},
+        )
+
+        with patch(
+            "deepcode.evaluators.ml_torch_modeling.run_modeling_checks",
+            return_value={"status": "passed"},
+        ) as run_checks:
+            result = ml_torch_modeling.MlTorchModelingEvaluator().evaluate(request)
+
+        self.assertEqual(result["status"], "passed")
+        self.assertIs(
+            run_checks.call_args.kwargs["resource_limiter_factory"],
+            ml_torch_modeling._torch_resource_limiter,
+        )
 
     def test_ml_modeling_normalizes_mixed_tab_indentation(self):
         result = evaluate_submission(
