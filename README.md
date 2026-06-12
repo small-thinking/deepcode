@@ -54,8 +54,10 @@ The editor uses Ace Editor from jsDelivr, so syntax highlighting and editor keyb
 ## Project Layout
 
 - `deepcode/`: backend server, API routing, problem loading, and local code runner.
+- `deepcode/evaluators/`: evaluator interfaces and registered evaluation backends.
 - `frontend/`: browser UI assets served by the backend.
 - `problems/`: file-backed problem definitions and evaluator test cases.
+- `data/` and `runs/`: optional local-only folders for future dataset-backed tasks and run artifacts.
 - `tests/`: backend and static UI regression tests.
 
 ## Project Environment
@@ -87,3 +89,4 @@ uv run python -m unittest discover -s tests
 Problems are stored as JSON folders under `problems/`, so new ML coding questions can be added without changing backend or frontend code.
 
 See [docs/adding-problems.md](docs/adding-problems.md) for the developer guide.
+See [docs/evaluators.md](docs/evaluators.md) for the evaluator boundary and future modeling-task extension plan.

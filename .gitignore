@@ -6,3 +6,9 @@ __pycache__/
 .venv/
 .uv-cache/
 node_modules/
+.env.local
+data/
+runs/
+problems/**/data/
+problems/**/eval-results/
+problems/**/runs/
