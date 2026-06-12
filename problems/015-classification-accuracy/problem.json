@@ -5,7 +5,7 @@
   "category": "Machine Learning",
   "difficulty": "easy",
   "tags": ["metrics", "classification"],
-  "prompt": "Write a function `classification_accuracy(y_true, y_pred)` for single-label classification. `y_true` and `y_pred` are sequences of labels. If either input is empty or the lengths differ, return `-1`. Otherwise count same-position matches using Python equality (`y_true[i] == y_pred[i]`) and return `round(matches / len(y_true), 4)` as a fraction from `0.0` to `1.0`, not a percentage.",
+  "prompt": "Implement `classification_accuracy(y_true, y_pred)` for single-label classification.\n\nReturn `-1` if either input is empty or the lengths differ. Otherwise count same-position matches with Python equality (`y_true[i] == y_pred[i]`) and return `round(matches / len(y_true), 4)` as a fraction from `0.0` to `1.0`, not a percentage.",
   "starter_code": "def classification_accuracy(y_true, y_pred):\n    # Return -1 for empty inputs or length mismatch; otherwise return rounded fraction correct.\n    pass\n",
   "example": {
     "input": "y_true = [0, 1, 2], y_pred = [0, 2, 2]",

@@ -86,14 +86,55 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function markdownInline(value) {
+  return escapeHtml(value).replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function renderMarkdownLines(lines) {
+  const blocks = [];
+  let paragraphLines = [];
+  let listItems = [];
+
+  const flushParagraph = () => {
+    if (!paragraphLines.length) return;
+    blocks.push(`<p>${paragraphLines.map((line) => markdownInline(line)).join("<br>")}</p>`);
+    paragraphLines = [];
+  };
+
+  const flushList = () => {
+    if (!listItems.length) return;
+    blocks.push(`<ul>${listItems.map((item) => `<li>${markdownInline(item)}</li>`).join("")}</ul>`);
+    listItems = [];
+  };
+
+  lines.forEach((line) => {
+    if (line.startsWith("- ")) {
+      flushParagraph();
+      listItems.push(line.slice(2));
+      return;
+    }
+    flushList();
+    paragraphLines.push(line);
+  });
+
+  flushParagraph();
+  flushList();
+  return blocks.join("");
+}
+
 function markdownLite(value) {
-  const escaped = escapeHtml(value);
-  return escaped
-    .replace(/^### (.*)$/gm, "<h4>$1</h4>")
-    .replace(/^## (.*)$/gm, "<h3>$1</h3>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/\n/g, "<br>");
+  const normalized = String(value ?? "").trim();
+  if (!normalized) return "";
+
+  return normalized
+    .split(/\n{2,}/)
+    .map((block) => {
+      const lines = block.split("\n");
+      if (lines.length === 1 && block.startsWith("### ")) return `<h4>${markdownInline(block.slice(4))}</h4>`;
+      if (lines.length === 1 && block.startsWith("## ")) return `<h3>${markdownInline(block.slice(3))}</h3>`;
+      return renderMarkdownLines(lines);
+    })
+    .join("");
 }
 
 function clamp(value, min, max) {
@@ -597,7 +638,7 @@ function renderProblemTab(problem, env) {
   }
 
   return `
-    <p>${markdownLite(problem.prompt)}</p>
+    <div class="problem-prompt">${markdownLite(problem.prompt)}</div>
     <div class="example-box">
       <div class="example-row"><div class="label">Input</div><pre>${escapeHtml(problem.example?.input || "")}</pre></div>
       <div class="example-row"><div class="label">Output</div><pre>${escapeHtml(problem.example?.output || "")}</pre></div>
