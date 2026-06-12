@@ -56,6 +56,21 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".result-tab", styles_css)
         self.assertIn(".result-case", styles_css)
 
+    def test_running_checks_show_progress_feedback(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("runStartedAt", app_js)
+        self.assertIn("runElapsedSeconds", app_js)
+        self.assertIn("startRunTimer", app_js)
+        self.assertIn("stopRunTimer", app_js)
+        self.assertIn("renderRunningResults", app_js)
+        self.assertIn('aria-live="polite"', app_js)
+        self.assertIn("Running checks", app_js)
+        self.assertIn(".running-results", styles_css)
+        self.assertIn(".run-spinner", styles_css)
+        self.assertIn("@keyframes spin", styles_css)
+
     def test_run_tests_normalizes_indentation_before_submit(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
 
