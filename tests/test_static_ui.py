@@ -63,6 +63,17 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("const code = normalizePythonIndentation(editorCode())", app_js)
         self.assertIn("setEditorCode(code)", app_js)
 
+    def test_returning_from_direct_detail_load_refreshes_problem_catalog(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        back_to_list = app_js.split("function backToList() {", maxsplit=1)[1].split(
+            "\n}\n\nfunction difficultyPill", maxsplit=1
+        )[0]
+
+        self.assertIn("const needsProblemCatalog = state.problems.length === 0;", back_to_list)
+        self.assertIn("if (needsProblemCatalog)", back_to_list)
+        self.assertIn("loadProblems();", back_to_list)
+        self.assertIn("return;", back_to_list)
+
     def test_problem_prompt_renders_structured_copy(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
