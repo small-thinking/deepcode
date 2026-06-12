@@ -3,11 +3,13 @@ from __future__ import annotations
 from deepcode.evaluators.base import EvaluationRequest, Evaluator, UnsupportedEvaluatorError
 from deepcode.evaluators.ml_coding import MlCodingEvaluator
 from deepcode.evaluators.ml_modeling import MlModelingEvaluator
+from deepcode.evaluators.ml_torch_modeling import MlTorchModelingEvaluator
 
 
 _EVALUATORS: dict[str, Evaluator] = {
     MlCodingEvaluator.name: MlCodingEvaluator(),
     MlModelingEvaluator.name: MlModelingEvaluator(),
+    MlTorchModelingEvaluator.name: MlTorchModelingEvaluator(),
 }
 
 

@@ -21,6 +21,8 @@ const state = {
   activeTab: "description",
   activeResultIndex: 0,
   runResult: null,
+  runStartedAt: null,
+  runElapsedSeconds: 0,
   error: null,
   loading: true,
   running: false,
@@ -34,6 +36,7 @@ const state = {
 const app = document.querySelector("#app");
 let codeEditor = null;
 let activePaneResize = null;
+let runTimer = null;
 
 function initialTheme() {
   const stored = localStorage.getItem(THEME_KEY);
@@ -373,6 +376,27 @@ function mountEditor() {
   });
 }
 
+function startRunTimer() {
+  stopRunTimer();
+  state.runStartedAt = Date.now();
+  state.runElapsedSeconds = 0;
+  runTimer = setInterval(updateRunElapsed, 1000);
+}
+
+function stopRunTimer() {
+  if (runTimer) {
+    clearInterval(runTimer);
+    runTimer = null;
+  }
+}
+
+function updateRunElapsed() {
+  if (!state.runStartedAt) return;
+  state.runElapsedSeconds = Math.max(0, Math.floor((Date.now() - state.runStartedAt) / 1000));
+  const elapsed = document.querySelector("#run-elapsed");
+  if (elapsed) elapsed.textContent = `${state.runElapsedSeconds}s elapsed`;
+}
+
 async function runTests() {
   if (!state.selected) return;
   const code = normalizePythonIndentation(editorCode());
@@ -382,7 +406,9 @@ async function runTests() {
   state.runResult = null;
   state.activeResultIndex = 0;
   state.error = null;
+  startRunTimer();
   render();
+  updateRunElapsed();
   try {
     state.runResult = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/run`, {
       method: "POST",
@@ -394,7 +420,9 @@ async function runTests() {
   } catch (error) {
     state.error = error.message;
   } finally {
+    stopRunTimer();
     state.running = false;
+    state.runStartedAt = null;
     render();
   }
 }
@@ -585,6 +613,10 @@ function problemStatusBadge(problem) {
 function renderDetail() {
   const problem = state.selected;
   const env = problem.environment || {};
+  const runButtonState = state.running ? "disabled" : "";
+  const runButtonContent = state.running
+    ? `<span class="button-spinner" aria-hidden="true"></span><span>Running checks</span>`
+    : "Run tests";
   app.innerHTML = `
     <main class="page page-detail">
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
@@ -622,8 +654,8 @@ function renderDetail() {
             <div class="editor-actions">
               <button class="ghost-button" id="reset-code">Reset</button>
             </div>
-            <button class="primary-button" id="run-tests" ${state.running ? "disabled" : ""}>
-              ${state.running ? "Running..." : "Run tests"}
+            <button class="primary-button" id="run-tests" ${runButtonState} aria-busy="${state.running}">
+              ${runButtonContent}
             </button>
           </div>
           <div class="code-pane">
@@ -771,6 +803,10 @@ function renderReferences(references) {
 }
 
 function renderResults() {
+  if (state.running) {
+    return renderRunningResults();
+  }
+
   if (!state.runResult) {
     return `<div class="empty-state">No run yet.</div>`;
   }
@@ -804,6 +840,20 @@ function renderResults() {
     </div>
     <div class="result-tabs" role="tablist" aria-label="Test cases">${tabs}</div>
     ${renderResultCase(results[activeIndex], activeIndex)}
+  `;
+}
+
+function renderRunningResults() {
+  const testCount = state.selected?.tests?.length || 0;
+  const countLabel = testCount === 1 ? "1 visible check" : `${testCount} visible checks`;
+  return `
+    <div class="running-results" aria-live="polite" aria-busy="true">
+      <span class="run-spinner" aria-hidden="true"></span>
+      <div>
+        <strong>Running checks...</strong>
+        <p><span id="run-elapsed">${state.runElapsedSeconds}s elapsed</span> · ${countLabel} running locally</p>
+      </div>
+    </div>
   `;
 }
 

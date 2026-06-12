@@ -59,7 +59,9 @@ submission. The snippet should use `assert` statements and may print a short
 diagnostic. A case passes when the script exits with code 0. Assertion failures,
 exceptions, and timeouts are reported per case without stopping later cases.
 Submitted code gets the same leading-tab indentation normalization as
-`ml_coding`.
+`ml_coding`. Runtime tracebacks are trimmed to the generated submission script
+frames so users see the relevant failing check and implementation line without
+temporary runner paths or framework internals.
 
 Modeling problems may also reserve local data and artifact paths:
 
@@ -99,3 +101,34 @@ When present, the evaluator exposes runtime paths to check scripts through:
 For now, `ml_modeling` is intended for small local tasks that finish quickly.
 Full training orchestration, TensorBoard/W&B ingestion, and LLM-as-judge can sit
 behind this evaluator boundary later without changing `ml_coding`.
+
+## `ml_torch_modeling`
+
+`ml_torch_modeling` is the PyTorch-oriented modeling/debugging evaluator. It
+uses the same assertion-style subprocess execution as `ml_modeling`, but problem
+metadata can use this type to signal that the check scripts and starter code are
+expected to import `torch`.
+
+Use:
+
+```json
+{
+  "evaluation": {
+    "type": "ml_torch_modeling"
+  },
+  "environment": {
+    "packages": ["torch"],
+    "timeout_seconds": 10
+  }
+}
+```
+
+Keep torch checks small and deterministic: tiny tensors, seeded randomness when
+needed, CPU execution, and short behavioral assertions. This evaluator is a good
+fit for debugging attention blocks, tensor shape code, loss functions, autograd
+behavior, and compact neural network modules.
+
+Unlike the standard modeling evaluator, `ml_torch_modeling` does not apply the
+default 512 MB address-space cap to child processes. PyTorch imports can exceed
+that limit on Linux even for tiny CPU examples, so rely on per-case timeouts and
+small deterministic checks instead.

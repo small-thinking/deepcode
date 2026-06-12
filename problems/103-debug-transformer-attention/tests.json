@@ -1,0 +1,32 @@
+[
+  {
+    "name": "preserves batch sequence and channel shape",
+    "input": "x = torch.randn(2, 4, 8); model = MultiHeadSelfAttention(embed_dim=8, num_heads=2)",
+    "test": "import torch\ntorch.manual_seed(7)\nmodel = MultiHeadSelfAttention(embed_dim=8, num_heads=2)\nx = torch.randn(2, 4, 8)\nout = model(x)\nassert out.shape == (2, 4, 8)\nassert torch.isfinite(out).all()"
+  },
+  {
+    "name": "earlier positions are stable when a later token changes",
+    "input": "x_changed differs only at the final sequence position",
+    "test": "import torch\n\ndef configure_identity_attention(model):\n    with torch.no_grad():\n        model.qkv.weight.zero_()\n        model.qkv.bias.zero_()\n        eye = torch.eye(model.embed_dim)\n        for offset in range(3):\n            start = offset * model.embed_dim\n            model.qkv.weight[start:start + model.embed_dim].copy_(eye)\n        model.proj.weight.copy_(eye)\n        model.proj.bias.zero_()\n\nmodel = MultiHeadSelfAttention(embed_dim=4, num_heads=2)\nconfigure_identity_attention(model)\nmodel.eval()\nx = torch.tensor([[[1.0, 0.0, 0.5, -0.5], [0.0, 1.0, -0.5, 0.5], [0.5, 0.5, 1.0, 0.0], [-0.25, 0.25, 0.0, 1.0]]])\nx_changed = x.clone()\nx_changed[:, 3, :] = torch.tensor([100.0, -50.0, 25.0, -10.0])\nout = model(x)\nout_changed = model(x_changed)\nassert torch.allclose(out[:, :3, :], out_changed[:, :3, :], atol=1e-5)"
+  },
+  {
+    "name": "changing a padded key does not change valid-token outputs",
+    "input": "padding_mask = [[True, True, False]]; final token value changes",
+    "test": "import torch\n\ndef configure_identity_attention(model):\n    with torch.no_grad():\n        model.qkv.weight.zero_()\n        model.qkv.bias.zero_()\n        eye = torch.eye(model.embed_dim)\n        for offset in range(3):\n            start = offset * model.embed_dim\n            model.qkv.weight[start:start + model.embed_dim].copy_(eye)\n        model.proj.weight.copy_(eye)\n        model.proj.bias.zero_()\n\nmodel = MultiHeadSelfAttention(embed_dim=4, num_heads=2)\nconfigure_identity_attention(model)\nmodel.eval()\npadding_mask = torch.tensor([[True, True, False]])\nx = torch.tensor([[[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.5, -0.5], [20.0, -20.0, 10.0, -10.0]]])\nx_changed = x.clone()\nx_changed[:, 2, :] = torch.tensor([-100.0, 50.0, -25.0, 12.5])\nout = model(x, padding_mask=padding_mask)\nout_changed = model(x_changed, padding_mask=padding_mask)\nassert torch.isfinite(out).all()\nassert torch.allclose(out[:, :2, :], out_changed[:, :2, :], atol=1e-5)"
+  },
+  {
+    "name": "matches direct calculation on a tiny deterministic example",
+    "input": "identity projections, one batch, three tokens, two heads",
+    "test": "import torch\n\ndef configure_identity_attention(model):\n    with torch.no_grad():\n        model.qkv.weight.zero_()\n        model.qkv.bias.zero_()\n        eye = torch.eye(model.embed_dim)\n        for offset in range(3):\n            start = offset * model.embed_dim\n            model.qkv.weight[start:start + model.embed_dim].copy_(eye)\n        model.proj.weight.copy_(eye)\n        model.proj.bias.zero_()\n\nmodel = MultiHeadSelfAttention(embed_dim=4, num_heads=2)\nconfigure_identity_attention(model)\nmodel.eval()\nx = torch.tensor([[[1.0, 0.0, 0.5, 0.0], [0.0, 1.0, 0.5, 0.5], [1.0, 1.0, -0.5, 0.25]]])\nexpected = torch.tensor([[[1.0, 0.0, 0.5, 0.0], [0.33023846, 0.66976154, 0.5, 0.27203971], [0.75174493, 0.75174493, 0.08432898, 0.25645179]]])\nactual = model(x)\nassert torch.allclose(actual, expected, atol=1e-6)"
+  },
+  {
+    "name": "single-token input remains finite",
+    "input": "x = torch.randn(3, 1, 8)",
+    "test": "import torch\ntorch.manual_seed(11)\nmodel = MultiHeadSelfAttention(embed_dim=8, num_heads=4)\nx = torch.randn(3, 1, 8)\nout = model(x)\nassert out.shape == (3, 1, 8)\nassert torch.isfinite(out).all()"
+  },
+  {
+    "name": "eval mode disables attention dropout randomness",
+    "input": "model.eval(); dropout_p = 0.8; same x evaluated twice",
+    "test": "import torch\ntorch.manual_seed(13)\nmodel = MultiHeadSelfAttention(embed_dim=8, num_heads=2, dropout_p=0.8)\nmodel.eval()\nx = torch.randn(2, 5, 8)\nout1 = model(x)\nout2 = model(x)\nassert torch.allclose(out1, out2, atol=1e-6)"
+  }
+]

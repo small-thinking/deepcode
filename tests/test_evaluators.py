@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
 
 from deepcode.evaluators import EvaluationRequest, UnsupportedEvaluatorError, evaluate_submission, get_evaluator
+from deepcode.evaluators import ml_torch_modeling
 
 
 class EvaluatorRegistryTest(unittest.TestCase):
@@ -43,6 +45,83 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertEqual(result["passed"], 1)
         self.assertEqual(result["results"][0]["expected_output"], "All assertions pass")
         self.assertEqual(result["results"][0]["actual_output"], "ok")
+
+    def test_dispatches_ml_torch_modeling_assertion_checks(self):
+        self.assertEqual(get_evaluator("ml_torch_modeling").name, "ml_torch_modeling")
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=(
+                    "import torch\n\n"
+                    "def double_tensor(values):\n"
+                    "    return torch.tensor(values, dtype=torch.float32) * 2\n"
+                ),
+                problem={"evaluation": {"type": "ml_torch_modeling"}},
+                tests=[
+                    {
+                        "name": "tiny torch tensor behavior",
+                        "input": "values = [1.0, -2.0, 0.5]",
+                        "test": (
+                            "import torch\n"
+                            "actual = double_tensor([1.0, -2.0, 0.5])\n"
+                            "expected = torch.tensor([2.0, -4.0, 1.0])\n"
+                            "assert torch.allclose(actual, expected)\n"
+                            "print('ok')\n"
+                        ),
+                    }
+                ],
+                environment={"timeout_seconds": 10, "packages": ["torch"]},
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], 1)
+        self.assertEqual(result["results"][0]["actual_output"], "ok")
+
+    def test_ml_torch_modeling_uses_torch_resource_limiter(self):
+        request = EvaluationRequest(
+            code="import torch\n",
+            problem={"evaluation": {"type": "ml_torch_modeling"}},
+            tests=[{"name": "noop", "test": "import torch\n"}],
+            environment={"timeout_seconds": 10, "packages": ["torch"]},
+        )
+
+        with patch(
+            "deepcode.evaluators.ml_torch_modeling.run_modeling_checks",
+            return_value={"status": "passed"},
+        ) as run_checks:
+            result = ml_torch_modeling.MlTorchModelingEvaluator().evaluate(request)
+
+        self.assertEqual(result["status"], "passed")
+        self.assertIs(
+            run_checks.call_args.kwargs["resource_limiter_factory"],
+            ml_torch_modeling._torch_resource_limiter,
+        )
+
+    def test_ml_torch_modeling_shows_submission_focused_tracebacks(self):
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=(
+                    "import torch\n"
+                    "from torch import nn\n\n"
+                    "class BrokenModule(nn.Module):\n"
+                    "    def forward(self, x):\n"
+                    "        return x.masked_fill(torch.ones(2, dtype=torch.bool), 0)\n"
+                ),
+                problem={"evaluation": {"type": "ml_torch_modeling"}},
+                tests=[{"name": "shape mismatch", "test": "BrokenModule()(torch.ones(4))"}],
+                environment={"timeout_seconds": 10, "packages": ["torch"]},
+            )
+        )
+
+        actual_output = result["results"][0]["actual_output"]
+        self.assertEqual(result["status"], "failed")
+        self.assertIn('File "submission_check.py"', actual_output)
+        self.assertIn("return x.masked_fill", actual_output)
+        self.assertIn("RuntimeError", actual_output)
+        self.assertNotIn("site-packages", actual_output)
+        self.assertNotIn("torch/nn/modules/module.py", actual_output)
+        self.assertNotIn("deepcode-modeling-", actual_output)
 
     def test_ml_modeling_normalizes_mixed_tab_indentation(self):
         result = evaluate_submission(

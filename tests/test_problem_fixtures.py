@@ -244,6 +244,63 @@ class NGramCharModel:
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], len(problem["tests"]))
 
+    def test_debug_transformer_attention_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("debug-transformer-attention")
+        solution = r"""import math
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+
+class MultiHeadSelfAttention(nn.Module):
+    def __init__(self, embed_dim, num_heads, dropout_p=0.0):
+        super().__init__()
+        if embed_dim % num_heads != 0:
+            raise ValueError("embed_dim must be divisible by num_heads")
+        self.embed_dim = embed_dim
+        self.num_heads = num_heads
+        self.head_dim = embed_dim // num_heads
+        self.dropout_p = dropout_p
+        self.qkv = nn.Linear(embed_dim, 3 * embed_dim)
+        self.proj = nn.Linear(embed_dim, embed_dim)
+
+    def forward(self, x, padding_mask=None):
+        B, T, C = x.shape
+        qkv = self.qkv(x).view(B, T, 3, self.num_heads, self.head_dim)
+        q, k, v = qkv.unbind(dim=2)
+        q = q.transpose(1, 2)
+        k = k.transpose(1, 2)
+        v = v.transpose(1, 2)
+
+        scores = q @ k.transpose(-2, -1)
+        scores = scores / math.sqrt(self.head_dim)
+
+        future_mask = torch.triu(torch.ones(T, T, device=x.device, dtype=torch.bool), diagonal=1)
+        scores = scores.masked_fill(future_mask, float("-inf"))
+
+        if padding_mask is not None:
+            scores = scores.masked_fill(~padding_mask[:, None, None, :], float("-inf"))
+
+        weights = torch.softmax(scores, dim=-1)
+        weights = F.dropout(weights, p=self.dropout_p, training=self.training)
+        out = weights @ v
+        out = out.transpose(1, 2).contiguous().view(B, T, C)
+        return self.proj(out)
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
 
 if __name__ == "__main__":
     unittest.main()
