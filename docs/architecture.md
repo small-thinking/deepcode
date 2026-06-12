@@ -2,9 +2,9 @@
 
 ![DeepCode local architecture](assets/deepcode-local-architecture.png)
 
-This chart captures the intended system boundary: ML coding problems run through
-the current local evaluator, while dataset-backed modeling tasks can be added as
-a separate evaluator path later.
+This chart captures the intended system boundary: ML coding problems and small
+modeling checks run through separate local evaluator paths, while larger
+dataset-backed training tasks can expand the modeling path later.
 
 ## Maintainer Diagram
 
@@ -13,14 +13,14 @@ flowchart LR
     Frontend["Frontend\nProblems, editor, run results, theme UI"]
     Backend["Backend API\nProblemStore, Run API, Evaluator Registry, Static Assets"]
     Coding["ML Coding Evaluator\nPer-case tests, timeouts, comparators, sandboxed Python"]
-    Modeling["ML Modeling Evaluator (Future)\nDataset resolver, run directory, metrics, artifacts, LLM judge"]
+    Modeling["ML Modeling Evaluator\nAssertion checks, optional data path, run directory, future LLM judge"]
     State["Local Project State\nproblems/, frontend/, deepcode/, data/ ignored, runs/ ignored, .env.local"]
     Optional["Optional Services\nW&B, TensorBoard, LLM API"]
 
     Frontend --> Backend
     Backend --> Coding
     Coding --> Frontend
-    Backend -.-> Modeling
+    Backend --> Modeling
     Modeling -.-> Optional
     Backend --> State
     Coding --> State

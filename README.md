@@ -2,7 +2,7 @@
 
 DeepCode is a local-first coding challenge runner for machine learning and Python practice problems.
 
-Think LeetCode for deep learning foundations: matrix operations, metrics, baselines, and small ML coding exercises that run against local tests. The current scope is ML coding problems. Future versions can grow into longer training tasks, dataset-backed evaluations, and LLM-as-judge review of logs or model behavior.
+Think LeetCode for deep learning foundations: matrix operations, metrics, baselines, small ML coding exercises, and lightweight modeling tasks that run against local checks. Future versions can grow into longer training tasks, dataset-backed evaluations, and LLM-as-judge review of logs or model behavior.
 
 ## Quick Start
 
@@ -26,7 +26,7 @@ Open `http://127.0.0.1:8000`.
 
 From the browser you can:
 
-- Browse available ML coding problems.
+- Browse available ML coding and lightweight modeling problems.
 - Filter by category, difficulty, or search text.
 - Read the prompt, starter code, example, and visible test cases.
 - Write Python in the editor and run the local evaluator.
@@ -92,7 +92,7 @@ uv run python -m unittest discover -s tests
 
 ## Add Problems
 
-Problems are stored as JSON folders under `problems/`, so new ML coding questions can be added without changing backend or frontend code.
+Problems are stored as JSON folders under `problems/`, so new ML coding and small modeling questions can be added without changing frontend code.
 
 See [docs/adding-problems.md](docs/adding-problems.md) for the developer guide.
-See [docs/evaluators.md](docs/evaluators.md) for the evaluator boundary and future modeling-task extension plan.
+See [docs/evaluators.md](docs/evaluators.md) for the evaluator boundary and modeling-task extension plan.

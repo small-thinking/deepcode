@@ -247,6 +247,30 @@ class ProblemStoreTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "problem-relative"):
                 ProblemStore(root).get_problem("unsafe")
 
+    def test_rejects_ml_modeling_tests_without_check_script(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "modeling",
+                {
+                    "id": "103",
+                    "slug": "modeling",
+                    "title": "Modeling",
+                    "category": "Modeling",
+                    "difficulty": "medium",
+                    "prompt": "Fit a model.",
+                    "starter_code": "def train():\n    pass\n",
+                    "example": {"input": "dataset", "output": "metrics", "reasoning": "Modeling task."},
+                    "evaluation": {"type": "ml_modeling"},
+                    "environment": {"language": "python", "timeout_seconds": 5, "packages": []},
+                },
+                [{"name": "missing script"}],
+            )
+
+            with self.assertRaisesRegex(ValueError, "missing `test`"):
+                ProblemStore(root).get_problem("modeling")
+
     def _write_problem(self, root, folder, problem, tests):
         problem_dir = root / folder
         problem_dir.mkdir()

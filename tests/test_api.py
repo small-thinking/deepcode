@@ -60,7 +60,7 @@ class ApiTest(unittest.TestCase):
                 Path(tmp),
                 "toy",
                 "1",
-                problem_overrides={"evaluation": {"type": "ml_modeling"}},
+                problem_overrides={"evaluation": {"type": "not_registered"}},
                 tests=[],
             )
             status, payload = handle_api_request(
@@ -73,6 +73,28 @@ class ApiTest(unittest.TestCase):
 
             self.assertEqual(status, 501)
             self.assertIn("Unsupported evaluator", payload["error"])
+
+    def test_runs_ml_modeling_submission_for_problem(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp))
+            self._write_problem(
+                Path(tmp),
+                "toy",
+                "1",
+                problem_overrides={"evaluation": {"type": "ml_modeling"}},
+                tests=[{"name": "identity behavior", "test": "assert identity(4) == 4\nprint('ok')"}],
+            )
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return x\n"}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "passed")
+            self.assertEqual(payload["results"][0]["actual_output"], "ok")
 
     def test_returns_404_for_unknown_problem(self):
         with tempfile.TemporaryDirectory() as tmp:

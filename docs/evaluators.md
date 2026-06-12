@@ -7,7 +7,7 @@ turning one runner into a catch-all.
 ## Current Flow
 
 ```text
-frontend -> POST /api/problems/<slug>/run -> Evaluator Registry -> ml_coding
+frontend -> POST /api/problems/<slug>/run -> Evaluator Registry -> evaluator
 ```
 
 The API loads a problem, creates an `EvaluationRequest`, and asks the evaluator
@@ -36,11 +36,29 @@ If a problem omits `evaluation`, it defaults to `ml_coding`.
 This evaluator is implemented in `deepcode/evaluators/ml_coding.py`. The legacy
 `deepcode.runner.run_submission` import remains as a compatibility wrapper.
 
-## Future `ml_modeling`
+## `ml_modeling`
 
-Modeling tasks should use a separate evaluator type instead of expanding
-`ml_coding` into training orchestration. A future modeling problem can reserve
-metadata like:
+`ml_modeling` is the lightweight modeling evaluator. It is still local and
+subprocess-based, but it judges each case by running assertion/check scripts
+instead of comparing printed stdout. This is useful for small modeling tasks
+that need behavioral checks, repeated sampling checks, or metric assertions.
+
+Use:
+
+```json
+{
+  "evaluation": {
+    "type": "ml_modeling"
+  }
+}
+```
+
+Each `tests.json` entry must include `test`, a Python snippet appended below the
+submission. The snippet should use `assert` statements and may print a short
+diagnostic. A case passes when the script exits with code 0. Assertion failures,
+exceptions, and timeouts are reported per case without stopping later cases.
+
+Modeling problems may also reserve local data and artifact paths:
 
 ```json
 {
@@ -69,6 +87,12 @@ The actual `data/`, `runs/`, and local secret files are gitignored. Problem
 metadata can describe the expected local layout while datasets, checkpoints,
 TensorBoard logs, W&B files, and LLM judge keys stay on the user's machine.
 
-The current API returns `501` for unregistered evaluator types. Add a modeling
-evaluator by implementing the evaluator protocol and registering it in
-`deepcode/evaluators/registry.py`.
+When present, the evaluator exposes runtime paths to check scripts through:
+
+- `DEEPCODE_PROBLEM_DIR`
+- `DEEPCODE_DATA_PATH`
+- `DEEPCODE_RESULTS_PATH`
+
+For now, `ml_modeling` is intended for small local tasks that finish quickly.
+Full training orchestration, TensorBoard/W&B ingestion, and LLM-as-judge can sit
+behind this evaluator boundary later without changing `ml_coding`.

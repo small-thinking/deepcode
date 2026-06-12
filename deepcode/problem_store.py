@@ -133,6 +133,10 @@ class ProblemStore:
                 for key in ("test", "expected_output"):
                     if key not in test:
                         raise ValueError(f"{problem_dir}/tests.json test {index} is missing `{key}`")
+        if evaluation_type == "ml_modeling":
+            for index, test in enumerate(problem["tests"], start=1):
+                if "test" not in test:
+                    raise ValueError(f"{problem_dir}/tests.json test {index} is missing `test`")
 
         self._validate_relative_path(problem, problem_dir, "data", "path")
         self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")

@@ -1,6 +1,7 @@
 import unittest
 from pathlib import Path
 
+from deepcode.evaluators import get_evaluator
 from deepcode.problem_store import ProblemStore
 
 
@@ -29,8 +30,13 @@ class CiQualityGateTest(unittest.TestCase):
             self.assertNotIn("_runtime", problem)
 
             loaded = store.get_problem(problem["slug"])
-            self.assertEqual(loaded["evaluation"]["type"], "ml_coding")
+            evaluation_type = loaded["evaluation"]["type"]
+            self.assertEqual(get_evaluator(evaluation_type).name, evaluation_type)
             self.assertGreaterEqual(len(loaded["tests"]), 1)
+            for test in loaded["tests"]:
+                self.assertIn("test", test)
+                if evaluation_type == "ml_coding":
+                    self.assertIn("expected_output", test)
 
 
 if __name__ == "__main__":
