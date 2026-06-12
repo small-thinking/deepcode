@@ -68,7 +68,7 @@ See [docs/architecture.md](docs/architecture.md) for the local system architectu
 
 ## Project Environment
 
-DeepCode uses `uv` to pin and sync the local Python environment. The project currently has no third-party runtime dependencies, but the lockfile keeps development and CI reproducible as ML evaluation dependencies are added later.
+DeepCode uses `uv` to pin and sync the local Python environment. NumPy is included by default so ML coding problems can cover small array, metric, and optimization tasks without per-problem setup. The lockfile keeps development and CI reproducible as more evaluation dependencies are added later.
 
 Set up or refresh the environment:
 

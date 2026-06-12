@@ -42,6 +42,27 @@ class RunnerTest(unittest.TestCase):
 
         self.assertEqual(result["status"], "passed")
 
+    def test_runs_numpy_backed_cases(self):
+        result = run_submission(
+            code=(
+                "import numpy as np\n\n"
+                "def center_values(values):\n"
+                "    arr = np.asarray(values, dtype=float)\n"
+                "    return np.round(arr - arr.mean(), 4).tolist()\n"
+            ),
+            tests=[
+                {
+                    "name": "center three values",
+                    "test": "print(center_values([1.0, 2.0, 4.0]))",
+                    "expected_output": "[-1.3333, -0.3333, 1.6667]",
+                }
+            ],
+            timeout_seconds=2,
+            comparator="numeric",
+        )
+
+        self.assertEqual(result["status"], "passed")
+
     def test_reports_wrong_answer_without_stopping_later_tests(self):
         result = run_submission(
             code="def always_zero(x):\n    return 0\n",
