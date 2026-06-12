@@ -1,6 +1,6 @@
-# Adding ML Coding Problems
+# Adding Problems
 
-DeepCode problems are file-backed. To add a new ML coding question, create one folder under `problems/` with:
+DeepCode problems are file-backed. To add a new question, create one folder under `problems/` with:
 
 - `problem.json` for metadata, prompt text, starter code, and runtime settings
 - `tests.json` for executable test snippets and expected output
@@ -78,7 +78,7 @@ Current limitations:
 
 ## Evaluator Types
 
-Current problems should use the default evaluator:
+ML coding problems should use the default evaluator:
 
 ```json
 "evaluation": {
@@ -89,8 +89,22 @@ Current problems should use the default evaluator:
 `ml_coding` expects `tests.json` to contain per-case Python snippets with
 `test` and `expected_output`.
 
-Future modeling problems should use a separate evaluator type rather than
+Small modeling problems should use a separate evaluator type rather than
 overloading `ml_coding`:
+
+```json
+"evaluation": {
+  "type": "ml_modeling"
+}
+```
+
+`ml_modeling` expects each case to contain a Python `test` snippet with
+assertions. The case passes when the snippet exits successfully, so it can check
+object state, metrics, seeded randomness, or statistical ranges instead of
+matching stdout. Modeling cases may omit `expected_output`; the evaluator shows
+`All assertions pass` by default.
+
+Modeling problems may also declare local data and artifact folders:
 
 ```json
 {
@@ -134,15 +148,32 @@ boundary.
 ]
 ```
 
-Required test fields:
+Required fields for `ml_coding`:
 
 - `test`: Python code that calls the user's function and prints the result.
 - `expected_output`: The expected stdout after whitespace normalization.
+
+Required fields for `ml_modeling`:
+
+- `test`: Python code that exercises the user's model with assertions. A passing
+  process exit means the case passed.
 
 Recommended test fields:
 
 - `name`: A concise case name shown in results.
 - `input`: A human-readable input summary shown to users.
+
+For `ml_modeling`, use assertions directly in `test`:
+
+```json
+[
+  {
+    "name": "seeded top-k sampling",
+    "input": "model = NGramCharModel(n=1).train(\"aaabbc\")",
+    "test": "import random\nmodel = NGramCharModel(n=1).train(\"aaabbc\")\nrandom.seed(7)\nsamples = [model.sample_top_k('', k=2) for _ in range(300)]\nassert set(samples) <= {'a', 'b'}"
+  }
+]
+```
 
 ## Comparators
 

@@ -1,0 +1,46 @@
+{
+  "id": "101",
+  "slug": "ngram-next-character-model",
+  "title": "N-Gram Next-Character Model",
+  "category": "Modeling",
+  "difficulty": "medium",
+  "tags": ["language-modeling", "ngram", "perplexity", "sampling"],
+  "prompt": "Implement a character-level n-gram next-character model as class `NGramCharModel`. The constructor takes `n=3` and `alpha=1.0`; raise `ValueError` when `n < 1` or `alpha <= 0`. `train(text)` resets any previous state, requires a non-empty string, builds counts over contexts of length `n - 1`, pads the beginning of each training/evaluation string with `^`, and returns `self`. The model vocabulary is the set of characters seen in the latest training text. `prob(context, ch)` uses only the last `n - 1` characters of `context` and returns Laplace-smoothed probability `(count(context, ch) + alpha) / (total_context_count + alpha * vocab_size)`. Return `0.0` if the model is untrained or `ch` is outside the vocabulary. `perplexity(text)` returns `exp(-mean(log(probability)))` over the characters in `text`; return `float(\"inf\")` for empty text or impossible out-of-vocabulary evaluation. `sample_top_k(context, k=5)` ranks vocabulary characters by probability descending, breaks ties by character ascending, samples one character from the top `min(k, vocab_size)` candidates using Python's global `random` module, and raises `ValueError` for `k < 1` or sampling before training.",
+  "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n\nclass NGramCharModel:\n    def __init__(self, n=3, alpha=1.0):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
+  "example": {
+    "input": "model = NGramCharModel(n=2, alpha=1.0).train(\"ababa\")",
+    "output": "model.prob(\"a\", \"b\") == 0.75",
+    "reasoning": "The context `a` is followed by `b` twice. With vocabulary {a, b} and alpha = 1, P(b | a) = (2 + 1) / (2 + 2) = 0.75."
+  },
+  "references": [
+    {
+      "label": "N-gram",
+      "url": "https://en.wikipedia.org/wiki/N-gram"
+    },
+    {
+      "label": "Language model",
+      "url": "https://en.wikipedia.org/wiki/Language_model"
+    },
+    {
+      "label": "Perplexity",
+      "url": "https://en.wikipedia.org/wiki/Perplexity"
+    }
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "data": {
+    "path": "data",
+    "required": false
+  },
+  "artifacts": {
+    "results_path": "eval-results"
+  },
+  "created_at": "2026-06-12"
+}
