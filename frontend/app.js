@@ -388,6 +388,9 @@ async function runTests() {
       method: "POST",
       body: JSON.stringify({ code }),
     });
+    if (state.runResult.problem_status) {
+      syncProblemStatus(state.selected.slug, state.runResult.problem_status);
+    }
   } catch (error) {
     state.error = error.message;
   } finally {
@@ -396,12 +399,39 @@ async function runTests() {
   }
 }
 
-function resetCode() {
+async function resetCode() {
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), state.selected.starter_code || "");
   state.runResult = null;
   state.activeResultIndex = 0;
+  state.error = null;
+  try {
+    const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/reset`, { method: "POST" });
+    if (payload.problem_status) {
+      syncProblemStatus(state.selected.slug, payload.problem_status);
+    }
+  } catch (error) {
+    state.error = error.message;
+  }
   render();
+}
+
+function problemCompleted(problem) {
+  return problem?.personal_status?.completed === true;
+}
+
+function completedProblemCount() {
+  return state.problems.filter(problemCompleted).length;
+}
+
+function syncProblemStatus(slug, status) {
+  const personalStatus = { completed: status?.completed === true, completed_at: status?.completed_at || null };
+  state.problems = state.problems.map((problem) =>
+    problem.slug === slug ? { ...problem, personal_status: personalStatus } : problem
+  );
+  if (state.selected?.slug === slug) {
+    state.selected = { ...state.selected, personal_status: personalStatus };
+  }
 }
 
 function randomProblem() {
@@ -475,6 +505,7 @@ function renderList() {
 
       <section class="stat-grid" aria-label="Collection status">
         <div class="stat-card"><strong>${state.problems.length}</strong><span>Visible problems</span></div>
+        <div class="stat-card"><strong>${completedProblemCount()}</strong><span>Completed</span></div>
         <div class="stat-card"><strong>${state.categories.length}</strong><span>Categories</span></div>
         <div class="stat-card"><strong>Py</strong><span>Local runner</span></div>
       </section>
@@ -513,6 +544,7 @@ function problemTable() {
       (problem) => `
       <tr data-slug="${escapeHtml(problem.slug)}">
         <td class="num-cell">${escapeHtml(problem.id)}</td>
+        <td class="status-cell">${problemStatusBadge(problem)}</td>
         <td class="title-cell">${escapeHtml(problem.title)}</td>
         <td>${difficultyPill(problem.difficulty)}</td>
         <td class="category-cell">${escapeHtml(problem.category)}</td>
@@ -527,6 +559,7 @@ function problemTable() {
       <thead>
         <tr>
           <th>#</th>
+          <th>Status</th>
           <th>Title</th>
           <th>Difficulty</th>
           <th>Category</th>
@@ -535,6 +568,17 @@ function problemTable() {
       </thead>
       <tbody>${rows}</tbody>
     </table>
+  `;
+}
+
+function problemStatusBadge(problem) {
+  const completed = problemCompleted(problem);
+  return `
+    <span
+      class="completion-badge ${completed ? "completed" : "incomplete"}"
+      aria-label="${completed ? "Completed" : "Not completed"}"
+      title="${completed ? "Completed" : "Not completed"}"
+    >${completed ? "✓" : ""}</span>
   `;
 }
 

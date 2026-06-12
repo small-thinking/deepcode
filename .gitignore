@@ -6,6 +6,7 @@ __pycache__/
 .venv/
 .uv-cache/
 node_modules/
+.deepcode/
 .env.local
 data/
 runs/
