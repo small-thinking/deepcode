@@ -19,6 +19,18 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("data-theme", app_js)
         self.assertIn("body[data-theme=\"light\"]", styles_css)
 
+    def test_theme_palette_uses_soft_neutral_surfaces(self):
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("--bg: #17191f;", styles_css)
+        self.assertIn("--panel: #20232b;", styles_css)
+        self.assertIn("--code-bg: #1e2128;", styles_css)
+        self.assertIn("--bg: #eef1f5;", styles_css)
+        self.assertIn("--panel: #f7f8fb;", styles_css)
+        self.assertIn("--code-bg: #f1f3f7;", styles_css)
+        self.assertNotIn("--bg: #050505;", styles_css)
+        self.assertNotIn("--panel: #ffffff;", styles_css)
+
     def test_problem_references_render_as_background_links(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
