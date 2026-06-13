@@ -19,6 +19,13 @@ class ArchitectureTest(unittest.TestCase):
 
         self.assertIn('self.send_header("Cache-Control", "no-store")', static_handler)
 
+    def test_default_port_avoids_common_8000_conflicts(self):
+        server_source = Path(server.__file__).read_text(encoding="utf-8")
+
+        self.assertEqual(server.DEFAULT_PORT, 8848)
+        self.assertIn("def run(host: str = \"127.0.0.1\", port: int = DEFAULT_PORT)", server_source)
+        self.assertIn('parser.add_argument("--port", default=DEFAULT_PORT, type=int)', server_source)
+
 
 if __name__ == "__main__":
     unittest.main()

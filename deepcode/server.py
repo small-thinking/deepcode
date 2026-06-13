@@ -17,6 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 PROBLEMS_DIR = BASE_DIR / "problems"
 USER_STATE_PATH = Path(os.environ.get("DEEPCODE_USER_STATE_PATH", BASE_DIR / ".deepcode" / "user-state.json"))
+DEFAULT_PORT = 8848
 
 
 class DeepCodeHandler(BaseHTTPRequestHandler):
@@ -107,7 +108,7 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
 
-def run(host: str = "127.0.0.1", port: int = 8000):
+def run(host: str = "127.0.0.1", port: int = DEFAULT_PORT):
     if DeepCodeHandler.context.user_state:
         DeepCodeHandler.context.user_state.ensure_exists()
     server = ThreadingHTTPServer((host, port), DeepCodeHandler)
@@ -119,7 +120,7 @@ def run(host: str = "127.0.0.1", port: int = 8000):
 def main():
     parser = argparse.ArgumentParser(description="Run DeepCode locally.")
     parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", default=8000, type=int)
+    parser.add_argument("--port", default=DEFAULT_PORT, type=int)
     args = parser.parse_args()
     run(args.host, args.port)
 

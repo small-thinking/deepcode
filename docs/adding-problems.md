@@ -264,7 +264,7 @@ uv run python -m unittest discover -s tests
 7. Start the app and solve the new problem once through the browser:
 
 ```bash
-uv run python -m deepcode --port 8000
+uv run python -m deepcode --port 8848
 ```
 
 ## Good ML Coding Problem Shape
