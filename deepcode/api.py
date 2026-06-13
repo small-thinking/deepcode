@@ -155,6 +155,10 @@ def _evaluation_request_from_body(
             raise ValueError("`test_index` must refer to a visible test case")
         tests = [tests[test_index]]
 
+    runtime = dict(problem.get("_runtime", {}))
+    if test_index is not None:
+        runtime["skip_hidden_harness"] = True
+
     return (
         problem,
         EvaluationRequest(
@@ -162,7 +166,7 @@ def _evaluation_request_from_body(
             problem=problem,
             tests=tests,
             environment=problem.get("environment", {}),
-            runtime=problem.get("_runtime", {}),
+            runtime=runtime,
         ),
         test_index,
     )

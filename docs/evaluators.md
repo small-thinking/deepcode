@@ -132,3 +132,40 @@ Unlike the standard modeling evaluator, `ml_torch_modeling` does not apply the
 default 512 MB address-space cap to child processes. PyTorch imports can exceed
 that limit on Linux even for tiny CPU examples, so rely on per-case timeouts and
 small deterministic checks instead.
+
+## `ml_torch_lab`
+
+`ml_torch_lab` is for local dataset-backed PyTorch labs where the user writes
+the core modeling code and the problem supplies hidden orchestration. It runs the
+visible `tests.json` assertion checks first, then appends a hidden harness file
+from the problem folder as an additional check.
+
+Use:
+
+```json
+{
+  "evaluation": {
+    "type": "ml_torch_lab",
+    "harness": "harness.py",
+    "harness_timeout_seconds": 90
+  },
+  "data": {
+    "path": "data",
+    "required": true
+  },
+  "artifacts": {
+    "results_path": "eval-results"
+  }
+}
+```
+
+The harness path must be problem-relative and must exist in the committed
+problem folder. It receives the same submitted code as visible checks, so it can
+call user-defined functions such as `build_model()` or `train_model(...)`. It
+also receives runtime paths through `DEEPCODE_DATA_PATH` and
+`DEEPCODE_RESULTS_PATH`, which lets it read local datasets, print epoch logs,
+score metrics, and write artifacts without exposing that boilerplate as visible
+problem code.
+
+When the API runs a single visible test by `test_index`, it skips the hidden
+harness. Full submissions run both visible checks and the hidden harness.

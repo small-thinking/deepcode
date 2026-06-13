@@ -9,7 +9,12 @@ node_modules/
 .deepcode/
 .env.local
 data/
+data/**
 runs/
-problems/**/data/
-problems/**/eval-results/
+runs/**
+problems/**/data
+problems/**/data/**
+problems/**/eval-results
+problems/**/eval-results/**
 problems/**/runs/
+problems/**/runs/**

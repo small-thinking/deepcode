@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -284,6 +285,44 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertTrue(Path(loaded["_runtime"]["data_path"]).is_symlink())
             self.assertTrue(Path(loaded["_runtime"]["results_path"]).is_symlink())
 
+    def test_runtime_paths_are_absolute_when_store_root_is_relative(self):
+        cwd = Path.cwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            os.chdir(tmp)
+            try:
+                root = Path("problems")
+                problem_dir = root / "relative-lab"
+                data_target = Path("local-data") / "relative-lab"
+                root.mkdir()
+                data_target.mkdir(parents=True)
+                self._write_problem(
+                    root,
+                    "relative-lab",
+                    {
+                        "id": "109",
+                        "slug": "relative-lab",
+                        "title": "Relative Lab",
+                        "category": "Modeling",
+                        "difficulty": "medium",
+                        "prompt": "Train.",
+                        "starter_code": "def train():\n    pass\n",
+                        "example": {"input": "dataset", "output": "metrics", "reasoning": "Modeling task."},
+                        "evaluation": {"type": "ml_modeling"},
+                        "environment": {"language": "python", "timeout_seconds": 60, "packages": []},
+                        "data": {"path": "data", "required": True},
+                    },
+                    [],
+                )
+                (problem_dir / "data").symlink_to(Path("..") / ".." / data_target, target_is_directory=True)
+
+                loaded = ProblemStore(root).get_problem("relative-lab")
+            finally:
+                os.chdir(cwd)
+
+        self.assertTrue(Path(loaded["_runtime"]["problem_dir"]).is_absolute())
+        self.assertTrue(Path(loaded["_runtime"]["data_path"]).is_absolute())
+        self.assertIn("problems/relative-lab/data", loaded["_runtime"]["data_path"])
+
     def test_rejects_unsafe_problem_relative_runtime_paths(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -356,6 +395,82 @@ class ProblemStoreTest(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "missing `test`"):
                 ProblemStore(root).get_problem("torch-modeling")
+
+    def test_rejects_ml_torch_lab_tests_without_check_script(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "torch-lab",
+                {
+                    "id": "105",
+                    "slug": "torch-lab",
+                    "title": "Torch Lab",
+                    "category": "Vision",
+                    "difficulty": "medium",
+                    "prompt": "Train a module.",
+                    "starter_code": "def train_model():\n    pass\n",
+                    "example": {"input": "dataset", "output": "metric", "reasoning": "Lab task."},
+                    "evaluation": {"type": "ml_torch_lab", "harness": "harness.py"},
+                    "environment": {"language": "python", "timeout_seconds": 10, "packages": ["torch"]},
+                },
+                [{"name": "missing script"}],
+            )
+            (root / "torch-lab" / "harness.py").write_text("print('hidden')\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "missing `test`"):
+                ProblemStore(root).get_problem("torch-lab")
+
+    def test_rejects_ml_torch_lab_without_problem_relative_harness(self):
+        invalid_harnesses = ["../harness.py", "/tmp/harness.py", ""]
+
+        for harness in invalid_harnesses:
+            with self.subTest(harness=harness), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                self._write_problem(
+                    root,
+                    "torch-lab",
+                    {
+                        "id": "106",
+                        "slug": "torch-lab",
+                        "title": "Torch Lab",
+                        "category": "Vision",
+                        "difficulty": "medium",
+                        "prompt": "Train a module.",
+                        "starter_code": "def train_model():\n    pass\n",
+                        "example": {"input": "dataset", "output": "metric", "reasoning": "Lab task."},
+                        "evaluation": {"type": "ml_torch_lab", "harness": harness},
+                        "environment": {"language": "python", "timeout_seconds": 10, "packages": ["torch"]},
+                    },
+                    [{"name": "contract", "test": "assert callable(train_model)"}],
+                )
+
+                with self.assertRaisesRegex(ValueError, "harness"):
+                    ProblemStore(root).get_problem("torch-lab")
+
+    def test_rejects_ml_torch_lab_when_harness_file_is_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "torch-lab",
+                {
+                    "id": "107",
+                    "slug": "torch-lab",
+                    "title": "Torch Lab",
+                    "category": "Vision",
+                    "difficulty": "medium",
+                    "prompt": "Train a module.",
+                    "starter_code": "def train_model():\n    pass\n",
+                    "example": {"input": "dataset", "output": "metric", "reasoning": "Lab task."},
+                    "evaluation": {"type": "ml_torch_lab", "harness": "harness.py"},
+                    "environment": {"language": "python", "timeout_seconds": 10, "packages": ["torch"]},
+                },
+                [{"name": "contract", "test": "assert callable(train_model)"}],
+            )
+
+            with self.assertRaisesRegex(ValueError, "Lab harness not found"):
+                ProblemStore(root).get_problem("torch-lab")
 
     def _write_problem(self, root, folder, problem, tests):
         problem_dir = root / folder

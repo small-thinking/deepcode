@@ -140,10 +140,12 @@ class ProblemStore:
                 for key in ("test", "expected_output"):
                     if key not in test:
                         raise ValueError(f"{problem_dir}/tests.json test {index} is missing `{key}`")
-        if evaluation_type in {"ml_modeling", "ml_torch_modeling"}:
+        if evaluation_type in {"ml_modeling", "ml_torch_modeling", "ml_torch_lab"}:
             for index, test in enumerate(problem["tests"], start=1):
                 if "test" not in test:
                     raise ValueError(f"{problem_dir}/tests.json test {index} is missing `test`")
+        if evaluation_type == "ml_torch_lab":
+            self._validate_lab_harness(problem, problem_dir)
 
         self._validate_relative_path(problem, problem_dir, "data", "path")
         self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")
@@ -155,10 +157,11 @@ class ProblemStore:
             return json.load(file)
 
     def _runtime_paths(self, problem: dict[str, Any], problem_dir: Path) -> dict[str, str]:
-        runtime = {"problem_dir": str(problem_dir)}
+        runtime_problem_dir = problem_dir if problem_dir.is_absolute() else Path.cwd() / problem_dir
+        runtime = {"problem_dir": str(runtime_problem_dir)}
         data = problem.get("data", {})
         if isinstance(data, dict) and isinstance(data.get("path"), str) and data["path"].strip():
-            runtime["data_path"] = str(problem_dir / data["path"])
+            runtime["data_path"] = str(runtime_problem_dir / data["path"])
 
         artifacts = problem.get("artifacts", {})
         if (
@@ -166,7 +169,7 @@ class ProblemStore:
             and isinstance(artifacts.get("results_path"), str)
             and artifacts["results_path"].strip()
         ):
-            runtime["results_path"] = str(problem_dir / artifacts["results_path"])
+            runtime["results_path"] = str(runtime_problem_dir / artifacts["results_path"])
         return runtime
 
     def _validate_relative_path(self, problem: dict[str, Any], problem_dir: Path, section: str, key: str) -> None:
@@ -185,6 +188,19 @@ class ProblemStore:
         path = Path(raw_path)
         if path.is_absolute() or ".." in path.parts:
             raise ValueError(f"{problem_dir}/problem.json field `{section}.{key}` must be problem-relative")
+
+    def _validate_lab_harness(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        evaluation = problem["evaluation"]
+        harness = evaluation.get("harness")
+        if not isinstance(harness, str) or not harness.strip():
+            raise ValueError(f"{problem_dir}/problem.json field `evaluation.harness` must be a non-empty string")
+
+        path = Path(harness)
+        if path.is_absolute() or ".." in path.parts:
+            raise ValueError(f"{problem_dir}/problem.json field `evaluation.harness` must be problem-relative")
+
+        if not (problem_dir / path).is_file():
+            raise ValueError(f"{problem_dir}/problem.json Lab harness not found: {harness}")
 
     def _validate_references(self, problem: dict[str, Any], problem_dir: Path) -> None:
         references = problem.get("references")

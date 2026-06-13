@@ -221,6 +221,38 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["status"], "passed")
             self.assertEqual(payload["results"][0]["actual_output"], "ok")
 
+    def test_selected_visible_check_for_lab_problem_skips_hidden_harness(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root)
+            self._write_problem(
+                root,
+                "lab",
+                "200",
+                problem_overrides={
+                    "evaluation": {"type": "ml_torch_lab", "harness": "harness.py"},
+                    "environment": {"language": "python", "timeout_seconds": 10, "packages": ["torch"]},
+                },
+                tests=[{"name": "visible contract", "test": "assert callable(train)\nprint('visible ok')"}],
+            )
+            (root / "lab" / "harness.py").write_text(
+                "raise AssertionError('hidden lab harness should not run')",
+                encoding="utf-8",
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "POST",
+                "/api/problems/lab/run",
+                {},
+                json.dumps({"code": "def train():\n    return None\n", "test_index": 0}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "passed")
+            self.assertEqual(payload["total"], 1)
+            self.assertEqual(payload["results"][0]["name"], "visible contract")
+
     def test_streams_submission_logs_for_modeling_problem(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = ProblemStore(Path(tmp))
