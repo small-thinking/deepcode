@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any, Generator, Protocol
 
 
 class UnsupportedEvaluatorError(ValueError):
@@ -29,3 +29,8 @@ class Evaluator(Protocol):
 
     def evaluate(self, request: EvaluationRequest) -> dict[str, Any]:
         """Evaluate a submitted solution and return an API-safe result payload."""
+
+
+class StreamingEvaluator(Evaluator, Protocol):
+    def stream_evaluate(self, request: EvaluationRequest) -> Generator[dict[str, Any], None, None]:
+        """Evaluate a submitted solution and yield API-safe progress events."""

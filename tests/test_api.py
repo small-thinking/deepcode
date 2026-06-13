@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from deepcode.api import ApiContext, handle_api_request
+from deepcode.api import ApiContext, handle_api_request, stream_api_events
 from deepcode.problem_store import ProblemStore
 from deepcode.user_state import UserStateStore
 
@@ -220,6 +220,32 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(payload["status"], "passed")
             self.assertEqual(payload["results"][0]["actual_output"], "ok")
+
+    def test_streams_submission_logs_for_modeling_problem(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp))
+            self._write_problem(
+                Path(tmp),
+                "toy",
+                "1",
+                problem_overrides={"evaluation": {"type": "ml_modeling"}},
+                tests=[{"name": "training", "test": "train()\nprint('done')\n"}],
+            )
+            events = list(
+                stream_api_events(
+                    ApiContext(store=store),
+                    "POST",
+                    "/api/problems/toy/run/stream",
+                    {},
+                    json.dumps({"code": "def train():\n    print('epoch 1 loss=0.25')\n"}).encode("utf-8"),
+                )
+            )
+
+            log_events = [event for event in events if event["type"] == "log"]
+            self.assertEqual(events[0], {"type": "run_started", "total": 1})
+            self.assertEqual(log_events[0]["text"], "epoch 1 loss=0.25\n")
+            self.assertEqual(events[-1]["type"], "run_finished")
+            self.assertEqual(events[-1]["result"]["status"], "passed")
 
     def test_returns_404_for_unknown_problem(self):
         with tempfile.TemporaryDirectory() as tmp:

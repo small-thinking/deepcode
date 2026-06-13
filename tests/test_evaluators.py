@@ -1,7 +1,13 @@
 import unittest
 from unittest.mock import patch
 
-from deepcode.evaluators import EvaluationRequest, UnsupportedEvaluatorError, evaluate_submission, get_evaluator
+from deepcode.evaluators import (
+    EvaluationRequest,
+    UnsupportedEvaluatorError,
+    evaluate_submission,
+    get_evaluator,
+    stream_evaluation_events,
+)
 from deepcode.evaluators import ml_torch_modeling
 
 
@@ -78,6 +84,31 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertEqual(result["passed"], 1)
         self.assertEqual(result["results"][0]["actual_output"], "ok")
 
+    def test_streams_ml_modeling_stdout_before_final_result(self):
+        events = list(
+            stream_evaluation_events(
+                EvaluationRequest(
+                    code="def train():\n    print('epoch 1 loss=0.50')\n",
+                    problem={"evaluation": {"type": "ml_modeling"}},
+                    tests=[
+                        {
+                            "name": "training log",
+                            "test": "train()\nprint('done')\n",
+                        }
+                    ],
+                    environment={"timeout_seconds": 2},
+                )
+            )
+        )
+
+        log_events = [event for event in events if event["type"] == "log"]
+        self.assertEqual(events[0], {"type": "check_started", "index": 0, "name": "training log"})
+        self.assertEqual(log_events[0]["stream"], "stdout")
+        self.assertEqual(log_events[0]["text"], "epoch 1 loss=0.50\n")
+        self.assertEqual(events[-1]["type"], "run_finished")
+        self.assertEqual(events[-1]["result"]["status"], "passed")
+        self.assertIn("done", events[-1]["result"]["results"][0]["actual_output"])
+
     def test_ml_torch_modeling_uses_torch_resource_limiter(self):
         request = EvaluationRequest(
             code="import torch\n",
@@ -122,6 +153,22 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertNotIn("site-packages", actual_output)
         self.assertNotIn("torch/nn/modules/module.py", actual_output)
         self.assertNotIn("deepcode-modeling-", actual_output)
+
+    def test_streamed_ml_modeling_tracebacks_hide_temp_paths(self):
+        events = list(
+            stream_evaluation_events(
+                EvaluationRequest(
+                    code="def boom():\n    raise RuntimeError('bad shape')\n",
+                    problem={"evaluation": {"type": "ml_modeling"}},
+                    tests=[{"name": "failure", "test": "boom()"}],
+                    environment={"timeout_seconds": 2},
+                )
+            )
+        )
+
+        stderr_text = "".join(event["text"] for event in events if event["type"] == "log" and event["stream"] == "stderr")
+        self.assertIn('File "submission_check.py"', stderr_text)
+        self.assertNotIn("deepcode-modeling-", stderr_text)
 
     def test_ml_modeling_normalizes_mixed_tab_indentation(self):
         result = evaluate_submission(

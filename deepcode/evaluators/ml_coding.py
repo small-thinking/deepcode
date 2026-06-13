@@ -134,6 +134,7 @@ def _runner_env() -> dict[str, str]:
         if key in os.environ:
             allowed[key] = os.environ[key]
     allowed["PYTHONIOENCODING"] = "utf-8"
+    allowed["PYTHONUNBUFFERED"] = "1"
     return allowed
 
 
