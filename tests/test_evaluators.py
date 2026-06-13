@@ -161,6 +161,30 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertEqual(result["total"], 1)
         self.assertEqual(result["results"][0]["name"], "visible only")
 
+    def test_ml_torch_lab_exposes_preferred_torch_device_to_harness(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "harness.py").write_text(
+                "import os\n"
+                "assert os.environ['DEEPCODE_TORCH_DEVICE'] == 'mps'\n"
+                "print('device: ' + os.environ['DEEPCODE_TORCH_DEVICE'])\n",
+                encoding="utf-8",
+            )
+
+            with patch("deepcode.evaluators.ml_torch_lab.preferred_torch_device", return_value="mps"):
+                result = evaluate_submission(
+                    EvaluationRequest(
+                        code="def train():\n    return None\n",
+                        problem={"evaluation": {"type": "ml_torch_lab", "harness": "harness.py"}},
+                        tests=[{"name": "visible", "test": "assert callable(train)"}],
+                        environment={"timeout_seconds": 10, "packages": ["torch"]},
+                        runtime={"problem_dir": str(root)},
+                    )
+                )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertIn("device: mps", result["results"][1]["actual_output"])
+
     def test_streams_ml_modeling_stdout_before_final_result(self):
         events = list(
             stream_evaluation_events(
@@ -205,6 +229,24 @@ class EvaluatorRegistryTest(unittest.TestCase):
             run_checks.call_args.kwargs["resource_limiter_factory"],
             ml_torch_modeling._torch_resource_limiter,
         )
+
+    def test_ml_torch_modeling_exposes_preferred_torch_device_to_checks(self):
+        result = evaluate_submission(
+            EvaluationRequest(
+                code="import os\n\ndef selected_device():\n    return os.environ['DEEPCODE_TORCH_DEVICE']\n",
+                problem={"evaluation": {"type": "ml_torch_modeling"}},
+                tests=[
+                    {
+                        "name": "device env",
+                        "test": "assert selected_device() in {'cuda', 'mps', 'cpu'}\nprint(selected_device())",
+                    }
+                ],
+                environment={"timeout_seconds": 10, "packages": ["torch"]},
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertIn(result["results"][0]["actual_output"], {"cuda", "mps", "cpu"})
 
     def test_ml_torch_modeling_shows_submission_focused_tracebacks(self):
         result = evaluate_submission(

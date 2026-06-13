@@ -146,7 +146,9 @@ Dataset-backed PyTorch labs should use `ml_torch_lab`:
 problem-local hidden harness as one more check. The harness is the right place
 for boilerplate such as loading local data, constructing DataLoaders, printing
 training logs, computing metrics, and writing result artifacts. API calls that
-run one selected visible test skip the hidden harness.
+run one selected visible test skip the hidden harness. Torch checks and lab
+harnesses receive `DEEPCODE_TORCH_DEVICE`, which selects CUDA first, Apple
+Silicon MPS second, and CPU as the fallback.
 
 Modeling problems may also declare local data and artifact folders:
 

@@ -4,6 +4,7 @@ from typing import Any
 
 from deepcode.evaluators.base import EvaluationRequest
 from deepcode.evaluators.ml_modeling import run_modeling_checks, stream_modeling_checks
+from deepcode.evaluators.torch_device import runtime_with_preferred_torch_device
 
 
 class MlTorchModelingEvaluator:
@@ -14,7 +15,7 @@ class MlTorchModelingEvaluator:
             code=request.code,
             tests=request.tests,
             timeout_seconds=request.environment.get("timeout_seconds", 5),
-            runtime=request.runtime,
+            runtime=runtime_with_preferred_torch_device(request.runtime),
             resource_limiter_factory=_torch_resource_limiter,
         )
 
@@ -23,7 +24,7 @@ class MlTorchModelingEvaluator:
             code=request.code,
             tests=request.tests,
             timeout_seconds=request.environment.get("timeout_seconds", 5),
-            runtime=request.runtime,
+            runtime=runtime_with_preferred_torch_device(request.runtime),
             resource_limiter_factory=_torch_resource_limiter,
         )
 
