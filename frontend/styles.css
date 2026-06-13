@@ -358,6 +358,17 @@ tbody tr:hover {
   max-width: 200px;
 }
 
+.label-list,
+.company-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.muted-cell {
+  color: var(--muted);
+}
+
 .pill {
   display: inline-flex;
   justify-content: center;

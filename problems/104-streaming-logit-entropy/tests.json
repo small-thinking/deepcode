@@ -1,0 +1,62 @@
+[
+  {
+    "name": "uniform three-way entropy",
+    "input": "logits = [0.0, 0.0, 0.0]",
+    "test": "print(round(entropy_from_logits([0.0, 0.0, 0.0]), 6))",
+    "expected_output": "1.098612"
+  },
+  {
+    "name": "large equal logits stay stable",
+    "input": "logits = [1000.0, 1000.0]",
+    "test": "print(round(entropy_from_logits([1000.0, 1000.0]), 6))",
+    "expected_output": "0.693147"
+  },
+  {
+    "name": "confident distribution has near-zero entropy",
+    "input": "logits = [1000.0, -1000.0]",
+    "test": "print(round(entropy_from_logits([1000.0, -1000.0]), 6))",
+    "expected_output": "0.0"
+  },
+  {
+    "name": "shifted logits produce expected entropy",
+    "input": "logits = [-3.0, -2.0, -1.0, 0.0]",
+    "test": "print(round(entropy_from_logits([-3.0, -2.0, -1.0, 0.0]), 6))",
+    "expected_output": "0.947537"
+  },
+  {
+    "name": "streaming blocks match batch entropy",
+    "input": "blocks = [[1000.0, 999.0], [998.0], [997.0]]",
+    "test": "print(round(streaming_entropy([[1000.0, 999.0], [998.0], [997.0]]), 6))",
+    "expected_output": "0.947537"
+  },
+  {
+    "name": "streaming negative blocks stay stable",
+    "input": "blocks = [[-1000.0, -1000.0], [-999.0]]",
+    "test": "print(round(streaming_entropy([[-1000.0, -1000.0], [-999.0]]), 6))",
+    "expected_output": "0.975328"
+  },
+  {
+    "name": "streaming and non-streaming agree",
+    "input": "logits = [4.0, 1.0, -2.0, 3.0] split into blocks",
+    "test": "print(round(abs(streaming_entropy([[4.0], [1.0, -2.0], [3.0]]) - entropy_from_logits([4.0, 1.0, -2.0, 3.0])), 6))",
+    "expected_output": "0.0"
+  },
+  {
+    "name": "empty logits raise",
+    "input": "logits = []",
+    "test": "try:\n    entropy_from_logits([])\nexcept ValueError:\n    print('ValueError')\nelse:\n    print('no error')",
+    "expected_output": "ValueError"
+  },
+  {
+    "name": "empty streaming input raises",
+    "input": "blocks = []",
+    "test": "try:\n    streaming_entropy([])\nexcept ValueError:\n    print('ValueError')\nelse:\n    print('no error')",
+    "expected_output": "ValueError"
+  },
+  {
+    "name": "empty streaming block raises",
+    "input": "blocks = [[1.0], []]",
+    "test": "try:\n    streaming_entropy([[1.0], []])\nexcept ValueError:\n    print('ValueError')\nelse:\n    print('no error')",
+    "expected_output": "ValueError"
+  }
+]

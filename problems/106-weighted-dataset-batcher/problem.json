@@ -1,0 +1,32 @@
+{
+  "id": "106",
+  "slug": "weighted-dataset-batcher",
+  "title": "Weighted Dataset Batcher",
+  "category": "ML Systems",
+  "difficulty": "medium",
+  "tags": ["data-loading", "batching", "sampling", "resume", "state"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement a deterministic `WeightedDatasetBatcher` for mixing multiple training datasets.\n\nConstructor:\n`WeightedDatasetBatcher(datasets, weights, batch_size, offset=0)`\n\n- `datasets` maps dataset name to a non-empty sequence of examples.\n- `weights` maps dataset name to a positive integer sampling weight.\n- The deterministic sampling schedule repeats each dataset name by weight in the insertion order of `weights`. For example, `{\"a\": 2, \"b\": 1}` produces the repeated schedule `a, a, b, a, a, b, ...`.\n- `batch_size` is the number of emitted items per batch and may cut across schedule boundaries.\n- `offset` is a global number of already-emitted items to skip before the first batch.\n- When a dataset is exhausted, cycle back to its first example.\n\nMethods:\n- `next_batch()` returns a list of `(dataset_name, example)` pairs.\n- `state_dict()` returns enough deterministic state to resume later.\n- `load_state_dict(state)` restores that state and returns `self`.\n\nRaise `ValueError` for empty inputs, missing weighted datasets, non-positive weights, empty datasets, negative offsets, or non-positive batch size.",
+  "starter_code": "class WeightedDatasetBatcher:\n    def __init__(self, datasets, weights, batch_size, offset=0):\n        pass\n\n    def next_batch(self):\n        pass\n\n    def state_dict(self):\n        pass\n\n    def load_state_dict(self, state):\n        pass\n",
+  "example": {
+    "input": "datasets = {\"a\": [10, 11, 12], \"b\": [20]}; weights = {\"a\": 2, \"b\": 1}; batch_size = 2",
+    "output": "first batch: [(\"a\", 10), (\"a\", 11)], second batch: [(\"b\", 20), (\"a\", 12)]",
+    "reasoning": "The weighted schedule is `a, a, b`. Batch boundaries do not reset the schedule."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "references": [
+    {
+      "label": "Python: data model",
+      "url": "https://docs.python.org/3/reference/datamodel.html"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-06-13"
+}

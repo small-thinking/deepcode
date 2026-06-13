@@ -29,6 +29,16 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('rel="noopener noreferrer"', app_js)
         self.assertIn(".reference-list", styles_css)
 
+    def test_problem_company_metadata_renders_in_list_and_detail(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("<th>Companies</th>", app_js)
+        self.assertIn("problem.companies", app_js)
+        self.assertIn("function renderProblemMetadata", app_js)
+        self.assertIn('metadata: "problem-section problem-metadata-section"', app_js)
+        self.assertIn(".company-list", styles_css)
+
     def test_problem_workspace_has_resizable_pane_hooks(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

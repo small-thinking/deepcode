@@ -152,6 +152,34 @@ class ProblemStoreTest(unittest.TestCase):
                 [{"label": "Background", "url": "https://example.com/background"}],
             )
 
+    def test_includes_companies_in_summaries_details_and_search(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "company-problem",
+                {
+                    "id": "10",
+                    "slug": "company-problem",
+                    "title": "Company Problem",
+                    "category": "ML Systems",
+                    "difficulty": "medium",
+                    "tags": ["batching"],
+                    "companies": ["Anthropic", "OpenAI"],
+                    "prompt": "Return one.",
+                    "starter_code": "def one():\n    pass\n",
+                    "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                    "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                },
+                [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+            )
+
+            store = ProblemStore(root)
+
+            self.assertEqual(store.list_problems()[0]["companies"], ["Anthropic", "OpenAI"])
+            self.assertEqual(store.get_problem("company-problem")["companies"], ["Anthropic", "OpenAI"])
+            self.assertEqual(store.list_problems(search="anthropic")[0]["slug"], "company-problem")
+
     def test_rejects_invalid_reference_links(self):
         invalid_values = [
             "https://example.com",
@@ -184,6 +212,38 @@ class ProblemStoreTest(unittest.TestCase):
 
                 with self.assertRaisesRegex(ValueError, "references"):
                     ProblemStore(root).get_problem("bad-links")
+
+    def test_rejects_invalid_company_metadata(self):
+        invalid_values = [
+            "OpenAI",
+            [""],
+            [1],
+        ]
+
+        for companies in invalid_values:
+            with self.subTest(companies=companies), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                self._write_problem(
+                    root,
+                    "bad-companies",
+                    {
+                        "id": "11",
+                        "slug": "bad-companies",
+                        "title": "Bad Companies",
+                        "category": "Machine Learning",
+                        "difficulty": "easy",
+                        "tags": ["metadata"],
+                        "companies": companies,
+                        "prompt": "Return one.",
+                        "starter_code": "def one():\n    pass\n",
+                        "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                        "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                    },
+                    [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+                )
+
+                with self.assertRaisesRegex(ValueError, "companies"):
+                    ProblemStore(root).get_problem("bad-companies")
 
     def test_supports_private_runtime_paths_for_future_modeling_tasks(self):
         with tempfile.TemporaryDirectory() as tmp:

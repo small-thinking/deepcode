@@ -301,6 +301,224 @@ class MultiHeadSelfAttention(nn.Module):
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], len(problem["tests"]))
 
+    def test_streaming_logit_entropy_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("streaming-logit-entropy")
+        solution = r"""import numpy as np
+
+
+def entropy_from_logits(logits):
+    values = np.asarray(logits, dtype=np.float64)
+    if values.ndim != 1 or values.size == 0:
+        raise ValueError("logits must be a non-empty 1D sequence")
+    max_logit = values.max()
+    weights = np.exp(values - max_logit)
+    total = weights.sum()
+    logsumexp = max_logit + np.log(total)
+    return float(logsumexp - (weights @ values) / total)
+
+
+def streaming_entropy(blocks):
+    running_max = -np.inf
+    scaled_sum = 0.0
+    scaled_weighted_sum = 0.0
+    seen = False
+
+    for block in blocks:
+        values = np.asarray(block, dtype=np.float64)
+        if values.ndim != 1 or values.size == 0:
+            raise ValueError("each block must be a non-empty 1D sequence")
+        block_max = values.max()
+        new_max = max(running_max, block_max)
+        previous_scale = 0.0 if not seen else np.exp(running_max - new_max)
+        block_weights = np.exp(values - new_max)
+        scaled_sum = scaled_sum * previous_scale + block_weights.sum()
+        scaled_weighted_sum = scaled_weighted_sum * previous_scale + block_weights @ values
+        running_max = new_max
+        seen = True
+
+    if not seen:
+        raise ValueError("blocks must contain at least one block")
+    return float(running_max + np.log(scaled_sum) - scaled_weighted_sum / scaled_sum)
+"""
+
+        result = run_submission(
+            code=solution,
+            tests=problem["tests"],
+            timeout_seconds=problem["environment"]["timeout_seconds"],
+            comparator=problem["environment"]["comparator"],
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_top_p_nucleus_sampling_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("top-p-nucleus-sampling")
+        solution = r"""import numpy as np
+
+
+def top_p_sample(logits, p, u, temperature=1.0):
+    if not 0 < p <= 1:
+        raise ValueError("p must be in (0, 1]")
+    if not 0 <= u < 1:
+        raise ValueError("u must be in [0, 1)")
+    if temperature <= 0:
+        raise ValueError("temperature must be positive")
+
+    values = np.asarray(logits, dtype=np.float64)
+    if values.ndim != 1 or values.size == 0:
+        raise ValueError("logits must be a non-empty 1D sequence")
+
+    scaled = values / temperature
+    shifted = scaled - scaled.max()
+    probs = np.exp(shifted)
+    probs = probs / probs.sum()
+    ordered = sorted(range(len(probs)), key=lambda index: (-probs[index], index))
+
+    kept = []
+    mass = 0.0
+    for index in ordered:
+        kept.append(index)
+        mass += float(probs[index])
+        if mass >= p:
+            break
+
+    threshold = u * mass
+    cumulative = 0.0
+    for index in kept:
+        cumulative += float(probs[index])
+        if threshold <= cumulative:
+            return int(index)
+    return int(kept[-1])
+"""
+
+        result = run_submission(
+            code=solution,
+            tests=problem["tests"],
+            timeout_seconds=problem["environment"]["timeout_seconds"],
+            comparator=problem["environment"]["comparator"],
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_weighted_dataset_batcher_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("weighted-dataset-batcher")
+        solution = r"""class WeightedDatasetBatcher:
+    def __init__(self, datasets, weights, batch_size, offset=0):
+        if batch_size <= 0:
+            raise ValueError("batch_size must be positive")
+        if offset < 0:
+            raise ValueError("offset must be non-negative")
+        if not datasets or not weights:
+            raise ValueError("datasets and weights must be non-empty")
+
+        self.datasets = {name: list(values) for name, values in datasets.items()}
+        self.weights = dict(weights)
+        self.batch_size = batch_size
+        self.order = []
+        for name, weight in self.weights.items():
+            if name not in self.datasets:
+                raise ValueError("every weighted dataset must exist")
+            if not isinstance(weight, int) or weight <= 0:
+                raise ValueError("weights must be positive integers")
+            if not self.datasets[name]:
+                raise ValueError("datasets must be non-empty")
+            self.order.extend([name] * weight)
+
+        self.pos = 0
+        self.offsets = {name: 0 for name in self.weights}
+        self._skip(offset)
+
+    def _skip(self, n_items):
+        for _ in range(n_items):
+            self._next_item()
+
+    def _next_item(self):
+        name = self.order[self.pos % len(self.order)]
+        values = self.datasets[name]
+        item = values[self.offsets[name] % len(values)]
+        self.offsets[name] += 1
+        self.pos += 1
+        return (name, item)
+
+    def next_batch(self):
+        return [self._next_item() for _ in range(self.batch_size)]
+
+    def state_dict(self):
+        return {"pos": self.pos, "offsets": dict(self.offsets)}
+
+    def load_state_dict(self, state):
+        self.pos = int(state["pos"])
+        self.offsets = {name: int(value) for name, value in state["offsets"].items()}
+        return self
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_prefix_matrix_products_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("prefix-matrix-products")
+        solution = r"""import torch
+
+
+def prefix_matrix_products(W):
+    if W.ndim != 3 or W.shape[1] != W.shape[2]:
+        raise ValueError("W must have shape (N, D, D)")
+    current = torch.eye(W.shape[-1], dtype=W.dtype, device=W.device)
+    outputs = []
+    for matrix in W:
+        current = current @ matrix
+        outputs.append(current)
+    return torch.stack(outputs)
+
+
+def prefix_matrix_products_backward(W, grad_P):
+    if W.shape != grad_P.shape:
+        raise ValueError("W and grad_P must have the same shape")
+    if W.ndim != 3 or W.shape[1] != W.shape[2]:
+        raise ValueError("W must have shape (N, D, D)")
+
+    n_matrices, dim, _ = W.shape
+    identity = torch.eye(dim, dtype=W.dtype, device=W.device)
+    prefix_before = [identity]
+    current = identity
+    for matrix in W:
+        current = current @ matrix
+        prefix_before.append(current)
+
+    grad_W = torch.zeros_like(W)
+    for output_index in range(n_matrices):
+        right = identity
+        for matrix_index in range(output_index, -1, -1):
+            left = prefix_before[matrix_index]
+            grad_W[matrix_index] += left.T @ grad_P[output_index] @ right.T
+            right = W[matrix_index] @ right
+    return grad_W
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
 
 if __name__ == "__main__":
     unittest.main()

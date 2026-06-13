@@ -1,0 +1,36 @@
+{
+  "id": "105",
+  "slug": "top-p-nucleus-sampling",
+  "title": "Top-p Nucleus Sampling",
+  "category": "LLM Decoding",
+  "difficulty": "medium",
+  "tags": ["llm", "decoding", "sampling", "softmax", "top-p"],
+  "companies": ["Mistral AI"],
+  "prompt": "Implement `top_p_sample(logits, p, u, temperature=1.0)` for one LLM decoding step.\n\nInputs:\n- `logits`: a non-empty 1D list or NumPy array of token logits.\n- `p`: the nucleus threshold, with `0 < p <= 1`.\n- `u`: a deterministic draw in `[0, 1)` used instead of calling randomness.\n- `temperature`: a positive scalar. Apply it by dividing logits by temperature before softmax.\n\nCompute a stable softmax, sort tokens by descending probability, and break ties by lower original token index. Keep the smallest sorted prefix whose cumulative probability is at least `p`. Renormalize implicitly by sampling inside that kept probability mass: if the kept mass is `M`, choose the first kept token whose cumulative kept probability is at least `u * M`. Return the selected original token index as an `int`.\n\nRaise `ValueError` for invalid `p`, `u`, `temperature`, or empty logits.",
+  "starter_code": "import numpy as np\n\n\ndef top_p_sample(logits, p, u, temperature=1.0):\n    # Return the selected original token index after top-p filtering.\n    pass\n",
+  "example": {
+    "input": "logits = [3.0, 2.0, 1.0, 0.0], p = 0.8, u = 0.8",
+    "output": "1",
+    "reasoning": "The top two tokens form the nucleus. After renormalizing that kept mass, draw `u = 0.8` lands on the second kept token, whose original index is 1."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": ["numpy"],
+    "comparator": "exact"
+  },
+  "references": [
+    {
+      "label": "Holtzman et al.: The Curious Case of Neural Text Degeneration",
+      "url": "https://arxiv.org/abs/1904.09751"
+    },
+    {
+      "label": "NumPy: exp",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.exp.html"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-06-13"
+}
