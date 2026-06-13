@@ -38,10 +38,18 @@ class CiQualityGateTest(unittest.TestCase):
                 if evaluation_type == "ml_coding":
                     self.assertIn("expected_output", test)
 
-    def test_local_user_state_directory_is_ignored(self):
+    def test_local_user_state_and_data_directories_are_ignored(self):
         gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
 
         self.assertIn(".deepcode/", gitignore)
+        self.assertIn("data/", gitignore)
+        self.assertIn("data/**", gitignore)
+        self.assertIn("runs/", gitignore)
+        self.assertIn("runs/**", gitignore)
+        self.assertIn("problems/**/data", gitignore)
+        self.assertIn("problems/**/data/**", gitignore)
+        self.assertIn("problems/**/eval-results", gitignore)
+        self.assertIn("problems/**/eval-results/**", gitignore)
 
 
 if __name__ == "__main__":

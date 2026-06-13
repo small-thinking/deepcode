@@ -1,5 +1,8 @@
+import tempfile
 import unittest
 from pathlib import Path
+
+import torch
 
 from deepcode.evaluators import EvaluationRequest, evaluate_submission
 from deepcode.problem_store import ProblemStore
@@ -518,6 +521,85 @@ def prefix_matrix_products_backward(W, grad_P):
 
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_mnist_torch_classifier_reference_solution_passes_hidden_harness_with_local_data(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("mnist-torch-classifier")
+        solution = r"""import torch
+from torch import nn
+
+
+def build_model():
+    return nn.Sequential(
+        nn.Flatten(),
+        nn.Linear(28 * 28, 128),
+        nn.ReLU(),
+        nn.Linear(128, 10),
+    )
+
+
+def train_model(model, train_loader, val_loader, epochs=2, device="cpu"):
+    device = torch.device(device)
+    model.to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    loss_fn = nn.CrossEntropyLoss()
+    for epoch in range(epochs):
+        model.train()
+        total_loss = 0.0
+        total_seen = 0
+        for images, labels in train_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            optimizer.zero_grad()
+            loss = loss_fn(model(images), labels)
+            loss.backward()
+            optimizer.step()
+            batch_size = labels.numel()
+            total_loss += float(loss.item()) * batch_size
+            total_seen += batch_size
+        print(f"epoch {epoch + 1}: loss={total_loss / max(total_seen, 1):.4f}")
+    return model
+"""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            results_dir = root / "eval-results"
+            data_dir.mkdir()
+            results_dir.mkdir()
+            torch.save(
+                {
+                    "images": torch.zeros(64, 1, 28, 28, dtype=torch.float32),
+                    "labels": torch.zeros(64, dtype=torch.long),
+                },
+                data_dir / "train.pt",
+            )
+            torch.save(
+                {
+                    "images": torch.zeros(16, 1, 28, 28, dtype=torch.float32),
+                    "labels": torch.zeros(16, dtype=torch.long),
+                },
+                data_dir / "val.pt",
+            )
+            runtime = dict(problem.get("_runtime", {}))
+            runtime["data_path"] = str(data_dir)
+            runtime["results_path"] = str(results_dir)
+
+            result = evaluate_submission(
+                EvaluationRequest(
+                    code=solution,
+                    problem=problem,
+                    tests=problem["tests"],
+                    environment=problem["environment"],
+                    runtime=runtime,
+                )
+            )
+
+            metrics_path = results_dir / "metrics.json"
+            metrics_written = metrics_path.exists()
+
+        self.assertEqual(result["status"], "passed", result)
+        self.assertEqual(result["passed"], len(problem["tests"]) + 1)
+        self.assertTrue(metrics_written)
 
 
 if __name__ == "__main__":

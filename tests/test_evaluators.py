@@ -1,5 +1,9 @@
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
+
+import torch
 
 from deepcode.evaluators import (
     EvaluationRequest,
@@ -83,6 +87,79 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], 1)
         self.assertEqual(result["results"][0]["actual_output"], "ok")
+
+    def test_ml_torch_lab_runs_hidden_harness_after_visible_checks(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            results_dir = root / "eval-results"
+            data_dir.mkdir()
+            results_dir.mkdir()
+            torch.save(
+                (
+                    torch.ones(4, 1, 2, 2, dtype=torch.float32),
+                    torch.tensor([0, 1, 0, 1], dtype=torch.long),
+                ),
+                data_dir / "train.pt",
+            )
+            (root / "harness.py").write_text(
+                "\n".join(
+                    [
+                        "from pathlib import Path",
+                        "import os",
+                        "import torch",
+                        "data_path = Path(os.environ['DEEPCODE_DATA_PATH'])",
+                        "images, labels = torch.load(data_path / 'train.pt')",
+                        "model = train(images, labels)",
+                        "assert getattr(model, 'was_trained', False)",
+                        "print('metric: accuracy=0.7500')",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            result = evaluate_submission(
+                EvaluationRequest(
+                    code=(
+                        "class TinyModel:\n"
+                        "    was_trained = True\n\n"
+                        "def train(images, labels):\n"
+                        "    return TinyModel()\n"
+                    ),
+                    problem={"evaluation": {"type": "ml_torch_lab", "harness": "harness.py"}},
+                    tests=[{"name": "visible contract", "test": "assert callable(train)\nprint('visible ok')"}],
+                    environment={"timeout_seconds": 10, "packages": ["torch"]},
+                    runtime={
+                        "problem_dir": str(root),
+                        "data_path": str(data_dir),
+                        "results_path": str(results_dir),
+                    },
+                )
+            )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual([item["name"] for item in result["results"]], ["visible contract", "lab scoring"])
+        self.assertIn("visible ok", result["results"][0]["actual_output"])
+        self.assertIn("metric: accuracy=0.7500", result["results"][1]["actual_output"])
+
+    def test_ml_torch_lab_can_skip_hidden_harness_for_visible_check_runs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "harness.py").write_text("raise AssertionError('hidden harness should not run')", encoding="utf-8")
+
+            result = evaluate_submission(
+                EvaluationRequest(
+                    code="def train():\n    return None\n",
+                    problem={"evaluation": {"type": "ml_torch_lab", "harness": "harness.py"}},
+                    tests=[{"name": "visible only", "test": "assert callable(train)\nprint('visible ok')"}],
+                    environment={"timeout_seconds": 10, "packages": ["torch"]},
+                    runtime={"problem_dir": str(root), "skip_hidden_harness": True},
+                )
+            )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["total"], 1)
+        self.assertEqual(result["results"][0]["name"], "visible only")
 
     def test_streams_ml_modeling_stdout_before_final_result(self):
         events = list(

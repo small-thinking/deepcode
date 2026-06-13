@@ -1,0 +1,44 @@
+{
+  "id": "108",
+  "slug": "mnist-torch-classifier",
+  "title": "MNIST Torch Classifier",
+  "category": "Computer Vision",
+  "difficulty": "medium",
+  "tags": ["torch", "mnist", "training"],
+  "companies": ["General"],
+  "prompt": "Implement a small PyTorch classifier for MNIST.\n\nRequired interface:\n- `build_model()` returns a `torch.nn.Module` that maps batches of `(N, 1, 28, 28)` images to `(N, 10)` logits.\n- `train_model(model, train_loader, val_loader, epochs=2, device=\"cpu\")` trains the model with the provided DataLoaders. Train in place and either return the trained model or return `None`.\n\nThe visible checks validate the public interface on tiny tensors. The hidden lab harness loads local tensors from `DEEPCODE_DATA_PATH` using `train.pt` and `val.pt`, prints training and metric logs, and writes `metrics.json` under `DEEPCODE_RESULTS_PATH` when that path is available.\n\nPrepare the local data with `uv run python scripts/prepare_mnist.py --output data/mnist`. For the default local setup, link this problem's `data` folder to `../../data/mnist`.",
+  "starter_code": "import torch\nfrom torch import nn\n\n\ndef build_model():\n    \"\"\"Return a module that maps (N, 1, 28, 28) images to (N, 10) logits.\"\"\"\n    raise NotImplementedError\n\n\ndef train_model(model, train_loader, val_loader, epochs=2, device=\"cpu\"):\n    \"\"\"Train with the provided DataLoaders and return the trained model or None.\"\"\"\n    raise NotImplementedError\n",
+  "example": {
+    "input": "train_loader and val_loader over local MNIST tensors",
+    "output": "A trained torch.nn.Module with validation accuracy above the lab threshold.",
+    "reasoning": "A small MLP or CNN trained for a couple of epochs on the prepared MNIST subset should learn digit structure well enough for the local validation check."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 20,
+    "packages": ["torch"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_torch_lab",
+    "harness": "harness.py",
+    "harness_name": "MNIST validation accuracy",
+    "harness_timeout_seconds": 90,
+    "expected_output": "Metric threshold met"
+  },
+  "data": {
+    "path": "data",
+    "required": true,
+    "format": "Torch files train.pt and val.pt containing images and labels tensors."
+  },
+  "artifacts": {
+    "results_path": "eval-results"
+  },
+  "references": [
+    {
+      "label": "MNIST dataset mirror",
+      "url": "https://storage.googleapis.com/cvdf-datasets/mnist/"
+    }
+  ],
+  "created_at": "2026-06-13"
+}

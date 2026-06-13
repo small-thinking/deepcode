@@ -132,6 +132,22 @@ the problem metadata should list `torch` in `environment.packages`. Keep these
 checks CPU-friendly: tiny tensors, seeded randomness when needed, and no long
 training loops.
 
+Dataset-backed PyTorch labs should use `ml_torch_lab`:
+
+```json
+"evaluation": {
+  "type": "ml_torch_lab",
+  "harness": "harness.py",
+  "harness_timeout_seconds": 90
+}
+```
+
+`ml_torch_lab` runs visible assertion checks from `tests.json`, then runs a
+problem-local hidden harness as one more check. The harness is the right place
+for boilerplate such as loading local data, constructing DataLoaders, printing
+training logs, computing metrics, and writing result artifacts. API calls that
+run one selected visible test skip the hidden harness.
+
 Modeling problems may also declare local data and artifact folders:
 
 ```json
@@ -190,6 +206,12 @@ Required fields for `ml_torch_modeling`:
 
 - `test`: Python code that exercises the user's PyTorch code with assertions. A
   passing process exit means the case passed.
+
+Required fields for `ml_torch_lab`:
+
+- `test`: Python code for each visible check.
+- `evaluation.harness`: A committed, problem-relative Python file that contains
+  the hidden lab scoring harness.
 
 Recommended test fields:
 

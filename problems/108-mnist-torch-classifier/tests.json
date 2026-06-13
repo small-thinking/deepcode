@@ -1,0 +1,12 @@
+[
+  {
+    "name": "model output contract",
+    "input": "x = torch.randn(4, 1, 28, 28)",
+    "test": "import torch\nfrom torch import nn\n\ntorch.manual_seed(0)\nmodel = build_model()\nassert isinstance(model, nn.Module), 'build_model must return torch.nn.Module'\nlogits = model(torch.randn(4, 1, 28, 28))\nassert tuple(logits.shape) == (4, 10), f'expected logits shape (4, 10), got {tuple(logits.shape)}'\nassert logits.dtype.is_floating_point, 'logits must be floating point'\nprint('model contract ok')\n"
+  },
+  {
+    "name": "one-epoch training smoke test",
+    "input": "tiny TensorDataset with 12 synthetic 28x28 images",
+    "test": "import torch\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\n\ntorch.manual_seed(0)\nimages = torch.zeros(12, 1, 28, 28, dtype=torch.float32)\nlabels = torch.arange(12, dtype=torch.long) % 10\nfor index, label in enumerate(labels):\n    images[index, 0, int(label), int(label)] = 1.0\nloader = DataLoader(TensorDataset(images, labels), batch_size=4, shuffle=False)\nmodel = build_model()\ntrained = train_model(model, loader, loader, epochs=1, device='cpu')\nif trained is not None:\n    model = trained\nassert isinstance(model, nn.Module), 'train_model must keep or return a torch.nn.Module'\nwith torch.no_grad():\n    logits = model(images)\nassert tuple(logits.shape) == (12, 10), f'expected logits shape (12, 10), got {tuple(logits.shape)}'\nprint('training smoke ok')\n"
+  }
+]
