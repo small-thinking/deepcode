@@ -5,6 +5,7 @@
   "category": "Machine Learning",
   "difficulty": "easy",
   "tags": ["baseline", "regression"],
+  "companies": ["OpenAI"],
   "prompt": "Implement `mean_baseline(train_y, n_predictions)` for a constant regression baseline.\n\nRules:\n- If `n_predictions == 0`, return `[]`.\n- If `n_predictions < 0`, return `-1`.\n- If predictions are requested but `train_y` is empty, return `-1`.\n\nOtherwise return a list with `n_predictions` copies of `round(sum(train_y) / len(train_y), 4)`.",
   "starter_code": "def mean_baseline(train_y, n_predictions):\n    # Return repeated round(mean(train_y), 4), [] for zero predictions, or -1 for invalid input.\n    pass\n",
   "example": {
