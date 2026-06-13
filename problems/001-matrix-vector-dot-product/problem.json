@@ -5,6 +5,7 @@
   "category": "Linear Algebra",
   "difficulty": "easy",
   "tags": ["matrix", "vectors"],
+  "companies": ["OpenAI"],
   "prompt": "Implement `matrix_vector_dot(matrix, vector)` and return the matrix-vector product as a plain Python list.\n\nValid input:\n- `matrix` is a non-empty list of non-empty rows.\n- `vector` is a non-empty one-dimensional list.\n- Every row length equals `len(vector)`.\n\nFor valid input, return one dot product per row. Return `-1` for any invalid shape: empty inputs, empty rows, ragged rows, or row/vector length mismatch. Assume entries are numbers.",
   "starter_code": "def matrix_vector_dot(matrix, vector):\n    # Return row-wise dot products, or -1 for any empty or invalid shape.\n    pass\n",
   "example": {

@@ -5,6 +5,7 @@
   "category": "Modeling",
   "difficulty": "medium",
   "tags": ["language-modeling", "ngram", "perplexity", "sampling"],
+  "companies": ["Runway"],
   "prompt": "Implement `NGramCharModel`, a character-level n-gram next-character model.\n\nRequired behavior:\n- `__init__(n=3, alpha=1.0)`: raise `ValueError` for `n < 1` or `alpha <= 0`.\n- `train(text)`: reset state, require a non-empty string, build counts with `^` padding, set vocabulary from the training text, and return `self`.\n- `prob(context, ch)`: use the last `n - 1` context characters and return Laplace-smoothed probability. Return `0.0` if untrained or `ch` is outside the vocabulary.\n- `perplexity(text)`: return `exp(-mean(log(probability)))`; return `float(\"inf\")` for empty text or impossible out-of-vocabulary evaluation.\n- `sample_top_k(context, k=5)`: rank by probability descending, break ties by character ascending, and sample from the top `min(k, vocab_size)` with Python's global `random`. Raise `ValueError` for `k < 1` or sampling before training.",
   "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n\nclass NGramCharModel:\n    def __init__(self, n=3, alpha=1.0):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
   "example": {
