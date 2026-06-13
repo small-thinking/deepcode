@@ -17,10 +17,10 @@ Clone the repo and start the local server:
 git clone https://github.com/small-thinking/deepcode.git
 cd deepcode
 ./scripts/setup.sh
-uv run python -m deepcode --port 8000
+uv run python -m deepcode --port 8848
 ```
 
-Open `http://127.0.0.1:8000`.
+Open `http://127.0.0.1:8848`.
 
 ## Use DeepCode Locally
 
@@ -48,7 +48,7 @@ uv run python -m deepcode
 Run on a custom host and port:
 
 ```bash
-uv run python -m deepcode --host 127.0.0.1 --port 8000
+uv run python -m deepcode --host 127.0.0.1 --port 8848
 ```
 
 The editor uses Ace Editor from jsDelivr, so syntax highlighting and editor keybindings require network access the first time the browser loads the editor asset.
