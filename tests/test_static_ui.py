@@ -91,6 +91,13 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".test-case-heading", styles_css)
         self.assertIn(".run-case-button", styles_css)
 
+    def test_problem_numbers_use_dynamic_display_ids(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+
+        self.assertIn("function problemDisplayId", app_js)
+        self.assertIn("${escapeHtml(problemDisplayId(problem))}", app_js)
+        self.assertIn("const displayId = problemDisplayId(state.selected)", app_js)
+
     def test_returning_from_direct_detail_load_refreshes_problem_catalog(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         back_to_list = app_js.split("function backToList() {", maxsplit=1)[1].split(
