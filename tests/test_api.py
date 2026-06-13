@@ -72,6 +72,47 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["status"], "passed")
             self.assertEqual(payload["passed"], 1)
 
+    def test_runs_selected_visible_test_for_problem(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp))
+            self._write_problem(
+                Path(tmp),
+                "toy",
+                "1",
+                tests=[
+                    {"name": "basic", "input": "x = 4", "test": "print(identity(4))", "expected_output": "4"},
+                    {"name": "harder", "input": "x = 5", "test": "print(identity(5))", "expected_output": "5"},
+                ],
+            )
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return 4\n", "test_index": 0}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "passed")
+            self.assertEqual(payload["passed"], 1)
+            self.assertEqual(payload["total"], 1)
+            self.assertEqual([result["name"] for result in payload["results"]], ["basic"])
+
+    def test_rejects_out_of_range_selected_test(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp))
+            self._write_problem(Path(tmp), "toy", "1")
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return x\n", "test_index": 3}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 400)
+            self.assertIn("test_index", payload["error"])
+
     def test_passing_submission_marks_problem_complete(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = ProblemStore(Path(tmp) / "problems")
@@ -90,6 +131,33 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["status"], "passed")
             self.assertEqual(payload["problem_status"]["completed"], True)
             self.assertEqual(user_state.status_for("toy")["completed"], True)
+
+    def test_passing_selected_test_does_not_mark_problem_complete(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(
+                Path(tmp) / "problems",
+                "toy",
+                "1",
+                tests=[
+                    {"name": "basic", "input": "x = 4", "test": "print(identity(4))", "expected_output": "4"},
+                    {"name": "harder", "input": "x = 5", "test": "print(identity(5))", "expected_output": "5"},
+                ],
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, user_state=user_state),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return 4\n", "test_index": 0}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "passed")
+            self.assertNotIn("problem_status", payload)
+            self.assertEqual(user_state.status_for("toy")["completed"], False)
 
     def test_reset_submission_status_marks_problem_incomplete(self):
         with tempfile.TemporaryDirectory() as tmp:

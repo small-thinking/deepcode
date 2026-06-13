@@ -72,17 +72,26 @@ def _handle_api_request(
         if not isinstance(code, str) or not code.strip():
             raise ValueError("Request body must include non-empty `code`")
 
+        tests = problem.get("tests", [])
+        test_index = payload.get("test_index")
+        if test_index is not None:
+            if isinstance(test_index, bool) or not isinstance(test_index, int):
+                raise ValueError("`test_index` must be an integer visible test index")
+            if test_index < 0 or test_index >= len(tests):
+                raise ValueError("`test_index` must refer to a visible test case")
+            tests = [tests[test_index]]
+
         environment = problem.get("environment", {})
         result = evaluate_submission(
             EvaluationRequest(
                 code=code,
                 problem=problem,
-                tests=problem.get("tests", []),
+                tests=tests,
                 environment=environment,
                 runtime=problem.get("_runtime", {}),
             )
         )
-        if context.user_state and result.get("status") == "passed":
+        if context.user_state and test_index is None and result.get("status") == "passed":
             result["problem_status"] = context.user_state.mark_completed(str(problem.get("slug", parts[2])))
         return 200, result
 
