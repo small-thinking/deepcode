@@ -1,0 +1,32 @@
+[
+  {
+    "name": "weighted cycle crosses batch boundaries",
+    "input": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}, weights = {'a': 2, 'b': 1}, batch_size = 2",
+    "test": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}\nbatcher = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 2)\nassert batcher.next_batch() == [('a', 10), ('a', 11)]\nassert batcher.next_batch() == [('b', 20), ('a', 12)]"
+  },
+  {
+    "name": "non-divisible batch size keeps global schedule",
+    "input": "weights sum to 3, batch_size = 4",
+    "test": "datasets = {'a': [1, 2, 3, 4, 5], 'b': [9, 8, 7]}\nbatcher = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 4)\nfirst = batcher.next_batch()\nsecond = batcher.next_batch()\nassert [name for name, _ in first] == ['a', 'a', 'b', 'a']\nassert [name for name, _ in second] == ['a', 'b', 'a', 'a']"
+  },
+  {
+    "name": "global offset skips dataset values",
+    "input": "offset = 3 with schedule a, a, b",
+    "test": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}\nbatcher = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 3, offset=3)\nassert batcher.next_batch() == [('a', 12), ('a', 10), ('b', 21)]"
+  },
+  {
+    "name": "state resumes exact suffix",
+    "input": "save after one batch and resume in a fresh instance",
+    "test": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}\noriginal = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 3)\noriginal.next_batch()\nstate = original.state_dict()\nexpected = original.next_batch()\nresumed = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 3).load_state_dict(state)\nassert resumed.next_batch() == expected"
+  },
+  {
+    "name": "short datasets cycle deterministically",
+    "input": "dataset a has one item, dataset b has two items",
+    "test": "batcher = WeightedDatasetBatcher({'a': [1], 'b': [2, 3]}, {'a': 1, 'b': 1}, 5)\nassert batcher.next_batch() == [('a', 1), ('b', 2), ('a', 1), ('b', 3), ('a', 1)]"
+  },
+  {
+    "name": "invalid constructor arguments raise",
+    "input": "empty datasets, missing weights, zero weight, non-positive batch size",
+    "test": "def must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nmust_raise(lambda: WeightedDatasetBatcher({}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'b': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 0}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': []}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 0))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 1, offset=-1))"
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "name": "first nucleus token at start of interval",
+    "input": "logits = [3.0, 2.0, 1.0, 0.0], p = 0.8, u = 0.0",
+    "test": "print(top_p_sample([3.0, 2.0, 1.0, 0.0], 0.8, 0.0))",
+    "expected_output": "0"
+  },
+  {
+    "name": "second nucleus token after renormalization",
+    "input": "logits = [3.0, 2.0, 1.0, 0.0], p = 0.8, u = 0.8",
+    "test": "print(top_p_sample([3.0, 2.0, 1.0, 0.0], 0.8, 0.8))",
+    "expected_output": "1"
+  },
+  {
+    "name": "tie break keeps lower original index first",
+    "input": "logits = [0.0, 0.0, 0.0, 0.0], p = 0.5, u = 0.49",
+    "test": "print(top_p_sample([0.0, 0.0, 0.0, 0.0], 0.5, 0.49))",
+    "expected_output": "0"
+  },
+  {
+    "name": "tie break samples second kept token",
+    "input": "logits = [0.0, 0.0, 0.0, 0.0], p = 0.5, u = 0.51",
+    "test": "print(top_p_sample([0.0, 0.0, 0.0, 0.0], 0.5, 0.51))",
+    "expected_output": "1"
+  },
+  {
+    "name": "large logits use stable softmax",
+    "input": "logits = [1000.0, 999.0, 998.0], p = 0.9, u = 0.8",
+    "test": "print(top_p_sample([1000.0, 999.0, 998.0], 0.9, 0.8))",
+    "expected_output": "1"
+  },
+  {
+    "name": "temperature changes sampling mass",
+    "input": "logits = [2.0, 0.0], p = 1.0, u = 0.8, temperature = 2.0",
+    "test": "print(top_p_sample([2.0, 0.0], 1.0, 0.8, temperature=2.0))",
+    "expected_output": "1"
+  },
+  {
+    "name": "single-token nucleus always returns top token",
+    "input": "logits = [10.0, 0.0, 0.0], p = 0.5, u = 0.99",
+    "test": "print(top_p_sample([10.0, 0.0, 0.0], 0.5, 0.99))",
+    "expected_output": "0"
+  },
+  {
+    "name": "invalid p raises",
+    "input": "p = 0.0",
+    "test": "try:\n    top_p_sample([1.0, 0.0], 0.0, 0.5)\nexcept ValueError:\n    print('ValueError')\nelse:\n    print('no error')",
+    "expected_output": "ValueError"
+  },
+  {
+    "name": "invalid draw raises",
+    "input": "u = 1.0",
+    "test": "try:\n    top_p_sample([1.0, 0.0], 0.9, 1.0)\nexcept ValueError:\n    print('ValueError')\nelse:\n    print('no error')",
+    "expected_output": "ValueError"
+  },
+  {
+    "name": "invalid temperature raises",
+    "input": "temperature = 0.0",
+    "test": "try:\n    top_p_sample([1.0, 0.0], 0.9, 0.5, temperature=0.0)\nexcept ValueError:\n    print('ValueError')\nelse:\n    print('no error')",
+    "expected_output": "ValueError"
+  },
+  {
+    "name": "empty logits raise",
+    "input": "logits = []",
+    "test": "try:\n    top_p_sample([], 0.9, 0.5)\nexcept ValueError:\n    print('ValueError')\nelse:\n    print('no error')",
+    "expected_output": "ValueError"
+  }
+]

@@ -3,7 +3,7 @@
 DeepCode problems are file-backed. To add a new question, create one folder under `problems/` with:
 
 - `problem.json` for metadata, prompt text, starter code, and runtime settings
-- `tests.json` for executable test snippets and expected output
+- `tests.json` for executable test snippets and either expected output or assertion-style checks
 
 ## Folder Layout
 
@@ -30,6 +30,7 @@ Example:
   "category": "Machine Learning",
   "difficulty": "easy",
   "tags": ["baseline", "regression"],
+  "companies": ["General"],
   "prompt": "Write a function `mean_baseline(train_y, n_predictions)` that returns `n_predictions` copies of the mean target value.",
   "starter_code": "def mean_baseline(train_y, n_predictions):\n    pass\n",
   "example": {
@@ -70,6 +71,9 @@ Required fields:
 Recommended fields:
 
 - `tags`: Short searchable labels.
+- `companies`: Optional list of company names associated with the source prompt,
+  such as `["OpenAI"]` or `["Anthropic"]`. Use an empty list or omit the field
+  for general concept drills without a company source.
 - `evaluation.type`: Evaluator backend. Omit it or use `ml_coding` for current problems.
 - `environment.timeout_seconds`: Per-test timeout. Keep ML coding tasks short.
 - `environment.comparator`: `exact` or `numeric`.
@@ -85,7 +89,7 @@ Current limitations:
 - `language` should be `python`.
 - Current problems may rely on dependencies declared in `pyproject.toml`. NumPy is available by default.
 - `packages` documents the packages a problem expects, but the runner does not install per-problem dependencies yet.
-- The runner evaluates printed output from test snippets.
+- The `ml_coding` runner evaluates printed output from test snippets.
 
 ## Evaluator Types
 
@@ -159,7 +163,7 @@ boundary.
 
 ## tests.json
 
-`tests.json` must be a list. Each test is appended below the user's submitted code and run in a fresh local Python subprocess.
+`tests.json` must be a list. Each test is appended below the user's submitted code and run in a fresh local Python subprocess. `ml_coding` tests compare printed output, while modeling evaluators use assertions and pass when the snippet exits successfully.
 
 ```json
 [

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "two-matrix forward and backward",
+    "input": "W has shape (2, 2, 2), grad_P is all ones",
+    "test": "import torch\nW = torch.tensor([[[1., 2.], [0., 1.]], [[2., 0.], [1., 3.]]])\nexpected_P = torch.tensor([[[1., 2.], [0., 1.]], [[4., 6.], [1., 3.]]])\nexpected_grad = torch.tensor([[[3., 5.], [3., 5.]], [[1., 1.], [3., 3.]]])\nassert torch.allclose(prefix_matrix_products(W), expected_P)\nassert torch.allclose(prefix_matrix_products_backward(W, torch.ones_like(W)), expected_grad)"
+  },
+  {
+    "name": "three-matrix structured gradient",
+    "input": "three 2x2 matrices with sparse upstream gradients",
+    "test": "import torch\nW = torch.tensor([[[2., 0.], [0., 3.]], [[1., 1.], [0., 1.]], [[1., 0.], [2., 1.]]])\nG = torch.tensor([[[1., 0.], [0., 1.]], [[1., 0.], [0., 0.]], [[0., 1.], [1., 0.]]])\nexpected_P = torch.tensor([[[2., 0.], [0., 3.]], [[2., 2.], [0., 3.]], [[6., 2.], [6., 3.]]])\nexpected_grad = torch.tensor([[[3., 1.], [3., 3.]], [[2., 2.], [3., 6.]], [[0., 2.], [3., 2.]]])\nassert torch.allclose(prefix_matrix_products(W), expected_P)\nassert torch.allclose(prefix_matrix_products_backward(W, G), expected_grad)"
+  },
+  {
+    "name": "one-dimensional matrix chain",
+    "input": "W has shape (3, 1, 1)",
+    "test": "import torch\nW = torch.tensor([[[4.]], [[-2.]], [[0.5]]])\nG = torch.tensor([[[1.]], [[2.]], [[-3.]]])\nexpected_P = torch.tensor([[[4.]], [[-8.]], [[-4.]]])\nexpected_grad = torch.tensor([[[0.]], [[2.]], [[24.]]])\nassert torch.allclose(prefix_matrix_products(W), expected_P)\nassert torch.allclose(prefix_matrix_products_backward(W, G), expected_grad)"
+  },
+  {
+    "name": "manual backward matches autograd",
+    "input": "compare against Torch autograd on a small fixed tensor",
+    "test": "import torch\nW_base = torch.tensor([[[1.2, -0.5], [0.3, 2.0]], [[0.7, 1.1], [-0.4, 0.9]], [[1.0, 0.2], [0.5, 1.3]]])\nG = torch.tensor([[[0.1, -0.2], [0.3, 0.4]], [[-0.5, 0.7], [0.2, -0.1]], [[0.6, 0.0], [-0.3, 0.8]]])\nW = W_base.clone().requires_grad_(True)\nP = prefix_matrix_products(W)\n(P * G).sum().backward()\nmanual = prefix_matrix_products_backward(W_base, G)\nassert torch.allclose(manual, W.grad, atol=1e-5, rtol=1e-5)"
+  },
+  {
+    "name": "invalid shapes raise",
+    "input": "non-square W or mismatched grad_P shape",
+    "test": "import torch\n\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nmust_raise(lambda: prefix_matrix_products(torch.ones(2, 2, 3)))\nmust_raise(lambda: prefix_matrix_products_backward(torch.ones(2, 2, 2), torch.ones(2, 2, 3)))"
+  }
+]

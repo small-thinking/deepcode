@@ -15,6 +15,7 @@ SUMMARY_FIELDS = (
     "category",
     "difficulty",
     "tags",
+    "companies",
     "example",
     "evaluation",
     "environment",
@@ -54,6 +55,7 @@ class ProblemStore:
                 if needle in problem.get("title", "").casefold()
                 or needle in problem.get("category", "").casefold()
                 or any(needle in tag.casefold() for tag in problem.get("tags", []))
+                or any(needle in company.casefold() for company in problem.get("companies", []))
             ]
 
         return sorted(problems, key=self._sort_key(sort))
@@ -87,6 +89,7 @@ class ProblemStore:
             tests = self._read_json(tests_path) if tests_path.exists() else []
             problem.setdefault("slug", problem_dir.name)
             problem.setdefault("tags", [])
+            problem.setdefault("companies", [])
             problem.setdefault("evaluation", {"type": "ml_coding"})
             problem.setdefault("environment", {"language": "python", "timeout_seconds": 2, "packages": []})
             problem["tests"] = tests
@@ -144,6 +147,7 @@ class ProblemStore:
 
         self._validate_relative_path(problem, problem_dir, "data", "path")
         self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")
+        self._validate_companies(problem, problem_dir)
         self._validate_references(problem, problem_dir)
 
     def _read_json(self, path: Path) -> Any:
@@ -203,6 +207,17 @@ class ProblemStore:
             parsed = urlparse(url)
             if parsed.scheme not in {"http", "https"} or not parsed.netloc:
                 raise ValueError(f"{problem_dir}/problem.json field `references[{index}].url` must be http(s)")
+
+    def _validate_companies(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        companies = problem.get("companies")
+        if companies is None:
+            return
+        if not isinstance(companies, list):
+            raise ValueError(f"{problem_dir}/problem.json field `companies` must be a list")
+
+        for index, company in enumerate(companies, start=1):
+            if not isinstance(company, str) or not company.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `companies[{index}]` must be non-empty")
 
     def _id_sort_value(self, value: Any):
         text = str(value)

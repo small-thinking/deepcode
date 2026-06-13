@@ -1,6 +1,7 @@
 const THEME_KEY = "deepcode-theme";
 const PROBLEM_SECTION_CLASSES = {
   prompt: "problem-section problem-prompt-section",
+  metadata: "problem-section problem-metadata-section",
   example: "problem-section problem-example-section",
   references: "problem-section problem-references-section",
   tests: "problem-section problem-tests-section",
@@ -491,6 +492,11 @@ function difficultyPill(difficulty) {
   return `<span class="pill ${escapeHtml(difficulty)}">${escapeHtml(difficulty)}</span>`;
 }
 
+function labelList(values, className = "label-list") {
+  const labels = (values || []).map((value) => `<span class="label">${escapeHtml(value)}</span>`).join("");
+  return labels ? `<div class="${className}">${labels}</div>` : "";
+}
+
 function problemDisplayId(problem) {
   return problem?.display_id ?? problem?.id ?? "";
 }
@@ -585,7 +591,8 @@ function problemTable() {
         <td class="title-cell">${escapeHtml(problem.title)}</td>
         <td>${difficultyPill(problem.difficulty)}</td>
         <td class="category-cell">${escapeHtml(problem.category)}</td>
-        <td>${(problem.tags || []).map((tag) => `<span class="label">${escapeHtml(tag)}</span>`).join(", ")}</td>
+        <td>${labelList(problem.companies, "company-list") || `<span class="muted-cell">-</span>`}</td>
+        <td>${labelList(problem.tags)}</td>
       </tr>
     `
     )
@@ -600,6 +607,7 @@ function problemTable() {
           <th>Title</th>
           <th>Difficulty</th>
           <th>Category</th>
+          <th>Companies</th>
           <th>Tags</th>
         </tr>
       </thead>
@@ -725,9 +733,25 @@ function renderProblemDescription(problem) {
       "Prompt",
       `<div class="problem-prompt">${markdownLite(problem.prompt)}</div>`
     ),
+    renderProblemMetadata(problem),
     renderProblemExample(problem.example),
     renderReferences(problem.references),
   ].join("");
+}
+
+function renderProblemMetadata(problem) {
+  const companies = labelList(problem.companies, "company-list") || "None";
+  const tags = labelList(problem.tags) || "None";
+  return renderProblemBlock(
+    PROBLEM_SECTION_CLASSES.metadata,
+    "Metadata",
+    `
+      <div class="problem-meta-grid">
+        <div class="problem-meta-row"><div class="label">Companies</div><div>${companies}</div></div>
+        <div class="problem-meta-row"><div class="label">Tags</div><div>${tags}</div></div>
+      </div>
+    `
+  );
 }
 
 function renderProblemExample(example) {

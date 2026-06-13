@@ -1,0 +1,36 @@
+{
+  "id": "104",
+  "slug": "streaming-logit-entropy",
+  "title": "Streaming Logit Entropy",
+  "category": "ML Numerics",
+  "difficulty": "medium",
+  "tags": ["logits", "entropy", "log-sum-exp", "streaming", "numpy"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement two functions for entropy from unnormalized logits.\n\n`entropy_from_logits(logits)` receives a non-empty 1D list or NumPy array of logits and returns the natural-log entropy of the softmax distribution. Use a numerically stable log-sum-exp style computation, so large logits such as `[1000, 1000]` do not overflow.\n\n`streaming_entropy(blocks)` receives an iterable of non-empty 1D logit blocks and returns the same entropy as if all blocks had been concatenated. Do not store all logits. Maintain a shared running max plus scaled sums so the computation uses `O(1)` extra state besides the current block.\n\nFor logits `z`, if `L = logsumexp(z)`, the entropy is `L - sum_i softmax(z)_i * z_i`. Raise `ValueError` for an empty logits vector, an empty block, or no blocks.",
+  "starter_code": "import numpy as np\n\n\ndef entropy_from_logits(logits):\n    # Return the softmax entropy using a stable log-sum-exp computation.\n    pass\n\n\ndef streaming_entropy(blocks):\n    # Return the same entropy while consuming one block at a time.\n    pass\n",
+  "example": {
+    "input": "logits = [0.0, 0.0, 0.0]",
+    "output": "1.098612",
+    "reasoning": "Uniform logits produce a uniform distribution over three classes, whose natural-log entropy is log(3)."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": ["numpy"],
+    "comparator": "numeric"
+  },
+  "references": [
+    {
+      "label": "NumPy: exp",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.exp.html"
+    },
+    {
+      "label": "NumPy: log",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.log.html"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-06-13"
+}
