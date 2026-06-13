@@ -722,11 +722,16 @@ pre {
 .running-results {
   min-height: 150px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  justify-content: center;
+  align-content: start;
   gap: 14px;
   color: var(--text);
+}
+
+.running-status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
 }
 
 .running-results strong {
@@ -745,6 +750,68 @@ pre {
   width: 24px;
   height: 24px;
   color: var(--green);
+}
+
+.run-log-panel {
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--mini-bg);
+  overflow: hidden;
+}
+
+.run-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.run-log-header strong {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.run-log-header span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.run-log-lines {
+  max-height: 210px;
+  overflow: auto;
+  padding: 10px;
+  color: var(--code-text);
+  background: var(--code-bg);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.run-log-line {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.run-log-stream {
+  display: inline-block;
+  min-width: 48px;
+  margin-right: 8px;
+  color: var(--muted);
+}
+
+.run-log-line.stderr .run-log-stream {
+  color: var(--red);
+}
+
+.run-log-empty {
+  color: var(--muted);
 }
 
 @keyframes spin {

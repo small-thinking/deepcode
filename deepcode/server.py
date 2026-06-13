@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from deepcode.api import ApiContext, handle_api_request
+from deepcode.api import ApiContext, handle_api_request, stream_api_events
 from deepcode.problem_store import ProblemStore
 from deepcode.user_state import UserStateStore
 
@@ -44,6 +44,10 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
             length = int(self.headers.get("content-length", "0"))
             body = self.rfile.read(length) if length else b""
 
+        if parsed.path.endswith("/run/stream"):
+            self._handle_api_stream(parsed, body)
+            return
+
         status, payload = handle_api_request(
             self.context,
             self.command,
@@ -58,6 +62,27 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(encoded)
+
+    def _handle_api_stream(self, parsed, body):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Accel-Buffering", "no")
+        self.end_headers()
+
+        for event in stream_api_events(
+            self.context,
+            self.command,
+            parsed.path,
+            parse_qs(parsed.query),
+            body,
+        ):
+            encoded = json.dumps(event, ensure_ascii=False).encode("utf-8") + b"\n"
+            try:
+                self.wfile.write(encoded)
+                self.wfile.flush()
+            except BrokenPipeError:
+                break
 
     def _handle_static(self, request_path: str):
         path = request_path.strip("/")

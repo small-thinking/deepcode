@@ -22,6 +22,8 @@ const state = {
   activeTab: "description",
   activeResultIndex: 0,
   runResult: null,
+  runLogs: [],
+  activeRunCheck: null,
   runStartedAt: null,
   runElapsedSeconds: 0,
   runningTestIndex: null,
@@ -408,6 +410,8 @@ async function runTests(testIndex = null) {
   if (Number.isInteger(testIndex)) payload.test_index = testIndex;
   state.running = true;
   state.runResult = null;
+  state.runLogs = [];
+  state.activeRunCheck = null;
   state.activeResultIndex = 0;
   state.runningTestIndex = Number.isInteger(testIndex) ? testIndex : null;
   state.error = null;
@@ -415,10 +419,16 @@ async function runTests(testIndex = null) {
   render();
   updateRunElapsed();
   try {
-    state.runResult = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/run`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    const didStream = await runTestsWithStream(payload);
+    if (!didStream) {
+      state.runResult = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/run`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    }
+    if (!state.runResult) {
+      throw new Error("Runner stream ended before returning a result");
+    }
     if (state.runResult.problem_status) {
       syncProblemStatus(state.selected.slug, state.runResult.problem_status);
     }
@@ -429,8 +439,66 @@ async function runTests(testIndex = null) {
     state.running = false;
     state.runStartedAt = null;
     state.runningTestIndex = null;
+    state.activeRunCheck = null;
     render();
   }
+}
+
+async function runTestsWithStream(payload) {
+  if (typeof ReadableStream === "undefined") return false;
+
+  const response = await fetch(`/api/problems/${encodeURIComponent(state.selected.slug)}/run/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok || !response.body) return false;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    lines.filter(Boolean).forEach(processRunEvent);
+    if (done) break;
+  }
+  if (buffer.trim()) processRunEvent(buffer);
+  return true;
+}
+
+function processRunEvent(line) {
+  const event = JSON.parse(line);
+  if (event.type === "error") {
+    throw new Error(event.error || "Runner stream failed");
+  }
+  if (event.type === "check_started") {
+    state.activeRunCheck = event.name || `Check ${event.index + 1}`;
+    updateRunStatus();
+    return;
+  }
+  if (event.type === "log") {
+    state.runLogs.push({ stream: event.stream || "stdout", text: event.text || "" });
+    updateRunLogPanel();
+    return;
+  }
+  if (event.type === "run_finished") {
+    state.runResult = event.result;
+  }
+}
+
+function updateRunStatus() {
+  const target = document.querySelector("#run-target");
+  if (target) target.textContent = activeRunTargetLabel();
+}
+
+function updateRunLogPanel() {
+  const panel = document.querySelector("#run-log-lines");
+  if (!panel) return;
+  panel.innerHTML = renderRunLogLines();
+  panel.scrollTop = panel.scrollHeight;
 }
 
 async function resetCode() {
@@ -887,24 +955,52 @@ function renderResults() {
   `;
 }
 
-function renderRunningResults() {
+function activeRunTargetLabel() {
   const selectedTest = Number.isInteger(state.runningTestIndex)
     ? state.selected?.tests?.[state.runningTestIndex]
     : null;
   const testCount = selectedTest ? 1 : state.selected?.tests?.length || 0;
   const countLabel = testCount === 1 ? "1 visible check" : `${testCount} visible checks`;
-  const targetLabel = selectedTest
+  const baseLabel = selectedTest
     ? `Test ${state.runningTestIndex + 1}: ${selectedTest.name || "visible check"}`
     : countLabel;
+  return state.activeRunCheck ? `${state.activeRunCheck} · ${baseLabel}` : `${baseLabel} running locally`;
+}
+
+function renderRunningResults() {
+  const targetLabel = activeRunTargetLabel();
   return `
     <div class="running-results" aria-live="polite" aria-busy="true">
-      <span class="run-spinner" aria-hidden="true"></span>
-      <div>
-        <strong>Running checks...</strong>
-        <p><span id="run-elapsed">${state.runElapsedSeconds}s elapsed</span> · ${escapeHtml(targetLabel)} running locally</p>
+      <div class="running-status">
+        <span class="run-spinner" aria-hidden="true"></span>
+        <div>
+          <strong>Running checks...</strong>
+          <p><span id="run-elapsed">${state.runElapsedSeconds}s elapsed</span> · <span id="run-target">${escapeHtml(
+            targetLabel
+          )}</span></p>
+        </div>
       </div>
+      <section class="run-log-panel" aria-label="Runner log">
+        <div class="run-log-header">
+          <strong>Runner log</strong>
+          <span>${state.runLogs.length} line${state.runLogs.length === 1 ? "" : "s"}</span>
+        </div>
+        <pre id="run-log-lines" class="run-log-lines">${renderRunLogLines()}</pre>
+      </section>
     </div>
   `;
+}
+
+function renderRunLogLines() {
+  if (!state.runLogs.length) return `<span class="run-log-empty">Waiting for runner output...</span>`;
+  return state.runLogs
+    .map(
+      (entry) =>
+        `<span class="run-log-line ${escapeHtml(entry.stream)}"><span class="run-log-stream">${escapeHtml(
+          entry.stream
+        )}</span>${escapeHtml(entry.text)}</span>`
+    )
+    .join("");
 }
 
 function renderResultCase(item, index) {

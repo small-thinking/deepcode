@@ -81,6 +81,18 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".run-spinner", styles_css)
         self.assertIn("@keyframes spin", styles_css)
 
+    def test_running_checks_can_show_live_runner_logs(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("runLogs", app_js)
+        self.assertIn("/run/stream", app_js)
+        self.assertIn("ReadableStream", app_js)
+        self.assertIn("renderRunLogLines", app_js)
+        self.assertIn("Runner log", app_js)
+        self.assertIn(".run-log-panel", styles_css)
+        self.assertIn(".run-log-line", styles_css)
+
     def test_run_tests_normalizes_indentation_before_submit(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
 
