@@ -128,6 +128,9 @@ needed, CPU execution, and short behavioral assertions. This evaluator is a good
 fit for debugging attention blocks, tensor shape code, loss functions, autograd
 behavior, and compact neural network modules.
 
+`ml_torch_modeling` sets `DEEPCODE_TORCH_DEVICE` for each check. The selected
+device prefers CUDA when available, then Apple Silicon MPS, then CPU.
+
 Unlike the standard modeling evaluator, `ml_torch_modeling` does not apply the
 default 512 MB address-space cap to child processes. PyTorch imports can exceed
 that limit on Linux even for tiny CPU examples, so rely on per-case timeouts and
@@ -163,9 +166,11 @@ The harness path must be problem-relative and must exist in the committed
 problem folder. It receives the same submitted code as visible checks, so it can
 call user-defined functions such as `build_model()` or `train_model(...)`. It
 also receives runtime paths through `DEEPCODE_DATA_PATH` and
-`DEEPCODE_RESULTS_PATH`, which lets it read local datasets, print epoch logs,
-score metrics, and write artifacts without exposing that boilerplate as visible
-problem code.
+`DEEPCODE_RESULTS_PATH`, plus `DEEPCODE_TORCH_DEVICE` for accelerator selection.
+The selected torch device prefers CUDA when available, then Apple Silicon MPS,
+then CPU. This lets a hidden harness read local datasets, print epoch logs,
+score metrics, write artifacts, and choose hardware without exposing that
+boilerplate as visible problem code.
 
 When the API runs a single visible test by `test_index`, it skips the hidden
 harness. Full submissions run both visible checks and the hidden harness.

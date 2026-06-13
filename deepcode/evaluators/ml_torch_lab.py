@@ -6,6 +6,7 @@ from typing import Any
 from deepcode.evaluators.base import EvaluationRequest
 from deepcode.evaluators.ml_modeling import run_modeling_checks, stream_modeling_checks
 from deepcode.evaluators.ml_torch_modeling import _torch_resource_limiter
+from deepcode.evaluators.torch_device import preferred_torch_device, runtime_with_preferred_torch_device
 
 
 class MlTorchLabEvaluator:
@@ -16,7 +17,7 @@ class MlTorchLabEvaluator:
             code=request.code,
             tests=_lab_tests(request),
             timeout_seconds=request.environment.get("timeout_seconds", 5),
-            runtime=request.runtime,
+            runtime=_torch_runtime(request.runtime),
             resource_limiter_factory=_torch_resource_limiter,
         )
 
@@ -25,7 +26,7 @@ class MlTorchLabEvaluator:
             code=request.code,
             tests=_lab_tests(request),
             timeout_seconds=request.environment.get("timeout_seconds", 5),
-            runtime=request.runtime,
+            runtime=_torch_runtime(request.runtime),
             resource_limiter_factory=_torch_resource_limiter,
         )
 
@@ -74,3 +75,7 @@ def _load_harness(request: EvaluationRequest) -> str:
     if not full_path.is_file():
         raise ValueError(f"Lab harness not found: {harness}")
     return full_path.read_text(encoding="utf-8")
+
+
+def _torch_runtime(runtime: dict[str, Any]) -> dict[str, Any]:
+    return runtime_with_preferred_torch_device(runtime, device=preferred_torch_device())

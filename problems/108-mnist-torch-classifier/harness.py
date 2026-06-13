@@ -50,6 +50,18 @@ def _accuracy(model: nn.Module, loader: DataLoader, device: torch.device) -> flo
     return correct / max(total, 1)
 
 
+def _preferred_device() -> torch.device:
+    configured = os.environ.get("DEEPCODE_TORCH_DEVICE")
+    if configured:
+        return torch.device(configured)
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    mps = getattr(torch.backends, "mps", None)
+    if mps is not None and mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
 torch.manual_seed(0)
 random.seed(0)
 
@@ -66,7 +78,7 @@ train_loader = DataLoader(
 )
 val_loader = DataLoader(TensorDataset(val_images, val_labels), batch_size=BATCH_SIZE, shuffle=False)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = _preferred_device()
 print(f"dataset: train={len(train_labels)} val={len(val_labels)}")
 print(f"device: {device}")
 

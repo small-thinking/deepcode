@@ -258,6 +258,7 @@ def _modeling_env(runtime: dict[str, Any]) -> dict[str, str]:
         "problem_dir": "DEEPCODE_PROBLEM_DIR",
         "data_path": "DEEPCODE_DATA_PATH",
         "results_path": "DEEPCODE_RESULTS_PATH",
+        "torch_device": "DEEPCODE_TORCH_DEVICE",
     }
     for runtime_key, env_key in runtime_env_keys.items():
         value = runtime.get(runtime_key)
