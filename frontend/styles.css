@@ -587,6 +587,7 @@ body.is-resizing {
 .problem-example,
 .problem-meta-grid,
 .problem-test-list,
+.data-link-panel,
 .reference-list {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -624,7 +625,8 @@ body.is-resizing {
   flex: 0 0 auto;
 }
 
-.custom-test-editor {
+.custom-test-editor,
+.data-link-panel {
   display: grid;
   gap: 12px;
 }
@@ -650,12 +652,52 @@ body.is-resizing {
   gap: 10px;
 }
 
-.custom-test-case label {
+.data-link-status {
+  display: grid;
+  grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: var(--body-copy);
+}
+
+.data-link-status span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.data-link-status.linked span {
+  border-color: rgba(80, 200, 120, 0.45);
+  color: #72d492;
+}
+
+.data-link-status.blocked span {
+  border-color: rgba(255, 190, 100, 0.55);
+  color: #ffc36d;
+}
+
+.data-link-status.missing span {
+  color: var(--muted);
+}
+
+.data-link-status code {
+  overflow-wrap: anywhere;
+}
+
+.custom-test-case label,
+.data-link-target {
   display: grid;
   gap: 6px;
 }
 
-.custom-test-case label span {
+.custom-test-case label span,
+.data-link-target span {
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
@@ -667,6 +709,13 @@ body.is-resizing {
   width: 100%;
   min-width: 0;
   resize: vertical;
+}
+
+.data-link-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .reference-list {

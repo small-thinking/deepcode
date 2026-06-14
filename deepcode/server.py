@@ -38,6 +38,9 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         self._dispatch()
 
+    def do_DELETE(self):
+        self._dispatch()
+
     def log_message(self, format, *args):
         print("%s - - [%s] %s" % (self.address_string(), self.log_date_time_string(), format % args))
 

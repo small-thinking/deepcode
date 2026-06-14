@@ -141,6 +141,23 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".custom-test-editor", styles_css)
         self.assertIn(".custom-test-actions", styles_css)
 
+    def test_modeling_data_link_setup_can_be_rendered_and_saved(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("dataLink", app_js)
+        self.assertIn("function supportsDataLinkSetup", app_js)
+        self.assertIn("function loadDataLink", app_js)
+        self.assertIn("function saveDataLink", app_js)
+        self.assertIn("function removeDataLink", app_js)
+        self.assertIn("function renderDataLinkSetup", app_js)
+        self.assertIn("/data-link", app_js)
+        self.assertIn('id="data-link-target"', app_js)
+        self.assertIn('id="save-data-link"', app_js)
+        self.assertIn('id="remove-data-link"', app_js)
+        self.assertIn(".data-link-panel", styles_css)
+        self.assertIn(".data-link-status", styles_css)
+
     def test_problem_numbers_use_dynamic_display_ids(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
 
