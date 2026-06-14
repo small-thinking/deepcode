@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import unquote
 
+from deepcode.custom_tests import CustomTestStore, validate_custom_tests
 from deepcode.evaluators import (
     EvaluationRequest,
     UnsupportedEvaluatorError,
@@ -20,6 +21,7 @@ from deepcode.user_state import UserStateStore
 class ApiContext:
     store: ProblemStore
     user_state: UserStateStore | None = None
+    custom_tests: CustomTestStore | None = None
 
 
 def handle_api_request(
@@ -90,10 +92,23 @@ def _handle_api_request(
         problem = _public_problem(context.store.get_problem(parts[2]))
         return 200, {"problem": _with_personal_status(context, [problem])[0]}
 
+    if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "custom-tests":
+        problem = context.store.get_problem(parts[2])
+        _ensure_ml_coding(problem, "Custom tests")
+        slug = str(problem.get("slug", parts[2]))
+        if method == "GET":
+            return 200, {"custom_tests": context.custom_tests.list_for(slug) if context.custom_tests else []}
+        if method == "PUT":
+            if context.custom_tests is None:
+                raise ValueError("Custom test storage is not configured")
+            payload = json.loads((body or b"{}").decode("utf-8"))
+            return 200, {"custom_tests": context.custom_tests.replace_for(slug, payload.get("custom_tests"))}
+        return 405, {"error": "Method not allowed"}
+
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "run" and method == "POST":
-        problem, request, test_index = _evaluation_request_from_body(context, parts[2], body)
+        problem, request, completion_eligible = _evaluation_request_from_body(context, parts[2], body)
         result = evaluate_submission(request)
-        if context.user_state and test_index is None and result.get("status") == "passed":
+        if context.user_state and completion_eligible and result.get("status") == "passed":
             result["problem_status"] = context.user_state.mark_completed(str(problem.get("slug", parts[2])))
         return 200, result
 
@@ -123,13 +138,13 @@ def _stream_api_events(
         yield {"type": "error", "status": 405, "error": "Method not allowed"}
         return
 
-    problem, request, test_index = _evaluation_request_from_body(context, parts[2], body)
+    problem, request, completion_eligible = _evaluation_request_from_body(context, parts[2], body)
     yield {"type": "run_started", "total": len(request.tests)}
     final_result: dict[str, Any] | None = None
     for event in stream_evaluation_events(request):
         if event.get("type") == "run_finished":
             final_result = dict(event.get("result") or {})
-            if context.user_state and test_index is None and final_result.get("status") == "passed":
+            if context.user_state and completion_eligible and final_result.get("status") == "passed":
                 final_result["problem_status"] = context.user_state.mark_completed(str(problem.get("slug", parts[2])))
             event = {**event, "result": final_result}
         yield event
@@ -139,7 +154,7 @@ def _evaluation_request_from_body(
     context: ApiContext,
     slug: str,
     body: bytes | None,
-) -> tuple[dict[str, Any], EvaluationRequest, int | None]:
+) -> tuple[dict[str, Any], EvaluationRequest, bool]:
     problem = context.store.get_problem(slug)
     payload = json.loads((body or b"{}").decode("utf-8"))
     code = payload.get("code")
@@ -147,6 +162,11 @@ def _evaluation_request_from_body(
         raise ValueError("Request body must include non-empty `code`")
 
     tests = problem.get("tests", [])
+    custom_tests = _custom_tests_from_payload(problem, payload)
+    custom_only = payload.get("custom_only", False)
+    if not isinstance(custom_only, bool):
+        raise ValueError("`custom_only` must be a boolean")
+
     test_index = payload.get("test_index")
     if test_index is not None:
         if isinstance(test_index, bool) or not isinstance(test_index, int):
@@ -155,10 +175,18 @@ def _evaluation_request_from_body(
             raise ValueError("`test_index` must refer to a visible test case")
         tests = [tests[test_index]]
 
+    if custom_only:
+        if test_index is not None:
+            raise ValueError("`custom_only` cannot be combined with `test_index`")
+        tests = custom_tests
+    elif custom_tests:
+        tests = [*tests, *custom_tests]
+
     runtime = dict(problem.get("_runtime", {}))
     if test_index is not None:
         runtime["skip_hidden_harness"] = True
 
+    completion_eligible = test_index is None and not custom_only and not custom_tests
     return (
         problem,
         EvaluationRequest(
@@ -168,7 +196,7 @@ def _evaluation_request_from_body(
             environment=problem.get("environment", {}),
             runtime=runtime,
         ),
-        test_index,
+        completion_eligible,
     )
 
 
@@ -187,3 +215,17 @@ def _with_personal_status(context: ApiContext, problems: list[dict[str, Any]]) -
     if not context.user_state:
         return problems
     return [context.user_state.annotate(problem) for problem in problems]
+
+
+def _custom_tests_from_payload(problem: dict[str, Any], payload: dict[str, Any]) -> list[dict[str, str]]:
+    if "custom_tests" not in payload:
+        return []
+    _ensure_ml_coding(problem, "Custom tests")
+    return validate_custom_tests(payload["custom_tests"])
+
+
+def _ensure_ml_coding(problem: dict[str, Any], label: str) -> None:
+    evaluation = problem.get("evaluation", {})
+    evaluation_type = evaluation.get("type", "ml_coding") if isinstance(evaluation, dict) else "ml_coding"
+    if evaluation_type != "ml_coding":
+        raise ValueError(f"{label} are only supported for ml_coding problems")

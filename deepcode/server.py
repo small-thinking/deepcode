@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from deepcode.api import ApiContext, handle_api_request, stream_api_events
+from deepcode.custom_tests import CustomTestStore
 from deepcode.problem_store import ProblemStore
 from deepcode.user_state import UserStateStore
 
@@ -17,16 +18,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 PROBLEMS_DIR = BASE_DIR / "problems"
 USER_STATE_PATH = Path(os.environ.get("DEEPCODE_USER_STATE_PATH", BASE_DIR / ".deepcode" / "user-state.json"))
+CUSTOM_TESTS_PATH = Path(os.environ.get("DEEPCODE_CUSTOM_TESTS_PATH", BASE_DIR / ".deepcode" / "custom-tests.json"))
 DEFAULT_PORT = 8848
 
 
 class DeepCodeHandler(BaseHTTPRequestHandler):
-    context = ApiContext(store=ProblemStore(PROBLEMS_DIR), user_state=UserStateStore(USER_STATE_PATH))
+    context = ApiContext(
+        store=ProblemStore(PROBLEMS_DIR),
+        user_state=UserStateStore(USER_STATE_PATH),
+        custom_tests=CustomTestStore(CUSTOM_TESTS_PATH),
+    )
 
     def do_GET(self):
         self._dispatch()
 
     def do_POST(self):
+        self._dispatch()
+
+    def do_PUT(self):
         self._dispatch()
 
     def log_message(self, format, *args):
@@ -111,6 +120,8 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
 def run(host: str = "127.0.0.1", port: int = DEFAULT_PORT):
     if DeepCodeHandler.context.user_state:
         DeepCodeHandler.context.user_state.ensure_exists()
+    if DeepCodeHandler.context.custom_tests:
+        DeepCodeHandler.context.custom_tests.ensure_exists()
     server = ThreadingHTTPServer((host, port), DeepCodeHandler)
     print(f"DeepCode is running at http://{host}:{port}")
     print(f"Problem folders: {PROBLEMS_DIR}")

@@ -19,6 +19,7 @@ const state = {
     sort: "id",
   },
   selected: null,
+  customTests: [],
   activeTab: "description",
   activeResultIndex: 0,
   runResult: null,
@@ -27,6 +28,7 @@ const state = {
   runStartedAt: null,
   runElapsedSeconds: 0,
   runningTestIndex: null,
+  runningCustomTestIndex: null,
   error: null,
   loading: true,
   running: false,
@@ -274,11 +276,15 @@ async function loadProblem(identifier) {
   state.error = null;
   state.runResult = null;
   state.activeResultIndex = 0;
+  state.customTests = [];
   state.loading = true;
   render();
   try {
     const payload = await api(`/api/problems/${encodeURIComponent(identifier)}`);
     state.selected = payload.problem;
+    if (isMlCodingProblem(state.selected)) {
+      await loadCustomTests();
+    }
     state.activeTab = "description";
     const key = codeKey(state.selected.slug);
     if (!localStorage.getItem(key)) {
@@ -291,6 +297,11 @@ async function loadProblem(identifier) {
     state.loading = false;
     render();
   }
+}
+
+function isMlCodingProblem(problem) {
+  const evaluation = problem?.evaluation || {};
+  return (evaluation.type || "ml_coding") === "ml_coding";
 }
 
 function codeKey(slug) {
@@ -329,6 +340,56 @@ function setEditorCode(value) {
 function saveCode(value) {
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), value);
+}
+
+async function loadCustomTests() {
+  if (!state.selected || !isMlCodingProblem(state.selected)) {
+    state.customTests = [];
+    return;
+  }
+  const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/custom-tests`);
+  state.customTests = payload.custom_tests || [];
+}
+
+async function saveCustomTests() {
+  if (!state.selected || !isMlCodingProblem(state.selected)) return;
+  collectCustomTestInputs();
+  try {
+    const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/custom-tests`, {
+      method: "PUT",
+      body: JSON.stringify({ custom_tests: state.customTests }),
+    });
+    state.customTests = payload.custom_tests || [];
+    state.error = null;
+  } catch (error) {
+    state.error = error.message;
+  }
+  render();
+}
+
+function collectCustomTestInputs() {
+  if (!state.selected || state.activeTab !== "tests") return;
+  document.querySelectorAll("[data-custom-index][data-custom-field]").forEach((field) => {
+    const index = Number(field.dataset.customIndex);
+    const key = field.dataset.customField;
+    if (!Number.isInteger(index) || !key || !state.customTests[index]) return;
+    state.customTests[index] = { ...state.customTests[index], [key]: field.value };
+  });
+}
+
+function addCustomTest() {
+  collectCustomTestInputs();
+  state.customTests = [
+    ...state.customTests,
+    { name: `Custom test ${state.customTests.length + 1}`, input: "", test: "", expected_output: "" },
+  ];
+  render();
+}
+
+function removeCustomTest(index) {
+  collectCustomTestInputs();
+  state.customTests = state.customTests.filter((_, currentIndex) => currentIndex !== index);
+  render();
 }
 
 function teardownEditor() {
@@ -408,12 +469,33 @@ async function runTests(testIndex = null) {
   saveCode(code);
   const payload = { code };
   if (Number.isInteger(testIndex)) payload.test_index = testIndex;
+  await runPayload(payload, { testIndex });
+}
+
+async function runCustomTests(customIndex = null) {
+  if (!state.selected || !isMlCodingProblem(state.selected)) return;
+  collectCustomTestInputs();
+  const customTests = Number.isInteger(customIndex) ? [state.customTests[customIndex]] : state.customTests;
+  if (!customTests.length) {
+    state.error = "Add at least one custom test before running custom checks";
+    render();
+    return;
+  }
+  const code = normalizePythonIndentation(editorCode());
+  setEditorCode(code);
+  saveCode(code);
+  const payload = { code, custom_only: true, custom_tests: customTests };
+  await runPayload(payload, { customIndex: Number.isInteger(customIndex) ? customIndex : "all" });
+}
+
+async function runPayload(payload, { testIndex = null, customIndex = null } = {}) {
   state.running = true;
   state.runResult = null;
   state.runLogs = [];
   state.activeRunCheck = null;
   state.activeResultIndex = 0;
   state.runningTestIndex = Number.isInteger(testIndex) ? testIndex : null;
+  state.runningCustomTestIndex = Number.isInteger(customIndex) || customIndex === "all" ? customIndex : null;
   state.error = null;
   startRunTimer();
   render();
@@ -439,6 +521,7 @@ async function runTests(testIndex = null) {
     state.running = false;
     state.runStartedAt = null;
     state.runningTestIndex = null;
+    state.runningCustomTestIndex = null;
     state.activeRunCheck = null;
     render();
   }
@@ -772,7 +855,7 @@ function tabButton(tab, label) {
 
 function renderProblemTab(problem, env) {
   if (state.activeTab === "tests") {
-    return renderProblemTests(problem.tests || []);
+    return [renderProblemTests(problem.tests || []), renderCustomTests(problem)].join("");
   }
 
   if (state.activeTab === "environment") {
@@ -877,6 +960,90 @@ function renderProblemTests(tests) {
   );
 }
 
+function renderCustomTests(problem) {
+  if (!isMlCodingProblem(problem)) return "";
+
+  const cases = state.customTests.length
+    ? state.customTests
+        .map(
+          (test, index) => `
+            <div class="mini-block problem-test-case custom-test-case">
+              <div class="test-case-heading">
+                <strong>${escapeHtml(test.name || `Custom test ${index + 1}`)}</strong>
+                <div class="custom-test-actions">
+                  <button
+                    class="ghost-button run-case-button"
+                    type="button"
+                    data-run-custom-test-index="${index}"
+                    ${state.running ? "disabled" : ""}
+                  >
+                    Run
+                  </button>
+                  <button class="ghost-button remove-custom-test" type="button" data-remove-custom-test-index="${index}">
+                    Remove
+                  </button>
+                </div>
+              </div>
+              <label>
+                <span>Name</span>
+                <input
+                  class="field custom-test-field"
+                  value="${escapeHtml(test.name || "")}"
+                  data-custom-index="${index}"
+                  data-custom-field="name"
+                />
+              </label>
+              <label>
+                <span>Input</span>
+                <textarea
+                  class="field custom-test-field"
+                  rows="2"
+                  data-custom-index="${index}"
+                  data-custom-field="input"
+                >${escapeHtml(test.input || "")}</textarea>
+              </label>
+              <label>
+                <span>Call</span>
+                <textarea
+                  class="field custom-test-field"
+                  rows="4"
+                  data-custom-index="${index}"
+                  data-custom-field="test"
+                >${escapeHtml(test.test || "")}</textarea>
+              </label>
+              <label>
+                <span>Expected</span>
+                <textarea
+                  class="field custom-test-field"
+                  rows="3"
+                  data-custom-index="${index}"
+                  data-custom-field="expected_output"
+                >${escapeHtml(test.expected_output || "")}</textarea>
+              </label>
+            </div>
+          `
+        )
+        .join("")
+    : `<div class="empty-state">No custom tests yet.</div>`;
+
+  return renderProblemBlock(
+    PROBLEM_SECTION_CLASSES.tests,
+    "Custom Tests",
+    `
+      <div class="custom-test-editor">
+        <div class="custom-test-toolbar">
+          <button class="ghost-button" type="button" id="add-custom-test">Add case</button>
+          <button class="ghost-button" type="button" id="save-custom-tests">Save</button>
+          <button class="primary-button" type="button" id="run-custom-tests" ${state.running ? "disabled" : ""}>
+            Run custom tests
+          </button>
+        </div>
+        <div class="problem-test-list">${cases}</div>
+      </div>
+    `
+  );
+}
+
 function renderProblemEnvironment(env) {
   return renderProblemBlock(
     PROBLEM_SECTION_CLASSES.environment,
@@ -956,6 +1123,18 @@ function renderResults() {
 }
 
 function activeRunTargetLabel() {
+  if (Number.isInteger(state.runningCustomTestIndex)) {
+    const customTest = state.customTests[state.runningCustomTestIndex];
+    const baseLabel = `Custom ${state.runningCustomTestIndex + 1}: ${customTest?.name || "local check"}`;
+    return state.activeRunCheck ? `${state.activeRunCheck} · ${baseLabel}` : `${baseLabel} running locally`;
+  }
+
+  if (state.runningCustomTestIndex === "all") {
+    const count = state.customTests.length;
+    const baseLabel = count === 1 ? "1 custom check" : `${count} custom checks`;
+    return state.activeRunCheck ? `${state.activeRunCheck} · ${baseLabel}` : `${baseLabel} running locally`;
+  }
+
   const selectedTest = Number.isInteger(state.runningTestIndex)
     ? state.selected?.tests?.[state.runningTestIndex]
     : null;
@@ -1061,6 +1240,18 @@ function bindEvents() {
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
   document.querySelectorAll("[data-run-test-index]").forEach((button) => {
     button.addEventListener("click", () => runTests(Number(button.dataset.runTestIndex)));
+  });
+  document.querySelector("#add-custom-test")?.addEventListener("click", addCustomTest);
+  document.querySelector("#save-custom-tests")?.addEventListener("click", saveCustomTests);
+  document.querySelector("#run-custom-tests")?.addEventListener("click", () => runCustomTests());
+  document.querySelectorAll("[data-run-custom-test-index]").forEach((button) => {
+    button.addEventListener("click", () => runCustomTests(Number(button.dataset.runCustomTestIndex)));
+  });
+  document.querySelectorAll("[data-remove-custom-test-index]").forEach((button) => {
+    button.addEventListener("click", () => removeCustomTest(Number(button.dataset.removeCustomTestIndex)));
+  });
+  document.querySelectorAll("[data-custom-index][data-custom-field]").forEach((field) => {
+    field.addEventListener("input", collectCustomTestInputs);
   });
   document.querySelector("#reset-code")?.addEventListener("click", resetCode);
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));

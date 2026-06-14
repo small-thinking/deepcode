@@ -4,7 +4,9 @@ import unittest
 from pathlib import Path
 
 from deepcode.api import ApiContext, handle_api_request, stream_api_events
+from deepcode.custom_tests import CustomTestStore
 from deepcode.problem_store import ProblemStore
+from deepcode.server import DeepCodeHandler
 from deepcode.user_state import UserStateStore
 
 
@@ -25,6 +27,9 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["problems"][0]["slug"], "toy")
             self.assertEqual(payload["categories"], ["Machine Learning"])
             self.assertEqual(payload["difficulties"], ["easy"])
+
+    def test_server_dispatches_put_api_requests(self):
+        self.assertTrue(hasattr(DeepCodeHandler, "do_PUT"))
 
     def test_lists_problems_with_local_personal_status(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -158,6 +163,128 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["status"], "passed")
             self.assertNotIn("problem_status", payload)
             self.assertEqual(user_state.status_for("toy")["completed"], False)
+
+    def test_saves_and_fetches_local_custom_tests_for_problem(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            custom_tests = CustomTestStore(Path(tmp) / ".deepcode" / "custom-tests.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, custom_tests=custom_tests),
+                "PUT",
+                "/api/problems/toy/custom-tests",
+                {},
+                json.dumps(
+                    {
+                        "custom_tests": [
+                            {
+                                "name": "negative value",
+                                "input": "x = -3",
+                                "test": "print(identity(-3))",
+                                "expected_output": "-3",
+                            }
+                        ]
+                    }
+                ).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["custom_tests"][0]["name"], "negative value")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, custom_tests=custom_tests),
+                "GET",
+                "/api/problems/toy/custom-tests",
+                {},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["custom_tests"][0]["test"], "print(identity(-3))")
+            self.assertIn("negative value", custom_tests.path.read_text(encoding="utf-8"))
+
+    def test_rejects_invalid_custom_test_payload(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            custom_tests = CustomTestStore(Path(tmp) / ".deepcode" / "custom-tests.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, custom_tests=custom_tests),
+                "PUT",
+                "/api/problems/toy/custom-tests",
+                {},
+                json.dumps({"custom_tests": [{"name": "missing expected", "test": "print(identity(4))"}]}).encode(
+                    "utf-8"
+                ),
+            )
+
+            self.assertEqual(status, 400)
+            self.assertIn("expected_output", payload["error"])
+
+    def test_runs_custom_ml_coding_tests_without_marking_problem_complete(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, user_state=user_state),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps(
+                    {
+                        "code": "def identity(x):\n    return x\n",
+                        "custom_only": True,
+                        "custom_tests": [
+                            {
+                                "name": "negative value",
+                                "input": "x = -3",
+                                "test": "print(identity(-3))",
+                                "expected_output": "-3",
+                            }
+                        ],
+                    }
+                ).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "passed")
+            self.assertEqual(payload["results"][0]["name"], "negative value")
+            self.assertNotIn("problem_status", payload)
+            self.assertEqual(user_state.status_for("toy")["completed"], False)
+
+    def test_rejects_custom_tests_for_non_ml_coding_problem(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            self._write_problem(
+                Path(tmp) / "problems",
+                "toy",
+                "1",
+                problem_overrides={"evaluation": {"type": "ml_modeling"}},
+                tests=[{"name": "identity behavior", "test": "assert identity(4) == 4"}],
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps(
+                    {
+                        "code": "def identity(x):\n    return x\n",
+                        "custom_only": True,
+                        "custom_tests": [
+                            {"name": "custom", "test": "assert identity(4) == 4", "expected_output": "ok"}
+                        ],
+                    }
+                ).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 400)
+            self.assertIn("ml_coding", payload["error"])
 
     def test_reset_submission_status_marks_problem_incomplete(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -624,6 +624,51 @@ body.is-resizing {
   flex: 0 0 auto;
 }
 
+.custom-test-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.custom-test-toolbar,
+.custom-test-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.custom-test-toolbar {
+  justify-content: flex-end;
+}
+
+.custom-test-actions {
+  justify-content: flex-end;
+}
+
+.custom-test-case {
+  display: grid;
+  gap: 10px;
+}
+
+.custom-test-case label {
+  display: grid;
+  gap: 6px;
+}
+
+.custom-test-case label span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.custom-test-field {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+}
+
 .reference-list {
   display: flex;
   flex-wrap: wrap;

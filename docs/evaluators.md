@@ -34,6 +34,12 @@ If a problem omits `evaluation`, it defaults to `ml_coding`.
 - compares stdout with either `exact` or `numeric` comparison
 - returns per-case pass/fail results to the browser
 
+Users can add extra local custom tests for `ml_coding` problems from the browser.
+Those tests use the same `test` plus `expected_output` shape as committed
+`tests.json` entries, but they are saved under `.deepcode/custom-tests.json`
+instead of the problem folder. Running custom tests is a local debugging flow and
+does not mark a problem complete.
+
 This evaluator is implemented in `deepcode/evaluators/ml_coding.py`. The legacy
 `deepcode.runner.run_submission` import remains as a compatibility wrapper.
 
