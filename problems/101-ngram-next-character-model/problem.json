@@ -1,17 +1,17 @@
 {
   "id": "101",
   "slug": "ngram-next-character-model",
-  "title": "N-Gram Next-Character Model",
+  "title": "N-Gram Character Language Model",
   "category": "Modeling",
   "difficulty": "medium",
-  "tags": ["language-modeling", "ngram", "perplexity", "sampling"],
+  "tags": ["language-modeling", "ngram", "training", "generation", "perplexity"],
   "companies": ["Runway"],
-  "prompt": "Implement `NGramCharModel`, a character-level n-gram next-character model.\n\nRequired behavior:\n- `__init__(n=3, alpha=1.0)`: raise `ValueError` for `n < 1` or `alpha <= 0`.\n- `train(text)`: reset state, require a non-empty string, build counts with `^` padding, set vocabulary from the training text, and return `self`.\n- `prob(context, ch)`: use the last `n - 1` context characters and return Laplace-smoothed probability. Return `0.0` if untrained or `ch` is outside the vocabulary.\n- `perplexity(text)`: return `exp(-mean(log(probability)))`; return `float(\"inf\")` for empty text or impossible out-of-vocabulary evaluation.\n- `sample_top_k(context, k=5)`: rank by probability descending, break ties by character ascending, and sample from the top `min(k, vocab_size)` with Python's global `random`. Raise `ValueError` for `k < 1` or sampling before training.",
-  "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n\nclass NGramCharModel:\n    def __init__(self, n=3, alpha=1.0):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
+  "prompt": "Implement `NGramCharModel`, a character-level n-gram language model.\n\nRequired behavior:\n- `__init__(n=3, alpha=1.0)`: raise `ValueError` for `n < 1` or `alpha <= 0`.\n- `train(text)`: reset all learned state, require a non-empty string, build next-character counts with `^` padding for the first `n - 1` positions, set the vocabulary from the training text, and return `self`.\n- `generate(prompt=\"\", max_new_chars=100, seed=None)`: require a trained model, then return `prompt` plus exactly `max_new_chars` sampled characters. At each step, use the last `n - 1` characters of the current text, Laplace-smoothed probabilities over the training vocabulary, and a local `random.Random(seed)` when a seed is provided. Sort the vocabulary before sampling so seeded generation is reproducible. Raise `ValueError` for `max_new_chars < 0` or generation before training.\n- `evaluate(text)`: return perplexity, `exp(-mean(log p(ch | context)))`, using the same padding and smoothing. Return `float(\"inf\")` for empty text, an untrained model, or text containing characters outside the training vocabulary.\n\nThe visible checks cover small strings plus a tiny Shakespeare workflow. For the dataset check, link this problem's `data` folder to a directory containing `tiny_shakespeare.txt`; the tests read `DEEPCODE_DATA_PATH/tiny_shakespeare.txt`.",
+  "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n\nclass NGramCharModel:\n    def __init__(self, n=3, alpha=1.0):\n        pass\n\n    def train(self, text):\n        pass\n\n    def generate(self, prompt=\"\", max_new_chars=100, seed=None):\n        pass\n\n    def evaluate(self, text):\n        pass\n",
   "example": {
     "input": "model = NGramCharModel(n=2, alpha=1.0).train(\"ababa\")",
-    "output": "model.prob(\"a\", \"b\") == 0.75",
-    "reasoning": "The context `a` is followed by `b` twice. With vocabulary {a, b} and alpha = 1, P(b | a) = (2 + 1) / (2 + 2) = 0.75."
+    "output": "round(model.evaluate(\"ab\"), 4) == 1.4142",
+    "reasoning": "With `^` padding, P(a | ^) = 2/3 and P(b | a) = 3/4, so perplexity over `ab` is sqrt(1 / ((2/3) * (3/4)))."
   },
   "references": [
     {
@@ -29,7 +29,7 @@
   ],
   "environment": {
     "language": "python",
-    "timeout_seconds": 4,
+    "timeout_seconds": 8,
     "packages": [],
     "comparator": "assertions"
   },
@@ -38,7 +38,8 @@
   },
   "data": {
     "path": "data",
-    "required": false
+    "required": true,
+    "format": "Directory containing tiny_shakespeare.txt."
   },
   "artifacts": {
     "results_path": "eval-results"
