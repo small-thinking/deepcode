@@ -31,6 +31,7 @@ const state = {
   runElapsedSeconds: 0,
   runningTestIndex: null,
   runningCustomTestIndex: null,
+  pendingCustomTestScrollIndex: null,
   error: null,
   loading: true,
   running: false,
@@ -450,6 +451,7 @@ function collectCustomTestInputs() {
 
 function addCustomTest() {
   collectCustomTestInputs();
+  state.pendingCustomTestScrollIndex = state.customTests.length;
   state.customTests = [...state.customTests, defaultCustomTest()];
   render();
 }
@@ -774,6 +776,21 @@ function render() {
   bindEvents();
   mountEditor();
   applyPaneSizes();
+  scrollPendingCustomTestIntoView();
+}
+
+function scrollPendingCustomTestIntoView() {
+  if (!Number.isInteger(state.pendingCustomTestScrollIndex)) return;
+  const index = state.pendingCustomTestScrollIndex;
+  state.pendingCustomTestScrollIndex = null;
+  const target = document.querySelector(`[data-custom-test-index="${index}"]`);
+  const scroller = target?.closest(".problem-body");
+  if (!target || !scroller) return;
+
+  const targetRect = target.getBoundingClientRect();
+  const scrollerRect = scroller.getBoundingClientRect();
+  const centeredOffset = targetRect.top - scrollerRect.top - (scrollerRect.height - targetRect.height) / 2;
+  scroller.scrollTop += centeredOffset;
 }
 
 function renderList() {
@@ -1142,7 +1159,7 @@ function renderCustomTests(problem) {
           const bodyFields =
             mode === "arguments" ? renderCustomTestArguments(test, index, signature) : renderRawCustomTestFields(test, index);
           return `
-            <div class="mini-block problem-test-case custom-test-case">
+            <div class="mini-block problem-test-case custom-test-case" data-custom-test-index="${index}">
               <div class="test-case-heading">
                 <strong>${escapeHtml(test.name || `Custom test ${index + 1}`)}</strong>
                 <div class="custom-test-actions">
