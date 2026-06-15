@@ -30,10 +30,16 @@ From the browser you can:
 - Filter by category, difficulty, or search text.
 - Read the prompt, starter code, example, and visible test cases.
 - Write Python in the editor and run the local evaluator.
+- Add local-only custom tests for ML coding problems when you want extra edge
+  cases beyond the committed visible checks.
 
 Submissions execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 
 DeepCode creates `.deepcode/user-state.json` on local startup and records personal completion status there when a submission passes. That local state is separate from the committed problem definitions and is ignored by git by default. Resetting a problem clears both the editor code and that problem's completion status.
+
+DeepCode also stores user-authored ML coding checks in `.deepcode/custom-tests.json`.
+These custom tests are local practice aids: they do not modify committed
+`problems/*/tests.json` files and do not mark a problem complete.
 
 ## Local Deployment
 

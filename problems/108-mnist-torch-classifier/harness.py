@@ -2,10 +2,22 @@ import json
 import os
 import random
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
+
+if TYPE_CHECKING:
+    def build_model() -> nn.Module: ...
+
+    def train_model(
+        model: nn.Module,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        epochs: int = 2,
+        device: str = "cpu",
+    ) -> nn.Module | None: ...
 
 
 MIN_ACCURACY = 0.70
