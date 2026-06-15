@@ -355,6 +355,52 @@ function saveCode(value) {
   localStorage.setItem(codeKey(state.selected.slug), value);
 }
 
+function customTestSignature(problem) {
+  const match = String(problem?.starter_code || "").match(/def\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*:/);
+  if (!match) return null;
+
+  const parameters = match[2]
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => part.split("=")[0].split(":")[0].replace(/^[*/\s]+/, "").trim())
+    .filter((name) => name && name !== "self" && name !== "cls");
+
+  return parameters.length ? { functionName: match[1], parameters } : null;
+}
+
+function defaultCustomTest() {
+  const signature = customTestSignature(state.selected);
+  if (!signature) {
+    return { name: `Custom test ${state.customTests.length + 1}`, input: "", test: "", expected_output: "", mode: "raw" };
+  }
+
+  return {
+    name: `Custom test ${state.customTests.length + 1}`,
+    arguments: Object.fromEntries(signature.parameters.map((parameter) => [parameter, ""])),
+    expected_output: "",
+    mode: "arguments",
+  };
+}
+
+function customTestMode(test, signature) {
+  if (!signature) return "raw";
+  if (test.mode === "raw") return "raw";
+  return test.mode === "arguments" || test.arguments ? "arguments" : "raw";
+}
+
+function ensureCustomTestArguments(test, signature) {
+  if (!signature) return test;
+  return {
+    ...test,
+    mode: "arguments",
+    arguments: {
+      ...Object.fromEntries(signature.parameters.map((parameter) => [parameter, ""])),
+      ...(test.arguments || {}),
+    },
+  };
+}
+
 async function loadCustomTests() {
   if (!state.selected || !isMlCodingProblem(state.selected)) {
     state.customTests = [];
@@ -382,20 +428,29 @@ async function saveCustomTests() {
 
 function collectCustomTestInputs() {
   if (!state.selected || state.activeTab !== "tests") return;
+  const signature = customTestSignature(state.selected);
   document.querySelectorAll("[data-custom-index][data-custom-field]").forEach((field) => {
     const index = Number(field.dataset.customIndex);
     const key = field.dataset.customField;
     if (!Number.isInteger(index) || !key || !state.customTests[index]) return;
-    state.customTests[index] = { ...state.customTests[index], [key]: field.value };
+    const next = { ...state.customTests[index], [key]: field.value };
+    state.customTests[index] = key === "mode" && field.value === "arguments" ? ensureCustomTestArguments(next, signature) : next;
+  });
+  document.querySelectorAll("[data-custom-index][data-custom-argument]").forEach((field) => {
+    const index = Number(field.dataset.customIndex);
+    const parameter = field.dataset.customArgument;
+    if (!Number.isInteger(index) || !parameter || !state.customTests[index]) return;
+    const current = ensureCustomTestArguments(state.customTests[index], signature);
+    state.customTests[index] = {
+      ...current,
+      arguments: { ...(current.arguments || {}), [parameter]: field.value },
+    };
   });
 }
 
 function addCustomTest() {
   collectCustomTestInputs();
-  state.customTests = [
-    ...state.customTests,
-    { name: `Custom test ${state.customTests.length + 1}`, input: "", test: "", expected_output: "" },
-  ];
+  state.customTests = [...state.customTests, defaultCustomTest()];
   render();
 }
 
@@ -1017,13 +1072,76 @@ function renderProblemTests(tests) {
   );
 }
 
+function renderCustomTestMode(test, index, signature, mode) {
+  if (!signature) return "";
+
+  return `
+    <label class="custom-test-mode-field">
+      <span>Mode</span>
+      <select class="field custom-test-field" data-custom-index="${index}" data-custom-field="mode">
+        <option value="arguments" ${mode === "arguments" ? "selected" : ""}>Argument inputs</option>
+        <option value="raw" ${mode === "raw" ? "selected" : ""}>Custom call</option>
+      </select>
+    </label>
+  `;
+}
+
+function renderCustomTestArguments(test, index, signature) {
+  if (!signature) return "";
+  const values = test.arguments || {};
+  const fields = signature.parameters
+    .map(
+      (parameter) => `
+        <label>
+          <span>${escapeHtml(parameter)}</span>
+          <textarea
+            class="field custom-test-field"
+            rows="2"
+            data-custom-index="${index}"
+            data-custom-argument="${escapeHtml(parameter)}"
+          >${escapeHtml(values[parameter] || "")}</textarea>
+        </label>
+      `
+    )
+    .join("");
+
+  return `<div class="custom-test-arguments">${fields}</div>`;
+}
+
+function renderRawCustomTestFields(test, index) {
+  return `
+    <label>
+      <span>Input</span>
+      <textarea
+        class="field custom-test-field"
+        rows="2"
+        data-custom-index="${index}"
+        data-custom-field="input"
+      >${escapeHtml(test.input || "")}</textarea>
+    </label>
+    <label>
+      <span>Call</span>
+      <textarea
+        class="field custom-test-field"
+        rows="4"
+        data-custom-index="${index}"
+        data-custom-field="test"
+      >${escapeHtml(test.test || "")}</textarea>
+    </label>
+  `;
+}
+
 function renderCustomTests(problem) {
   if (!isMlCodingProblem(problem)) return "";
 
+  const signature = customTestSignature(problem);
   const cases = state.customTests.length
     ? state.customTests
-        .map(
-          (test, index) => `
+        .map((test, index) => {
+          const mode = customTestMode(test, signature);
+          const bodyFields =
+            mode === "arguments" ? renderCustomTestArguments(test, index, signature) : renderRawCustomTestFields(test, index);
+          return `
             <div class="mini-block problem-test-case custom-test-case">
               <div class="test-case-heading">
                 <strong>${escapeHtml(test.name || `Custom test ${index + 1}`)}</strong>
@@ -1050,24 +1168,8 @@ function renderCustomTests(problem) {
                   data-custom-field="name"
                 />
               </label>
-              <label>
-                <span>Input</span>
-                <textarea
-                  class="field custom-test-field"
-                  rows="2"
-                  data-custom-index="${index}"
-                  data-custom-field="input"
-                >${escapeHtml(test.input || "")}</textarea>
-              </label>
-              <label>
-                <span>Call</span>
-                <textarea
-                  class="field custom-test-field"
-                  rows="4"
-                  data-custom-index="${index}"
-                  data-custom-field="test"
-                >${escapeHtml(test.test || "")}</textarea>
-              </label>
+              ${renderCustomTestMode(test, index, signature, mode)}
+              ${bodyFields}
               <label>
                 <span>Expected</span>
                 <textarea
@@ -1078,8 +1180,8 @@ function renderCustomTests(problem) {
                 >${escapeHtml(test.expected_output || "")}</textarea>
               </label>
             </div>
-          `
-        )
+          `;
+        })
         .join("")
     : `<div class="empty-state">No custom tests yet.</div>`;
 
@@ -1344,8 +1446,9 @@ function bindEvents() {
   document.querySelectorAll("[data-remove-custom-test-index]").forEach((button) => {
     button.addEventListener("click", () => removeCustomTest(Number(button.dataset.removeCustomTestIndex)));
   });
-  document.querySelectorAll("[data-custom-index][data-custom-field]").forEach((field) => {
+  document.querySelectorAll("[data-custom-index][data-custom-field], [data-custom-index][data-custom-argument]").forEach((field) => {
     field.addEventListener("input", collectCustomTestInputs);
+    field.addEventListener("change", collectCustomTestInputs);
   });
   document.querySelector("#save-data-link")?.addEventListener("click", saveDataLink);
   document.querySelector("#remove-data-link")?.addEventListener("click", removeDataLink);

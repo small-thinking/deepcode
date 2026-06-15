@@ -205,6 +205,83 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["custom_tests"][0]["test"], "print(identity(-3))")
             self.assertIn("negative value", custom_tests.path.read_text(encoding="utf-8"))
 
+    def test_saves_argument_custom_tests_as_generated_calls(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            custom_tests = CustomTestStore(Path(tmp) / ".deepcode" / "custom-tests.json")
+            self._write_problem(
+                Path(tmp) / "problems",
+                "toy",
+                "1",
+                problem_overrides={"starter_code": "def score(y_true, y_pred):\n    pass\n"},
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, custom_tests=custom_tests),
+                "PUT",
+                "/api/problems/toy/custom-tests",
+                {},
+                json.dumps(
+                    {
+                        "custom_tests": [
+                            {
+                                "name": "case-sensitive labels",
+                                "arguments": {
+                                    "y_true": "['cat', 'Cat']",
+                                    "y_pred": "['cat', 'cat']",
+                                },
+                                "expected_output": "0.5",
+                            }
+                        ]
+                    }
+                ).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["custom_tests"][0]["mode"], "arguments")
+            self.assertEqual(payload["custom_tests"][0]["input"], "y_true = ['cat', 'Cat'], y_pred = ['cat', 'cat']")
+            self.assertEqual(payload["custom_tests"][0]["test"], "print(score(['cat', 'Cat'], ['cat', 'cat']))")
+            self.assertEqual(payload["custom_tests"][0]["arguments"]["y_pred"], "['cat', 'cat']")
+
+    def test_runs_argument_custom_tests_without_raw_call(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(
+                Path(tmp) / "problems",
+                "toy",
+                "1",
+                problem_overrides={"starter_code": "def score(y_true, y_pred):\n    pass\n"},
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, user_state=user_state),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps(
+                    {
+                        "code": "def score(y_true, y_pred):\n    return round(sum(a == b for a, b in zip(y_true, y_pred)) / len(y_true), 4)\n",
+                        "custom_only": True,
+                        "custom_tests": [
+                            {
+                                "name": "case-sensitive labels",
+                                "arguments": {
+                                    "y_true": "['cat', 'Cat']",
+                                    "y_pred": "['cat', 'cat']",
+                                },
+                                "expected_output": "0.5",
+                            }
+                        ],
+                    }
+                ).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "passed")
+            self.assertEqual(payload["results"][0]["test"], "print(score(['cat', 'Cat'], ['cat', 'cat']))")
+            self.assertNotIn("problem_status", payload)
+
     def test_rejects_invalid_custom_test_payload(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = ProblemStore(Path(tmp) / "problems")

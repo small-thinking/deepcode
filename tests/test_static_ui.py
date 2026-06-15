@@ -130,16 +130,22 @@ class StaticUiTest(unittest.TestCase):
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
         self.assertIn("customTests", app_js)
+        self.assertIn("function customTestSignature", app_js)
+        self.assertIn("function defaultCustomTest", app_js)
         self.assertIn("function loadCustomTests", app_js)
         self.assertIn("function saveCustomTests", app_js)
         self.assertIn("function renderCustomTests", app_js)
         self.assertIn("function runCustomTests", app_js)
         self.assertIn("/custom-tests", app_js)
+        self.assertIn("Argument inputs", app_js)
+        self.assertIn("Custom call", app_js)
+        self.assertIn("data-custom-argument", app_js)
         self.assertIn('data-custom-field="test"', app_js)
         self.assertIn('data-run-custom-test-index="${index}"', app_js)
         self.assertIn("custom_only", app_js)
         self.assertIn(".custom-test-editor", styles_css)
         self.assertIn(".custom-test-actions", styles_css)
+        self.assertIn(".custom-test-arguments", styles_css)
 
     def test_modeling_data_link_setup_can_be_rendered_and_saved(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
