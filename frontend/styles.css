@@ -652,6 +652,11 @@ body.is-resizing {
   gap: 10px;
 }
 
+.custom-test-arguments {
+  display: grid;
+  gap: 10px;
+}
+
 .data-link-status {
   display: grid;
   grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);

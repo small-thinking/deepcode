@@ -103,7 +103,7 @@ def _handle_api_request(
             if context.custom_tests is None:
                 raise ValueError("Custom test storage is not configured")
             payload = json.loads((body or b"{}").decode("utf-8"))
-            return 200, {"custom_tests": context.custom_tests.replace_for(slug, payload.get("custom_tests"))}
+            return 200, {"custom_tests": context.custom_tests.replace_for(slug, payload.get("custom_tests"), problem)}
         return 405, {"error": "Method not allowed"}
 
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "data-link":
@@ -236,7 +236,7 @@ def _custom_tests_from_payload(problem: dict[str, Any], payload: dict[str, Any])
     if "custom_tests" not in payload:
         return []
     _ensure_ml_coding(problem, "Custom tests")
-    return validate_custom_tests(payload["custom_tests"])
+    return validate_custom_tests(payload["custom_tests"], problem=problem)
 
 
 def _ensure_ml_coding(problem: dict[str, Any], label: str) -> None:
