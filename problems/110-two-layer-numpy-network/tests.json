@@ -1,0 +1,22 @@
+[
+  {
+    "name": "forward returns normalized probabilities",
+    "input": "two samples, three output classes",
+    "test": "import numpy as np\nnet = TwoLayerNet(input_dim=2, hidden_dim=5, output_dim=3, seed=7)\nprobs = net.forward(np.array([[1.0, -1.0], [0.5, 2.0]]))\nassert probs.shape == (2, 3)\nassert np.allclose(probs.sum(axis=1), np.ones(2))\nassert np.all(probs >= 0.0)"
+  },
+  {
+    "name": "softmax is stable for large activations",
+    "input": "large input values",
+    "test": "import numpy as np\nnet = TwoLayerNet(input_dim=2, hidden_dim=4, output_dim=2, seed=1, weight_scale=5.0)\nprobs = net.forward(np.array([[1000.0, -1000.0], [-1200.0, 900.0]]))\nassert np.isfinite(probs).all()\nassert np.allclose(probs.sum(axis=1), np.ones(2))"
+  },
+  {
+    "name": "one training step updates parameters and returns finite loss",
+    "input": "small separable dataset",
+    "test": "import numpy as np\nX = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])\ny = np.array([0, 1, 1, 0])\nnet = TwoLayerNet(input_dim=2, hidden_dim=6, output_dim=2, seed=4, weight_scale=0.3)\nold_W1 = net.W1.copy()\nold_loss = net.loss(X, y)\nnew_loss = net.train_step(X, y, learning_rate=0.5)\nassert np.isfinite(old_loss)\nassert np.isfinite(new_loss)\nassert not np.allclose(old_W1, net.W1)"
+  },
+  {
+    "name": "training reduces loss over repeated steps",
+    "input": "linearly separable labels",
+    "test": "import numpy as np\nX = np.array([[-2.0], [-1.0], [1.0], [2.0]])\ny = np.array([0, 0, 1, 1])\nnet = TwoLayerNet(input_dim=1, hidden_dim=4, output_dim=2, seed=2, weight_scale=0.4)\nstart = net.loss(X, y)\nfor _ in range(80):\n    net.train_step(X, y, learning_rate=0.1)\nend = net.loss(X, y)\nassert end < start"
+  }
+]

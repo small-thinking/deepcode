@@ -1,0 +1,22 @@
+[
+  {
+    "name": "l2 predictions match nearest labels",
+    "input": "three training points and three queries",
+    "test": "import numpy as np\nX = np.array([[0.0, 0.0], [2.0, 0.0], [0.0, 3.0]])\ny = np.array(['origin', 'right', 'up'])\nQ = np.array([[0.1, 0.1], [1.8, 0.2], [0.2, 2.7]])\npred = predict_1nn_l2(Q, X, y)\nassert pred.tolist() == ['origin', 'right', 'up']"
+  },
+  {
+    "name": "linear logits select the same l2 neighbor",
+    "input": "compare argmax logits with direct l2 prediction",
+    "test": "import numpy as np\nX = np.array([[1.0, 1.0], [3.0, -1.0], [-2.0, 0.5]])\ny = np.array([10, 20, 30])\nQ = np.array([[2.5, -0.8], [-1.0, 0.4], [0.0, 0.0]])\nlogits = l2_distance_logits(Q, X)\nassert logits.shape == (3, 3)\nassert y[np.argmax(logits, axis=1)].tolist() == predict_1nn_l2(Q, X, y).tolist()"
+  },
+  {
+    "name": "l1 can choose a different neighbor than l2",
+    "input": "one query where l1 and l2 disagree",
+    "test": "import numpy as np\nX = np.array([[0.0, 4.0], [2.2, 2.2]])\ny = np.array(['axis', 'diag'])\nQ = np.array([[0.0, 0.0]])\nassert predict_1nn_l2(Q, X, y).tolist() == ['diag']\nassert predict_1nn_l1(Q, X, y).tolist() == ['axis']"
+  },
+  {
+    "name": "ties choose the first training point",
+    "input": "query equally distant from two points",
+    "test": "import numpy as np\nX = np.array([[0.0, 0.0], [2.0, 0.0]])\ny = np.array(['first', 'second'])\nQ = np.array([[1.0, 0.0]])\nassert predict_1nn_l2(Q, X, y).tolist() == ['first']\nassert predict_1nn_l1(Q, X, y).tolist() == ['first']"
+  }
+]

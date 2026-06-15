@@ -1,0 +1,36 @@
+{
+  "id": "120",
+  "slug": "spreadsheet-dependency-cycle",
+  "title": "Spreadsheet Dependency Cycle",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graph", "dfs", "cycle-detection", "spreadsheet", "topological-sort"],
+  "companies": ["Sierra", "Harvey"],
+  "prompt": "Implement `find_circular_dependency(dependencies)`.\n\nA spreadsheet cell can depend on other cells. `dependencies` is a dictionary mapping a cell name to the list of cells it references. Return the first circular dependency path you find, including the starting cell again at the end. For example, a cycle `A1 -> B1 -> C1 -> A1` should return `['A1', 'B1', 'C1', 'A1']`.\n\nIf there is no cycle, return an empty list. References to cells that do not appear as keys in `dependencies` should be treated as leaf input cells, not as errors.\n\nFor deterministic behavior, visit cells in dictionary insertion order and visit each cell's dependency list in list order. Self-cycles should return `[cell, cell]`.",
+  "starter_code": "def find_circular_dependency(dependencies):\n    # Return the first cycle path, including the repeated starting cell, or [] if acyclic.\n    pass\n",
+  "example": {
+    "input": "dependencies = {'A1': ['B1'], 'B1': ['C1'], 'C1': ['A1']}",
+    "output": "['A1', 'B1', 'C1', 'A1']",
+    "reasoning": "Following references from A1 eventually returns to A1."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Cycle detection",
+      "url": "https://en.wikipedia.org/wiki/Cycle_detection"
+    },
+    {
+      "label": "Topological sorting",
+      "url": "https://en.wikipedia.org/wiki/Topological_sorting"
+    }
+  ],
+  "created_at": "2026-06-15"
+}

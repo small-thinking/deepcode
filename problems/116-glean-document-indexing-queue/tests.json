@@ -1,0 +1,27 @@
+[
+  {
+    "name": "assigns by preferred indexer and returns top k",
+    "input": "m = 3, four documents, k = 2",
+    "test": "processed, busiest, top_k, percentage = document_indexing_queue(3, [1, 2, 3, 7], [5, 4, 3, 2], 2)\nassert processed == 4\nassert busiest == 0\nassert top_k == [0, 1]\nassert abs(percentage - 75.0) < 1e-9"
+  },
+  {
+    "name": "drops documents when all indexers are busy",
+    "input": "two indexers, later arrivals before either release",
+    "test": "processed, busiest, top_k, percentage = document_indexing_queue(2, [0, 0, 1, 4], [5, 5, 1, 1], 2)\nassert processed == 2\nassert busiest == 0\nassert top_k == [0, 1]\nassert abs(percentage - 100.0) < 1e-9"
+  },
+  {
+    "name": "release boundary uses finish time less than or equal to arrival",
+    "input": "an indexer finishing exactly at the next arrival",
+    "test": "processed, busiest, top_k, percentage = document_indexing_queue(3, [0, 1, 2, 3], [3, 3, 3, 1], 1)\nassert processed == 4\nassert busiest == 0\nassert top_k == [0]\nassert abs(percentage - 50.0) < 1e-9"
+  },
+  {
+    "name": "wraps around to lower-numbered available indexers",
+    "input": "preferred index and higher indexers busy while indexer zero is free",
+    "test": "processed, busiest, top_k, percentage = document_indexing_queue(4, [0, 0, 0, 0, 1, 3], [2, 10, 10, 10, 1, 1], 4)\nassert processed == 5\nassert busiest == 0\nassert top_k == [0, 1, 2, 3]\nassert abs(percentage - 100.0) < 1e-9"
+  },
+  {
+    "name": "handles invalid or empty inputs",
+    "input": "zero indexers and mismatched arrays",
+    "test": "assert document_indexing_queue(0, [1], [1], 1) == (0, None, [], 0.0)\ntry:\n    document_indexing_queue(2, [1, 2], [3], 1)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+  }
+]

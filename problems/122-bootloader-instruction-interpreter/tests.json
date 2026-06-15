@@ -1,0 +1,27 @@
+[
+  {
+    "name": "runs plus, next, and relative jump",
+    "input": "jump skips a large accumulator update",
+    "test": "lines = ['plus +3', 'next +99', 'jump +2', 'plus +100', 'plus -1']\nassert run_bootloader(lines) == {'status': 'terminated', 'acc': 2, 'pc': 5}"
+  },
+  {
+    "name": "detects loop before repeating an instruction",
+    "input": "pc 1 is about to execute a second time",
+    "test": "lines = ['plus +1', 'jump +2', 'plus +100', 'jump -2', 'plus +3']\nassert run_bootloader(lines) == {'status': 'loop', 'acc': 1, 'pc': 1}"
+  },
+  {
+    "name": "fixes one jump or next to terminate",
+    "input": "flip jump -2 to next",
+    "test": "lines = ['plus +1', 'jump +2', 'plus +100', 'jump -2', 'plus +3']\nassert fix_bootloader(lines) == 4"
+  },
+  {
+    "name": "skips trial flips that jump out of range",
+    "input": "an earlier flip is invalid, but a later flip terminates",
+    "test": "lines = ['next +10', 'plus +1', 'jump -1']\nassert fix_bootloader(lines) == 1"
+  },
+  {
+    "name": "rejects malformed programs",
+    "input": "unknown op, bad integer, and out-of-range pc",
+    "test": "for bad in [['noop +0'], ['plus nope'], ['jump -1']]:\n    try:\n        run_bootloader(bad)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "normalizes relative and absolute paths",
+    "input": "relative path with dot, dot-dot, and repeated slashes",
+    "test": "assert cd('/foo/bar', 'baz') == '/foo/bar/baz'\nassert cd('/foo/bar', '../baz//./qux') == '/foo/baz/qux'\nassert cd('/x/y', '/a//b/../c') == '/a/c'\nassert cd('/', '../../x') == '/x'"
+  },
+  {
+    "name": "expands current user and named home aliases",
+    "input": "~ and ~alice destinations",
+    "test": "assert cd('/tmp', '~/proj', home='/home/me') == '/home/me/proj'\nassert cd('/tmp', '~alice/docs', home_map={'alice': '/Users/alice'}) == '/Users/alice/docs'\ntry:\n    cd('/tmp', '~bob/docs', home_map={'alice': '/Users/alice'})\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+  },
+  {
+    "name": "uses longest complete symlink prefix",
+    "input": "overlapping symlink prefixes and a partial-prefix non-match",
+    "test": "assert cd('/123', '456', links={'/123': '/abc', '/123/456': '/cde'}) == '/cde'\nassert cd('/', 'a/bc', links={'/a/b': '/x'}) == '/a/bc'"
+  },
+  {
+    "name": "reapplies symlinks after each rewrite and detects cycles",
+    "input": "target normalization creates another symlink match",
+    "test": "assert cd('/', 'a/c', links={'/a': '/b/..', '/c': '/d'}) == '/d'\ntry:\n    cd('/a', 'b', links={'/a/b': '/x', '/x': '/a/b'})\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+  }
+]

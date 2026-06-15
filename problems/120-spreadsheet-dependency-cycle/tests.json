@@ -1,0 +1,27 @@
+[
+  {
+    "name": "returns empty list for acyclic dependencies",
+    "input": "diamond-shaped acyclic graph",
+    "test": "dependencies = {'A1': ['B1', 'C1'], 'B1': ['D1'], 'C1': [], 'D1': []}\nassert find_circular_dependency(dependencies) == []"
+  },
+  {
+    "name": "detects self cycle",
+    "input": "A1 references itself",
+    "test": "assert find_circular_dependency({'A1': ['A1']}) == ['A1', 'A1']"
+  },
+  {
+    "name": "returns multi-cell cycle path",
+    "input": "A1 -> B1 -> C1 -> A1",
+    "test": "dependencies = {'A1': ['B1'], 'B1': ['C1'], 'C1': ['A1']}\nassert find_circular_dependency(dependencies) == ['A1', 'B1', 'C1', 'A1']"
+  },
+  {
+    "name": "visits disconnected components in insertion order and ignores external leaves",
+    "input": "second component contains a cycle",
+    "test": "dependencies = {'A1': ['B1'], 'B1': [], 'X1': ['Y1'], 'Y1': ['X1'], 'Z1': ['External']}\nassert find_circular_dependency(dependencies) == ['X1', 'Y1', 'X1']"
+  },
+  {
+    "name": "missing keys and repeated references are not cycles",
+    "input": "external dependency and duplicated edge",
+    "test": "assert find_circular_dependency({'A1': ['B1'], 'C1': ['A1']}) == []\nassert find_circular_dependency({'A1': ['B1', 'B1'], 'B1': []}) == []"
+  }
+]

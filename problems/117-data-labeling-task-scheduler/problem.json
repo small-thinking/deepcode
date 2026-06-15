@@ -1,0 +1,32 @@
+{
+  "id": "117",
+  "slug": "data-labeling-task-scheduler",
+  "title": "Data Labeling Task Scheduler",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["scheduling", "greedy", "balancing", "counters", "constraints"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `build_schedule(tasks, models, humans, k)`.\n\nYou are scheduling human review of model outputs. A returned row `(task, model, human)` means that `human` reviews `model`'s output on `task`.\n\nHard constraints:\n- Return exactly `k * len(humans)` rows for the batch version.\n- Every human must appear exactly `k` times.\n- The same `(task, human)` pair may appear at most once.\n- Every task, model, and human in the output must come from the corresponding input list.\n\nBalance goals:\n- Within each task, model assignments should stay as evenly distributed as possible.\n- Within each task, human assignments should stay as evenly distributed as possible.\n- Across the schedule prefix, total human workload should stay balanced.\n\nIf `k == 0`, return an empty list. If the constraints are impossible, raise `ValueError`. A deterministic greedy solution that scores all legal candidates is sufficient; the tests validate constraints and balance properties rather than one exact schedule.",
+  "starter_code": "def build_schedule(tasks, models, humans, k):\n    # Return an ordered list of (task, model, human) review assignments.\n    pass\n",
+  "example": {
+    "input": "tasks = ['q1', 'q2'], models = ['m1', 'm2'], humans = ['h1', 'h2'], k = 2",
+    "output": "four (task, model, human) rows",
+    "reasoning": "Each human appears twice and no human reviews the same task twice."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Scheduling",
+      "url": "https://en.wikipedia.org/wiki/Scheduling_(computing)"
+    }
+  ],
+  "created_at": "2026-06-15"
+}

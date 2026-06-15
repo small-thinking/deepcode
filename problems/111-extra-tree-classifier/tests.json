@@ -1,0 +1,22 @@
+[
+  {
+    "name": "fits a simple threshold split",
+    "input": "one informative feature",
+    "test": "import numpy as np\nX = np.array([[0.0], [0.2], [0.8], [1.0]])\ny = np.array([0, 0, 1, 1])\nmodel = ExtraTreeClassifier(max_depth=2, min_leaf=1, n_features=1, n_thresholds=20, seed=1).fit(X, y)\nassert model.predict(np.array([[0.1], [0.9]])).tolist() == [0, 1]"
+  },
+  {
+    "name": "constant features fall back to majority class",
+    "input": "no valid split",
+    "test": "import numpy as np\nX = np.ones((5, 3))\ny = np.array([1, 1, 1, 0, 0])\nmodel = ExtraTreeClassifier(max_depth=4, min_leaf=1, seed=3).fit(X, y)\nassert model.predict(np.ones((2, 3))).tolist() == [1, 1]"
+  },
+  {
+    "name": "min_leaf prevents tiny child splits",
+    "input": "split would create a one-row leaf",
+    "test": "import numpy as np\nX = np.array([[0.0], [1.0], [2.0]])\ny = np.array([0, 0, 1])\nmodel = ExtraTreeClassifier(max_depth=4, min_leaf=2, n_features=1, n_thresholds=10, seed=0).fit(X, y)\nassert model.predict(np.array([[2.0]])).tolist() == [0]"
+  },
+  {
+    "name": "predict before fit is rejected",
+    "input": "unfitted model",
+    "test": "import numpy as np\nmodel = ExtraTreeClassifier()\ntry:\n    model.predict(np.array([[0.0]]))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('predict before fit should raise ValueError')"
+  }
+]

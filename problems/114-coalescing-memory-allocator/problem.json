@@ -1,0 +1,32 @@
+{
+  "id": "114",
+  "slug": "coalescing-memory-allocator",
+  "title": "Coalescing Memory Allocator",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["allocator", "linked-list", "coalescing", "fragmentation", "systems"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `Allocator`, a tiny first-fit memory allocator.\n\nThe allocator manages a contiguous address range `[0, capacity)`. `malloc(size)` should find the first free block with at least `size` units, split it if needed, mark the allocated block as used, and return its start address. Return `-1` when no block can fit the request or when `size <= 0`.\n\n`free(address)` should release the allocated block that starts at `address`, return `True` on success, and return `False` for unknown or already-freed addresses. After freeing, coalesce adjacent free blocks so fragmentation does not prevent a later large allocation.\n\n`snapshot()` should return the current block list as `(start, size, free)` tuples from low address to high address. The snapshot is for tests and debugging.",
+  "starter_code": "class Allocator:\n    def __init__(self, capacity):\n        pass\n\n    def malloc(self, size):\n        pass\n\n    def free(self, address):\n        pass\n\n    def snapshot(self):\n        pass\n",
+  "example": {
+    "input": "a = Allocator(5); p = a.malloc(2); a.free(p); a.malloc(5)",
+    "output": "0",
+    "reasoning": "After freeing and coalescing, the whole capacity is available again."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Memory allocation",
+      "url": "https://en.wikipedia.org/wiki/Memory_management#Dynamic_memory_allocation"
+    }
+  ],
+  "created_at": "2026-06-15"
+}

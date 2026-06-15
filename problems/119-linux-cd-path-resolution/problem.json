@@ -1,0 +1,32 @@
+{
+  "id": "119",
+  "slug": "linux-cd-path-resolution",
+  "title": "Linux cd Path Resolution",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["paths", "filesystem", "normalization", "symlinks", "cycle-detection"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `cd(current_dir, new_dir, home=\"/home/me\", links=None, home_map=None)`.\n\nReturn the normalized absolute path after changing from `current_dir` to `new_dir`.\n\nRules:\n- Absolute `new_dir` values start from root. Relative values start from `current_dir`.\n- Normalize repeated slashes, `.`, and `..`. Moving above `/` stays at `/`.\n- `~` and `~/...` expand to `home`.\n- `~name` and `~name/...` expand using `home_map[name]`; unknown aliases should raise `ValueError`.\n- `links` maps absolute symlink source paths to absolute target paths. After normalizing the candidate path, repeatedly apply the longest matching symlink prefix. A source matches only a complete path component: `/a/b` matches `/a/b/c`, but not `/a/bc`.\n- Normalize each symlink target plus suffix, then apply symlinks again. Detect symlink cycles and raise `ValueError`.\n\nTreat this as physical path resolution for the final destination; no filesystem access is required.",
+  "starter_code": "def cd(current_dir, new_dir, home=\"/home/me\", links=None, home_map=None):\n    # Return the final normalized path after resolving relative paths and symlinks.\n    pass\n",
+  "example": {
+    "input": "cd('/foo/bar', '../baz//./qux')",
+    "output": "'/foo/baz/qux'",
+    "reasoning": "The relative destination starts from /foo/bar, then .. removes bar and repeated slashes are collapsed."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Pathname resolution",
+      "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    }
+  ],
+  "created_at": "2026-06-15"
+}

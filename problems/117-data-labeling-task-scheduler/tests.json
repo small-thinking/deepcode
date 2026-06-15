@@ -1,0 +1,22 @@
+[
+  {
+    "name": "satisfies hard constraints on a balanced batch",
+    "input": "two tasks, two models, two humans, k = 2",
+    "test": "from collections import Counter\nschedule = build_schedule(['q1', 'q2'], ['m1', 'm2'], ['h1', 'h2'], 2)\nassert len(schedule) == 4\nassert Counter(h for _, _, h in schedule) == Counter({'h1': 2, 'h2': 2})\nassert len({(task, human) for task, _, human in schedule}) == len(schedule)\nfor task, model, human in schedule:\n    assert task in {'q1', 'q2'}\n    assert model in {'m1', 'm2'}\n    assert human in {'h1', 'h2'}"
+  },
+  {
+    "name": "keeps model and human distributions balanced per task",
+    "input": "three tasks, two models, three humans, k = 2",
+    "test": "from collections import Counter, defaultdict\nschedule = build_schedule(['q1', 'q2', 'q3'], ['m1', 'm2'], ['h1', 'h2', 'h3'], 2)\nassert len(schedule) == 6\nassert Counter(h for _, _, h in schedule) == Counter({'h1': 2, 'h2': 2, 'h3': 2})\nassert len({(task, human) for task, _, human in schedule}) == len(schedule)\nmodels_by_task = defaultdict(Counter)\nhumans_by_task = defaultdict(Counter)\nfor task, model, human in schedule:\n    models_by_task[task][model] += 1\n    humans_by_task[task][human] += 1\nfor task in ['q1', 'q2', 'q3']:\n    model_counts = [models_by_task[task][m] for m in ['m1', 'm2']]\n    human_counts = [humans_by_task[task][h] for h in ['h1', 'h2', 'h3']]\n    assert max(model_counts) - min(model_counts) <= 1\n    assert max(human_counts) - min(human_counts) <= 1"
+  },
+  {
+    "name": "prefixes keep total human workload close",
+    "input": "four tasks, two models, three humans, k = 3",
+    "test": "from collections import Counter\nhumans = ['h1', 'h2', 'h3']\nschedule = build_schedule(['q1', 'q2', 'q3', 'q4'], ['m1', 'm2'], humans, 3)\ncounts = Counter()\nfor _, _, human in schedule:\n    counts[human] += 1\n    values = [counts[h] for h in humans]\n    assert max(values) - min(values) <= 1\nassert counts == Counter({'h1': 3, 'h2': 3, 'h3': 3})"
+  },
+  {
+    "name": "rejects impossible schedules and accepts k zero",
+    "input": "one task, one human, k = 2",
+    "test": "assert build_schedule(['q'], ['m'], ['h'], 0) == []\ntry:\n    build_schedule(['q'], ['m'], ['h'], 2)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+  }
+]

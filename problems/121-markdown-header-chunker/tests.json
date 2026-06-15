@@ -1,0 +1,32 @@
+[
+  {
+    "name": "small document fits in one chunk",
+    "input": "# A followed by short body",
+    "test": "assert chunk_markdown('# A\\n\\n12345', 10) == ['# A\\n\\n12345']"
+  },
+  {
+    "name": "new body chunk repeats active headers",
+    "input": "second paragraph starts a new chunk inside # Guide / ## Install",
+    "test": "md = '# Guide\\n\\n## Install\\n\\nFirst paragraph.\\n\\nSecond paragraph.'\nassert chunk_markdown(md, 40) == [\n    '# Guide\\n\\n## Install\\n\\nFirst paragraph.',\n    '# Guide\\n## Install\\n\\nSecond paragraph.',\n]"
+  },
+  {
+    "name": "heading stack updates by level",
+    "input": "sibling sections B and C under A",
+    "test": "md = '# A\\n\\n## B\\n\\nb text\\n\\n## C\\n\\nc text'\nchunks = chunk_markdown(md, 30)\nassert chunks[-1].startswith('# A\\n## C\\n\\n')\nassert '## B' not in chunks[-1]"
+  },
+  {
+    "name": "ignores heading-looking lines inside fenced code",
+    "input": "code fence contains # fake",
+    "test": "md = '# Real\\n\\n```python\\n# fake\\n```\\n\\nBody text'\nchunks = chunk_markdown(md, 30)\nassert chunks[-1] == '# Real\\n\\nBody text'"
+  },
+  {
+    "name": "normalizes CRLF and splits oversized paragraphs with context",
+    "input": "long body under a heading with CRLF newlines",
+    "test": "chunks = chunk_markdown('# A\\r\\n\\r\\nabcdefghij', 10)\nassert chunks == ['# A\\n\\nabcde', '# A\\n\\nfghij']\nassert all(len(chunk) <= 10 for chunk in chunks)"
+  },
+  {
+    "name": "rejects impossible header context",
+    "input": "max_chars smaller than active header context",
+    "test": "try:\n    chunk_markdown('# LongHeader\\n\\ntext', 5)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass\ntry:\n    chunk_markdown('# A', 0)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+  }
+]
