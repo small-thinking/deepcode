@@ -32,6 +32,7 @@ From the browser you can:
 - Write Python in the editor and run the local evaluator.
 - Add local-only custom tests for ML coding problems when you want extra edge
   cases beyond the committed visible checks.
+- Link local dataset folders for modeling tasks that declare a `data.path`.
 
 Submissions execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 

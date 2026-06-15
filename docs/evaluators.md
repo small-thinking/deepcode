@@ -97,6 +97,9 @@ problems/101-small-mlp/eval-results -> ../../runs/101-small-mlp
 The actual `data/`, `runs/`, and local secret files are gitignored. Problem
 metadata can describe the expected local layout while datasets, checkpoints,
 TensorBoard logs, W&B files, and LLM judge keys stay on the user's machine.
+For modeling tasks that declare `data.path`, the browser can create or remove
+the problem-local data symlink from the Env tab. The API refuses to replace a
+real directory or file at that path, so user data is not deleted by setup.
 
 When present, the evaluator exposes runtime paths to check scripts through:
 

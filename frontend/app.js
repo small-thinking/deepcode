@@ -20,6 +20,8 @@ const state = {
   },
   selected: null,
   customTests: [],
+  dataLink: null,
+  dataLinkTarget: "",
   activeTab: "description",
   activeResultIndex: 0,
   runResult: null,
@@ -277,6 +279,8 @@ async function loadProblem(identifier) {
   state.runResult = null;
   state.activeResultIndex = 0;
   state.customTests = [];
+  state.dataLink = null;
+  state.dataLinkTarget = "";
   state.loading = true;
   render();
   try {
@@ -284,6 +288,9 @@ async function loadProblem(identifier) {
     state.selected = payload.problem;
     if (isMlCodingProblem(state.selected)) {
       await loadCustomTests();
+    }
+    if (supportsDataLinkSetup(state.selected)) {
+      await loadDataLink();
     }
     state.activeTab = "description";
     const key = codeKey(state.selected.slug);
@@ -302,6 +309,12 @@ async function loadProblem(identifier) {
 function isMlCodingProblem(problem) {
   const evaluation = problem?.evaluation || {};
   return (evaluation.type || "ml_coding") === "ml_coding";
+}
+
+function supportsDataLinkSetup(problem) {
+  const evaluation = problem?.evaluation || {};
+  const type = evaluation.type || "ml_coding";
+  return ["ml_modeling", "ml_torch_modeling", "ml_torch_lab"].includes(type) && Boolean(problem?.data?.path);
 }
 
 function codeKey(slug) {
@@ -389,6 +402,50 @@ function addCustomTest() {
 function removeCustomTest(index) {
   collectCustomTestInputs();
   state.customTests = state.customTests.filter((_, currentIndex) => currentIndex !== index);
+  render();
+}
+
+async function loadDataLink() {
+  if (!state.selected || !supportsDataLinkSetup(state.selected)) {
+    state.dataLink = null;
+    state.dataLinkTarget = "";
+    return;
+  }
+  const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/data-link`);
+  state.dataLink = payload;
+  state.dataLinkTarget = payload.target_path || "";
+}
+
+async function saveDataLink() {
+  if (!state.selected || !supportsDataLinkSetup(state.selected)) return;
+  const field = document.querySelector("#data-link-target");
+  const targetPath = field?.value?.trim() || state.dataLinkTarget;
+  try {
+    const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/data-link`, {
+      method: "PUT",
+      body: JSON.stringify({ target_path: targetPath }),
+    });
+    state.dataLink = payload;
+    state.dataLinkTarget = payload.target_path || targetPath;
+    state.error = null;
+  } catch (error) {
+    state.error = error.message;
+  }
+  render();
+}
+
+async function removeDataLink() {
+  if (!state.selected || !supportsDataLinkSetup(state.selected)) return;
+  try {
+    const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/data-link`, {
+      method: "DELETE",
+    });
+    state.dataLink = payload;
+    state.dataLinkTarget = "";
+    state.error = null;
+  } catch (error) {
+    state.error = error.message;
+  }
   render();
 }
 
@@ -859,7 +916,7 @@ function renderProblemTab(problem, env) {
   }
 
   if (state.activeTab === "environment") {
-    return renderProblemEnvironment(env);
+    return [renderProblemEnvironment(env), renderDataLinkSetup(problem)].join("");
   }
 
   return renderProblemDescription(problem);
@@ -1059,6 +1116,43 @@ function renderProblemEnvironment(env) {
   );
 }
 
+function renderDataLinkSetup(problem) {
+  if (!supportsDataLinkSetup(problem)) return "";
+
+  const link = state.dataLink || {};
+  const statusClass = link.exists && link.is_symlink ? "linked" : link.exists ? "blocked" : "missing";
+  const statusText =
+    link.exists && link.is_symlink ? "Linked" : link.exists ? "Path exists; not a symlink" : "Not linked";
+  const target = state.dataLinkTarget || "";
+  const removeDisabled = link.is_symlink ? "" : "disabled";
+
+  return renderProblemBlock(
+    PROBLEM_SECTION_CLASSES.environment,
+    "Local Data",
+    `
+      <div class="data-link-panel">
+        <div class="data-link-status ${statusClass}">
+          <span>${escapeHtml(statusText)}</span>
+          <code>${escapeHtml(link.link_path || problem.data?.path || "")}</code>
+        </div>
+        <label class="data-link-target">
+          <span>Dataset folder</span>
+          <input
+            class="field"
+            id="data-link-target"
+            value="${escapeHtml(target)}"
+            placeholder="/absolute/path/to/dataset"
+          />
+        </label>
+        <div class="data-link-actions">
+          <button class="primary-button" type="button" id="save-data-link">Link data</button>
+          <button class="ghost-button" type="button" id="remove-data-link" ${removeDisabled}>Remove link</button>
+        </div>
+      </div>
+    `
+  );
+}
+
 function renderReferences(references) {
   if (!Array.isArray(references) || references.length === 0) return "";
 
@@ -1252,6 +1346,11 @@ function bindEvents() {
   });
   document.querySelectorAll("[data-custom-index][data-custom-field]").forEach((field) => {
     field.addEventListener("input", collectCustomTestInputs);
+  });
+  document.querySelector("#save-data-link")?.addEventListener("click", saveDataLink);
+  document.querySelector("#remove-data-link")?.addEventListener("click", removeDataLink);
+  document.querySelector("#data-link-target")?.addEventListener("input", (event) => {
+    state.dataLinkTarget = event.target.value;
   });
   document.querySelector("#reset-code")?.addEventListener("click", resetCode);
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));

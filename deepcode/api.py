@@ -7,6 +7,7 @@ from typing import Any
 from urllib.parse import unquote
 
 from deepcode.custom_tests import CustomTestStore, validate_custom_tests
+from deepcode.data_links import data_link_status, remove_data_link, set_data_link
 from deepcode.evaluators import (
     EvaluationRequest,
     UnsupportedEvaluatorError,
@@ -103,6 +104,20 @@ def _handle_api_request(
                 raise ValueError("Custom test storage is not configured")
             payload = json.loads((body or b"{}").decode("utf-8"))
             return 200, {"custom_tests": context.custom_tests.replace_for(slug, payload.get("custom_tests"))}
+        return 405, {"error": "Method not allowed"}
+
+    if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "data-link":
+        problem = context.store.get_problem(parts[2])
+        if method == "GET":
+            return 200, data_link_status(problem)
+        if method == "PUT":
+            payload = json.loads((body or b"{}").decode("utf-8"))
+            target_path = payload.get("target_path")
+            if not isinstance(target_path, str) or not target_path.strip():
+                raise ValueError("Request body must include non-empty `target_path`")
+            return 200, set_data_link(problem, target_path)
+        if method == "DELETE":
+            return 200, remove_data_link(problem)
         return 405, {"error": "Method not allowed"}
 
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "run" and method == "POST":

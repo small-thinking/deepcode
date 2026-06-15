@@ -28,8 +28,9 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["categories"], ["Machine Learning"])
             self.assertEqual(payload["difficulties"], ["easy"])
 
-    def test_server_dispatches_put_api_requests(self):
+    def test_server_dispatches_mutating_api_methods(self):
         self.assertTrue(hasattr(DeepCodeHandler, "do_PUT"))
+        self.assertTrue(hasattr(DeepCodeHandler, "do_DELETE"))
 
     def test_lists_problems_with_local_personal_status(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -379,6 +380,172 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["status"], "passed")
             self.assertEqual(payload["total"], 1)
             self.assertEqual(payload["results"][0]["name"], "visible contract")
+
+    def test_reports_missing_modeling_data_link_status(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root)
+            self._write_problem(
+                root,
+                "modeling",
+                "101",
+                problem_overrides={
+                    "evaluation": {"type": "ml_modeling"},
+                    "data": {"path": "data", "required": True},
+                },
+                tests=[{"name": "noop", "test": "assert True"}],
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "GET",
+                "/api/problems/modeling/data-link",
+                {},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["data_path"], "data")
+            self.assertFalse(payload["exists"])
+            self.assertFalse(payload["is_symlink"])
+            self.assertIsNone(payload["target_path"])
+            self.assertTrue(payload["link_path"].endswith("modeling/data"))
+
+    def test_creates_modeling_data_symlink(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "datasets" / "toy"
+            target.mkdir(parents=True)
+            store = ProblemStore(root / "problems")
+            self._write_problem(
+                root / "problems",
+                "modeling",
+                "101",
+                problem_overrides={
+                    "evaluation": {"type": "ml_modeling"},
+                    "data": {"path": "data", "required": True},
+                },
+                tests=[{"name": "noop", "test": "assert True"}],
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "PUT",
+                "/api/problems/modeling/data-link",
+                {},
+                json.dumps({"target_path": str(target)}).encode("utf-8"),
+            )
+
+            link_path = root / "problems" / "modeling" / "data"
+            self.assertEqual(status, 200)
+            self.assertTrue(link_path.is_symlink())
+            self.assertEqual(link_path.readlink(), target)
+            self.assertTrue(payload["exists"])
+            self.assertTrue(payload["is_symlink"])
+            self.assertEqual(payload["target_path"], str(target))
+
+    def test_rejects_missing_modeling_data_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root)
+            self._write_problem(
+                root,
+                "modeling",
+                "101",
+                problem_overrides={
+                    "evaluation": {"type": "ml_modeling"},
+                    "data": {"path": "data", "required": True},
+                },
+                tests=[{"name": "noop", "test": "assert True"}],
+            )
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "PUT",
+                "/api/problems/modeling/data-link",
+                {},
+                json.dumps({"target_path": str(root / "missing")}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 400)
+            self.assertIn("existing directory", payload["error"])
+
+    def test_refuses_to_overwrite_real_data_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "datasets" / "toy"
+            target.mkdir(parents=True)
+            store = ProblemStore(root)
+            self._write_problem(
+                root,
+                "modeling",
+                "101",
+                problem_overrides={
+                    "evaluation": {"type": "ml_modeling"},
+                    "data": {"path": "data", "required": True},
+                },
+                tests=[{"name": "noop", "test": "assert True"}],
+            )
+            (root / "modeling" / "data").mkdir()
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "PUT",
+                "/api/problems/modeling/data-link",
+                {},
+                json.dumps({"target_path": str(target)}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 400)
+            self.assertIn("Refusing to replace", payload["error"])
+
+    def test_removes_modeling_data_symlink_without_deleting_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "datasets" / "toy"
+            target.mkdir(parents=True)
+            store = ProblemStore(root)
+            self._write_problem(
+                root,
+                "modeling",
+                "101",
+                problem_overrides={
+                    "evaluation": {"type": "ml_modeling"},
+                    "data": {"path": "data", "required": True},
+                },
+                tests=[{"name": "noop", "test": "assert True"}],
+            )
+            link_path = root / "modeling" / "data"
+            link_path.symlink_to(target, target_is_directory=True)
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "DELETE",
+                "/api/problems/modeling/data-link",
+                {},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertFalse(link_path.exists())
+            self.assertTrue(target.exists())
+            self.assertFalse(payload["exists"])
+
+    def test_rejects_data_link_for_problem_without_data_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp))
+            self._write_problem(Path(tmp), "toy", "1")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "GET",
+                "/api/problems/toy/data-link",
+                {},
+                None,
+            )
+
+            self.assertEqual(status, 400)
+            self.assertIn("data.path", payload["error"])
 
     def test_streams_submission_logs_for_modeling_problem(self):
         with tempfile.TemporaryDirectory() as tmp:
