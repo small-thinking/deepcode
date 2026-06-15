@@ -1,0 +1,32 @@
+{
+  "id": "123",
+  "slug": "contiguous-one-blocks",
+  "title": "Contiguous One Blocks",
+  "category": "Algorithms",
+  "difficulty": "easy",
+  "tags": ["arrays", "strings", "run-length", "state-machine", "tensor-prep"],
+  "companies": ["ReflectionAI"],
+  "prompt": "Implement `label_one_blocks(bits)`.\n\nGiven a sequence of binary values, return a list of integers with the same length. Each `0` becomes `-1`. Each contiguous block of `1` values receives a block id, starting from `0` and increasing from left to right. All ones in the same contiguous block share the same id.\n\nAccept either a string of `'0'` and `'1'` characters or an iterable containing integer `0` and `1` values. Raise `ValueError` for any other value.",
+  "starter_code": "def label_one_blocks(bits):\n    # Convert each 0 to -1 and each contiguous block of 1s to its block id.\n    pass\n",
+  "example": {
+    "input": "bits = '0010110111'",
+    "output": "[-1, -1, 0, -1, 1, 1, -1, 2, 2, 2]",
+    "reasoning": "There are three one-runs: '1', '11', and '111'."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Run-length encoding",
+      "url": "https://en.wikipedia.org/wiki/Run-length_encoding"
+    }
+  ],
+  "created_at": "2026-06-15"
+}

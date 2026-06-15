@@ -1,0 +1,22 @@
+[
+  {
+    "name": "implements Python iterator protocol and exhaustion",
+    "input": "ListIterator(['a', 'b'])",
+    "test": "it = ListIterator(['a', 'b'])\nassert iter(it) is it\nassert next(it) == 'a'\nassert it.next() == 'b'\ntry:\n    next(it)\n    assert False, 'expected StopIteration'\nexcept StopIteration:\n    pass\nassert it.get_state() == {'index': 2}"
+  },
+  {
+    "name": "every saved list state resumes the correct suffix",
+    "input": "states saved before each item and after exhaustion",
+    "test": "def drain(iterator):\n    out = []\n    while True:\n        try:\n            out.append(iterator.next())\n        except StopIteration:\n            return out\n\ndata = ['a', 'b', 'c']\nit = ListIterator(data)\nstates = []\nwhile True:\n    states.append(it.get_state())\n    try:\n        it.next()\n    except StopIteration:\n        break\nfor state in states:\n    restored = ListIterator(data)\n    restored.set_state(state)\n    assert drain(restored) == data[state['index']:]"
+  },
+  {
+    "name": "validates states and snapshots input items",
+    "input": "mutated caller list and invalid indexes",
+    "test": "items = [1, 2]\nit = ListIterator(items)\nitems.append(3)\nassert [it.next(), it.next()] == [1, 2]\nfor state in [{'index': -1}, {'index': 3}, {'index': 1.5}, {'index': '1'}]:\n    try:\n        ListIterator([1, 2]).set_state(state)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  },
+  {
+    "name": "composite iterator restores child states",
+    "input": "three child iterators with an empty middle iterator",
+    "test": "def drain(iterator):\n    out = []\n    while True:\n        try:\n            out.append(iterator.next())\n        except StopIteration:\n            return out\n\ncomposite = CompositeIterator([ListIterator([1, 2]), ListIterator([]), ListIterator([3])])\nassert composite.next() == 1\nstate = composite.get_state()\nassert drain(composite) == [2, 3]\nrestored = CompositeIterator([ListIterator([1, 2]), ListIterator([]), ListIterator([3])])\nrestored.set_state(state)\nassert drain(restored) == [2, 3]"
+  }
+]

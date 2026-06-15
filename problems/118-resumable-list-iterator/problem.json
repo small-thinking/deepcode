@@ -1,0 +1,32 @@
+{
+  "id": "118",
+  "slug": "resumable-list-iterator",
+  "title": "Resumable List Iterator",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["iterator", "state", "checkpointing", "testing", "composition"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement a resumable iterator interface.\n\nCreate a base `ResumableIterator` class with `__iter__`, `__next__`, `next`, `get_state`, and `set_state`. `__iter__` should return `self`, and `__next__` should delegate to `next` so Python's built-in `next(iterator)` works.\n\nImplement `ListIterator(items)`. It should snapshot the input items in the constructor, return one item at a time, raise `StopIteration` after exhaustion, return serializable state as `{\"index\": next_index}`, and restore only valid states where `index` is an integer between `0` and `len(items)` inclusive. Invalid states should raise `ValueError`.\n\nAlso implement `CompositeIterator(iterators)`, which chains resumable iterators in order. Its state should include the active child index and every child iterator's state. Restoring a composite state should restore both the active index and all child states.",
+  "starter_code": "class ResumableIterator:\n    def __iter__(self):\n        pass\n\n    def __next__(self):\n        pass\n\n    def next(self):\n        pass\n\n    def get_state(self):\n        pass\n\n    def set_state(self, state):\n        pass\n\n\nclass ListIterator(ResumableIterator):\n    def __init__(self, items):\n        pass\n\n\nclass CompositeIterator(ResumableIterator):\n    def __init__(self, iterators):\n        pass\n",
+  "example": {
+    "input": "it = ListIterator(['a', 'b']); state = it.get_state(); it.next(); restored = ListIterator(['a', 'b']); restored.set_state(state)",
+    "output": "restored.next() == 'a'",
+    "reasoning": "The saved state stores the next index to return."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Python iterator protocol",
+      "url": "https://docs.python.org/3/library/stdtypes.html#iterator-types"
+    }
+  ],
+  "created_at": "2026-06-15"
+}

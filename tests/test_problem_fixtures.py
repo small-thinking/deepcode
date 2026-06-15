@@ -900,6 +900,582 @@ def simulate_battle(team_a, team_b, type_rules):
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], len(problem["tests"]))
 
+    def test_glean_document_indexing_queue_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("glean-document-indexing-queue")
+        solution = r"""from heapq import heappop, heappush
+
+
+class AvailableIndexers:
+    def __init__(self, m):
+        self.m = m
+        self.size = 1
+        while self.size < m:
+            self.size *= 2
+        self.tree = [0] * (2 * self.size)
+        for idx in range(m):
+            self.tree[self.size + idx] = 1
+        for idx in range(self.size - 1, 0, -1):
+            self.tree[idx] = self.tree[2 * idx] + self.tree[2 * idx + 1]
+
+    def add(self, idx):
+        self._set(idx, 1)
+
+    def remove(self, idx):
+        self._set(idx, 0)
+
+    def first_at_or_after(self, start):
+        if self.tree[1] == 0:
+            return -1
+        candidate = self._first_in_range(start, self.m - 1)
+        if candidate != -1:
+            return candidate
+        return self._first_in_range(0, start - 1)
+
+    def _set(self, idx, value):
+        pos = self.size + idx
+        self.tree[pos] = value
+        pos //= 2
+        while pos:
+            self.tree[pos] = self.tree[2 * pos] + self.tree[2 * pos + 1]
+            pos //= 2
+
+    def _first_in_range(self, left, right):
+        if left > right:
+            return -1
+        return self._first(1, 0, self.size - 1, left, right)
+
+    def _first(self, node, lo, hi, ql, qr):
+        if hi < ql or qr < lo or self.tree[node] == 0:
+            return -1
+        if lo == hi:
+            return lo if lo < self.m else -1
+        mid = (lo + hi) // 2
+        left = self._first(2 * node, lo, mid, ql, qr)
+        if left != -1:
+            return left
+        return self._first(2 * node + 1, mid + 1, hi, ql, qr)
+
+
+def document_indexing_queue(m, queue_time, processing_time, k):
+    if m <= 0:
+        return 0, None, [], 0.0
+    if len(queue_time) != len(processing_time):
+        raise ValueError("queue_time and processing_time must have the same length")
+
+    available = AvailableIndexers(m)
+    busy = []
+    counts = [0] * m
+    processed = 0
+
+    for i, (arrival, duration) in enumerate(zip(queue_time, processing_time)):
+        while busy and busy[0][0] <= arrival:
+            _, indexer = heappop(busy)
+            available.add(indexer)
+        indexer = available.first_at_or_after(i % m)
+        if indexer == -1:
+            continue
+        available.remove(indexer)
+        heappush(busy, (arrival + duration, indexer))
+        counts[indexer] += 1
+        processed += 1
+
+    ordered = sorted(range(m), key=lambda idx: (-counts[idx], idx))
+    top_k = ordered[: min(k, m)]
+    busiest = top_k[0] if processed else None
+    top_k_processed = sum(counts[idx] for idx in top_k)
+    percentage = top_k_processed / processed * 100.0 if processed else 0.0
+    return processed, busiest, top_k, percentage
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_data_labeling_task_scheduler_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("data-labeling-task-scheduler")
+        solution = r"""from collections import Counter
+
+
+def _imbalance(counter, keys):
+    values = [counter[key] for key in keys]
+    return max(values) - min(values) if values else 0
+
+
+def _worst_group_imbalance(counter, groups):
+    return max((_imbalance(counter, group) for group in groups), default=0)
+
+
+def build_schedule(tasks, models, humans, k):
+    tasks = list(tasks)
+    models = list(models)
+    humans = list(humans)
+    if k < 0:
+        raise ValueError("k must be non-negative")
+    if not humans:
+        return []
+    if not tasks or not models:
+        if k == 0:
+            return []
+        raise ValueError("tasks and models are required when k is positive")
+    needed = k * len(humans)
+    if needed > len(tasks) * len(humans):
+        raise ValueError("not enough unique task-human pairs")
+
+    task_model_groups = [[(task, model) for model in models] for task in tasks]
+    task_human_groups = [[(task, human) for human in humans] for task in tasks]
+    task_model_counts = Counter()
+    task_human_counts = Counter()
+    human_counts = Counter()
+    used_task_human = set()
+    schedule = []
+
+    while len(schedule) < needed:
+        best = None
+        best_score = None
+        for task in tasks:
+            for human in humans:
+                if (task, human) in used_task_human:
+                    continue
+                for model in models:
+                    task_model_counts[(task, model)] += 1
+                    task_human_counts[(task, human)] += 1
+                    human_counts[human] += 1
+                    score = (
+                        max(human_counts[h] for h in humans),
+                        _worst_group_imbalance(task_model_counts, task_model_groups),
+                        _worst_group_imbalance(task_human_counts, task_human_groups),
+                        max(human_counts[h] for h in humans) - min(human_counts[h] for h in humans),
+                        task,
+                        model,
+                        human,
+                    )
+                    task_model_counts[(task, model)] -= 1
+                    task_human_counts[(task, human)] -= 1
+                    human_counts[human] -= 1
+                    if best_score is None or score < best_score:
+                        best_score = score
+                        best = (task, model, human)
+        if best is None:
+            raise ValueError("no legal assignment remains")
+        task, model, human = best
+        schedule.append(best)
+        task_model_counts[(task, model)] += 1
+        task_human_counts[(task, human)] += 1
+        human_counts[human] += 1
+        used_task_human.add((task, human))
+    return schedule
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_resumable_list_iterator_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("resumable-list-iterator")
+        solution = r"""class ResumableIterator:
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        raise NotImplementedError
+
+    def get_state(self):
+        raise NotImplementedError
+
+    def set_state(self, state):
+        raise NotImplementedError
+
+
+class ListIterator(ResumableIterator):
+    def __init__(self, items):
+        self.items = list(items)
+        self.index = 0
+
+    def next(self):
+        if self.index >= len(self.items):
+            raise StopIteration
+        value = self.items[self.index]
+        self.index += 1
+        return value
+
+    def get_state(self):
+        return {"index": self.index}
+
+    def set_state(self, state):
+        index = state.get("index")
+        if not isinstance(index, int) or index < 0 or index > len(self.items):
+            raise ValueError("invalid iterator state")
+        self.index = index
+
+
+class CompositeIterator(ResumableIterator):
+    def __init__(self, iterators):
+        self.iterators = list(iterators)
+        self.active = 0
+
+    def next(self):
+        while self.active < len(self.iterators):
+            try:
+                return self.iterators[self.active].next()
+            except StopIteration:
+                self.active += 1
+        raise StopIteration
+
+    def get_state(self):
+        return {
+            "active": self.active,
+            "children": [iterator.get_state() for iterator in self.iterators],
+        }
+
+    def set_state(self, state):
+        active = state.get("active")
+        children = state.get("children")
+        if not isinstance(active, int) or active < 0 or active > len(self.iterators):
+            raise ValueError("invalid iterator state")
+        if not isinstance(children, list) or len(children) != len(self.iterators):
+            raise ValueError("invalid iterator state")
+        self.active = active
+        for iterator, child_state in zip(self.iterators, children):
+            iterator.set_state(child_state)
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_linux_cd_path_resolution_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("linux-cd-path-resolution")
+        solution = r"""def _normalize(path):
+    parts = []
+    for part in path.split("/"):
+        if part == "" or part == ".":
+            continue
+        if part == "..":
+            if parts:
+                parts.pop()
+            continue
+        parts.append(part)
+    return "/" + "/".join(parts)
+
+
+def _expand_home(path, home, home_map):
+    if not path.startswith("~"):
+        return path
+    if path == "~" or path.startswith("~/"):
+        suffix = path[1:]
+        return home + suffix
+    name, _, suffix = path[1:].partition("/")
+    if name not in home_map:
+        raise ValueError("unknown home alias")
+    return home_map[name] + ("/" + suffix if suffix else "")
+
+
+def _apply_links(path, links):
+    seen = set()
+    current = path
+    while True:
+        if current in seen:
+            raise ValueError("symlink cycle detected")
+        seen.add(current)
+        match = None
+        for source in links:
+            source_norm = _normalize(source)
+            if current == source_norm or current.startswith(source_norm + "/"):
+                if match is None or len(source_norm) > len(match):
+                    match = source_norm
+        if match is None:
+            return current
+        target = _normalize(links[match])
+        suffix = current[len(match):]
+        current = _normalize(target + suffix)
+
+
+def cd(current_dir, new_dir, home="/home/me", links=None, home_map=None):
+    links = {} if links is None else dict(links)
+    home_map = {} if home_map is None else dict(home_map)
+    destination = _expand_home(new_dir, home, home_map)
+    if not destination.startswith("/"):
+        destination = current_dir.rstrip("/") + "/" + destination
+    normalized = _normalize(destination)
+    normalized_links = {_normalize(key): value for key, value in links.items()}
+    return _apply_links(normalized, normalized_links)
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_spreadsheet_dependency_cycle_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("spreadsheet-dependency-cycle")
+        solution = r"""def find_circular_dependency(dependencies):
+    visiting = {}
+    stack = []
+
+    def dfs(cell):
+        state = visiting.get(cell, 0)
+        if state == 1:
+            index = stack.index(cell)
+            return stack[index:] + [cell]
+        if state == 2:
+            return []
+        visiting[cell] = 1
+        stack.append(cell)
+        for neighbor in dependencies.get(cell, []):
+            if neighbor not in dependencies:
+                continue
+            cycle = dfs(neighbor)
+            if cycle:
+                return cycle
+        stack.pop()
+        visiting[cell] = 2
+        return []
+
+    for cell in dependencies:
+        cycle = dfs(cell)
+        if cycle:
+            return cycle
+    return []
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_markdown_header_chunker_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("markdown-header-chunker")
+        solution = r"""def _heading_level(line):
+    stripped = line.lstrip()
+    if len(stripped) == len(line) and stripped.startswith("#"):
+        hashes = len(stripped) - len(stripped.lstrip("#"))
+        if 1 <= hashes <= 6 and len(stripped) > hashes and stripped[hashes] == " ":
+            return hashes
+    return 0
+
+
+def _header_context(headers):
+    return "\n".join(headers) + "\n\n" if headers else ""
+
+
+def _append_piece(chunks, piece, headers, max_chars):
+    if not piece:
+        return
+    context = _header_context(headers)
+    if len(context) > max_chars:
+        raise ValueError("header context does not fit")
+    if len(piece) <= max_chars:
+        chunks.append(piece)
+        return
+    if not context:
+        for start in range(0, len(piece), max_chars):
+            chunks.append(piece[start:start + max_chars])
+        return
+    budget = max_chars - len(context)
+    if budget <= 0:
+        raise ValueError("header context does not fit")
+    body = piece[len(context):] if piece.startswith(context) else piece
+    for start in range(0, len(body), budget):
+        chunks.append(context + body[start:start + budget])
+
+
+def chunk_markdown(markdown, max_chars):
+    if max_chars <= 0:
+        raise ValueError("max_chars must be positive")
+    markdown = markdown.replace("\r\n", "\n").replace("\r", "\n")
+    blocks = markdown.split("\n\n") if markdown else []
+    chunks = []
+    current = ""
+    headers = []
+    in_fence = False
+
+    for block in blocks:
+        lines = block.split("\n")
+        for line in lines:
+            if line.startswith("```"):
+                in_fence = not in_fence
+            level = 0 if in_fence else _heading_level(line)
+            if level:
+                headers = headers[: level - 1] + [line]
+        prefix = "" if not current else "\n\n"
+        candidate = current + prefix + block if current else block
+        if len(candidate) <= max_chars:
+            current = candidate
+            continue
+        headers_only = current == "\n".join(headers)
+        if current and not headers_only:
+            _append_piece(chunks, current, headers, max_chars)
+        context = _header_context(headers)
+        next_piece = block if block in headers else context + block
+        if len(next_piece) <= max_chars:
+            current = next_piece
+        else:
+            _append_piece(chunks, next_piece, headers, max_chars)
+            current = ""
+
+    if current:
+        _append_piece(chunks, current, headers, max_chars)
+    return chunks
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_bootloader_instruction_interpreter_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("bootloader-instruction-interpreter")
+        solution = r"""def _parse(line):
+    parts = line.split()
+    if len(parts) != 2 or parts[0] not in {"plus", "jump", "next"}:
+        raise ValueError("malformed instruction")
+    try:
+        value = int(parts[1])
+    except ValueError as exc:
+        raise ValueError("malformed instruction") from exc
+    return parts[0], value
+
+
+def run_bootloader(lines):
+    instructions = [_parse(line) for line in lines]
+    acc = 0
+    pc = 0
+    seen = set()
+    while 0 <= pc < len(instructions):
+        if pc in seen:
+            return {"status": "loop", "acc": acc, "pc": pc}
+        seen.add(pc)
+        op, value = instructions[pc]
+        if op == "plus":
+            acc += value
+            pc += 1
+        elif op == "jump":
+            pc += value
+        else:
+            pc += 1
+    if pc != len(instructions):
+        raise ValueError("program counter left the program")
+    return {"status": "terminated", "acc": acc, "pc": pc}
+
+
+def fix_bootloader(lines):
+    parsed = [_parse(line) for line in lines]
+    for idx, (op, value) in enumerate(parsed):
+        if op == "plus":
+            continue
+        replacement = "next" if op == "jump" else "jump"
+        candidate = list(lines)
+        candidate[idx] = f"{replacement} {value:+d}"
+        try:
+            result = run_bootloader(candidate)
+        except ValueError:
+            continue
+        if result["status"] == "terminated":
+            return result["acc"]
+    raise ValueError("no single-instruction fix found")
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_contiguous_one_blocks_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("contiguous-one-blocks")
+        solution = r"""def label_one_blocks(bits):
+    is_string_input = isinstance(bits, str)
+    labels = []
+    block = -1
+    in_block = False
+    for bit in bits:
+        if (is_string_input and bit == "1") or (not is_string_input and bit == 1):
+            if not in_block:
+                block += 1
+                in_block = True
+            labels.append(block)
+        elif (is_string_input and bit == "0") or (not is_string_input and bit == 0):
+            in_block = False
+            labels.append(-1)
+        else:
+            raise ValueError("bits must contain only 0 and 1")
+    return labels
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
     def test_two_layer_numpy_network_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("two-layer-numpy-network")
         solution = r"""import numpy as np

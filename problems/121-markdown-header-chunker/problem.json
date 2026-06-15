@@ -1,0 +1,32 @@
+{
+  "id": "121",
+  "slug": "markdown-header-chunker",
+  "title": "Markdown Header Chunker",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["markdown", "chunking", "parsing", "rag", "strings"],
+  "companies": ["Sierra"],
+  "prompt": "Implement `chunk_markdown(markdown, max_chars)`.\n\nSplit a Markdown document into chunks whose Python `len()` is at most `max_chars`. Normalize CRLF and CR newlines to LF before processing.\n\nUse ATX headings (`#` through `######`) to maintain a level-aware active header stack. Ignore heading-looking lines inside fenced code blocks delimited by lines starting with triple backticks. When a new chunk starts inside a section, prefix the active headers in order, followed by a blank line, so the chunk keeps section context. This synthetic header context counts toward `max_chars`.\n\nPrefer splitting on blank-line paragraph boundaries. If a paragraph or line is too large, split it by character budget and repeat the active header context for every continuation chunk. If the required header context alone cannot fit in `max_chars`, raise a `ValueError`. If `max_chars <= 0`, raise a `ValueError`.",
+  "starter_code": "def chunk_markdown(markdown, max_chars):\n    # Return size-bounded Markdown chunks with active header context repeated.\n    pass\n",
+  "example": {
+    "input": "markdown = '# Guide\\n\\n## Install\\n\\nFirst paragraph.\\n\\nSecond paragraph.', max_chars = 40",
+    "output": "['# Guide\\n\\n## Install\\n\\nFirst paragraph.', '# Guide\\n## Install\\n\\nSecond paragraph.']",
+    "reasoning": "The second chunk starts inside the Install section, so it repeats the active parent headers."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "CommonMark headings",
+      "url": "https://spec.commonmark.org/0.31.2/#atx-headings"
+    }
+  ],
+  "created_at": "2026-06-15"
+}

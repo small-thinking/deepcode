@@ -1,0 +1,22 @@
+[
+  {
+    "name": "labels the reported mixed example",
+    "input": "0010110111",
+    "test": "assert label_one_blocks('0010110111') == [-1, -1, 0, -1, 1, 1, -1, 2, 2, 2]"
+  },
+  {
+    "name": "handles empty, all-zero, and all-one inputs",
+    "input": "empty, 0000, 1111",
+    "test": "assert label_one_blocks('') == []\nassert label_one_blocks('0000') == [-1, -1, -1, -1]\nassert label_one_blocks('1111') == [0, 0, 0, 0]"
+  },
+  {
+    "name": "increments block ids for separated runs",
+    "input": "alternating and paired blocks",
+    "test": "assert label_one_blocks('10101') == [0, -1, 1, -1, 2]\nassert label_one_blocks('110011') == [0, 0, -1, -1, 1, 1]\nassert label_one_blocks([0, 1, 1, 0, 1]) == [-1, 0, 0, -1, 1]"
+  },
+  {
+    "name": "rejects non-binary values",
+    "input": "contains 2 or x",
+    "test": "for bad in ['102', [0, 1, 2], ['0', '1'], ['0', 'x']]:\n    try:\n        label_one_blocks(bad)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]
