@@ -109,18 +109,15 @@ def linear_regression_step(X, y, weights, bias, learning_rate):
         problem = ProblemStore(ROOT / "problems").get_problem("ngram-next-character-model")
         solution = r"""from collections import Counter, defaultdict
 import math
-import random
 
 
 class NGramCharModel:
-    def __init__(self, n=3, alpha=1.0):
+    def __init__(self, n=3):
         if n < 1:
             raise ValueError("n must be at least 1")
-        if alpha <= 0:
-            raise ValueError("alpha must be positive")
         self.n = n
-        self.alpha = alpha
         self.counts = defaultdict(Counter)
+        self.global_counts = Counter()
         self.vocab = set()
 
     def _context_size(self):
@@ -140,56 +137,78 @@ class NGramCharModel:
         if not isinstance(text, str) or not text:
             raise ValueError("text must be a non-empty string")
         self.counts = defaultdict(Counter)
+        self.global_counts = Counter(text)
         self.vocab = set(text)
         for context, char in self._events(text):
             self.counts[context][char] += 1
         return self
 
-    def prob(self, context, ch):
+    def _prob(self, context, ch):
         if not self.vocab or ch not in self.vocab:
             return 0.0
         context = self._normalize_context(context)
         context_counts = self.counts[context]
         total = sum(context_counts.values())
-        vocab_size = len(self.vocab)
-        return (context_counts[ch] + self.alpha) / (total + self.alpha * vocab_size)
+        if total == 0 or context_counts[ch] == 0:
+            return 0.0
+        return context_counts[ch] / total
 
-    def perplexity(self, text):
-        if text == "":
+    def _top_char(self, counts):
+        return sorted(counts.items(), key=lambda item: (-item[1], item[0]))[0][0]
+
+    def generate(self, prompt="", max_new_chars=100):
+        if max_new_chars < 0:
+            raise ValueError("max_new_chars must be non-negative")
+        if not self.vocab:
+            raise ValueError("model must be trained before generation")
+        output = str(prompt)
+        for _ in range(max_new_chars):
+            context = self._normalize_context(output)
+            context_counts = self.counts.get(context)
+            output += self._top_char(context_counts or self.global_counts)
+        return output
+
+    def evaluate(self, text):
+        if text == "" or not self.vocab:
             return float("inf")
         log_prob = 0.0
         for context, char in self._events(text):
-            probability = self.prob(context, char)
+            probability = self._prob(context, char)
             if probability <= 0:
                 return float("inf")
             log_prob += math.log(probability)
         return math.exp(-log_prob / len(text))
-
-    def sample_top_k(self, context, k=5):
-        if k < 1:
-            raise ValueError("k must be at least 1")
-        if not self.vocab:
-            raise ValueError("model must be trained before sampling")
-        ranked = sorted(
-            ((char, self.prob(context, char)) for char in self.vocab),
-            key=lambda item: (-item[1], item[0]),
-        )[: min(k, len(self.vocab))]
-        chars, weights = zip(*ranked)
-        return random.choices(chars, weights=weights, k=1)[0]
 """
 
-        result = evaluate_submission(
-            EvaluationRequest(
-                code=solution,
-                problem=problem,
-                tests=problem["tests"],
-                environment=problem["environment"],
-                runtime=problem.get("_runtime", {}),
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = Path(tmp) / "data"
+            data_dir.mkdir()
+            tiny_shakespeare = (
+                "First Citizen:\n"
+                "Before we proceed any further, hear me speak.\n\n"
+                "All:\n"
+                "Speak, speak.\n\n"
+                "First Citizen:\n"
+                "You are all resolved rather to die than to famish?\n\n"
+                "All:\n"
+                "Resolved. resolved.\n\n"
             )
-        )
+            (data_dir / "tiny_shakespeare.txt").write_text(tiny_shakespeare * 20, encoding="utf-8")
+            runtime = dict(problem.get("_runtime", {}))
+            runtime["data_path"] = str(data_dir)
+
+            result = evaluate_submission(
+                EvaluationRequest(
+                    code=solution,
+                    problem=problem,
+                    tests=problem["tests"],
+                    environment=problem["environment"],
+                    runtime=runtime,
+                )
+            )
 
         self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["passed"], 6)
+        self.assertEqual(result["passed"], len(problem["tests"]))
 
     def test_source_attribution_highlighter_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("source-attribution-highlighter")
