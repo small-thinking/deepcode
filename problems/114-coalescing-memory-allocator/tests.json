@@ -1,0 +1,22 @@
+[
+  {
+    "name": "allocates with first fit and splitting",
+    "input": "capacity ten, two allocations",
+    "test": "allocator = Allocator(10)\nassert allocator.malloc(3) == 0\nassert allocator.malloc(4) == 3\nassert allocator.snapshot() == [(0, 3, False), (3, 4, False), (7, 3, True)]"
+  },
+  {
+    "name": "free coalesces adjacent blocks",
+    "input": "three blocks, free all, allocate full capacity",
+    "test": "allocator = Allocator(10)\np1 = allocator.malloc(3)\np2 = allocator.malloc(4)\np3 = allocator.malloc(3)\nassert allocator.free(p2)\nassert allocator.free(p1)\nassert allocator.snapshot()[0] == (0, 7, True)\nassert allocator.free(p3)\nassert allocator.snapshot() == [(0, 10, True)]\nassert allocator.malloc(10) == 0"
+  },
+  {
+    "name": "invalid frees and oversized allocations fail cleanly",
+    "input": "unknown pointer and too-large request",
+    "test": "allocator = Allocator(4)\nassert allocator.malloc(5) == -1\nptr = allocator.malloc(2)\nassert ptr == 0\nassert allocator.free(99) is False\nassert allocator.free(ptr) is True\nassert allocator.free(ptr) is False"
+  },
+  {
+    "name": "non-positive allocation sizes are rejected",
+    "input": "zero and negative allocation sizes",
+    "test": "allocator = Allocator(4)\nassert allocator.malloc(0) == -1\nassert allocator.malloc(-1) == -1\nassert allocator.snapshot() == [(0, 4, True)]"
+  }
+]

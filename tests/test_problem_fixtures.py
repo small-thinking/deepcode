@@ -601,6 +601,476 @@ def train_model(model, train_loader, val_loader, epochs=2, device="cpu"):
         self.assertEqual(result["passed"], len(problem["tests"]) + 1)
         self.assertTrue(metrics_written)
 
+    def test_vectorized_1nn_distance_network_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("vectorized-1nn-distance-network")
+        solution = r"""import numpy as np
+
+
+def predict_1nn_l2(queries, train_points, train_labels):
+    queries = np.asarray(queries, dtype=float)
+    train_points = np.asarray(train_points, dtype=float)
+    train_labels = np.asarray(train_labels)
+    distances = (
+        np.sum(queries * queries, axis=1, keepdims=True)
+        + np.sum(train_points * train_points, axis=1)[None, :]
+        - 2.0 * queries @ train_points.T
+    )
+    nearest = np.argmin(distances, axis=1)
+    return train_labels[nearest]
+
+
+def l2_distance_logits(queries, train_points):
+    queries = np.asarray(queries, dtype=float)
+    train_points = np.asarray(train_points, dtype=float)
+    weights = 2.0 * train_points.T
+    bias = -np.sum(train_points * train_points, axis=1)
+    return queries @ weights + bias
+
+
+def predict_1nn_l1(queries, train_points, train_labels):
+    queries = np.asarray(queries, dtype=float)
+    train_points = np.asarray(train_points, dtype=float)
+    train_labels = np.asarray(train_labels)
+    distances = np.abs(queries[:, None, :] - train_points[None, :, :]).sum(axis=2)
+    nearest = np.argmin(distances, axis=1)
+    return train_labels[nearest]
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_file_duplicate_groups_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("file-duplicate-groups")
+        solution = r"""from collections import defaultdict
+import hashlib
+
+
+def find_duplicate_files(files, read_file):
+    by_size = defaultdict(list)
+    for path, size in files:
+        by_size[size].append(path)
+
+    groups = []
+    for paths in by_size.values():
+        if len(paths) < 2:
+            continue
+        by_hash = defaultdict(list)
+        for path in paths:
+            content = read_file(path)
+            digest = hashlib.sha256(content).hexdigest()
+            by_hash[digest].append(path)
+        for group in by_hash.values():
+            if len(group) > 1:
+                groups.append(sorted(group))
+    return sorted(groups, key=lambda group: group[0])
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_persistent_memo_lru_cache_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("persistent-memo-lru-cache")
+        solution = r"""from collections import OrderedDict
+import json
+
+
+class MemoLRUCache:
+    def __init__(self, capacity, file_path=""):
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
+        self.capacity = capacity
+        self.file_path = file_path
+        self.cache = OrderedDict()
+        if self.file_path:
+            self._load()
+
+    def _cache_key(self, func_name, args=None, kwargs=None):
+        args = [] if args is None else list(args)
+        kwargs = {} if kwargs is None else dict(kwargs)
+        return (
+            func_name,
+            json.dumps(args, sort_keys=True, separators=(",", ":")),
+            json.dumps(kwargs, sort_keys=True, separators=(",", ":")),
+        )
+
+    def get_or_compute(self, func, args=None, kwargs=None):
+        args = [] if args is None else list(args)
+        kwargs = {} if kwargs is None else dict(kwargs)
+        key = self._cache_key(func.__name__, args, kwargs)
+        if key in self.cache:
+            value = self.cache[key]
+            self.cache.move_to_end(key)
+            self._append(key, value)
+            return value
+
+        value = func(*args, **kwargs)
+        self.cache[key] = value
+        self.cache.move_to_end(key)
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)
+        self._append(key, value)
+        return value
+
+    def _append(self, key, value):
+        if not self.file_path:
+            return
+        with open(self.file_path, "a", encoding="utf-8") as handle:
+            handle.write(json.dumps({"key": list(key), "value": value}) + "\n")
+
+    def _load(self):
+        try:
+            with open(self.file_path, encoding="utf-8") as handle:
+                for line in handle:
+                    try:
+                        record = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    key = tuple(record["key"])
+                    self.cache[key] = record["value"]
+                    self.cache.move_to_end(key)
+                    if len(self.cache) > self.capacity:
+                        self.cache.popitem(last=False)
+        except FileNotFoundError:
+            pass
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_coalescing_memory_allocator_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("coalescing-memory-allocator")
+        solution = r"""class Block:
+    def __init__(self, start, size, free=True):
+        self.start = start
+        self.size = size
+        self.free = free
+        self.prev = None
+        self.next = None
+
+
+class Allocator:
+    def __init__(self, capacity):
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
+        self.head = Block(0, capacity, True)
+        self.allocated = {}
+
+    def malloc(self, size):
+        if size <= 0:
+            return -1
+        current = self.head
+        while current:
+            if current.free and current.size >= size:
+                if current.size > size:
+                    remainder = Block(current.start + size, current.size - size, True)
+                    remainder.next = current.next
+                    remainder.prev = current
+                    if current.next:
+                        current.next.prev = remainder
+                    current.next = remainder
+                    current.size = size
+                current.free = False
+                self.allocated[current.start] = current
+                return current.start
+            current = current.next
+        return -1
+
+    def free(self, address):
+        current = self.allocated.pop(address, None)
+        if current is None:
+            return False
+        current.free = True
+        self._coalesce(current)
+        return True
+
+    def _coalesce(self, current):
+        if current.prev and current.prev.free:
+            left = current.prev
+            left.size += current.size
+            left.next = current.next
+            if current.next:
+                current.next.prev = left
+            current = left
+        if current.next and current.next.free:
+            right = current.next
+            current.size += right.size
+            current.next = right.next
+            if right.next:
+                right.next.prev = current
+
+    def snapshot(self):
+        out = []
+        current = self.head
+        while current:
+            out.append((current.start, current.size, current.free))
+            current = current.next
+        return out
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_monster_battle_simulator_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("monster-battle-simulator")
+        solution = r"""from copy import deepcopy
+
+
+def _first_alive(team):
+    for monster in team:
+        if monster["hp"] > 0:
+            return monster
+    return None
+
+
+def _effective_damage(attack, defender, type_rules):
+    multiplier = type_rules.get((attack["type"], defender["type"]), 1.0)
+    return int(attack["damage"] * multiplier)
+
+
+def simulate_battle(team_a, team_b, type_rules):
+    teams = [deepcopy(team_a), deepcopy(team_b)]
+    log = []
+    turn = 0
+    while _first_alive(teams[0]) and _first_alive(teams[1]):
+        attacker_team = turn % 2
+        defender_team = 1 - attacker_team
+        attacker = _first_alive(teams[attacker_team])
+        defender = _first_alive(teams[defender_team])
+        attack = max(
+            attacker["attacks"],
+            key=lambda item: _effective_damage(item, defender, type_rules),
+        )
+        damage = _effective_damage(attack, defender, type_rules)
+        defender["hp"] = max(0, defender["hp"] - damage)
+        log.append((attacker["name"], attack["name"], defender["name"], damage, defender["hp"]))
+        turn += 1
+    return 0 if _first_alive(teams[0]) else 1, log
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_two_layer_numpy_network_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("two-layer-numpy-network")
+        solution = r"""import numpy as np
+
+
+class TwoLayerNet:
+    def __init__(self, input_dim, hidden_dim, output_dim, seed=0, weight_scale=0.1):
+        rng = np.random.default_rng(seed)
+        self.W1 = rng.normal(0.0, weight_scale, size=(input_dim, hidden_dim))
+        self.b1 = np.zeros(hidden_dim)
+        self.W2 = rng.normal(0.0, weight_scale, size=(hidden_dim, output_dim))
+        self.b2 = np.zeros(output_dim)
+
+    def forward(self, X):
+        X = np.asarray(X, dtype=float)
+        hidden_linear = X @ self.W1 + self.b1
+        hidden = np.maximum(hidden_linear, 0.0)
+        logits = hidden @ self.W2 + self.b2
+        shifted = logits - logits.max(axis=1, keepdims=True)
+        exp_scores = np.exp(shifted)
+        probs = exp_scores / exp_scores.sum(axis=1, keepdims=True)
+        return probs
+
+    def loss(self, X, y):
+        probs = self.forward(X)
+        y = np.asarray(y, dtype=int)
+        return float(-np.mean(np.log(probs[np.arange(len(y)), y] + 1e-12)))
+
+    def train_step(self, X, y, learning_rate=0.1):
+        X = np.asarray(X, dtype=float)
+        y = np.asarray(y, dtype=int)
+        n = X.shape[0]
+        hidden_linear = X @ self.W1 + self.b1
+        hidden = np.maximum(hidden_linear, 0.0)
+        logits = hidden @ self.W2 + self.b2
+        shifted = logits - logits.max(axis=1, keepdims=True)
+        exp_scores = np.exp(shifted)
+        probs = exp_scores / exp_scores.sum(axis=1, keepdims=True)
+        grad_logits = probs.copy()
+        grad_logits[np.arange(n), y] -= 1.0
+        grad_logits /= n
+        grad_W2 = hidden.T @ grad_logits
+        grad_b2 = grad_logits.sum(axis=0)
+        grad_hidden = grad_logits @ self.W2.T
+        grad_hidden[hidden_linear <= 0.0] = 0.0
+        grad_W1 = X.T @ grad_hidden
+        grad_b1 = grad_hidden.sum(axis=0)
+        self.W1 -= learning_rate * grad_W1
+        self.b1 -= learning_rate * grad_b1
+        self.W2 -= learning_rate * grad_W2
+        self.b2 -= learning_rate * grad_b2
+        return self.loss(X, y)
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_extra_tree_classifier_reference_solution_passes(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("extra-tree-classifier")
+        solution = r"""import numpy as np
+
+
+class Node:
+    def __init__(self, prediction, feature=None, threshold=None, left=None, right=None):
+        self.prediction = prediction
+        self.feature = feature
+        self.threshold = threshold
+        self.left = left
+        self.right = right
+
+
+def _gini(y):
+    if len(y) == 0:
+        return 0.0
+    _, counts = np.unique(y, return_counts=True)
+    probabilities = counts / len(y)
+    return float(1.0 - np.sum(probabilities * probabilities))
+
+
+def _majority(y):
+    values, counts = np.unique(y, return_counts=True)
+    return values[np.argmax(counts)]
+
+
+class ExtraTreeClassifier:
+    def __init__(self, max_depth=5, min_leaf=1, n_features=None, n_thresholds=1, seed=0):
+        self.max_depth = max_depth
+        self.min_leaf = min_leaf
+        self.n_features = n_features
+        self.n_thresholds = n_thresholds
+        self.rng = np.random.default_rng(seed)
+        self.root = None
+
+    def fit(self, X, y):
+        X = np.asarray(X, dtype=float)
+        y = np.asarray(y)
+        self.root = self._build(X, y, 0)
+        return self
+
+    def _build(self, X, y, depth):
+        prediction = _majority(y)
+        if depth >= self.max_depth or len(y) < 2 * self.min_leaf or _gini(y) == 0.0:
+            return Node(prediction)
+
+        n_rows, n_cols = X.shape
+        n_features = self.n_features or max(1, int(np.sqrt(n_cols)))
+        features = self.rng.choice(n_cols, size=min(n_features, n_cols), replace=False)
+        parent_impurity = _gini(y)
+        best = None
+
+        for feature in features:
+            low = X[:, feature].min()
+            high = X[:, feature].max()
+            if low == high:
+                continue
+            thresholds = self.rng.uniform(low, high, size=self.n_thresholds)
+            for threshold in thresholds:
+                left_mask = X[:, feature] <= threshold
+                left_count = int(left_mask.sum())
+                right_count = n_rows - left_count
+                if left_count < self.min_leaf or right_count < self.min_leaf:
+                    continue
+                gain = parent_impurity
+                gain -= (left_count / n_rows) * _gini(y[left_mask])
+                gain -= (right_count / n_rows) * _gini(y[~left_mask])
+                if best is None or gain > best[0]:
+                    best = (gain, feature, float(threshold), left_mask)
+
+        if best is None:
+            return Node(prediction)
+        _, feature, threshold, left_mask = best
+        left = self._build(X[left_mask], y[left_mask], depth + 1)
+        right = self._build(X[~left_mask], y[~left_mask], depth + 1)
+        return Node(prediction, feature, threshold, left, right)
+
+    def predict_one(self, x):
+        if self.root is None:
+            raise ValueError("model must be fitted before prediction")
+        node = self.root
+        while node.feature is not None:
+            node = node.left if x[node.feature] <= node.threshold else node.right
+        return node.prediction
+
+    def predict(self, X):
+        X = np.asarray(X, dtype=float)
+        return np.array([self.predict_one(row) for row in X])
+"""
+
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=solution,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
 
 if __name__ == "__main__":
     unittest.main()

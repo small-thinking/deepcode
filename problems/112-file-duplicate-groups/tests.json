@@ -1,0 +1,22 @@
+[
+  {
+    "name": "groups duplicates by size and content",
+    "input": "two duplicate groups and one unique file",
+    "test": "data = {'a.txt': b'cat', 'b.txt': b'dog!', 'c.txt': b'cat', 'd.txt': b'bird', 'e.txt': b'xx', 'f.txt': b'xx'}\nfiles = [(path, len(content)) for path, content in data.items()]\ndef read_file(path):\n    return data[path]\nassert find_duplicate_files(files, read_file) == [['a.txt', 'c.txt'], ['e.txt', 'f.txt']]"
+  },
+  {
+    "name": "does not read unique-size files",
+    "input": "one unique-size file plus a same-size pair",
+    "test": "data = {'unique.bin': b'abcde', 'x.bin': b'aa', 'y.bin': b'bb'}\nfiles = [('unique.bin', 5), ('x.bin', 2), ('y.bin', 2)]\nreads = []\ndef read_file(path):\n    reads.append(path)\n    return data[path]\nassert find_duplicate_files(files, read_file) == []\nassert sorted(reads) == ['x.bin', 'y.bin']"
+  },
+  {
+    "name": "empty files can be duplicates",
+    "input": "three zero-byte files",
+    "test": "data = {'a': b'', 'b': b'', 'c': b''}\nfiles = [(path, 0) for path in data]\ndef read_file(path):\n    return data[path]\nassert find_duplicate_files(files, read_file) == [['a', 'b', 'c']]"
+  },
+  {
+    "name": "same size with different bytes is not duplicate",
+    "input": "same-size collision-resistant grouping",
+    "test": "data = {'a': b'ab', 'b': b'cd', 'c': b'ab'}\nfiles = [(path, 2) for path in data]\ndef read_file(path):\n    return data[path]\nassert find_duplicate_files(files, read_file) == [['a', 'c']]"
+  }
+]

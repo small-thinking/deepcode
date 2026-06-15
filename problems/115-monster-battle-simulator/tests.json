@@ -1,0 +1,22 @@
+[
+  {
+    "name": "type effectiveness changes the winner",
+    "input": "water attack is strong against fire",
+    "test": "team_a = [{'name': 'ember', 'hp': 10, 'type': 'fire', 'attacks': [{'name': 'spark', 'damage': 4, 'type': 'fire'}]}]\nteam_b = [{'name': 'splash', 'hp': 12, 'type': 'water', 'attacks': [{'name': 'wave', 'damage': 6, 'type': 'water'}]}]\nrules = {('water', 'fire'): 2.0, ('fire', 'water'): 0.5}\nwinner, log = simulate_battle(team_a, team_b, rules)\nassert winner == 1\nassert log[1] == ('splash', 'wave', 'ember', 12, 0)"
+  },
+  {
+    "name": "chooses the best attack and breaks ties by order",
+    "input": "multiple attacks against one defender",
+    "test": "team_a = [{'name': 'alpha', 'hp': 20, 'type': 'normal', 'attacks': [{'name': 'first', 'damage': 5, 'type': 'normal'}, {'name': 'second', 'damage': 5, 'type': 'normal'}, {'name': 'boosted', 'damage': 4, 'type': 'ice'}]}]\nteam_b = [{'name': 'beta', 'hp': 6, 'type': 'grass', 'attacks': [{'name': 'tap', 'damage': 1, 'type': 'normal'}]}]\nrules = {('ice', 'grass'): 2.0}\nwinner, log = simulate_battle(team_a, team_b, rules)\nassert log[0][:4] == ('alpha', 'boosted', 'beta', 8)\nassert winner == 0"
+  },
+  {
+    "name": "skips defeated monsters in team order",
+    "input": "two monsters on team b",
+    "test": "team_a = [{'name': 'hero', 'hp': 30, 'type': 'normal', 'attacks': [{'name': 'hit', 'damage': 5, 'type': 'normal'}]}]\nteam_b = [\n    {'name': 'front', 'hp': 5, 'type': 'normal', 'attacks': [{'name': 'tap', 'damage': 1, 'type': 'normal'}]},\n    {'name': 'back', 'hp': 5, 'type': 'normal', 'attacks': [{'name': 'tap', 'damage': 1, 'type': 'normal'}]},\n]\nwinner, log = simulate_battle(team_a, team_b, {})\ndefenders = [entry[2] for entry in log if entry[0] == 'hero']\nassert defenders[:2] == ['front', 'back']\nassert winner == 0"
+  },
+  {
+    "name": "does not mutate caller inputs",
+    "input": "single-turn knockout",
+    "test": "team_a = [{'name': 'a', 'hp': 10, 'type': 'x', 'attacks': [{'name': 'hit', 'damage': 10, 'type': 'x'}]}]\nteam_b = [{'name': 'b', 'hp': 3, 'type': 'x', 'attacks': [{'name': 'hit', 'damage': 1, 'type': 'x'}]}]\noriginal_b_hp = team_b[0]['hp']\nsimulate_battle(team_a, team_b, {})\nassert team_b[0]['hp'] == original_b_hp"
+  }
+]

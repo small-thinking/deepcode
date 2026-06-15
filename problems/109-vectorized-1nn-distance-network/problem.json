@@ -1,0 +1,36 @@
+{
+  "id": "109",
+  "slug": "vectorized-1nn-distance-network",
+  "title": "Vectorized 1-NN Distance Network",
+  "category": "ML Numerics",
+  "difficulty": "medium",
+  "tags": ["numpy", "nearest-neighbor", "vectorization", "distance", "softmax"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement three NumPy helpers for a vectorized 1-nearest-neighbor classifier.\n\n`predict_1nn_l2(queries, train_points, train_labels)` should predict the label of the closest training point under squared L2 distance. Use NumPy vectorization over all query/training pairs; do not write a Python loop over queries.\n\n`l2_distance_logits(queries, train_points)` should return logits whose `argmax(axis=1)` gives the same nearest training index as L2 1-NN. Use the identity `-||q - x||^2 = 2 q dot x - ||x||^2 - ||q||^2`, and omit the query-only term because it is shared across every training point.\n\n`predict_1nn_l1(queries, train_points, train_labels)` should predict under L1 distance. This may materialize pairwise absolute differences. Ties should follow NumPy `argmin` / `argmax` behavior: choose the first training point.",
+  "starter_code": "import numpy as np\n\n\ndef predict_1nn_l2(queries, train_points, train_labels):\n    # Return labels for nearest training points under squared L2 distance.\n    pass\n\n\ndef l2_distance_logits(queries, train_points):\n    # Return logits whose argmax selects the L2 nearest training point.\n    pass\n\n\ndef predict_1nn_l1(queries, train_points, train_labels):\n    # Return labels for nearest training points under L1 distance.\n    pass\n",
+  "example": {
+    "input": "queries = [[0.9, 0.0]], train_points = [[0.0, 0.0], [1.0, 0.0]], train_labels = [\"left\", \"right\"]",
+    "output": "[\"right\"]",
+    "reasoning": "The query is closer to the second training point by L2 and L1 distance."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "NumPy broadcasting",
+      "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+    },
+    {
+      "label": "Nearest neighbor search",
+      "url": "https://en.wikipedia.org/wiki/Nearest_neighbor_search"
+    }
+  ],
+  "created_at": "2026-06-15"
+}
