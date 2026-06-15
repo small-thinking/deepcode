@@ -109,18 +109,15 @@ def linear_regression_step(X, y, weights, bias, learning_rate):
         problem = ProblemStore(ROOT / "problems").get_problem("ngram-next-character-model")
         solution = r"""from collections import Counter, defaultdict
 import math
-import random
 
 
 class NGramCharModel:
-    def __init__(self, n=3, alpha=1.0):
+    def __init__(self, n=3):
         if n < 1:
             raise ValueError("n must be at least 1")
-        if alpha <= 0:
-            raise ValueError("alpha must be positive")
         self.n = n
-        self.alpha = alpha
         self.counts = defaultdict(Counter)
+        self.global_counts = Counter()
         self.vocab = set()
 
     def _context_size(self):
@@ -140,6 +137,7 @@ class NGramCharModel:
         if not isinstance(text, str) or not text:
             raise ValueError("text must be a non-empty string")
         self.counts = defaultdict(Counter)
+        self.global_counts = Counter(text)
         self.vocab = set(text)
         for context, char in self._events(text):
             self.counts[context][char] += 1
@@ -151,21 +149,23 @@ class NGramCharModel:
         context = self._normalize_context(context)
         context_counts = self.counts[context]
         total = sum(context_counts.values())
-        vocab_size = len(self.vocab)
-        return (context_counts[ch] + self.alpha) / (total + self.alpha * vocab_size)
+        if total == 0 or context_counts[ch] == 0:
+            return 0.0
+        return context_counts[ch] / total
 
-    def generate(self, prompt="", max_new_chars=100, seed=None):
+    def _top_char(self, counts):
+        return sorted(counts.items(), key=lambda item: (-item[1], item[0]))[0][0]
+
+    def generate(self, prompt="", max_new_chars=100):
         if max_new_chars < 0:
             raise ValueError("max_new_chars must be non-negative")
         if not self.vocab:
             raise ValueError("model must be trained before generation")
-        rng = random.Random(seed) if seed is not None else random
         output = str(prompt)
-        chars = sorted(self.vocab)
         for _ in range(max_new_chars):
             context = self._normalize_context(output)
-            weights = [self._prob(context, char) for char in chars]
-            output += rng.choices(chars, weights=weights, k=1)[0]
+            context_counts = self.counts.get(context)
+            output += self._top_char(context_counts or self.global_counts)
         return output
 
     def evaluate(self, text):

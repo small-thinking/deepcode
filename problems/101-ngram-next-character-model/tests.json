@@ -1,27 +1,27 @@
 [
   {
     "name": "unigram evaluation perplexity",
-    "input": "model = NGramCharModel(n=1, alpha=1.0).train(\"aab\")",
-    "test": "import math\nmodel = NGramCharModel(n=1, alpha=1.0).train(\"aab\")\nassert math.isclose(model.evaluate(\"ab\"), 2.041241452319315, rel_tol=1e-9)\nassert math.isinf(model.evaluate(\"\"))\nassert math.isinf(model.evaluate(\"az\"))"
+    "input": "model = NGramCharModel(n=1).train(\"aab\")",
+    "test": "import math\nmodel = NGramCharModel(n=1).train(\"aab\")\nassert math.isclose(model.evaluate(\"ab\"), math.sqrt(4.5), rel_tol=1e-9)\nassert math.isinf(model.evaluate(\"\"))\nassert math.isinf(model.evaluate(\"az\"))"
   },
   {
     "name": "bigram training resets previous state",
     "input": "model.train(\"ababa\"); model.train(\"bb\")",
-    "test": "import math\nmodel = NGramCharModel(n=2, alpha=1.0)\nassert model.train(\"ababa\") is model\nassert math.isclose(model.evaluate(\"ab\"), math.sqrt(2.0), rel_tol=1e-9)\nmodel.train(\"bb\")\nassert math.isclose(model.evaluate(\"bb\"), 1.0, rel_tol=1e-9)\nassert math.isinf(model.evaluate(\"ab\"))"
+    "test": "import math\nmodel = NGramCharModel(n=2)\nassert model.train(\"ababa\") is model\nassert math.isclose(model.evaluate(\"ab\"), 1.0, rel_tol=1e-9)\nmodel.train(\"bb\")\nassert math.isclose(model.evaluate(\"bb\"), 1.0, rel_tol=1e-9)\nassert math.isinf(model.evaluate(\"ab\"))"
   },
   {
-    "name": "seeded generation is reproducible",
-    "input": "model = NGramCharModel(n=2, alpha=0.1).train(\"ababababac\")",
-    "test": "model = NGramCharModel(n=2, alpha=0.1).train(\"ababababac\")\nfirst = model.generate(\"a\", max_new_chars=30, seed=7)\nsecond = model.generate(\"a\", max_new_chars=30, seed=7)\nassert first == second\nassert first.startswith(\"a\")\nassert len(first) == 31\nassert set(first[1:]) <= set(\"abc\")\nassert model.generate(\"seed\", max_new_chars=0, seed=1) == \"seed\""
+    "name": "generation uses frequency top one",
+    "input": "model = NGramCharModel(n=2).train(\"ababababac\")",
+    "test": "model = NGramCharModel(n=2).train(\"ababababac\")\nassert model.generate(\"a\", max_new_chars=6) == \"abababa\"\nassert model.generate(\"seed\", max_new_chars=0) == \"seed\"\nfallback = NGramCharModel(n=2).train(\"aaab\")\nassert fallback.generate(\"z\", max_new_chars=3) == \"zaaa\""
   },
   {
     "name": "invalid arguments and untrained behavior",
-    "input": "n = 0, alpha = 0, empty train text, untrained generation",
-    "test": "import math\n\ndef expect_value_error(callable_obj):\n    try:\n        callable_obj()\n    except ValueError:\n        return\n    raise AssertionError(\"expected ValueError\")\n\nexpect_value_error(lambda: NGramCharModel(n=0))\nexpect_value_error(lambda: NGramCharModel(alpha=0))\nmodel = NGramCharModel()\nexpect_value_error(lambda: model.train(\"\"))\nexpect_value_error(lambda: model.generate(\"\", max_new_chars=1))\nassert math.isinf(model.evaluate(\"abc\"))\nmodel.train(\"abc\")\nexpect_value_error(lambda: model.generate(\"\", max_new_chars=-1))"
+    "input": "n = 0, empty train text, untrained generation",
+    "test": "import math\n\ndef expect_value_error(callable_obj):\n    try:\n        callable_obj()\n    except ValueError:\n        return\n    raise AssertionError(\"expected ValueError\")\n\nexpect_value_error(lambda: NGramCharModel(n=0))\nmodel = NGramCharModel()\nexpect_value_error(lambda: model.train(\"\"))\nexpect_value_error(lambda: model.generate(\"\", max_new_chars=1))\nassert math.isinf(model.evaluate(\"abc\"))\nmodel.train(\"abc\")\nexpect_value_error(lambda: model.generate(\"\", max_new_chars=-1))"
   },
   {
     "name": "tiny Shakespeare train generate evaluate workflow",
     "input": "DEEPCODE_DATA_PATH/tiny_shakespeare.txt",
-    "test": "import math\nimport os\nfrom pathlib import Path\n\ndata_root = os.environ.get(\"DEEPCODE_DATA_PATH\")\nassert data_root, \"DEEPCODE_DATA_PATH must point to a directory containing tiny_shakespeare.txt\"\ntext = (Path(data_root) / \"tiny_shakespeare.txt\").read_text(encoding=\"utf-8\").replace(\"\\r\\n\", \"\\n\")\nassert len(text) >= 200, \"tiny_shakespeare.txt is unexpectedly small\"\nsplit = int(len(text) * 0.8)\ntrain_text = text[:split]\nheldout = text[split:]\ntraining_vocab = set(train_text)\nheldout_known = \"\".join(ch for ch in heldout if ch in training_vocab)[:500]\nassert len(heldout_known) >= 50, \"heldout split has too little known-vocabulary text\"\nmodel = NGramCharModel(n=4, alpha=0.5).train(train_text)\nprompt = heldout_known[:20]\ngenerated = model.generate(prompt, max_new_chars=80, seed=13)\nassert generated.startswith(prompt)\nassert len(generated) == len(prompt) + 80\nassert set(generated[len(prompt):]) <= training_vocab\nscore = model.evaluate(heldout_known)\nassert math.isfinite(score)\nassert 1.0 <= score <= max(100.0, len(training_vocab) * 2.5)"
+    "test": "import math\nimport os\nfrom pathlib import Path\n\ndata_root = os.environ.get(\"DEEPCODE_DATA_PATH\")\nassert data_root, \"DEEPCODE_DATA_PATH must point to a directory containing tiny_shakespeare.txt\"\ntext = (Path(data_root) / \"tiny_shakespeare.txt\").read_text(encoding=\"utf-8\").replace(\"\\r\\n\", \"\\n\")\nassert len(text) >= 200, \"tiny_shakespeare.txt is unexpectedly small\"\nmodel = NGramCharModel(n=4).train(text)\nprompt = text[:20]\ngenerated = model.generate(prompt, max_new_chars=80)\nassert generated.startswith(prompt)\nassert len(generated) == len(prompt) + 80\nassert set(generated[len(prompt):]) <= set(text)\nscore = model.evaluate(text[:500])\nassert math.isfinite(score)\nassert score >= 1.0"
   }
 ]
