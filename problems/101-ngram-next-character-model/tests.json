@@ -1,13 +1,18 @@
 [
   {
-    "name": "unigram evaluation perplexity",
-    "input": "model = NGramCharModel(n=1).train(\"aab\")",
-    "test": "import math\nmodel = NGramCharModel(n=1).train(\"aab\")\nassert math.isclose(model.evaluate(\"ab\"), math.sqrt(4.5), rel_tol=1e-9)\nassert math.isinf(model.evaluate(\"\"))\nassert math.isinf(model.evaluate(\"az\"))"
+    "name": "unigram empirical and smoothed perplexity",
+    "input": "model = NGramCharModel(n=1, alpha=0.0).train(\"aab\")",
+    "test": "import math\nempirical = NGramCharModel(n=1, alpha=0.0).train(\"aab\")\nassert math.isclose(empirical.evaluate(\"ab\"), math.sqrt(4.5), rel_tol=1e-9)\nsmoothed = NGramCharModel(n=1, alpha=1.0).train(\"aab\")\nassert math.isclose(smoothed.evaluate(\"ab\"), math.sqrt(25 / 6), rel_tol=1e-9)\nassert math.isinf(smoothed.evaluate(\"\"))\nassert math.isinf(smoothed.evaluate(\"az\"))"
   },
   {
     "name": "bigram training resets previous state",
     "input": "model.train(\"ababa\"); model.train(\"bb\")",
-    "test": "import math\nmodel = NGramCharModel(n=2)\nassert model.train(\"ababa\") is model\nassert math.isclose(model.evaluate(\"ab\"), 1.0, rel_tol=1e-9)\nmodel.train(\"bb\")\nassert math.isclose(model.evaluate(\"bb\"), 1.0, rel_tol=1e-9)\nassert math.isinf(model.evaluate(\"ab\"))"
+    "test": "import math\nmodel = NGramCharModel(n=2, alpha=0.0)\nassert model.train(\"ababa\") is model\nassert math.isclose(model.evaluate(\"ab\"), 1.0, rel_tol=1e-9)\nmodel.train(\"bb\")\nassert math.isclose(model.evaluate(\"bb\"), 1.0, rel_tol=1e-9)\nassert math.isinf(model.evaluate(\"ab\"))"
+  },
+  {
+    "name": "smoothing supports held-out contexts",
+    "input": "model = NGramCharModel(n=3, alpha=0.5).train(\"abcdabcd\")",
+    "test": "import math\nmodel = NGramCharModel(n=3, alpha=0.5).train(\"abcdabcd\")\nscore = model.evaluate(\"dcba\")\nassert math.isfinite(score)\nassert score >= 1.0\nunsmoothed = NGramCharModel(n=3, alpha=0.0).train(\"abcdabcd\")\nassert math.isinf(unsmoothed.evaluate(\"dcba\"))\nassert math.isinf(model.evaluate(\"abcx\"))"
   },
   {
     "name": "generation uses frequency top one",
@@ -20,8 +25,14 @@
     "test": "import math\n\ndef expect_value_error(callable_obj):\n    try:\n        callable_obj()\n    except ValueError:\n        return\n    raise AssertionError(\"expected ValueError\")\n\nexpect_value_error(lambda: NGramCharModel(n=0))\nmodel = NGramCharModel()\nexpect_value_error(lambda: model.train(\"\"))\nexpect_value_error(lambda: model.generate(\"\", max_new_chars=1))\nassert math.isinf(model.evaluate(\"abc\"))\nmodel.train(\"abc\")\nexpect_value_error(lambda: model.generate(\"\", max_new_chars=-1))"
   },
   {
-    "name": "tiny Shakespeare train generate evaluate workflow",
+    "name": "invalid smoothing argument",
+    "input": "alpha = -0.1",
+    "test": "def expect_value_error(callable_obj):\n    try:\n        callable_obj()\n    except ValueError:\n        return\n    raise AssertionError(\"expected ValueError\")\n\nexpect_value_error(lambda: NGramCharModel(alpha=-0.1))"
+  },
+  {
+    "name": "tiny Shakespeare held-out train generate evaluate workflow",
     "input": "DEEPCODE_DATA_PATH/tiny_shakespeare.txt",
-    "test": "import math\nimport os\nfrom pathlib import Path\n\ndata_root = os.environ.get(\"DEEPCODE_DATA_PATH\")\nassert data_root, \"DEEPCODE_DATA_PATH must point to a directory containing tiny_shakespeare.txt\"\ntext = (Path(data_root) / \"tiny_shakespeare.txt\").read_text(encoding=\"utf-8\").replace(\"\\r\\n\", \"\\n\")\nassert len(text) >= 200, \"tiny_shakespeare.txt is unexpectedly small\"\nmodel = NGramCharModel(n=4).train(text)\nprompt = text[:20]\ngenerated = model.generate(prompt, max_new_chars=80)\nassert generated.startswith(prompt)\nassert len(generated) == len(prompt) + 80\nassert set(generated[len(prompt):]) <= set(text)\nscore = model.evaluate(text[:500])\nassert math.isfinite(score)\nassert score >= 1.0"
+    "timeout_seconds": 12,
+    "test": "import math\nimport os\nfrom pathlib import Path\n\ndata_root = os.environ.get(\"DEEPCODE_DATA_PATH\")\nassert data_root, \"DEEPCODE_DATA_PATH must point to a directory containing tiny_shakespeare.txt\"\ntext = (Path(data_root) / \"tiny_shakespeare.txt\").read_text(encoding=\"utf-8\").replace(\"\\r\\n\", \"\\n\")\nassert len(text) >= 1000, \"tiny_shakespeare.txt is unexpectedly small for a held-out split\"\ncut = int(len(text) * 0.8)\ntrain_text = text[:cut]\nvalidation_text = text[cut:]\nassert len(validation_text) >= 200, \"validation split is too small\"\nmissing_chars = set(validation_text) - set(train_text)\nassert not missing_chars, f\"validation split contains chars not present in training: {sorted(missing_chars)!r}\"\nmodel = NGramCharModel(n=4, alpha=0.1).train(train_text)\nprompt = validation_text[:40]\ngenerated = model.generate(prompt, max_new_chars=120)\nassert generated.startswith(prompt)\nassert len(generated) == len(prompt) + 120\nassert set(generated[len(prompt):]) <= set(train_text)\nheldout = validation_text[:1000]\nscore = model.evaluate(heldout)\nunigram_score = NGramCharModel(n=1, alpha=0.1).train(train_text).evaluate(heldout)\nassert math.isfinite(score)\nassert math.isfinite(unigram_score)\nassert 1.0 <= score\nassert score < unigram_score * 0.85, (score, unigram_score)"
   }
 ]
