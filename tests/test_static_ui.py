@@ -175,7 +175,16 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("function renderProblemDataInfo", app_js)
         self.assertIn("renderProblemDataInfo(problem.data)", app_js)
         self.assertIn('"Dataset"', app_js)
-        self.assertIn("DEEPCODE_DATA_PATH", app_js)
+        self.assertIn("data.note", app_js)
+        self.assertNotIn("resolved local data directory", app_js)
+
+    def test_starter_code_cache_refreshes_for_unedited_templates(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+
+        self.assertIn("function syncStarterCode", app_js)
+        self.assertIn("function shouldRefreshStoredCode", app_js)
+        self.assertIn("function isLegacyNGramStarterDraft", app_js)
+        self.assertIn("deepcode-starter:", app_js)
 
     def test_problem_numbers_use_dynamic_display_ids(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")

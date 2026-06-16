@@ -29,9 +29,9 @@
   "data": {
     "path": "data",
     "required": true,
-    "format": "Torch files train.pt and val.pt containing images and labels tensors.",
-    "setup": "Prepare the local data with `uv run python scripts/prepare_mnist.py --output data/mnist`. For the default local setup, link this problem's `data` folder to `../../data/mnist`.",
-    "runtime": "During checks, DeepCode sets `DEEPCODE_DATA_PATH` to the resolved data directory. The hidden lab harness loads `train.pt` and `val.pt` from that directory, prints training and metric logs, and writes `metrics.json` under `DEEPCODE_RESULTS_PATH` when that path is available."
+    "format": "train.pt and val.pt tensors.",
+    "setup": "`uv run python scripts/prepare_mnist.py --output data/mnist`; link this problem's `data` folder to `../../data/mnist`.",
+    "runtime": "Harness reads from `DEEPCODE_DATA_PATH` and writes metrics to `DEEPCODE_RESULTS_PATH`."
   },
   "artifacts": {
     "results_path": "eval-results"

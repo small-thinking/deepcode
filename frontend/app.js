@@ -295,10 +295,7 @@ async function loadProblem(identifier) {
       await loadDataLink();
     }
     state.activeTab = "description";
-    const key = codeKey(state.selected.slug);
-    if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, state.selected.starter_code || "");
-    }
+    syncStarterCode(state.selected);
     location.hash = `#/problems/${state.selected.slug}`;
   } catch (error) {
     state.error = error.message;
@@ -321,6 +318,45 @@ function supportsDataLinkSetup(problem) {
 
 function codeKey(slug) {
   return `deepcode-code:${slug}`;
+}
+
+function starterKey(slug) {
+  return `deepcode-starter:${slug}`;
+}
+
+function normalizeSavedCode(value) {
+  return String(value ?? "").replace(/\r\n/g, "\n").trim();
+}
+
+function isLegacyNGramStarterDraft(code) {
+  const normalized = normalizeSavedCode(code);
+  return (
+    normalized.includes("class NGramCharModel:") &&
+    normalized.includes("def train(self, text):\n        pass") &&
+    normalized.includes('def generate(self, prompt="", max_new_chars=100):\n        pass') &&
+    normalized.includes("def evaluate(self, text):\n        pass") &&
+    !normalized.includes("return self") &&
+    !normalized.includes("self.alpha")
+  );
+}
+
+function shouldRefreshStoredCode(savedCode, lastStarterCode) {
+  if (!savedCode) return true;
+  if (lastStarterCode && normalizeSavedCode(savedCode) === normalizeSavedCode(lastStarterCode)) return true;
+  return isLegacyNGramStarterDraft(savedCode);
+}
+
+function syncStarterCode(problem) {
+  const key = codeKey(problem.slug);
+  const versionKey = starterKey(problem.slug);
+  const starterCode = problem.starter_code || "";
+  const savedCode = localStorage.getItem(key);
+  const lastStarterCode = localStorage.getItem(versionKey);
+
+  if (shouldRefreshStoredCode(savedCode, lastStarterCode)) {
+    localStorage.setItem(key, starterCode);
+  }
+  localStorage.setItem(versionKey, starterCode);
 }
 
 function currentCode() {
@@ -1024,14 +1060,12 @@ function renderProblemDescription(problem) {
 function renderProblemDataInfo(data) {
   if (!data?.path) return "";
 
-  const runtime =
-    data.runtime ||
-    "During checks, DeepCode sets `DEEPCODE_DATA_PATH` to the resolved local data directory for this problem.";
   const rows = [
-    ["Problem data path", `<code>${escapeHtml(data.path)}</code>`],
-    ["Expected contents", escapeHtml(data.format || "")],
+    ["Path", `<code>${escapeHtml(data.path)}</code>`],
+    ["Contents", escapeHtml(data.format || "")],
+    ["Note", markdownLite(data.note || "")],
     ["Setup", markdownLite(data.setup || "")],
-    ["Runtime", markdownLite(runtime)],
+    ["Runtime", markdownLite(data.runtime || "")],
   ]
     .filter(([, value]) => String(value ?? "").trim())
     .map((row) => `<div class="problem-meta-row"><div class="label">${row[0]}</div><div>${row[1]}</div></div>`)

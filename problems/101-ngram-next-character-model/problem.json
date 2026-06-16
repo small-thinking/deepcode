@@ -6,8 +6,8 @@
   "difficulty": "medium",
   "tags": ["language-modeling", "ngram", "training", "generation", "frequency"],
   "companies": ["Runway"],
-  "prompt": "Implement `NGramCharModel`, a character-level n-gram language model with add-alpha smoothing for held-out evaluation.\n\nRequired behavior:\n- `__init__(n=3, alpha=0.1)`: raise `ValueError` for `n < 1` or `alpha < 0`. Store `alpha` for probability estimates; `alpha=0` should recover the unsmoothed empirical model.\n- `train(text)`: reset all learned state, require a non-empty string, build next-character counts with `^` padding for the first `n - 1` positions, track global character frequencies, set the vocabulary from the training text, and return `self`.\n- `generate(prompt=\"\", max_new_chars=100)`: require a trained model, then return `prompt` plus exactly `max_new_chars` generated characters. At each step, use the last `n - 1` characters of the current text and choose the most frequent next character seen for that context. If a context was never seen during training, fall back to the globally most frequent training character. For deterministic tests, break frequency ties by character order. Raise `ValueError` for `max_new_chars < 0` or generation before training.\n- `evaluate(text)`: return perplexity, `exp(-mean(log p(ch | context)))`. For a seen context, use add-alpha smoothing: `(count(context, ch) + alpha) / (count(context) + alpha * |vocab|)`. If a context was never seen during training, use the same smoothed estimate from the global character counts. Return `float(\"inf\")` for empty text, an untrained model, characters outside the training vocabulary, or zero-probability events when `alpha=0`.",
-  "starter_code": "from collections import Counter, defaultdict\nimport math\n\n\nclass NGramCharModel:\n    def __init__(self, n=3, alpha=0.1):\n        pass\n\n    def train(self, text):\n        pass\n\n    def generate(self, prompt=\"\", max_new_chars=100):\n        pass\n\n    def evaluate(self, text):\n        pass\n",
+  "prompt": "Implement `NGramCharModel`, a deterministic character-level n-gram model.\n\nRequired:\n- `__init__(n=3, alpha=0.1)`: validate `n >= 1`, `alpha >= 0`, and store both.\n- `train(text)`: reject empty text, reset state, count next characters with `^` padding, track vocabulary and global counts, and return `self`.\n- `generate(prompt=\"\", max_new_chars=100)`: append exactly `max_new_chars` characters using the most frequent next character for the current context. For unseen contexts, fall back to global counts. Break ties by character order.\n- `evaluate(text)`: return perplexity with add-alpha smoothing. Return `float(\"inf\")` for empty text, untrained models, OOV characters, or zero-probability events.",
+  "starter_code": "from collections import Counter, defaultdict\nimport math\n\n# Hidden dataset checks set DEEPCODE_DATA_PATH.\n# To inspect the file locally: DEEPCODE_DATA_PATH/tiny_shakespeare.txt\n\n\nclass NGramCharModel:\n    def __init__(self, n=3, alpha=0.1):\n        if n < 1 or alpha < 0:\n            raise ValueError(\"n must be >= 1 and alpha must be >= 0\")\n        self.n = n\n        self.alpha = alpha\n        self._trained = False\n        self.counts = defaultdict(Counter)\n        self.global_counts = Counter()\n        self.vocab = set()\n\n    def train(self, text):\n        pass\n\n    def generate(self, prompt=\"\", max_new_chars=100):\n        pass\n\n    def evaluate(self, text):\n        pass\n",
   "example": {
     "input": "model = NGramCharModel(n=2).train(\"ababac\")",
     "output": "model.generate(\"a\", 5) == \"ababab\"",
@@ -39,9 +39,8 @@
   "data": {
     "path": "data",
     "required": true,
-    "format": "Directory containing tiny_shakespeare.txt.",
-    "setup": "Link this problem's `data` folder to a directory containing `tiny_shakespeare.txt`.",
-    "runtime": "During checks, DeepCode sets `DEEPCODE_DATA_PATH` to the resolved data directory. The held-out dataset check reads `DEEPCODE_DATA_PATH/tiny_shakespeare.txt`, trains on an initial split, and scores a later validation split."
+    "format": "Contains tiny_shakespeare.txt for the hidden held-out check.",
+    "note": "Visible checks do not need local data; the starter code shows the hidden-check path."
   },
   "artifacts": {
     "results_path": "eval-results"
