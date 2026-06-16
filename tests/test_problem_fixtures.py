@@ -110,19 +110,20 @@ def linear_regression_step(X, y, weights, bias, learning_rate):
         problem = ProblemStore(ROOT / "problems").get_problem("ngram-next-character-model")
         solution = r"""from collections import Counter, defaultdict
 import math
+import random
 
 
 class NGramCharModel:
-    def __init__(self, n=3, alpha=0.1):
+    def __init__(self, n=3, alpha=1.0):
         if n < 1:
             raise ValueError("n must be at least 1")
-        if alpha < 0:
-            raise ValueError("alpha must be non-negative")
+        if alpha <= 0:
+            raise ValueError("alpha must be positive")
         self.n = n
         self.alpha = float(alpha)
         self.counts = defaultdict(Counter)
-        self.global_counts = Counter()
         self.vocab = set()
+        self._trained = False
 
     def _context_size(self):
         return self.n - 1
@@ -141,51 +142,41 @@ class NGramCharModel:
         if not isinstance(text, str) or not text:
             raise ValueError("text must be a non-empty string")
         self.counts = defaultdict(Counter)
-        self.global_counts = Counter(text)
         self.vocab = set(text)
         for context, char in self._events(text):
             self.counts[context][char] += 1
+        self._trained = True
         return self
 
-    def _prob_from_counts(self, counts, ch):
+    def prob(self, context, ch):
+        if not self._trained or ch not in self.vocab:
+            return 0.0
+        counts = self.counts.get(self._normalize_context(context), Counter())
         denominator = sum(counts.values()) + self.alpha * len(self.vocab)
-        numerator = counts[ch] + self.alpha
-        if denominator <= 0 or numerator <= 0:
-            return 0.0
-        return numerator / denominator
+        return (counts[ch] + self.alpha) / denominator
 
-    def _prob(self, context, ch):
-        if not self.vocab or ch not in self.vocab:
-            return 0.0
-        context = self._normalize_context(context)
-        context_counts = self.counts.get(context)
-        return self._prob_from_counts(context_counts or self.global_counts, ch)
-
-    def _top_char(self, counts):
-        return sorted(counts.items(), key=lambda item: (-item[1], item[0]))[0][0]
-
-    def generate(self, prompt="", max_new_chars=100):
-        if max_new_chars < 0:
-            raise ValueError("max_new_chars must be non-negative")
-        if not self.vocab:
-            raise ValueError("model must be trained before generation")
-        output = str(prompt)
-        for _ in range(max_new_chars):
-            context = self._normalize_context(output)
-            context_counts = self.counts.get(context)
-            output += self._top_char(context_counts or self.global_counts)
-        return output
-
-    def evaluate(self, text):
-        if text == "" or not self.vocab:
+    def perplexity(self, text):
+        if not self._trained or not text:
             return float("inf")
         log_prob = 0.0
         for context, char in self._events(text):
-            probability = self._prob(context, char)
+            probability = self.prob(context, char)
             if probability <= 0:
                 return float("inf")
             log_prob += math.log(probability)
         return math.exp(-log_prob / len(text))
+
+    def sample_top_k(self, context, k=5):
+        if not self._trained:
+            raise ValueError("model must be trained before sampling")
+        if k < 1:
+            raise ValueError("k must be at least 1")
+        candidates = sorted(
+            ((char, self.prob(context, char)) for char in self.vocab),
+            key=lambda item: (-item[1], item[0]),
+        )[: min(k, len(self.vocab))]
+        chars, weights = zip(*candidates)
+        return random.choices(chars, weights=weights, k=1)[0]
 """
 
         with tempfile.TemporaryDirectory() as tmp:

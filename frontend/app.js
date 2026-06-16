@@ -341,6 +341,13 @@ function isLegacyNGramStarterDraft(code) {
     hasUneditedMethodStubs &&
     !normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
     !normalized.includes("self.alpha");
+  const hasPreviousBlankGenerateStarter =
+    hasUneditedMethodStubs &&
+    normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    !normalized.includes("def prob(self, context, ch):") &&
+    !normalized.includes("def perplexity(self, text):") &&
+    !normalized.includes("def sample_top_k(self, context, k=5):") &&
+    !normalized.includes("self.alpha");
   const hasPreviousInitializedStarter =
     hasUneditedMethodStubs &&
     normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
@@ -351,7 +358,7 @@ function isLegacyNGramStarterDraft(code) {
     normalized.includes("self.global_counts = Counter()") &&
     normalized.includes("self.vocab = set()");
 
-  return hasOldBlankInitStarter || hasPreviousInitializedStarter;
+  return hasOldBlankInitStarter || hasPreviousBlankGenerateStarter || hasPreviousInitializedStarter;
 }
 
 function shouldRefreshStoredCode(savedCode, lastStarterCode) {

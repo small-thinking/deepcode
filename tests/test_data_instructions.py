@@ -44,17 +44,32 @@ class DataInstructionTest(unittest.TestCase):
         problem = json.loads((PROBLEMS / "101-ngram-next-character-model" / "problem.json").read_text(encoding="utf-8"))
         starter_code = problem["starter_code"]
 
-        self.assertIn("def __init__(self, n=3, alpha=0.1):", starter_code)
+        self.assertIn("def __init__(self, n=3, alpha=1.0):", starter_code)
         self.assertIn("DEEPCODE_DATA_PATH/tiny_shakespeare.txt", starter_code)
+        self.assertIn("def prob(self, context, ch):", starter_code)
+        self.assertIn("def perplexity(self, text):", starter_code)
+        self.assertIn("def sample_top_k(self, context, k=5):", starter_code)
         self.assertNotIn("self.alpha = alpha", starter_code)
         self.assertNotIn("self._trained = False", starter_code)
-        self.assertIn("def __init__(self, n=3, alpha=0.1):\n        pass", starter_code)
+        self.assertNotIn("def generate", starter_code)
+        self.assertNotIn("def evaluate", starter_code)
+        self.assertIn("def __init__(self, n=3, alpha=1.0):\n        pass", starter_code)
 
     def test_ngram_prompt_is_interview_sized(self):
         problem = json.loads((PROBLEMS / "101-ngram-next-character-model" / "problem.json").read_text(encoding="utf-8"))
 
         self.assertLessEqual(len(problem["prompt"]), 900)
         self.assertNotIn("tiny_shakespeare", problem["prompt"])
+        overly_specific_fragments = [
+            "`^`",
+            "count(context",
+            "alpha *",
+            "Break ties",
+            "last `n - 1`",
+            "globally most frequent",
+        ]
+        for fragment in overly_specific_fragments:
+            self.assertNotIn(fragment, problem["prompt"])
 
 
 if __name__ == "__main__":
