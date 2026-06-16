@@ -45,8 +45,10 @@ class DataInstructionTest(unittest.TestCase):
         starter_code = problem["starter_code"]
 
         self.assertIn("def __init__(self, n=3, alpha=0.1):", starter_code)
-        self.assertIn("self.alpha = alpha", starter_code)
         self.assertIn("DEEPCODE_DATA_PATH/tiny_shakespeare.txt", starter_code)
+        self.assertNotIn("self.alpha = alpha", starter_code)
+        self.assertNotIn("self._trained = False", starter_code)
+        self.assertIn("def __init__(self, n=3, alpha=0.1):\n        pass", starter_code)
 
     def test_ngram_prompt_is_interview_sized(self):
         problem = json.loads((PROBLEMS / "101-ngram-next-character-model" / "problem.json").read_text(encoding="utf-8"))

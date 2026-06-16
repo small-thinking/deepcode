@@ -330,14 +330,28 @@ function normalizeSavedCode(value) {
 
 function isLegacyNGramStarterDraft(code) {
   const normalized = normalizeSavedCode(code);
-  return (
+  const hasUneditedMethodStubs =
     normalized.includes("class NGramCharModel:") &&
     normalized.includes("def train(self, text):\n        pass") &&
     normalized.includes('def generate(self, prompt="", max_new_chars=100):\n        pass') &&
     normalized.includes("def evaluate(self, text):\n        pass") &&
-    !normalized.includes("return self") &&
-    !normalized.includes("self.alpha")
-  );
+    !normalized.includes("return self");
+
+  const hasOldBlankInitStarter =
+    hasUneditedMethodStubs &&
+    !normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    !normalized.includes("self.alpha");
+  const hasPreviousInitializedStarter =
+    hasUneditedMethodStubs &&
+    normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    normalized.includes("if n < 1 or alpha < 0:") &&
+    normalized.includes("self.alpha = alpha") &&
+    normalized.includes("self._trained = False") &&
+    normalized.includes("self.counts = defaultdict(Counter)") &&
+    normalized.includes("self.global_counts = Counter()") &&
+    normalized.includes("self.vocab = set()");
+
+  return hasOldBlankInitStarter || hasPreviousInitializedStarter;
 }
 
 function shouldRefreshStoredCode(savedCode, lastStarterCode) {
