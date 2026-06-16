@@ -330,26 +330,38 @@ function normalizeSavedCode(value) {
 
 function isLegacyNGramStarterDraft(code) {
   const normalized = normalizeSavedCode(code);
-  const hasUneditedMethodStubs =
+  const hasClassAndTrainStub =
     normalized.includes("class NGramCharModel:") &&
     normalized.includes("def train(self, text):\n        pass") &&
-    normalized.includes('def generate(self, prompt="", max_new_chars=100):\n        pass') &&
-    normalized.includes("def evaluate(self, text):\n        pass") &&
     !normalized.includes("return self");
+  const hasGenerateEvaluateStubs =
+    hasClassAndTrainStub &&
+    normalized.includes('def generate(self, prompt="", max_new_chars=100):\n        pass') &&
+    normalized.includes("def evaluate(self, text):\n        pass");
+  const hasTopKStubs =
+    hasClassAndTrainStub &&
+    normalized.includes("def prob(self, context, ch):\n        pass") &&
+    normalized.includes("def perplexity(self, text):\n        pass") &&
+    normalized.includes("def sample_top_k(self, context, k=5):\n        pass");
 
   const hasOldBlankInitStarter =
-    hasUneditedMethodStubs &&
+    hasGenerateEvaluateStubs &&
     !normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
     !normalized.includes("self.alpha");
   const hasPreviousBlankGenerateStarter =
-    hasUneditedMethodStubs &&
+    hasGenerateEvaluateStubs &&
     normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
     !normalized.includes("def prob(self, context, ch):") &&
     !normalized.includes("def perplexity(self, text):") &&
     !normalized.includes("def sample_top_k(self, context, k=5):") &&
     !normalized.includes("self.alpha");
+  const hasPreviousAlphaTopKStarter =
+    hasTopKStubs &&
+    normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    normalized.includes("def __init__(self, n=3, alpha=1.0):\n        pass") &&
+    !normalized.includes("self.alpha");
   const hasPreviousInitializedStarter =
-    hasUneditedMethodStubs &&
+    hasGenerateEvaluateStubs &&
     normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
     normalized.includes("if n < 1 or alpha < 0:") &&
     normalized.includes("self.alpha = alpha") &&
@@ -358,7 +370,12 @@ function isLegacyNGramStarterDraft(code) {
     normalized.includes("self.global_counts = Counter()") &&
     normalized.includes("self.vocab = set()");
 
-  return hasOldBlankInitStarter || hasPreviousBlankGenerateStarter || hasPreviousInitializedStarter;
+  return (
+    hasOldBlankInitStarter ||
+    hasPreviousBlankGenerateStarter ||
+    hasPreviousAlphaTopKStarter ||
+    hasPreviousInitializedStarter
+  );
 }
 
 function shouldRefreshStoredCode(savedCode, lastStarterCode) {

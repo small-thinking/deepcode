@@ -6,10 +6,10 @@
   "difficulty": "medium",
   "tags": ["language-modeling", "ngram", "perplexity", "sampling"],
   "companies": ["Runway"],
-  "prompt": "Hand-write `NGramCharModel`, a character-level n-gram model for next-character prediction.\n\nImplement the core interview API:\n- `__init__(n=3, alpha=1.0)` configures the n-gram order and smoothing strength.\n- `train(text)` fits the model from text by collecting character-transition statistics.\n- `prob(context, ch)` returns the probability of a next character.\n- `perplexity(text)` scores text under the fitted model.\n- `sample_top_k(context, k=5)` samples from the top-k likely next characters.\n\nHandle reasonable edge cases such as unigram models, unseen contexts, invalid arguments, and empty or out-of-vocabulary evaluation text.",
-  "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n# Hidden dataset checks set DEEPCODE_DATA_PATH.\n# To inspect the file locally: DEEPCODE_DATA_PATH/tiny_shakespeare.txt\n\n\nclass NGramCharModel:\n    def __init__(self, n=3, alpha=1.0):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
+  "prompt": "Hand-write `NGramCharModel`, a character-level n-gram model for next-character prediction.\n\nImplement the core interview API:\n- `__init__(n=3)` configures the n-gram order.\n- `train(text)` fits the model from text by collecting character-transition statistics.\n- `prob(context, ch)` returns the probability of a next character.\n- `perplexity(text)` scores text under the fitted model.\n- `sample_top_k(context, k=5)` samples from the top-k likely next characters.\n\nHandle reasonable edge cases such as unigram models, unseen contexts, invalid arguments, and empty or out-of-vocabulary evaluation text.",
+  "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n# Hidden dataset checks set DEEPCODE_DATA_PATH.\n# To inspect the file locally: DEEPCODE_DATA_PATH/tiny_shakespeare.txt\n\n\nclass NGramCharModel:\n    def __init__(self, n=3):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
   "example": {
-    "input": "model = NGramCharModel(n=2, alpha=1.0).train(\"ababa\")",
+    "input": "model = NGramCharModel(n=2).train(\"ababa\")",
     "output": "model.prob(\"a\", \"b\") == 0.75",
     "reasoning": "After fitting on a short alternating string, `b` should be more likely than `a` after context `a`."
   },

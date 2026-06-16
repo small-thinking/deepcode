@@ -114,13 +114,11 @@ import random
 
 
 class NGramCharModel:
-    def __init__(self, n=3, alpha=1.0):
+    def __init__(self, n=3):
         if n < 1:
             raise ValueError("n must be at least 1")
-        if alpha <= 0:
-            raise ValueError("alpha must be positive")
         self.n = n
-        self.alpha = float(alpha)
+        self.alpha = 1.0
         self.counts = defaultdict(Counter)
         self.vocab = set()
         self._trained = False

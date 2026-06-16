@@ -1,38 +1,38 @@
 [
   {
     "name": "smoothed bigram probabilities",
-    "input": "model = NGramCharModel(n=2, alpha=1.0).train(\"ababa\")",
-    "test": "import math\nmodel = NGramCharModel(n=2, alpha=1.0).train(\"ababa\")\nassert math.isclose(model.prob(\"a\", \"b\"), 0.75, rel_tol=1e-9)\nassert math.isclose(model.prob(\"a\", \"a\"), 0.25, rel_tol=1e-9)\nassert math.isclose(model.prob(\"z\", \"a\"), 0.5, rel_tol=1e-9)\nassert model.prob(\"a\", \"z\") == 0.0"
+    "input": "model = NGramCharModel(n=2).train(\"ababa\")",
+    "test": "import math\nmodel = NGramCharModel(n=2).train(\"ababa\")\nassert math.isclose(model.prob(\"a\", \"b\"), 0.75, rel_tol=1e-9)\nassert math.isclose(model.prob(\"a\", \"a\"), 0.25, rel_tol=1e-9)\nassert math.isclose(model.prob(\"z\", \"a\"), 0.5, rel_tol=1e-9)\nassert model.prob(\"a\", \"z\") == 0.0"
   },
   {
     "name": "unigram probabilities and perplexity",
-    "input": "model = NGramCharModel(n=1, alpha=1.0).train(\"aab\")",
-    "test": "import math\nmodel = NGramCharModel(n=1, alpha=1.0).train(\"aab\")\nassert math.isclose(model.prob(\"ignored\", \"a\"), 0.6, rel_tol=1e-9)\nassert math.isclose(model.prob(\"ignored\", \"b\"), 0.4, rel_tol=1e-9)\nassert math.isclose(model.perplexity(\"ab\"), 2.041241452319315, rel_tol=1e-9)\nassert math.isinf(model.perplexity(\"\"))"
+    "input": "model = NGramCharModel(n=1).train(\"aab\")",
+    "test": "import math\nmodel = NGramCharModel(n=1).train(\"aab\")\nassert math.isclose(model.prob(\"ignored\", \"a\"), 0.6, rel_tol=1e-9)\nassert math.isclose(model.prob(\"ignored\", \"b\"), 0.4, rel_tol=1e-9)\nassert math.isclose(model.perplexity(\"ab\"), 2.041241452319315, rel_tol=1e-9)\nassert math.isinf(model.perplexity(\"\"))"
   },
   {
     "name": "train resets previous state",
     "input": "model.train(\"aaaa\"); model.train(\"bb\")",
-    "test": "model = NGramCharModel(n=2, alpha=1.0)\nassert model.train(\"aaaa\") is model\nassert model.prob(\"a\", \"a\") == 1.0\nmodel.train(\"bb\")\nassert model.prob(\"b\", \"b\") == 1.0\nassert model.prob(\"a\", \"a\") == 0.0\nassert model.prob(\"a\", \"b\") == 1.0"
+    "test": "model = NGramCharModel(n=2)\nassert model.train(\"aaaa\") is model\nassert model.prob(\"a\", \"a\") == 1.0\nmodel.train(\"bb\")\nassert model.prob(\"b\", \"b\") == 1.0\nassert model.prob(\"a\", \"a\") == 0.0\nassert model.prob(\"a\", \"b\") == 1.0"
   },
   {
     "name": "seeded top-k sampling excludes lower-ranked characters",
-    "input": "model = NGramCharModel(n=1, alpha=1.0).train(\"aaabbc\")",
-    "test": "import random\nmodel = NGramCharModel(n=1, alpha=1.0).train(\"aaabbc\")\nrandom.seed(7)\nsamples = [model.sample_top_k(\"\", k=2) for _ in range(300)]\nassert set(samples) <= {\"a\", \"b\"}\na_frequency = samples.count(\"a\") / len(samples)\nassert 0.50 < a_frequency < 0.68"
+    "input": "model = NGramCharModel(n=1).train(\"aaabbc\")",
+    "test": "import random\nmodel = NGramCharModel(n=1).train(\"aaabbc\")\nrandom.seed(7)\nsamples = [model.sample_top_k(\"\", k=2) for _ in range(300)]\nassert set(samples) <= {\"a\", \"b\"}\na_frequency = samples.count(\"a\") / len(samples)\nassert 0.50 < a_frequency < 0.68"
   },
   {
     "name": "k larger than vocabulary samples from all known characters",
-    "input": "model = NGramCharModel(n=1, alpha=1.0).train(\"ab\")",
-    "test": "import random\nmodel = NGramCharModel(n=1, alpha=1.0).train(\"ab\")\nrandom.seed(11)\nsamples = [model.sample_top_k(\"\", k=10) for _ in range(50)]\nassert set(samples) <= {\"a\", \"b\"}\nassert set(samples) == {\"a\", \"b\"}"
+    "input": "model = NGramCharModel(n=1).train(\"ab\")",
+    "test": "import random\nmodel = NGramCharModel(n=1).train(\"ab\")\nrandom.seed(11)\nsamples = [model.sample_top_k(\"\", k=10) for _ in range(50)]\nassert set(samples) <= {\"a\", \"b\"}\nassert set(samples) == {\"a\", \"b\"}"
   },
   {
     "name": "invalid arguments and untrained behavior",
-    "input": "n = 0, alpha = 0, empty train text, untrained sampling",
-    "test": "import math\n\ndef expect_value_error(callable_obj):\n    try:\n        callable_obj()\n    except ValueError:\n        return\n    raise AssertionError(\"expected ValueError\")\n\nexpect_value_error(lambda: NGramCharModel(n=0))\nexpect_value_error(lambda: NGramCharModel(alpha=0))\nmodel = NGramCharModel()\nexpect_value_error(lambda: model.train(\"\"))\nexpect_value_error(lambda: model.sample_top_k(\"\", k=1))\nassert model.prob(\"\", \"a\") == 0.0\nassert math.isinf(model.perplexity(\"abc\"))\nmodel.train(\"abc\")\nexpect_value_error(lambda: model.sample_top_k(\"\", k=0))\nassert math.isinf(model.perplexity(\"az\"))"
+    "input": "n = 0, empty train text, untrained sampling",
+    "test": "import math\n\ndef expect_value_error(callable_obj):\n    try:\n        callable_obj()\n    except ValueError:\n        return\n    raise AssertionError(\"expected ValueError\")\n\nexpect_value_error(lambda: NGramCharModel(n=0))\nmodel = NGramCharModel()\nexpect_value_error(lambda: model.train(\"\"))\nexpect_value_error(lambda: model.sample_top_k(\"\", k=1))\nassert model.prob(\"\", \"a\") == 0.0\nassert math.isinf(model.perplexity(\"abc\"))\nmodel.train(\"abc\")\nexpect_value_error(lambda: model.sample_top_k(\"\", k=0))\nassert math.isinf(model.perplexity(\"az\"))"
   },
   {
     "name": "tiny Shakespeare held-out probability workflow",
     "input": "DEEPCODE_DATA_PATH/tiny_shakespeare.txt",
     "timeout_seconds": 12,
-    "test": "import math\nimport os\nimport random\nfrom pathlib import Path\n\ndata_root = os.environ.get(\"DEEPCODE_DATA_PATH\")\nassert data_root, \"DEEPCODE_DATA_PATH must point to a directory containing tiny_shakespeare.txt\"\ntext = (Path(data_root) / \"tiny_shakespeare.txt\").read_text(encoding=\"utf-8\").replace(\"\\r\\n\", \"\\n\")\nassert len(text) >= 1000, \"tiny_shakespeare.txt is unexpectedly small for a held-out split\"\ncut = int(len(text) * 0.8)\ntrain_text = text[:cut]\nvalidation_text = text[cut:]\nassert len(validation_text) >= 200, \"validation split is too small\"\ntraining_vocab = set(train_text)\nheldout = \"\".join(ch for ch in validation_text if ch in training_vocab)[:1000]\nassert len(heldout) >= 200, \"held-out split has too little known-vocabulary text\"\nmodel = NGramCharModel(n=4, alpha=1.0).train(train_text)\nscore = model.perplexity(heldout)\nassert math.isfinite(score)\nassert 1.0 <= score <= max(100.0, len(training_vocab) * 2.5)\nrandom.seed(13)\nsamples = [model.sample_top_k(heldout[:20], k=10) for _ in range(50)]\nassert set(samples) <= training_vocab"
+    "test": "import math\nimport os\nimport random\nfrom pathlib import Path\n\ndata_root = os.environ.get(\"DEEPCODE_DATA_PATH\")\nassert data_root, \"DEEPCODE_DATA_PATH must point to a directory containing tiny_shakespeare.txt\"\ntext = (Path(data_root) / \"tiny_shakespeare.txt\").read_text(encoding=\"utf-8\").replace(\"\\r\\n\", \"\\n\")\nassert len(text) >= 1000, \"tiny_shakespeare.txt is unexpectedly small for a held-out split\"\ncut = int(len(text) * 0.8)\ntrain_text = text[:cut]\nvalidation_text = text[cut:]\nassert len(validation_text) >= 200, \"validation split is too small\"\ntraining_vocab = set(train_text)\nheldout = \"\".join(ch for ch in validation_text if ch in training_vocab)[:1000]\nassert len(heldout) >= 200, \"held-out split has too little known-vocabulary text\"\nmodel = NGramCharModel(n=4).train(train_text)\nscore = model.perplexity(heldout)\nassert math.isfinite(score)\nassert 1.0 <= score <= max(100.0, len(training_vocab) * 2.5)\nrandom.seed(13)\nsamples = [model.sample_top_k(heldout[:20], k=10) for _ in range(50)]\nassert set(samples) <= training_vocab"
   }
 ]
