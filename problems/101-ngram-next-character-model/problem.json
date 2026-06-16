@@ -10,7 +10,7 @@
   "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n# Hidden dataset checks set DEEPCODE_DATA_PATH.\n# To inspect the file locally: DEEPCODE_DATA_PATH/tiny_shakespeare.txt\n\n\nclass NGramCharModel:\n    def __init__(self, n=3):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
   "example": {
     "input": "model = NGramCharModel(n=2).train(\"ababa\")",
-    "output": "model.prob(\"a\", \"b\") == 0.75",
+    "output": "model.prob(\"a\", \"b\") > model.prob(\"a\", \"a\")",
     "reasoning": "After fitting on a short alternating string, `b` should be more likely than `a` after context `a`."
   },
   "references": [

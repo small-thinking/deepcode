@@ -118,7 +118,7 @@ class NGramCharModel:
         if n < 1:
             raise ValueError("n must be at least 1")
         self.n = n
-        self.alpha = 1.0
+        self._pseudocount = 1.0
         self.counts = defaultdict(Counter)
         self.vocab = set()
         self._trained = False
@@ -150,8 +150,8 @@ class NGramCharModel:
         if not self._trained or ch not in self.vocab:
             return 0.0
         counts = self.counts.get(self._normalize_context(context), Counter())
-        denominator = sum(counts.values()) + self.alpha * len(self.vocab)
-        return (counts[ch] + self.alpha) / denominator
+        denominator = sum(counts.values()) + self._pseudocount * len(self.vocab)
+        return (counts[ch] + self._pseudocount) / denominator
 
     def perplexity(self, text):
         if not self._trained or not text:
