@@ -169,6 +169,14 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".data-link-panel", styles_css)
         self.assertIn(".data-link-status", styles_css)
 
+    def test_dataset_instructions_render_separately_from_prompt(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+
+        self.assertIn("function renderProblemDataInfo", app_js)
+        self.assertIn("renderProblemDataInfo(problem.data)", app_js)
+        self.assertIn('"Dataset"', app_js)
+        self.assertIn("DEEPCODE_DATA_PATH", app_js)
+
     def test_problem_numbers_use_dynamic_display_ids(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
 

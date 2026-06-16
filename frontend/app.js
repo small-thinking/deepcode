@@ -1,6 +1,7 @@
 const THEME_KEY = "deepcode-theme";
 const PROBLEM_SECTION_CLASSES = {
   prompt: "problem-section problem-prompt-section",
+  data: "problem-section problem-data-section",
   metadata: "problem-section problem-metadata-section",
   example: "problem-section problem-example-section",
   references: "problem-section problem-references-section",
@@ -1013,10 +1014,30 @@ function renderProblemDescription(problem) {
       "Prompt",
       `<div class="problem-prompt">${markdownLite(problem.prompt)}</div>`
     ),
+    renderProblemDataInfo(problem.data),
     renderProblemMetadata(problem),
     renderProblemExample(problem.example),
     renderReferences(problem.references),
   ].join("");
+}
+
+function renderProblemDataInfo(data) {
+  if (!data?.path) return "";
+
+  const runtime =
+    data.runtime ||
+    "During checks, DeepCode sets `DEEPCODE_DATA_PATH` to the resolved local data directory for this problem.";
+  const rows = [
+    ["Problem data path", `<code>${escapeHtml(data.path)}</code>`],
+    ["Expected contents", escapeHtml(data.format || "")],
+    ["Setup", markdownLite(data.setup || "")],
+    ["Runtime", markdownLite(runtime)],
+  ]
+    .filter(([, value]) => String(value ?? "").trim())
+    .map((row) => `<div class="problem-meta-row"><div class="label">${row[0]}</div><div>${row[1]}</div></div>`)
+    .join("");
+
+  return renderProblemBlock(PROBLEM_SECTION_CLASSES.data, "Dataset", `<div class="problem-meta-grid">${rows}</div>`);
 }
 
 function renderProblemMetadata(problem) {
