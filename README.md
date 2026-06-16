@@ -22,6 +22,16 @@ uv run python -m deepcode --port 8848
 
 Open `http://127.0.0.1:8848`.
 
+For development with automatic restart on source, UI, or problem changes:
+
+```bash
+uv run --with watchfiles scripts/dev.py
+```
+
+The `--with watchfiles` option lets uv run the watcher without adding it to the
+project dependencies. The restarted app process runs inside the same uv project
+environment.
+
 ## Use DeepCode Locally
 
 From the browser you can:
