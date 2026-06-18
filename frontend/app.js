@@ -1,6 +1,7 @@
 const THEME_KEY = "deepcode-theme";
 const PROBLEM_SECTION_CLASSES = {
   prompt: "problem-section problem-prompt-section",
+  data: "problem-section problem-data-section",
   metadata: "problem-section problem-metadata-section",
   example: "problem-section problem-example-section",
   references: "problem-section problem-references-section",
@@ -294,10 +295,7 @@ async function loadProblem(identifier) {
       await loadDataLink();
     }
     state.activeTab = "description";
-    const key = codeKey(state.selected.slug);
-    if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, state.selected.starter_code || "");
-    }
+    syncStarterCode(state.selected);
     location.hash = `#/problems/${state.selected.slug}`;
   } catch (error) {
     state.error = error.message;
@@ -320,6 +318,83 @@ function supportsDataLinkSetup(problem) {
 
 function codeKey(slug) {
   return `deepcode-code:${slug}`;
+}
+
+function starterKey(slug) {
+  return `deepcode-starter:${slug}`;
+}
+
+function normalizeSavedCode(value) {
+  return String(value ?? "").replace(/\r\n/g, "\n").trim();
+}
+
+function isLegacyNGramStarterDraft(code) {
+  const normalized = normalizeSavedCode(code);
+  const hasClassAndTrainStub =
+    normalized.includes("class NGramCharModel:") &&
+    normalized.includes("def train(self, text):\n        pass") &&
+    !normalized.includes("return self");
+  const hasGenerateEvaluateStubs =
+    hasClassAndTrainStub &&
+    normalized.includes('def generate(self, prompt="", max_new_chars=100):\n        pass') &&
+    normalized.includes("def evaluate(self, text):\n        pass");
+  const hasTopKStubs =
+    hasClassAndTrainStub &&
+    normalized.includes("def prob(self, context, ch):\n        pass") &&
+    normalized.includes("def perplexity(self, text):\n        pass") &&
+    normalized.includes("def sample_top_k(self, context, k=5):\n        pass");
+
+  const hasOldBlankInitStarter =
+    hasGenerateEvaluateStubs &&
+    !normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    !normalized.includes("self.alpha");
+  const hasPreviousBlankGenerateStarter =
+    hasGenerateEvaluateStubs &&
+    normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    !normalized.includes("def prob(self, context, ch):") &&
+    !normalized.includes("def perplexity(self, text):") &&
+    !normalized.includes("def sample_top_k(self, context, k=5):") &&
+    !normalized.includes("self.alpha");
+  const hasPreviousAlphaTopKStarter =
+    hasTopKStubs &&
+    normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    normalized.includes("def __init__(self, n=3, alpha=1.0):\n        pass") &&
+    !normalized.includes("self.alpha");
+  const hasPreviousInitializedStarter =
+    hasGenerateEvaluateStubs &&
+    normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    normalized.includes("if n < 1 or alpha < 0:") &&
+    normalized.includes("self.alpha = alpha") &&
+    normalized.includes("self._trained = False") &&
+    normalized.includes("self.counts = defaultdict(Counter)") &&
+    normalized.includes("self.global_counts = Counter()") &&
+    normalized.includes("self.vocab = set()");
+
+  return (
+    hasOldBlankInitStarter ||
+    hasPreviousBlankGenerateStarter ||
+    hasPreviousAlphaTopKStarter ||
+    hasPreviousInitializedStarter
+  );
+}
+
+function shouldRefreshStoredCode(savedCode, lastStarterCode) {
+  if (!savedCode) return true;
+  if (lastStarterCode && normalizeSavedCode(savedCode) === normalizeSavedCode(lastStarterCode)) return true;
+  return isLegacyNGramStarterDraft(savedCode);
+}
+
+function syncStarterCode(problem) {
+  const key = codeKey(problem.slug);
+  const versionKey = starterKey(problem.slug);
+  const starterCode = problem.starter_code || "";
+  const savedCode = localStorage.getItem(key);
+  const lastStarterCode = localStorage.getItem(versionKey);
+
+  if (shouldRefreshStoredCode(savedCode, lastStarterCode)) {
+    localStorage.setItem(key, starterCode);
+  }
+  localStorage.setItem(versionKey, starterCode);
 }
 
 function currentCode() {
@@ -1013,10 +1088,28 @@ function renderProblemDescription(problem) {
       "Prompt",
       `<div class="problem-prompt">${markdownLite(problem.prompt)}</div>`
     ),
+    renderProblemDataInfo(problem.data),
     renderProblemMetadata(problem),
     renderProblemExample(problem.example),
     renderReferences(problem.references),
   ].join("");
+}
+
+function renderProblemDataInfo(data) {
+  if (!data?.path) return "";
+
+  const rows = [
+    ["Path", `<code>${escapeHtml(data.path)}</code>`],
+    ["Contents", escapeHtml(data.format || "")],
+    ["Note", markdownLite(data.note || "")],
+    ["Setup", markdownLite(data.setup || "")],
+    ["Runtime", markdownLite(data.runtime || "")],
+  ]
+    .filter(([, value]) => String(value ?? "").trim())
+    .map((row) => `<div class="problem-meta-row"><div class="label">${row[0]}</div><div>${row[1]}</div></div>`)
+    .join("");
+
+  return renderProblemBlock(PROBLEM_SECTION_CLASSES.data, "Dataset", `<div class="problem-meta-grid">${rows}</div>`);
 }
 
 function renderProblemMetadata(problem) {
