@@ -10,8 +10,9 @@ dataset-backed training tasks can expand the modeling path later.
 
 ```mermaid
 flowchart LR
-    Frontend["Frontend\nProblems, editor, run results, theme UI"]
-    Backend["Backend API\nProblemStore, Run API, Evaluator Registry, Static Assets"]
+    Frontend["Frontend\nProblems, Playground, editors, run results, theme UI"]
+    Backend["Backend API\nProblemStore, Run APIs, Evaluator Registry, Static Assets"]
+    Playground["Playground Runner\nFree-form Python, timeout, output limits"]
     Coding["ML Coding Evaluator\nPer-case tests, timeouts, comparators, sandboxed Python"]
     Modeling["ML Modeling Evaluator\nAssertion checks, optional data path, run directory, future LLM judge"]
     State["Local Project State\nproblems/, frontend/, deepcode/, data/ ignored, runs/ ignored, .env.local"]
@@ -20,6 +21,8 @@ flowchart LR
     Frontend --> Backend
     Backend --> Coding
     Coding --> Frontend
+    Backend --> Playground
+    Playground --> Frontend
     Backend --> Modeling
     Modeling -.-> Optional
     Backend --> State
@@ -31,6 +34,9 @@ flowchart LR
 
 - `frontend/` owns the browser experience.
 - `deepcode/` owns the server, API routing, problem loading, and evaluator dispatch.
+- `deepcode/playground.py` owns short-lived subprocess execution for free-form
+  local Python and PyTorch experiments. Playground runs do not affect problem
+  completion state.
 - `problems/` owns committed problem metadata and visible tests.
 - `data/`, `runs/`, and `.env.local` are local-only and ignored by git.
 - Future modeling evaluators should write metrics, logs, checkpoints, and judge inputs to local run folders unless an optional service is explicitly configured.

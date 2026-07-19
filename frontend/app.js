@@ -1,4 +1,19 @@
 const THEME_KEY = "deepcode-theme";
+const PLAYGROUND_CODE_KEY = "deepcode-playground-code";
+const PLAYGROUND_STARTER_CODE = `import torch
+from torch import nn
+
+torch.manual_seed(7)
+
+x = torch.randn(4, 3)
+model = nn.Linear(3, 2)
+y = model(x)
+
+print(f"PyTorch {torch.__version__}")
+print("input shape:", tuple(x.shape))
+print("output shape:", tuple(y.shape))
+print(y)
+`;
 const PROBLEM_SECTION_CLASSES = {
   prompt: "problem-section problem-prompt-section",
   data: "problem-section problem-data-section",
@@ -10,6 +25,7 @@ const PROBLEM_SECTION_CLASSES = {
 };
 
 const state = {
+  view: "problems",
   problems: [],
   categories: [],
   difficulties: [],
@@ -36,6 +52,8 @@ const state = {
   error: null,
   loading: true,
   running: false,
+  playgroundRunning: false,
+  playgroundResult: null,
   theme: initialTheme(),
   layout: {
     problemRatio: 0.46,
@@ -76,6 +94,15 @@ function themeToggleLabel() {
 
 function themeToggleButton() {
   return `<button class="ghost-button theme-toggle" id="theme-toggle" aria-pressed="${state.theme === "dark"}">${themeToggleLabel()}</button>`;
+}
+
+function mainNavigation() {
+  return `
+    <nav class="main-nav" aria-label="Main navigation">
+      <button class="nav-tab ${state.view === "problems" ? "active" : ""}" data-app-view="problems">Problems</button>
+      <button class="nav-tab ${state.view === "playground" ? "active" : ""}" data-app-view="playground">Playground</button>
+    </nav>
+  `;
 }
 
 function updateThemeToggle() {
@@ -259,6 +286,7 @@ function paramsFromFilters() {
 }
 
 async function loadProblems() {
+  state.view = "problems";
   state.loading = true;
   state.error = null;
   render();
@@ -277,6 +305,7 @@ async function loadProblems() {
 }
 
 async function loadProblem(identifier) {
+  state.view = "problems";
   state.error = null;
   state.runResult = null;
   state.activeResultIndex = 0;
@@ -398,6 +427,9 @@ function syncStarterCode(problem) {
 }
 
 function currentCode() {
+  if (state.view === "playground") {
+    return localStorage.getItem(PLAYGROUND_CODE_KEY) ?? PLAYGROUND_STARTER_CODE;
+  }
   return state.selected ? localStorage.getItem(codeKey(state.selected.slug)) ?? state.selected.starter_code ?? "" : "";
 }
 
@@ -427,6 +459,10 @@ function setEditorCode(value) {
 }
 
 function saveCode(value) {
+  if (state.view === "playground") {
+    localStorage.setItem(PLAYGROUND_CODE_KEY, value);
+    return;
+  }
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), value);
 }
@@ -588,7 +624,7 @@ function teardownEditor() {
 }
 
 function mountEditor() {
-  if (!state.selected) {
+  if (!state.selected && state.view !== "playground") {
     teardownEditor();
     return;
   }
@@ -624,9 +660,9 @@ function mountEditor() {
   codeEditor.setValue(currentCode(), -1);
   codeEditor.session.on("change", () => saveCode(codeEditor.getValue()));
   codeEditor.commands.addCommand({
-    name: "runTests",
+    name: "runCode",
     bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
-    exec: () => runTests(),
+    exec: () => (state.view === "playground" ? runPlayground() : runTests()),
   });
 }
 
@@ -773,6 +809,35 @@ function updateRunLogPanel() {
   panel.scrollTop = panel.scrollHeight;
 }
 
+async function runPlayground() {
+  if (state.view !== "playground" || state.playgroundRunning) return;
+  const code = normalizePythonIndentation(editorCode());
+  setEditorCode(code);
+  saveCode(code);
+  state.playgroundRunning = true;
+  state.playgroundResult = null;
+  state.error = null;
+  render();
+  try {
+    state.playgroundResult = await api("/api/playground/run", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+  } catch (error) {
+    state.error = error.message;
+  } finally {
+    state.playgroundRunning = false;
+    render();
+  }
+}
+
+function resetPlayground() {
+  localStorage.setItem(PLAYGROUND_CODE_KEY, PLAYGROUND_STARTER_CODE);
+  state.playgroundResult = null;
+  state.error = null;
+  render();
+}
+
 async function resetCode() {
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), state.selected.starter_code || "");
@@ -815,7 +880,9 @@ function randomProblem() {
 }
 
 function backToList() {
+  if (codeEditor) saveCode(editorCode());
   const needsProblemCatalog = state.problems.length === 0;
+  state.view = "problems";
   state.selected = null;
   state.runResult = null;
   state.activeResultIndex = 0;
@@ -824,6 +891,17 @@ function backToList() {
   if (needsProblemCatalog) {
     loadProblems();
     return;
+  }
+  render();
+}
+
+function openPlayground() {
+  if (codeEditor) saveCode(editorCode());
+  state.view = "playground";
+  state.selected = null;
+  state.error = null;
+  if (location.hash !== "#/playground") {
+    location.hash = "#/playground";
   }
   render();
 }
@@ -843,7 +921,9 @@ function problemDisplayId(problem) {
 
 function render() {
   teardownEditor();
-  if (state.selected) {
+  if (state.view === "playground") {
+    renderPlayground();
+  } else if (state.selected) {
     renderDetail();
   } else {
     renderList();
@@ -896,6 +976,7 @@ function renderList() {
           </div>
         </div>
         <div class="topbar-actions">
+          ${mainNavigation()}
           <button class="ghost-button" id="random-problem">Random</button>
           ${themeToggleButton()}
         </div>
@@ -929,6 +1010,112 @@ function renderList() {
         ${state.loading ? `<div class="loading-screen">Loading problems...</div>` : problemTable()}
       </section>
     </main>
+  `;
+}
+
+function renderPlayground() {
+  const runButtonContent = state.playgroundRunning
+    ? `<span class="button-spinner" aria-hidden="true"></span><span>Running</span>`
+    : "Run code";
+  app.innerHTML = `
+    <main class="page page-detail playground-page">
+      <header class="topbar playground-topbar">
+        <div class="brand">
+          <div class="mark">DC</div>
+          <div>
+            <h1>PyTorch Playground</h1>
+            <p>Free-form local experiments, separate from problem submissions.</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          ${mainNavigation()}
+          ${themeToggleButton()}
+        </div>
+      </header>
+
+      ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
+
+      <section class="playground-panel" aria-label="PyTorch Playground">
+        <div class="panel-header playground-panel-header">
+          <div class="panel-title">
+            <h2>scratch.py</h2>
+            <p>Python + PyTorch · Cmd/Ctrl + Enter to run · 30 second limit</p>
+          </div>
+          <div class="editor-actions">
+            <button class="ghost-button" id="playground-reset" ${state.playgroundRunning ? "disabled" : ""}>Reset example</button>
+            <button
+              class="primary-button"
+              id="playground-run"
+              ${state.playgroundRunning ? "disabled" : ""}
+              aria-busy="${state.playgroundRunning}"
+            >${runButtonContent}</button>
+          </div>
+        </div>
+        <div class="playground-workspace">
+          <section class="playground-editor" aria-label="Python editor">
+            <div class="code-pane">
+              <div id="code-editor" class="code-editor ace-editor"></div>
+              <textarea id="code-editor-fallback" class="code-editor fallback-editor" spellcheck="false">${escapeHtml(
+                currentCode()
+              )}</textarea>
+            </div>
+          </section>
+          <section class="playground-console" aria-label="Execution output">
+            <div class="playground-console-header">
+              <strong>Console</strong>
+              <span>Runs in a temporary local process</span>
+            </div>
+            <div class="playground-console-body">${renderPlaygroundResult()}</div>
+          </section>
+        </div>
+        <p class="playground-safety-note">
+          Playground code runs on this machine with a timeout and output limits. It is intended for your own code, not as a hardened sandbox for untrusted snippets.
+        </p>
+      </section>
+    </main>
+  `;
+}
+
+function renderPlaygroundResult() {
+  if (state.playgroundRunning) {
+    return `
+      <div class="playground-running" aria-live="polite" aria-busy="true">
+        <span class="run-spinner" aria-hidden="true"></span>
+        <div><strong>Running locally...</strong><p>The process will stop automatically after 30 seconds.</p></div>
+      </div>
+    `;
+  }
+
+  const result = state.playgroundResult;
+  if (!result) {
+    return `<div class="playground-console-empty">Run the starter example or replace it with any PyTorch experiment.</div>`;
+  }
+
+  const completed = result.status === "completed";
+  const statusLabel = completed ? "Completed" : result.status === "timed_out" ? "Timed out" : "Error";
+  const exitLabel = result.exit_code === null ? "no exit code" : `exit ${result.exit_code}`;
+  const duration = result.duration_ms < 1000 ? `${result.duration_ms} ms` : `${(result.duration_ms / 1000).toFixed(2)} s`;
+  const stdout = result.stdout || "";
+  const stderr = result.stderr || "";
+  const noOutput = !stdout && !stderr;
+
+  return `
+    <div class="playground-result-summary ${completed ? "pass" : "fail"}">
+      <span class="status-dot"></span>
+      <strong>${statusLabel}</strong>
+      <span>${escapeHtml(exitLabel)} · ${escapeHtml(duration)}</span>
+    </div>
+    ${
+      stdout
+        ? `<section class="console-stream"><span>stdout</span><pre>${escapeHtml(stdout)}</pre></section>`
+        : ""
+    }
+    ${
+      stderr
+        ? `<section class="console-stream stderr"><span>stderr</span><pre>${escapeHtml(stderr)}</pre></section>`
+        : ""
+    }
+    ${noOutput ? `<div class="playground-console-empty compact">Process completed without output.</div>` : ""}
   `;
 }
 
@@ -994,8 +1181,11 @@ function renderDetail() {
     <main class="page page-detail">
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
       <header class="problem-topbar">
-        <button class="ghost-button" id="problem-back-button">← Problems</button>
-        ${themeToggleButton()}
+        <div class="problem-navigation">
+          <button class="ghost-button" id="problem-back-button">← Problems</button>
+          ${mainNavigation()}
+        </div>
+        <div class="topbar-actions">${themeToggleButton()}</div>
       </header>
       <section class="detail-layout" ${paneLayoutStyle()}>
         <article class="detail-panel">
@@ -1511,6 +1701,17 @@ function renderResultCase(item, index) {
 function bindEvents() {
   document.querySelector("#random-problem")?.addEventListener("click", randomProblem);
   document.querySelector("#theme-toggle")?.addEventListener("click", toggleTheme);
+  document.querySelectorAll("[data-app-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.dataset.appView === "playground") {
+        openPlayground();
+      } else {
+        backToList();
+      }
+    });
+  });
+  document.querySelector("#playground-run")?.addEventListener("click", runPlayground);
+  document.querySelector("#playground-reset")?.addEventListener("click", resetPlayground);
   document.querySelector("#apply-filters")?.addEventListener("click", () => {
     state.filters.search = document.querySelector("#search").value.trim();
     state.filters.category = document.querySelector("#category").value;
@@ -1570,6 +1771,11 @@ function bindEvents() {
 }
 
 function bootFromHash() {
+  if (location.hash === "#/playground") {
+    state.view = "playground";
+    render();
+    return;
+  }
   const match = location.hash.match(/^#\/problems\/(.+)$/);
   if (match) {
     loadProblem(decodeURIComponent(match[1]));
@@ -1579,13 +1785,18 @@ function bootFromHash() {
 }
 
 window.addEventListener("hashchange", () => {
+  if (codeEditor) saveCode(editorCode());
+  if (location.hash === "#/playground") {
+    if (state.view !== "playground" || state.selected) openPlayground();
+    return;
+  }
   const match = location.hash.match(/^#\/problems\/(.+)$/);
   if (match) {
     const slug = decodeURIComponent(match[1]);
     if (!state.selected || state.selected.slug !== slug) {
       loadProblem(slug);
     }
-  } else if (!location.hash && state.selected) {
+  } else if (!location.hash && (state.selected || state.view === "playground")) {
     backToList();
   }
 });

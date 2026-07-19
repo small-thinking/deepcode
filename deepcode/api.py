@@ -14,6 +14,7 @@ from deepcode.evaluators import (
     evaluate_submission,
     stream_evaluation_events,
 )
+from deepcode.playground import run_playground
 from deepcode.problem_store import ProblemStore
 from deepcode.user_state import UserStateStore
 
@@ -73,6 +74,14 @@ def _handle_api_request(
     parts = [unquote(part) for part in path.strip("/").split("/") if part]
     if parts == ["api", "health"] and method == "GET":
         return 200, {"status": "ok"}
+
+    if parts == ["api", "playground", "run"]:
+        if method != "POST":
+            return 405, {"error": "Method not allowed"}
+        payload = json.loads((body or b"{}").decode("utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("Request body must be a JSON object")
+        return 200, run_playground(payload.get("code"))
 
     if parts == ["api", "problems"] and method == "GET":
         problems = context.store.list_problems(

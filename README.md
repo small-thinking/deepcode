@@ -37,6 +37,8 @@ environment.
 From the browser you can:
 
 - Browse available ML coding and lightweight modeling problems.
+- Open the PyTorch Playground for free-form Python and PyTorch experiments,
+  with an auto-saved scratch file and stdout/stderr console.
 - Filter by category, difficulty, or search text.
 - Read the prompt, starter code, example, and visible test cases.
 - Write Python in the editor and run the local evaluator.
@@ -44,7 +46,7 @@ From the browser you can:
   cases beyond the committed visible checks.
 - Link local dataset folders for modeling tasks that declare a `data.path`.
 
-Submissions execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
+Submissions and Playground scripts execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. Playground runs are capped at 30 seconds and their captured output is limited. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 
 DeepCode creates `.deepcode/user-state.json` on local startup and records personal completion status there when a submission passes. That local state is separate from the committed problem definitions and is ignored by git by default. Resetting a problem clears both the editor code and that problem's completion status.
 
