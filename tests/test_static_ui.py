@@ -3,6 +3,22 @@ from pathlib import Path
 
 
 class StaticUiTest(unittest.TestCase):
+    def test_pytorch_playground_has_navigation_editor_and_console(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('data-app-view="playground"', app_js)
+        self.assertIn('location.hash = "#/playground"', app_js)
+        self.assertIn('id="playground-run"', app_js)
+        self.assertIn('id="playground-reset"', app_js)
+        self.assertIn("PLAYGROUND_STARTER_CODE", app_js)
+        self.assertIn("/api/playground/run", app_js)
+        self.assertIn("Cmd/Ctrl + Enter", app_js)
+        self.assertIn('class="playground-console"', app_js)
+        self.assertIn(".main-nav", styles_css)
+        self.assertIn(".playground-workspace", styles_css)
+        self.assertIn(".playground-console", styles_css)
+
     def test_problem_detail_topbar_only_contains_navigation(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
