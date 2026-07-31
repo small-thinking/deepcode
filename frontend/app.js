@@ -547,9 +547,21 @@ function playgroundSessionStatusText(code = currentCode()) {
 
 function updatePlaygroundSessionStatus(code = currentCode()) {
   const status = document.querySelector("#playground-session-status");
-  if (!status) return;
-  status.textContent = playgroundSessionStatusText(code);
-  status.classList.toggle("dirty", playgroundSessionDirty(code));
+  const saveButton = document.querySelector("#playground-session-save");
+  const activeSession = activePlaygroundSession();
+  const dirty = playgroundSessionDirty(code);
+  if (status) {
+    status.textContent = playgroundSessionStatusText(code);
+    status.classList.toggle("dirty", dirty);
+  }
+  if (saveButton) {
+    saveButton.disabled = state.playgroundRunning || !activeSession || !dirty;
+    saveButton.title = !activeSession
+      ? "Use Save as new first"
+      : dirty
+        ? "Save changes to the current session"
+        : "No unsaved changes";
+  }
 }
 
 function savePlaygroundSession() {
@@ -560,6 +572,7 @@ function savePlaygroundSession() {
     render();
     return;
   }
+  if (!playgroundSessionDirty(editorCode())) return;
   const code = normalizePythonIndentation(editorCode());
   setEditorCode(code);
   saveCode(code);
@@ -1254,8 +1267,14 @@ function renderPlayground() {
               <button
                 class="ghost-button"
                 id="playground-session-save"
-                ${state.playgroundRunning || !activeSession ? "disabled" : ""}
-                title="${activeSession ? "Save changes to the current session" : "Use Save as new first"}"
+                ${state.playgroundRunning || !activeSession || !sessionDirty ? "disabled" : ""}
+                title="${
+                  !activeSession
+                    ? "Use Save as new first"
+                    : sessionDirty
+                      ? "Save changes to the current session"
+                      : "No unsaved changes"
+                }"
               >
                 Save
               </button>
@@ -1326,16 +1345,16 @@ function renderPlaygroundSessions() {
                   aria-label="Delete ${escapeHtml(session.name)}"
                 >Delete</button>
               </div>
-              <details>
-                <summary>View saved code</summary>
-                <pre>${escapeHtml(session.code)}</pre>
-              </details>
               <div class="playground-session-actions">
-                <button
-                  class="ghost-button"
-                  data-open-playground-session="${escapeHtml(session.id)}"
-                  ${state.playgroundRunning || active ? "disabled" : ""}
-                >${active ? "Current session" : "Open session"}</button>
+                ${
+                  active
+                    ? ""
+                    : `<button
+                        class="ghost-button"
+                        data-open-playground-session="${escapeHtml(session.id)}"
+                        ${state.playgroundRunning ? "disabled" : ""}
+                      >Open session</button>`
+                }
                 <button
                   class="primary-button"
                   data-run-playground-session="${escapeHtml(session.id)}"

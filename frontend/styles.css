@@ -1112,6 +1112,9 @@ pre {
 .playground-sessions {
   display: grid;
   gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   padding: 12px 14px;
   border-bottom: 1px solid var(--line);
   background: var(--panel-header-bg);
@@ -1162,9 +1165,12 @@ pre {
 
 .playground-session-list {
   display: grid;
-  grid-auto-columns: minmax(260px, 340px);
+  grid-auto-columns: minmax(220px, 280px);
   grid-auto-flow: column;
+  align-items: start;
   gap: 10px;
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   padding-bottom: 2px;
 }
@@ -1172,6 +1178,7 @@ pre {
 .playground-session-card {
   display: grid;
   gap: 9px;
+  min-width: 0;
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1214,33 +1221,6 @@ pre {
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-.playground-session-card details {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.playground-session-card summary {
-  padding: 7px 9px;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 11px;
-}
-
-.playground-session-card details[open] summary {
-  border-bottom: 1px solid var(--line);
-}
-
-.playground-session-card pre {
-  max-height: 180px;
-  overflow: auto;
-  padding: 10px;
-  color: var(--code-text);
-  background: var(--code-bg);
-  font-size: 11px;
-  line-height: 1.45;
 }
 
 .playground-session-actions {
@@ -1463,12 +1443,13 @@ pre {
     flex-direction: column;
   }
 
-  .playground-session-save {
-    align-items: stretch;
-    flex-direction: column;
+  .playground-session-toolbar > .playground-session-save {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .playground-session-save .field {
+    grid-column: 1 / -1;
     width: 100%;
   }
 

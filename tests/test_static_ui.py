@@ -39,9 +39,12 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('data-open-playground-session="${escapeHtml(session.id)}"', app_js)
         self.assertIn('data-run-playground-session="${escapeHtml(session.id)}"', app_js)
         self.assertIn('data-delete-playground-session="${escapeHtml(session.id)}"', app_js)
-        self.assertIn("<summary>View saved code</summary>", app_js)
+        self.assertIn("saveButton.disabled = state.playgroundRunning || !activeSession || !dirty", app_js)
+        self.assertIn("state.playgroundRunning || !activeSession || !sessionDirty", app_js)
+        self.assertNotIn("<summary>View saved code</summary>", app_js)
         self.assertIn(".playground-sessions", styles_css)
         self.assertIn(".playground-session-card", styles_css)
+        self.assertNotIn(".playground-session-card details", styles_css)
 
     def test_problem_detail_topbar_only_contains_navigation(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
