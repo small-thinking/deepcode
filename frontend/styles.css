@@ -1097,7 +1097,7 @@ pre {
 
 .playground-panel {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   min-height: calc(100vh - 112px);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1107,6 +1107,133 @@ pre {
 
 .playground-panel-header .panel-title p {
   white-space: normal;
+}
+
+.playground-snapshots {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-header-bg);
+}
+
+.playground-snapshot-toolbar,
+.playground-snapshot-toolbar > div,
+.playground-snapshot-save,
+.playground-snapshot-heading,
+.playground-snapshot-actions {
+  display: flex;
+  align-items: center;
+}
+
+.playground-snapshot-toolbar {
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.playground-snapshot-toolbar > div:first-child {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.playground-snapshot-toolbar strong {
+  font-size: 13px;
+}
+
+.playground-snapshot-toolbar span,
+.playground-snapshot-heading span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.playground-snapshot-save {
+  gap: 8px;
+}
+
+.playground-snapshot-save .field {
+  width: min(280px, 42vw);
+}
+
+.playground-snapshot-list {
+  display: grid;
+  grid-auto-columns: minmax(260px, 340px);
+  grid-auto-flow: column;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.playground-snapshot-card {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--mini-bg);
+}
+
+.playground-snapshot-heading {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.playground-snapshot-heading > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.playground-snapshot-heading strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playground-snapshot-card details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.playground-snapshot-card summary {
+  padding: 7px 9px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.playground-snapshot-card details[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.playground-snapshot-card pre {
+  max-height: 180px;
+  overflow: auto;
+  padding: 10px;
+  color: var(--code-text);
+  background: var(--code-bg);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.playground-snapshot-actions {
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.playground-snapshot-actions button {
+  padding: 7px 10px;
+  font-size: 11px;
+}
+
+.playground-snapshot-empty {
+  padding: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
 }
 
 .playground-workspace {
@@ -1303,6 +1430,20 @@ pre {
 
   .playground-panel {
     min-height: auto;
+  }
+
+  .playground-snapshot-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .playground-snapshot-save {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .playground-snapshot-save .field {
+    width: 100%;
   }
 
   .playground-workspace {

@@ -1,5 +1,6 @@
 const THEME_KEY = "deepcode-theme";
 const PLAYGROUND_CODE_KEY = "deepcode-playground-code";
+const PLAYGROUND_SNAPSHOTS_KEY = "deepcode-playground-snapshots";
 const PLAYGROUND_STARTER_CODE = `import torch
 from torch import nn
 
@@ -54,6 +55,9 @@ const state = {
   running: false,
   playgroundRunning: false,
   playgroundResult: null,
+  playgroundRunSource: "",
+  playgroundSnapshotName: "",
+  playgroundSnapshots: loadPlaygroundSnapshots(),
   theme: initialTheme(),
   layout: {
     problemRatio: 0.46,
@@ -467,6 +471,92 @@ function saveCode(value) {
   localStorage.setItem(codeKey(state.selected.slug), value);
 }
 
+function loadPlaygroundSnapshots() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PLAYGROUND_SNAPSHOTS_KEY) || "[]");
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (snapshot) =>
+        snapshot &&
+        typeof snapshot.id === "string" &&
+        typeof snapshot.name === "string" &&
+        typeof snapshot.code === "string" &&
+        typeof snapshot.createdAt === "string"
+    );
+  } catch {
+    return [];
+  }
+}
+
+function persistPlaygroundSnapshots(snapshots) {
+  try {
+    localStorage.setItem(PLAYGROUND_SNAPSHOTS_KEY, JSON.stringify(snapshots));
+    return true;
+  } catch {
+    state.error = "Could not save snapshots in browser storage. Delete an older snapshot and try again.";
+    return false;
+  }
+}
+
+function playgroundSnapshotId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function savePlaygroundSnapshot() {
+  if (state.view !== "playground" || state.playgroundRunning) return;
+  const code = normalizePythonIndentation(editorCode());
+  const name = state.playgroundSnapshotName.trim() || `Snapshot ${state.playgroundSnapshots.length + 1}`;
+  setEditorCode(code);
+  saveCode(code);
+  const snapshots = [
+    {
+      id: playgroundSnapshotId(),
+      name,
+      code,
+      createdAt: new Date().toISOString(),
+    },
+    ...state.playgroundSnapshots,
+  ];
+  state.error = null;
+  if (!persistPlaygroundSnapshots(snapshots)) {
+    render();
+    return;
+  }
+  state.playgroundSnapshots = snapshots;
+  state.playgroundSnapshotName = "";
+  render();
+}
+
+function loadPlaygroundSnapshot(snapshotId) {
+  const snapshot = state.playgroundSnapshots.find((item) => item.id === snapshotId);
+  if (!snapshot || state.playgroundRunning) return;
+  localStorage.setItem(PLAYGROUND_CODE_KEY, snapshot.code);
+  state.playgroundResult = null;
+  state.playgroundRunSource = "";
+  state.error = null;
+  render();
+}
+
+function deletePlaygroundSnapshot(snapshotId) {
+  const snapshot = state.playgroundSnapshots.find((item) => item.id === snapshotId);
+  if (!snapshot || !window.confirm(`Delete snapshot "${snapshot.name}"?`)) return;
+  const snapshots = state.playgroundSnapshots.filter((item) => item.id !== snapshotId);
+  state.error = null;
+  if (!persistPlaygroundSnapshots(snapshots)) {
+    render();
+    return;
+  }
+  state.playgroundSnapshots = snapshots;
+  render();
+}
+
+function formatSnapshotTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+}
+
 function customTestSignature(problem) {
   const match = String(problem?.starter_code || "").match(/def\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*:/);
   if (!match) return null;
@@ -809,13 +899,18 @@ function updateRunLogPanel() {
   panel.scrollTop = panel.scrollHeight;
 }
 
-async function runPlayground() {
+async function runPlayground(snapshotId = null) {
   if (state.view !== "playground" || state.playgroundRunning) return;
-  const code = normalizePythonIndentation(editorCode());
-  setEditorCode(code);
-  saveCode(code);
+  const snapshot = snapshotId ? state.playgroundSnapshots.find((item) => item.id === snapshotId) : null;
+  if (snapshotId && !snapshot) return;
+  const code = normalizePythonIndentation(snapshot ? snapshot.code : editorCode());
+  if (!snapshot) {
+    setEditorCode(code);
+    saveCode(code);
+  }
   state.playgroundRunning = true;
   state.playgroundResult = null;
+  state.playgroundRunSource = snapshot ? snapshot.name : "Current draft";
   state.error = null;
   render();
   try {
@@ -834,6 +929,7 @@ async function runPlayground() {
 function resetPlayground() {
   localStorage.setItem(PLAYGROUND_CODE_KEY, PLAYGROUND_STARTER_CODE);
   state.playgroundResult = null;
+  state.playgroundRunSource = "";
   state.error = null;
   render();
 }
@@ -1051,6 +1147,28 @@ function renderPlayground() {
             >${runButtonContent}</button>
           </div>
         </div>
+        <section class="playground-snapshots" aria-label="Saved code snapshots">
+          <div class="playground-snapshot-toolbar">
+            <div>
+              <strong>Snapshots</strong>
+              <span>${state.playgroundSnapshots.length} saved in this browser · newest first</span>
+            </div>
+            <div class="playground-snapshot-save">
+              <input
+                class="field"
+                id="playground-snapshot-name"
+                value="${escapeHtml(state.playgroundSnapshotName)}"
+                placeholder="Snapshot name (optional)"
+                maxlength="80"
+                ${state.playgroundRunning ? "disabled" : ""}
+              />
+              <button class="ghost-button" id="playground-snapshot-save" ${state.playgroundRunning ? "disabled" : ""}>
+                Save snapshot
+              </button>
+            </div>
+          </div>
+          ${renderPlaygroundSnapshots()}
+        </section>
         <div class="playground-workspace">
           <section class="playground-editor" aria-label="Python editor">
             <div class="code-pane">
@@ -1063,7 +1181,11 @@ function renderPlayground() {
           <section class="playground-console" aria-label="Execution output">
             <div class="playground-console-header">
               <strong>Console</strong>
-              <span>Runs in a temporary local process</span>
+              <span>${
+                state.playgroundRunSource
+                  ? `Last run: ${escapeHtml(state.playgroundRunSource)}`
+                  : "Runs in a temporary local process"
+              }</span>
             </div>
             <div class="playground-console-body">${renderPlaygroundResult()}</div>
           </section>
@@ -1073,6 +1195,56 @@ function renderPlayground() {
         </p>
       </section>
     </main>
+  `;
+}
+
+function renderPlaygroundSnapshots() {
+  if (!state.playgroundSnapshots.length) {
+    return `
+      <div class="playground-snapshot-empty">
+        Save the current editor as a named version, then load or run it whenever you need it.
+      </div>
+    `;
+  }
+  return `
+    <div class="playground-snapshot-list">
+      ${state.playgroundSnapshots
+        .map(
+          (snapshot) => `
+            <article class="playground-snapshot-card">
+              <div class="playground-snapshot-heading">
+                <div>
+                  <strong>${escapeHtml(snapshot.name)}</strong>
+                  <span>${escapeHtml(formatSnapshotTime(snapshot.createdAt))}</span>
+                </div>
+                <button
+                  class="text-button danger"
+                  data-delete-playground-snapshot="${escapeHtml(snapshot.id)}"
+                  ${state.playgroundRunning ? "disabled" : ""}
+                  aria-label="Delete ${escapeHtml(snapshot.name)}"
+                >Delete</button>
+              </div>
+              <details>
+                <summary>View code</summary>
+                <pre>${escapeHtml(snapshot.code)}</pre>
+              </details>
+              <div class="playground-snapshot-actions">
+                <button
+                  class="ghost-button"
+                  data-load-playground-snapshot="${escapeHtml(snapshot.id)}"
+                  ${state.playgroundRunning ? "disabled" : ""}
+                >Load into editor</button>
+                <button
+                  class="primary-button"
+                  data-run-playground-snapshot="${escapeHtml(snapshot.id)}"
+                  ${state.playgroundRunning ? "disabled" : ""}
+                >Run snapshot</button>
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
   `;
 }
 
@@ -1710,8 +1882,24 @@ function bindEvents() {
       }
     });
   });
-  document.querySelector("#playground-run")?.addEventListener("click", runPlayground);
+  document.querySelector("#playground-run")?.addEventListener("click", () => runPlayground());
   document.querySelector("#playground-reset")?.addEventListener("click", resetPlayground);
+  document.querySelector("#playground-snapshot-name")?.addEventListener("input", (event) => {
+    state.playgroundSnapshotName = event.target.value;
+  });
+  document.querySelector("#playground-snapshot-name")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") savePlaygroundSnapshot();
+  });
+  document.querySelector("#playground-snapshot-save")?.addEventListener("click", savePlaygroundSnapshot);
+  document.querySelectorAll("[data-load-playground-snapshot]").forEach((button) => {
+    button.addEventListener("click", () => loadPlaygroundSnapshot(button.dataset.loadPlaygroundSnapshot));
+  });
+  document.querySelectorAll("[data-run-playground-snapshot]").forEach((button) => {
+    button.addEventListener("click", () => runPlayground(button.dataset.runPlaygroundSnapshot));
+  });
+  document.querySelectorAll("[data-delete-playground-snapshot]").forEach((button) => {
+    button.addEventListener("click", () => deletePlaygroundSnapshot(button.dataset.deletePlaygroundSnapshot));
+  });
   document.querySelector("#apply-filters")?.addEventListener("click", () => {
     state.filters.search = document.querySelector("#search").value.trim();
     state.filters.category = document.querySelector("#category").value;

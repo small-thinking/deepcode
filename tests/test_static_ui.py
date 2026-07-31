@@ -19,6 +19,26 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".playground-workspace", styles_css)
         self.assertIn(".playground-console", styles_css)
 
+    def test_playground_snapshots_can_be_saved_loaded_viewed_run_and_deleted(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('PLAYGROUND_SNAPSHOTS_KEY = "deepcode-playground-snapshots"', app_js)
+        self.assertIn("function loadPlaygroundSnapshots()", app_js)
+        self.assertIn("function persistPlaygroundSnapshots(snapshots)", app_js)
+        self.assertIn("function savePlaygroundSnapshot()", app_js)
+        self.assertIn("function loadPlaygroundSnapshot(snapshotId)", app_js)
+        self.assertIn("async function runPlayground(snapshotId = null)", app_js)
+        self.assertIn("function deletePlaygroundSnapshot(snapshotId)", app_js)
+        self.assertIn('id="playground-snapshot-name"', app_js)
+        self.assertIn('id="playground-snapshot-save"', app_js)
+        self.assertIn('data-load-playground-snapshot="${escapeHtml(snapshot.id)}"', app_js)
+        self.assertIn('data-run-playground-snapshot="${escapeHtml(snapshot.id)}"', app_js)
+        self.assertIn('data-delete-playground-snapshot="${escapeHtml(snapshot.id)}"', app_js)
+        self.assertIn("<summary>View code</summary>", app_js)
+        self.assertIn(".playground-snapshots", styles_css)
+        self.assertIn(".playground-snapshot-card", styles_css)
+
     def test_problem_detail_topbar_only_contains_navigation(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

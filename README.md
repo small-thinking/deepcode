@@ -38,7 +38,8 @@ From the browser you can:
 
 - Browse available ML coding and lightweight modeling problems.
 - Open the PyTorch Playground for free-form Python and PyTorch experiments,
-  with an auto-saved scratch file and stdout/stderr console.
+  with an auto-saved scratch file, named browser-local code snapshots, and a
+  stdout/stderr console.
 - Filter by category, difficulty, or search text.
 - Read the prompt, starter code, example, and visible test cases.
 - Write Python in the editor and run the local evaluator.
