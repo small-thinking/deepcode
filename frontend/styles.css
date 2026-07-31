@@ -1109,7 +1109,7 @@ pre {
   white-space: normal;
 }
 
-.playground-snapshots {
+.playground-sessions {
   display: grid;
   gap: 10px;
   padding: 12px 14px;
@@ -1117,45 +1117,50 @@ pre {
   background: var(--panel-header-bg);
 }
 
-.playground-snapshot-toolbar,
-.playground-snapshot-toolbar > div,
-.playground-snapshot-save,
-.playground-snapshot-heading,
-.playground-snapshot-actions {
+.playground-session-toolbar,
+.playground-session-toolbar > div,
+.playground-session-save,
+.playground-session-heading,
+.playground-session-actions,
+.playground-session-title {
   display: flex;
   align-items: center;
 }
 
-.playground-snapshot-toolbar {
+.playground-session-toolbar {
   justify-content: space-between;
   gap: 14px;
 }
 
-.playground-snapshot-toolbar > div:first-child {
+.playground-session-toolbar > div:first-child {
   align-items: flex-start;
   flex-direction: column;
   gap: 3px;
 }
 
-.playground-snapshot-toolbar strong {
+.playground-session-toolbar strong {
   font-size: 13px;
 }
 
-.playground-snapshot-toolbar span,
-.playground-snapshot-heading span {
+.playground-session-toolbar span,
+.playground-session-heading span {
   color: var(--muted);
   font-size: 11px;
 }
 
-.playground-snapshot-save {
+.playground-session-toolbar span.dirty {
+  color: var(--amber);
+}
+
+.playground-session-save {
   gap: 8px;
 }
 
-.playground-snapshot-save .field {
+.playground-session-save .field {
   width: min(280px, 42vw);
 }
 
-.playground-snapshot-list {
+.playground-session-list {
   display: grid;
   grid-auto-columns: minmax(260px, 340px);
   grid-auto-flow: column;
@@ -1164,7 +1169,7 @@ pre {
   padding-bottom: 2px;
 }
 
-.playground-snapshot-card {
+.playground-session-card {
   display: grid;
   gap: 9px;
   padding: 10px;
@@ -1173,41 +1178,62 @@ pre {
   background: var(--mini-bg);
 }
 
-.playground-snapshot-heading {
+.playground-session-card.active {
+  border-color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue-soft);
+}
+
+.playground-session-heading {
   justify-content: space-between;
   gap: 10px;
 }
 
-.playground-snapshot-heading > div {
+.playground-session-heading > div {
   display: grid;
   gap: 3px;
   min-width: 0;
 }
 
-.playground-snapshot-heading strong {
+.playground-session-title {
+  gap: 7px;
+  min-width: 0;
+}
+
+.playground-session-heading strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.playground-snapshot-card details {
+.playground-session-current {
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: var(--blue) !important;
+  background: var(--blue-soft);
+  font-size: 9px !important;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.playground-session-card details {
   border: 1px solid var(--line);
   border-radius: 6px;
   overflow: hidden;
 }
 
-.playground-snapshot-card summary {
+.playground-session-card summary {
   padding: 7px 9px;
   color: var(--muted);
   cursor: pointer;
   font-size: 11px;
 }
 
-.playground-snapshot-card details[open] summary {
+.playground-session-card details[open] summary {
   border-bottom: 1px solid var(--line);
 }
 
-.playground-snapshot-card pre {
+.playground-session-card pre {
   max-height: 180px;
   overflow: auto;
   padding: 10px;
@@ -1217,17 +1243,17 @@ pre {
   line-height: 1.45;
 }
 
-.playground-snapshot-actions {
+.playground-session-actions {
   justify-content: flex-end;
   gap: 8px;
 }
 
-.playground-snapshot-actions button {
+.playground-session-actions button {
   padding: 7px 10px;
   font-size: 11px;
 }
 
-.playground-snapshot-empty {
+.playground-session-empty {
   padding: 10px;
   border: 1px dashed var(--line);
   border-radius: 8px;
@@ -1432,17 +1458,17 @@ pre {
     min-height: auto;
   }
 
-  .playground-snapshot-toolbar {
+  .playground-session-toolbar {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .playground-snapshot-save {
+  .playground-session-save {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .playground-snapshot-save .field {
+  .playground-session-save .field {
     width: 100%;
   }
 
