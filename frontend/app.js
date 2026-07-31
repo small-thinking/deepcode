@@ -1,5 +1,7 @@
 const THEME_KEY = "deepcode-theme";
 const PLAYGROUND_CODE_KEY = "deepcode-playground-code";
+const PLAYGROUND_SESSIONS_KEY = "deepcode-playground-sessions";
+const LEGACY_PLAYGROUND_SNAPSHOTS_KEY = "deepcode-playground-snapshots";
 const PLAYGROUND_STARTER_CODE = `import torch
 from torch import nn
 
@@ -23,6 +25,7 @@ const PROBLEM_SECTION_CLASSES = {
   tests: "problem-section problem-tests-section",
   environment: "problem-section problem-environment-section",
 };
+const initialPlaygroundSessionState = loadPlaygroundSessionState();
 
 const state = {
   view: "problems",
@@ -54,6 +57,10 @@ const state = {
   running: false,
   playgroundRunning: false,
   playgroundResult: null,
+  playgroundRunSource: "",
+  playgroundSessionName: "",
+  playgroundSessions: initialPlaygroundSessionState.sessions,
+  playgroundActiveSessionId: initialPlaygroundSessionState.activeSessionId,
   theme: initialTheme(),
   layout: {
     problemRatio: 0.46,
@@ -461,10 +468,192 @@ function setEditorCode(value) {
 function saveCode(value) {
   if (state.view === "playground") {
     localStorage.setItem(PLAYGROUND_CODE_KEY, value);
+    updatePlaygroundSessionStatus(value);
     return;
   }
   if (!state.selected) return;
   localStorage.setItem(codeKey(state.selected.slug), value);
+}
+
+function validPlaygroundSessions(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(
+      (session) =>
+        session &&
+        typeof session.id === "string" &&
+        typeof session.name === "string" &&
+        typeof session.code === "string" &&
+        typeof session.createdAt === "string"
+    )
+    .map((session) => ({
+      id: session.id,
+      name: session.name,
+      code: session.code,
+      createdAt: session.createdAt,
+      updatedAt: typeof session.updatedAt === "string" ? session.updatedAt : session.createdAt,
+    }));
+}
+
+function loadPlaygroundSessionState() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PLAYGROUND_SESSIONS_KEY) || "null");
+    const sessions = validPlaygroundSessions(parsed?.sessions);
+    const activeSessionId = sessions.some((session) => session.id === parsed?.activeSessionId)
+      ? parsed.activeSessionId
+      : null;
+    if (parsed && Array.isArray(parsed.sessions)) return { sessions, activeSessionId };
+  } catch {}
+
+  try {
+    const legacySnapshots = JSON.parse(localStorage.getItem(LEGACY_PLAYGROUND_SNAPSHOTS_KEY) || "[]");
+    return { sessions: validPlaygroundSessions(legacySnapshots), activeSessionId: null };
+  } catch {
+    return { sessions: [], activeSessionId: null };
+  }
+}
+
+function persistPlaygroundSessions(sessions, activeSessionId) {
+  try {
+    localStorage.setItem(PLAYGROUND_SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId }));
+    return true;
+  } catch {
+    state.error = "Could not save Playground sessions in browser storage. Delete an older session and try again.";
+    return false;
+  }
+}
+
+function playgroundSessionId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function activePlaygroundSession() {
+  return state.playgroundSessions.find((session) => session.id === state.playgroundActiveSessionId) || null;
+}
+
+function playgroundSessionDirty(code = currentCode(), name = state.playgroundSessionName) {
+  const activeSession = activePlaygroundSession();
+  if (!activeSession) return true;
+  const draftName = String(name ?? "").trim();
+  return code !== activeSession.code || (draftName !== "" && draftName !== activeSession.name);
+}
+
+function playgroundSessionStatusText(code = currentCode()) {
+  const activeSession = activePlaygroundSession();
+  if (!activeSession) return "Current: unsaved draft";
+  return playgroundSessionDirty(code)
+    ? `Current: ${activeSession.name} · unsaved changes`
+    : `Current: ${activeSession.name} · saved`;
+}
+
+function updatePlaygroundSessionStatus(code = currentCode()) {
+  const status = document.querySelector("#playground-session-status");
+  const saveButton = document.querySelector("#playground-session-save");
+  const activeSession = activePlaygroundSession();
+  const dirty = playgroundSessionDirty(code);
+  if (status) {
+    status.textContent = playgroundSessionStatusText(code);
+    status.classList.toggle("dirty", dirty);
+  }
+  if (saveButton) {
+    saveButton.disabled = state.playgroundRunning || !activeSession || !dirty;
+    saveButton.title = !activeSession
+      ? "Use Save as new first"
+      : dirty
+        ? "Save code or name changes to the current session"
+        : "No unsaved changes";
+  }
+}
+
+function savePlaygroundSession() {
+  if (state.view !== "playground" || state.playgroundRunning) return;
+  const activeSession = activePlaygroundSession();
+  if (!activeSession) {
+    state.error = "Use Save as new to create a session before using Save.";
+    render();
+    return;
+  }
+  if (!playgroundSessionDirty(editorCode())) return;
+  const code = normalizePythonIndentation(editorCode());
+  const name = state.playgroundSessionName.trim() || activeSession.name;
+  setEditorCode(code);
+  saveCode(code);
+  const updatedSession = { ...activeSession, name, code, updatedAt: new Date().toISOString() };
+  const sessions = [updatedSession, ...state.playgroundSessions.filter((session) => session.id !== activeSession.id)];
+  state.error = null;
+  if (!persistPlaygroundSessions(sessions, activeSession.id)) {
+    render();
+    return;
+  }
+  state.playgroundSessions = sessions;
+  state.playgroundSessionName = "";
+  render();
+}
+
+function savePlaygroundSessionAs() {
+  if (state.view !== "playground" || state.playgroundRunning) return;
+  const code = normalizePythonIndentation(editorCode());
+  const name = state.playgroundSessionName.trim() || `Session ${state.playgroundSessions.length + 1}`;
+  const createdAt = new Date().toISOString();
+  const session = { id: playgroundSessionId(), name, code, createdAt, updatedAt: createdAt };
+  const sessions = [session, ...state.playgroundSessions];
+  state.error = null;
+  if (!persistPlaygroundSessions(sessions, session.id)) {
+    render();
+    return;
+  }
+  setEditorCode(code);
+  saveCode(code);
+  state.playgroundSessions = sessions;
+  state.playgroundActiveSessionId = session.id;
+  state.playgroundSessionName = "";
+  render();
+}
+
+function openPlaygroundSession(sessionId) {
+  const session = state.playgroundSessions.find((item) => item.id === sessionId);
+  if (!session || state.playgroundRunning || session.id === state.playgroundActiveSessionId) return;
+  const activeSession = activePlaygroundSession();
+  if (
+    playgroundSessionDirty() &&
+    !window.confirm(`Discard unsaved changes in "${activeSession?.name || "current draft"}" and open "${session.name}"?`)
+  ) {
+    return;
+  }
+  state.error = null;
+  if (!persistPlaygroundSessions(state.playgroundSessions, session.id)) {
+    render();
+    return;
+  }
+  localStorage.setItem(PLAYGROUND_CODE_KEY, session.code);
+  state.playgroundActiveSessionId = session.id;
+  state.playgroundSessionName = "";
+  state.playgroundResult = null;
+  state.playgroundRunSource = "";
+  render();
+}
+
+function deletePlaygroundSession(sessionId) {
+  const session = state.playgroundSessions.find((item) => item.id === sessionId);
+  if (!session || !window.confirm(`Delete session "${session.name}"?`)) return;
+  const sessions = state.playgroundSessions.filter((item) => item.id !== sessionId);
+  const activeSessionId = session.id === state.playgroundActiveSessionId ? null : state.playgroundActiveSessionId;
+  state.error = null;
+  if (!persistPlaygroundSessions(sessions, activeSessionId)) {
+    render();
+    return;
+  }
+  state.playgroundSessions = sessions;
+  state.playgroundActiveSessionId = activeSessionId;
+  if (!activeSessionId) state.playgroundSessionName = "";
+  render();
+}
+
+function formatSessionTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
 }
 
 function customTestSignature(problem) {
@@ -809,13 +998,23 @@ function updateRunLogPanel() {
   panel.scrollTop = panel.scrollHeight;
 }
 
-async function runPlayground() {
+async function runPlayground(sessionId = null) {
   if (state.view !== "playground" || state.playgroundRunning) return;
-  const code = normalizePythonIndentation(editorCode());
-  setEditorCode(code);
-  saveCode(code);
+  const session = sessionId ? state.playgroundSessions.find((item) => item.id === sessionId) : null;
+  if (sessionId && !session) return;
+  const code = normalizePythonIndentation(session ? session.code : editorCode());
+  if (!session) {
+    setEditorCode(code);
+    saveCode(code);
+  }
   state.playgroundRunning = true;
   state.playgroundResult = null;
+  const activeSession = activePlaygroundSession();
+  state.playgroundRunSource = session
+    ? session.name
+    : activeSession
+      ? `${activeSession.name}${playgroundSessionDirty(code) ? " (unsaved changes)" : ""}`
+      : "Unsaved draft";
   state.error = null;
   render();
   try {
@@ -834,6 +1033,7 @@ async function runPlayground() {
 function resetPlayground() {
   localStorage.setItem(PLAYGROUND_CODE_KEY, PLAYGROUND_STARTER_CODE);
   state.playgroundResult = null;
+  state.playgroundRunSource = "";
   state.error = null;
   render();
 }
@@ -1014,6 +1214,8 @@ function renderList() {
 }
 
 function renderPlayground() {
+  const activeSession = activePlaygroundSession();
+  const sessionDirty = playgroundSessionDirty();
   const runButtonContent = state.playgroundRunning
     ? `<span class="button-spinner" aria-hidden="true"></span><span>Running</span>`
     : "Run code";
@@ -1038,7 +1240,7 @@ function renderPlayground() {
       <section class="playground-panel" aria-label="PyTorch Playground">
         <div class="panel-header playground-panel-header">
           <div class="panel-title">
-            <h2>scratch.py</h2>
+            <h2>${escapeHtml(activeSession?.name || "scratch.py")}</h2>
             <p>Python + PyTorch · Cmd/Ctrl + Enter to run · 30 second limit</p>
           </div>
           <div class="editor-actions">
@@ -1051,6 +1253,45 @@ function renderPlayground() {
             >${runButtonContent}</button>
           </div>
         </div>
+        <section class="playground-sessions" aria-label="Saved Playground sessions">
+          <div class="playground-session-toolbar">
+            <div>
+              <strong>Sessions</strong>
+              <span id="playground-session-status" class="${sessionDirty ? "dirty" : ""}">
+                ${escapeHtml(playgroundSessionStatusText())}
+              </span>
+            </div>
+            <div class="playground-session-save">
+              <input
+                class="field"
+                id="playground-session-name"
+                value="${escapeHtml(state.playgroundSessionName)}"
+                placeholder="${activeSession ? "Rename current or name a new session" : "New session name (optional)"}"
+                aria-label="Session name"
+                maxlength="80"
+                ${state.playgroundRunning ? "disabled" : ""}
+              />
+              <button
+                class="ghost-button"
+                id="playground-session-save"
+                ${state.playgroundRunning || !activeSession || !sessionDirty ? "disabled" : ""}
+                title="${
+                  !activeSession
+                    ? "Use Save as new first"
+                    : sessionDirty
+                      ? "Save code or name changes to the current session"
+                      : "No unsaved changes"
+                }"
+              >
+                Save
+              </button>
+              <button class="ghost-button" id="playground-session-save-as" ${state.playgroundRunning ? "disabled" : ""}>
+                Save as new
+              </button>
+            </div>
+          </div>
+          ${renderPlaygroundSessions()}
+        </section>
         <div class="playground-workspace">
           <section class="playground-editor" aria-label="Python editor">
             <div class="code-pane">
@@ -1063,7 +1304,11 @@ function renderPlayground() {
           <section class="playground-console" aria-label="Execution output">
             <div class="playground-console-header">
               <strong>Console</strong>
-              <span>Runs in a temporary local process</span>
+              <span>${
+                state.playgroundRunSource
+                  ? `Last run: ${escapeHtml(state.playgroundRunSource)}`
+                  : "Runs in a temporary local process"
+              }</span>
             </div>
             <div class="playground-console-body">${renderPlaygroundResult()}</div>
           </section>
@@ -1073,6 +1318,62 @@ function renderPlayground() {
         </p>
       </section>
     </main>
+  `;
+}
+
+function renderPlaygroundSessions() {
+  if (!state.playgroundSessions.length) {
+    return `
+      <div class="playground-session-empty">
+        This is an unsaved draft. Use Save as new to create your first Playground session.
+      </div>
+    `;
+  }
+  return `
+    <div class="playground-session-list">
+      ${state.playgroundSessions
+        .map(
+          (session) => {
+            const active = session.id === state.playgroundActiveSessionId;
+            return `
+            <article class="playground-session-card ${active ? "active" : ""}">
+              <div class="playground-session-heading">
+                <div>
+                  <div class="playground-session-title">
+                    <strong>${escapeHtml(session.name)}</strong>
+                    ${active ? `<span class="playground-session-current">Current</span>` : ""}
+                  </div>
+                  <span>Updated ${escapeHtml(formatSessionTime(session.updatedAt))}</span>
+                </div>
+                <button
+                  class="text-button danger"
+                  data-delete-playground-session="${escapeHtml(session.id)}"
+                  ${state.playgroundRunning ? "disabled" : ""}
+                  aria-label="Delete ${escapeHtml(session.name)}"
+                >Delete</button>
+              </div>
+              <div class="playground-session-actions">
+                ${
+                  active
+                    ? ""
+                    : `<button
+                        class="ghost-button"
+                        data-open-playground-session="${escapeHtml(session.id)}"
+                        ${state.playgroundRunning ? "disabled" : ""}
+                      >Open session</button>`
+                }
+                <button
+                  class="primary-button"
+                  data-run-playground-session="${escapeHtml(session.id)}"
+                  ${state.playgroundRunning ? "disabled" : ""}
+                >Run saved</button>
+              </div>
+            </article>
+          `;
+          }
+        )
+        .join("")}
+    </div>
   `;
 }
 
@@ -1710,8 +2011,31 @@ function bindEvents() {
       }
     });
   });
-  document.querySelector("#playground-run")?.addEventListener("click", runPlayground);
+  document.querySelector("#playground-run")?.addEventListener("click", () => runPlayground());
   document.querySelector("#playground-reset")?.addEventListener("click", resetPlayground);
+  document.querySelector("#playground-session-name")?.addEventListener("input", (event) => {
+    state.playgroundSessionName = event.target.value;
+    updatePlaygroundSessionStatus(editorCode());
+  });
+  document.querySelector("#playground-session-name")?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    if (activePlaygroundSession()) {
+      savePlaygroundSession();
+    } else {
+      savePlaygroundSessionAs();
+    }
+  });
+  document.querySelector("#playground-session-save")?.addEventListener("click", savePlaygroundSession);
+  document.querySelector("#playground-session-save-as")?.addEventListener("click", savePlaygroundSessionAs);
+  document.querySelectorAll("[data-open-playground-session]").forEach((button) => {
+    button.addEventListener("click", () => openPlaygroundSession(button.dataset.openPlaygroundSession));
+  });
+  document.querySelectorAll("[data-run-playground-session]").forEach((button) => {
+    button.addEventListener("click", () => runPlayground(button.dataset.runPlaygroundSession));
+  });
+  document.querySelectorAll("[data-delete-playground-session]").forEach((button) => {
+    button.addEventListener("click", () => deletePlaygroundSession(button.dataset.deletePlaygroundSession));
+  });
   document.querySelector("#apply-filters")?.addEventListener("click", () => {
     state.filters.search = document.querySelector("#search").value.trim();
     state.filters.category = document.querySelector("#category").value;

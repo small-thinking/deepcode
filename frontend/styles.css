@@ -1097,7 +1097,7 @@ pre {
 
 .playground-panel {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   min-height: calc(100vh - 112px);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1107,6 +1107,139 @@ pre {
 
 .playground-panel-header .panel-title p {
   white-space: normal;
+}
+
+.playground-sessions {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-header-bg);
+}
+
+.playground-session-toolbar,
+.playground-session-toolbar > div,
+.playground-session-save,
+.playground-session-heading,
+.playground-session-actions,
+.playground-session-title {
+  display: flex;
+  align-items: center;
+}
+
+.playground-session-toolbar {
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.playground-session-toolbar > div:first-child {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.playground-session-toolbar strong {
+  font-size: 13px;
+}
+
+.playground-session-toolbar span,
+.playground-session-heading span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.playground-session-toolbar span.dirty {
+  color: var(--amber);
+}
+
+.playground-session-save {
+  gap: 8px;
+}
+
+.playground-session-save .field {
+  width: min(280px, 42vw);
+}
+
+.playground-session-list {
+  display: grid;
+  grid-auto-columns: minmax(220px, 280px);
+  grid-auto-flow: column;
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.playground-session-card {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--mini-bg);
+}
+
+.playground-session-card.active {
+  border-color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue-soft);
+}
+
+.playground-session-heading {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.playground-session-heading > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.playground-session-title {
+  gap: 7px;
+  min-width: 0;
+}
+
+.playground-session-heading strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playground-session-current {
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: var(--blue) !important;
+  background: var(--blue-soft);
+  font-size: 9px !important;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.playground-session-actions {
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.playground-session-actions button {
+  padding: 7px 10px;
+  font-size: 11px;
+}
+
+.playground-session-empty {
+  padding: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
 }
 
 .playground-workspace {
@@ -1303,6 +1436,21 @@ pre {
 
   .playground-panel {
     min-height: auto;
+  }
+
+  .playground-session-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .playground-session-toolbar > .playground-session-save {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .playground-session-save .field {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .playground-workspace {
