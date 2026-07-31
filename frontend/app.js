@@ -532,9 +532,11 @@ function activePlaygroundSession() {
   return state.playgroundSessions.find((session) => session.id === state.playgroundActiveSessionId) || null;
 }
 
-function playgroundSessionDirty(code = currentCode()) {
+function playgroundSessionDirty(code = currentCode(), name = state.playgroundSessionName) {
   const activeSession = activePlaygroundSession();
-  return activeSession ? code !== activeSession.code : true;
+  if (!activeSession) return true;
+  const draftName = String(name ?? "").trim();
+  return code !== activeSession.code || (draftName !== "" && draftName !== activeSession.name);
 }
 
 function playgroundSessionStatusText(code = currentCode()) {
@@ -559,7 +561,7 @@ function updatePlaygroundSessionStatus(code = currentCode()) {
     saveButton.title = !activeSession
       ? "Use Save as new first"
       : dirty
-        ? "Save changes to the current session"
+        ? "Save code or name changes to the current session"
         : "No unsaved changes";
   }
 }
@@ -574,9 +576,10 @@ function savePlaygroundSession() {
   }
   if (!playgroundSessionDirty(editorCode())) return;
   const code = normalizePythonIndentation(editorCode());
+  const name = state.playgroundSessionName.trim() || activeSession.name;
   setEditorCode(code);
   saveCode(code);
-  const updatedSession = { ...activeSession, code, updatedAt: new Date().toISOString() };
+  const updatedSession = { ...activeSession, name, code, updatedAt: new Date().toISOString() };
   const sessions = [updatedSession, ...state.playgroundSessions.filter((session) => session.id !== activeSession.id)];
   state.error = null;
   if (!persistPlaygroundSessions(sessions, activeSession.id)) {
@@ -584,6 +587,7 @@ function savePlaygroundSession() {
     return;
   }
   state.playgroundSessions = sessions;
+  state.playgroundSessionName = "";
   render();
 }
 
@@ -624,6 +628,7 @@ function openPlaygroundSession(sessionId) {
   }
   localStorage.setItem(PLAYGROUND_CODE_KEY, session.code);
   state.playgroundActiveSessionId = session.id;
+  state.playgroundSessionName = "";
   state.playgroundResult = null;
   state.playgroundRunSource = "";
   render();
@@ -641,6 +646,7 @@ function deletePlaygroundSession(sessionId) {
   }
   state.playgroundSessions = sessions;
   state.playgroundActiveSessionId = activeSessionId;
+  if (!activeSessionId) state.playgroundSessionName = "";
   render();
 }
 
@@ -1260,7 +1266,8 @@ function renderPlayground() {
                 class="field"
                 id="playground-session-name"
                 value="${escapeHtml(state.playgroundSessionName)}"
-                placeholder="New session name (optional)"
+                placeholder="${activeSession ? "Rename current or name a new session" : "New session name (optional)"}"
+                aria-label="Session name"
                 maxlength="80"
                 ${state.playgroundRunning ? "disabled" : ""}
               />
@@ -1272,7 +1279,7 @@ function renderPlayground() {
                   !activeSession
                     ? "Use Save as new first"
                     : sessionDirty
-                      ? "Save changes to the current session"
+                      ? "Save code or name changes to the current session"
                       : "No unsaved changes"
                 }"
               >
@@ -2008,9 +2015,15 @@ function bindEvents() {
   document.querySelector("#playground-reset")?.addEventListener("click", resetPlayground);
   document.querySelector("#playground-session-name")?.addEventListener("input", (event) => {
     state.playgroundSessionName = event.target.value;
+    updatePlaygroundSessionStatus(editorCode());
   });
   document.querySelector("#playground-session-name")?.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") savePlaygroundSessionAs();
+    if (event.key !== "Enter") return;
+    if (activePlaygroundSession()) {
+      savePlaygroundSession();
+    } else {
+      savePlaygroundSessionAs();
+    }
   });
   document.querySelector("#playground-session-save")?.addEventListener("click", savePlaygroundSession);
   document.querySelector("#playground-session-save-as")?.addEventListener("click", savePlaygroundSessionAs);
