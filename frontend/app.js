@@ -611,6 +611,32 @@ function savePlaygroundSessionAs() {
   render();
 }
 
+function newPlaygroundDraft() {
+  if (state.view !== "playground" || state.playgroundRunning) return;
+  const code = editorCode();
+  const activeSession = activePlaygroundSession();
+  const hasUnsavedDraft = activeSession
+    ? playgroundSessionDirty(code)
+    : code !== "" || state.playgroundSessionName.trim() !== "";
+  if (
+    hasUnsavedDraft &&
+    !window.confirm(`Discard unsaved changes in "${activeSession?.name || "current draft"}" and start a new Playground?`)
+  ) {
+    return;
+  }
+  state.error = null;
+  if (!persistPlaygroundSessions(state.playgroundSessions, null)) {
+    render();
+    return;
+  }
+  localStorage.setItem(PLAYGROUND_CODE_KEY, "");
+  state.playgroundActiveSessionId = null;
+  state.playgroundSessionName = "";
+  state.playgroundResult = null;
+  state.playgroundRunSource = "";
+  render();
+}
+
 function openPlaygroundSession(sessionId) {
   const session = state.playgroundSessions.find((item) => item.id === sessionId);
   if (!session || state.playgroundRunning || session.id === state.playgroundActiveSessionId) return;
@@ -1271,6 +1297,14 @@ function renderPlayground() {
                 maxlength="80"
                 ${state.playgroundRunning ? "disabled" : ""}
               />
+              <button
+                class="ghost-button"
+                id="playground-session-new"
+                ${state.playgroundRunning ? "disabled" : ""}
+                title="Start a new blank Playground"
+              >
+                New
+              </button>
               <button
                 class="ghost-button"
                 id="playground-session-save"
@@ -2013,6 +2047,7 @@ function bindEvents() {
   });
   document.querySelector("#playground-run")?.addEventListener("click", () => runPlayground());
   document.querySelector("#playground-reset")?.addEventListener("click", resetPlayground);
+  document.querySelector("#playground-session-new")?.addEventListener("click", newPlaygroundDraft);
   document.querySelector("#playground-session-name")?.addEventListener("input", (event) => {
     state.playgroundSessionName = event.target.value;
     updatePlaygroundSessionStatus(editorCode());
