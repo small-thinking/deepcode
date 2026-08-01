@@ -234,14 +234,20 @@ For `ml_modeling`, use assertions directly in `test`:
 
 ## Multipart Problems
 
-Keep one interview-question family in one problem folder. When the source has
-substantial coding follow-ups, write them as `### Part 1`, `### Part 2`, and so
-on in the single `prompt`, with a blank line after each heading; include every
-required function or class stub in the
-same `starter_code`; and keep one flat `tests.json` list whose test names begin
-with `[Part N]`. Do not add a top-level `parts` field or create separate problem
-folders for follow-ups. A submission completes the problem only when the tests
-for every part pass.
+Keep small follow-ups in one problem folder when they extend the same public API
+and the complete exercise still fits one interview session. Write them as
+`### Part 1`, `### Part 2`, and so on in the single `prompt`, with a blank line
+after each heading. Include all required stubs in one `starter_code` and prefix
+flat test names with `[Part N]`. Do not add a top-level `parts` field.
+
+Split a substantial follow-up into a separate problem when it introduces a new
+function or class, a materially different state model or algorithm, or makes
+the combined exercise longer than roughly 45–60 minutes. Give the sequence a
+shared series tag and ordered titles such as `I`, `II`, and `III`. Each problem
+must remain independently solvable: restate the contract and provide earlier
+behavior as a helper or callback when the new part should not require rewriting
+the previous solution. DeepCode completion is tracked per problem slug, so
+separate folders also give each substantial part its own completion state.
 
 ## Comparators
 

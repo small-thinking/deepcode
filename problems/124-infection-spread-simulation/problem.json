@@ -1,13 +1,13 @@
 {
   "id": "124",
   "slug": "infection-spread-simulation",
-  "title": "Infection Spread Simulation",
+  "title": "Infection Spread Simulation I — Basic Propagation",
   "category": "Algorithms",
-  "difficulty": "hard",
-  "tags": ["simulation", "grid", "state-machine", "optimization", "multipart"],
+  "difficulty": "medium",
+  "tags": ["infection-spread", "series", "part-1", "simulation", "grid"],
   "companies": ["OpenAI"],
-  "prompt": "Implement a five-part synchronous infection simulation. Use integer cell states: `HEALTHY = 0`, `INFECTED = 1`, `IMMUNE = 2`, `DEAD = 3`, and `BURNED = 4`. All daily transitions must read the same start-of-day grid, and no function may mutate its input. The default neighborhood is four-directional.\n\n### Part 1 — Basic propagation\n\nImplement `simulate_basic(grid, infection_threshold=1, directions=DIR4)`. A healthy plant becomes infected when it has at least `infection_threshold` infected neighbors. Infection is permanent. Return `(days_to_stability, final_grid)`.\n\n### Part 2 — Static immunity\n\nImplement `simulate_with_immunity(...)`. Immune plants never become infected and never transmit. Other rules match Part 1.\n\n### Part 3 — Recovery and immunity\n\nImplement `simulate_recovery(grid, infectious_days, infection_threshold=1, directions=DIR4)`. An infected plant transmits for exactly `infectious_days` daily updates, then becomes immune. A newly infected plant begins transmitting on the next day's snapshot and receives the full timer. Return `(days_to_stability, final_grid)`.\n\n### Part 4 — Pending death\n\nImplement `simulate_pending_death(grid, infectious_days, death_threshold, infection_threshold=1, directions=DIR4)`. If an infected plant has at least `death_threshold` infected neighbors on any sick day, permanently mark it doomed. Infection day counts for a newly infected plant. On its normal recovery day, a doomed plant becomes dead; otherwise it becomes immune. Return `(days_to_stability, dead_count, final_grid)`.\n\n### Part 5 — Optimal initial burn\n\nImplement `best_initial_burn(grid, infectious_days, death_threshold, infection_threshold=1, directions=DIR4)`. Before the first simulated day, burn exactly one complete row or column. Evaluate every action with Part 4 and minimize `(dead_count, stable_days)`. Break remaining ties by rows before columns, then lower index. Return `(dead_count, stable_days, axis, index, final_grid)`.",
-  "starter_code": "HEALTHY, INFECTED, IMMUNE, DEAD, BURNED = range(5)\nDIR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n\ndef simulate_basic(grid, infection_threshold=1, directions=DIR4):\n    pass\n\n\ndef simulate_with_immunity(grid, infection_threshold=1, directions=DIR4):\n    pass\n\n\ndef simulate_recovery(\n    grid, infectious_days, infection_threshold=1, directions=DIR4\n):\n    pass\n\n\ndef simulate_pending_death(\n    grid,\n    infectious_days,\n    death_threshold,\n    infection_threshold=1,\n    directions=DIR4,\n):\n    pass\n\n\ndef best_initial_burn(\n    grid,\n    infectious_days,\n    death_threshold,\n    infection_threshold=1,\n    directions=DIR4,\n):\n    pass\n",
+  "prompt": "This is the first problem in the Infection Spread Simulation series. Use `HEALTHY = 0` and `INFECTED = 1`.\n\nImplement `simulate_basic(grid, infection_threshold=1, directions=DIR4)`. On each day, a healthy cell becomes infected when it has at least `infection_threshold` infected neighbors in `directions`. Every transition must read the same start-of-day grid, so a cell infected today cannot transmit until tomorrow. Infection is permanent.\n\nReturn `(days_to_stability, final_grid)`. Count a day only when at least one cell changes, and stop when another update would make no changes. The grid must be non-empty, rectangular, and contain only known states. `infection_threshold` must be a positive integer. Do not mutate the input grid.",
+  "starter_code": "HEALTHY, INFECTED = range(2)\nDIR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n\ndef simulate_basic(grid, infection_threshold=1, directions=DIR4):\n    pass\n",
   "example": {
     "input": "simulate_basic([[1, 0, 0]])",
     "output": "(2, [[1, 1, 1]])",
@@ -15,7 +15,7 @@
   },
   "environment": {
     "language": "python",
-    "timeout_seconds": 4,
+    "timeout_seconds": 3,
     "packages": [],
     "comparator": "assertions"
   },
@@ -28,7 +28,7 @@
       "url": "https://www.1point3acres.com/bbs/thread-1183292-1-1.html"
     },
     {
-      "label": "OpenAI five-part and burn follow-ups",
+      "label": "OpenAI five-part follow-up report",
       "url": "https://www.1point3acres.com/bbs/thread-1181608-1-1.html"
     }
   ],
