@@ -1,0 +1,27 @@
+[
+  {
+    "name": "[Part 1] historical edge state survives later mutations",
+    "input": "follow, snapshot, unfollow, snapshot, and refollow",
+    "test": "graph = VersionedSocialGraph()\nassert graph.snapshot() == 0\nassert graph.follow('alice', 'bob')\nfollowed = graph.snapshot()\nassert followed == 1\nassert graph.is_following('alice', 'bob', followed)\nassert not graph.follow('alice', 'bob')\nassert graph.snapshot() == followed\nassert graph.unfollow('alice', 'bob')\nunfollowed = graph.snapshot()\nassert not graph.is_following('alice', 'bob', unfollowed)\nassert graph.is_following('alice', 'bob', followed)\nassert not graph.unfollow('alice', 'bob')\nassert graph.follow('alice', 'bob')\nassert graph.is_following('alice', 'bob')"
+  },
+  {
+    "name": "[Part 1] invalid users and snapshots are rejected",
+    "input": "self-follow, non-string user, negative version, and future version",
+    "test": "graph = VersionedSocialGraph()\nbad_calls = [\n    lambda: graph.follow('a', 'a'),\n    lambda: graph.follow(1, 'a'),\n    lambda: graph.is_following('a', 'b', -1),\n    lambda: graph.is_following('a', 'b', 1),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  },
+  {
+    "name": "[Part 2] incoming and outgoing lists are versioned",
+    "input": "two snapshots around an unfollow and a new follower",
+    "test": "graph = VersionedSocialGraph()\ngraph.follow('alice', 'bob')\ngraph.follow('alice', 'carol')\ngraph.follow('dave', 'bob')\nfirst = graph.snapshot()\ngraph.unfollow('alice', 'bob')\ngraph.follow('erin', 'bob')\nsecond = graph.snapshot()\nassert graph.get_followees('alice', first) == ['bob', 'carol']\nassert graph.get_followers('bob', first) == ['alice', 'dave']\nassert graph.get_followees('alice', second) == ['carol']\nassert graph.get_followers('bob', second) == ['dave', 'erin']\nassert graph.get_followers('missing') == []"
+  },
+  {
+    "name": "[Part 3] recommendations score mutual followees and break ties",
+    "input": "three direct followees with overlapping second-hop candidates",
+    "test": "graph = VersionedSocialGraph()\nfor direct in ('bob', 'carol', 'dave'):\n    graph.follow('alice', direct)\nfor edge in [\n    ('bob', 'zoe'), ('carol', 'zoe'),\n    ('bob', 'erin'), ('dave', 'erin'),\n    ('carol', 'frank'),\n    ('bob', 'alice'),\n    ('dave', 'carol'),\n]:\n    graph.follow(*edge)\nassert graph.recommend('alice', 10) == [('erin', 2), ('zoe', 2), ('frank', 1)]\nassert graph.recommend('alice', 2) == [('erin', 2), ('zoe', 2)]\nassert graph.recommend('alice', 0) == []"
+  },
+  {
+    "name": "[Part 3] recommendations honor historical snapshots",
+    "input": "candidate added after the first snapshot and removed after the second",
+    "test": "graph = VersionedSocialGraph()\ngraph.follow('a', 'b')\ngraph.follow('a', 'c')\ngraph.follow('b', 'x')\nfirst = graph.snapshot()\ngraph.follow('c', 'x')\ngraph.follow('b', 'y')\nsecond = graph.snapshot()\ngraph.unfollow('b', 'x')\nassert graph.recommend('a', 5, first) == [('x', 1)]\nassert graph.recommend('a', 5, second) == [('x', 2), ('y', 1)]\nassert graph.recommend('a', 5) == [('x', 1), ('y', 1)]\nfor bad_k in (-1, 1.5, True):\n    try:\n        graph.recommend('a', bad_k)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]

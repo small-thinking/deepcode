@@ -1,0 +1,32 @@
+[
+  {
+    "name": "[Part 1] exact closed-window cutoff",
+    "input": "events at minutes 0, 14, 15, and 16",
+    "test": "tracker = RecentInteractionTracker()\ntracker.process_event('u', 'c', 0)\ntracker.process_event('u', 'c', 14)\nassert tracker.get_num_recent_interactions('u', 'c') == 2\ntracker.process_event('u', 'c', 15)\nassert tracker.get_num_recent_interactions('u', 'c') == 2\ntracker.process_event('other', 'chat', 16)\nassert tracker.get_num_recent_interactions('u', 'c') == 2\nassert tracker.get_num_recent_interactions('missing', 'chat') == 0"
+  },
+  {
+    "name": "[Part 1] ordered contract and global eviction",
+    "input": "decreasing timestamp and a far-future unrelated key",
+    "test": "tracker = RecentInteractionTracker()\ntracker.process_event('stale', 'chat', 1)\ntracker.process_event('new', 'chat', 30)\nassert tracker.get_num_recent_interactions('stale', 'chat') == 0\ntry:\n    tracker.process_event('u', 'c', 29)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+  },
+  {
+    "name": "[Part 2] end deactivates and later interaction reactivates",
+    "input": "two chats with repeated interaction, end, and reactivation",
+    "test": "tracker = OrderedActiveSessionTracker()\ntracker.process_event('u', 'c1', 0, 'interact')\ntracker.process_event('u', 'c1', 5, 'interact')\ntracker.process_event('u', 'c2', 6, 'interact')\nassert tracker.get_num_active_sessions('u') == 2\ntracker.process_event('u', 'c1', 7, 'end')\nassert tracker.get_num_active_sessions('u') == 1\ntracker.process_event('u', 'c1', 8, 'interact')\nassert tracker.get_num_active_sessions('u') == 2"
+  },
+  {
+    "name": "[Part 2] sessions expire at the exact boundary",
+    "input": "interactions at 6 and 8 while time advances to 22 and 23",
+    "test": "tracker = OrderedActiveSessionTracker()\ntracker.process_event('u', 'c2', 6, 'interact')\ntracker.process_event('u', 'c1', 8, 'interact')\ntracker.process_event('other', 'x', 22, 'interact')\nassert tracker.get_num_active_sessions('u') == 1\ntracker.process_event('other', 'x', 23, 'end')\nassert tracker.get_num_active_sessions('u') == 0"
+  },
+  {
+    "name": "[Part 3] bounded lateness buffers then finalizes events",
+    "input": "interact at 10, end at 12, late interact at 11",
+    "test": "tracker = OutOfOrderActiveSessionTracker(window=15, allowed_lateness=2)\nassert tracker.process_event('u', 'c', 10, 'interact')\nassert tracker.watermark == 8\nassert tracker.get_num_active_sessions('u') == 0\nassert tracker.process_event('u', 'c', 12, 'end')\nassert tracker.watermark == 10\nassert tracker.get_num_active_sessions('u') == 1\nassert tracker.process_event('u', 'c', 11, 'interact')\nassert tracker.process_event('other', 'x', 14, 'interact')\nassert tracker.watermark == 12\nassert tracker.get_num_active_sessions('u') == 0"
+  },
+  {
+    "name": "[Part 3] finalized late events are rejected and old state expires",
+    "input": "event at the watermark and a far-future tick",
+    "test": "tracker = OutOfOrderActiveSessionTracker(window=15, allowed_lateness=2)\ntracker.process_event('u', 'c', 10, 'interact')\ntracker.process_event('u', 'c', 12, 'end')\ntracker.process_event('other', 'x', 14, 'interact')\nassert not tracker.process_event('u', 'late', 12, 'interact')\nassert tracker.process_event('tick', 'tick', 31, 'interact')\nassert tracker.get_num_active_sessions('other') == 0"
+  }
+]

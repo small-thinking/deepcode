@@ -1,0 +1,32 @@
+[
+  {
+    "name": "[Part 1] synchronous waves and threshold",
+    "input": "basic propagation with one source and a threshold-two cell",
+    "test": "original = [[1, 0, 0], [0, 0, 0], [0, 0, 0]]\nassert simulate_basic(original) == (4, [[1, 1, 1], [1, 1, 1], [1, 1, 1]])\nassert original == [[1, 0, 0], [0, 0, 0], [0, 0, 0]]\nassert simulate_basic([[1, 0, 1]], infection_threshold=2) == (1, [[1, 1, 1]])"
+  },
+  {
+    "name": "[Part 2] immune barrier remains static",
+    "input": "infected cells separated from healthy cells by immune plants",
+    "test": "assert simulate_with_immunity([[1, 2, 0], [0, 2, 0]]) == (1, [[1, 2, 0], [1, 2, 0]])\nassert simulate_with_immunity([[2]]) == (0, [[2]])"
+  },
+  {
+    "name": "[Part 3] infection timers create a moving wave",
+    "input": "one-day infectious period",
+    "test": "assert simulate_recovery([[1, 0, 0]], infectious_days=1) == (3, [[2, 2, 2]])\nassert simulate_recovery([[1, 2, 0]], infectious_days=2) == (2, [[2, 2, 0]])"
+  },
+  {
+    "name": "[Part 4] doom is sticky until the recovery day",
+    "input": "newly infected middle plant crosses the death threshold",
+    "test": "assert simulate_pending_death([[1, 0, 1]], infectious_days=1, death_threshold=2) == (2, 1, [[2, 3, 2]])\nassert simulate_pending_death([[1, 0]], infectious_days=1, death_threshold=2) == (2, 0, [[2, 2]])\nassert simulate_pending_death([[1, 1, 1]], infectious_days=1, death_threshold=1) == (1, 3, [[3, 3, 3]])"
+  },
+  {
+    "name": "[Part 5] burn minimizes deaths then stabilization time",
+    "input": "one-cell tie and a non-trivial three-by-three grid",
+    "test": "assert best_initial_burn([[1]], 1, 2) == (0, 0, 'row', 0, [[4]])\nscenario = [[0, 0, 1], [0, 0, 1], [1, 1, 0]]\nresult = best_initial_burn(scenario, 2, 2)\nassert result[:4] == (1, 4, 'row', 1)\nassert scenario == [[0, 0, 1], [0, 0, 1], [1, 1, 0]]"
+  },
+  {
+    "name": "[All parts] validate malformed grids and thresholds",
+    "input": "empty, ragged, unknown-state, and non-positive inputs",
+    "test": "bad_calls = [\n    lambda: simulate_basic([]),\n    lambda: simulate_basic([[1], [1, 0]]),\n    lambda: simulate_basic([[2]]),\n    lambda: simulate_basic([[1]], infection_threshold=0),\n    lambda: simulate_recovery([[1]], infectious_days=0),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]
