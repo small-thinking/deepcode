@@ -58,6 +58,21 @@ class StaticUiTest(unittest.TestCase):
         self.assertNotIn("problem-topbar-title", app_js)
         self.assertNotIn("problem-topbar-title", styles_css)
 
+    def test_problem_detail_has_a_persistent_per_problem_timer(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('PROBLEM_TIMERS_KEY = "deepcode-problem-timers"', app_js)
+        self.assertIn("function renderProblemTimer(problem)", app_js)
+        self.assertIn("function toggleProblemTimer()", app_js)
+        self.assertIn("function resetProblemTimer()", app_js)
+        self.assertIn("function formatProblemTimer(timer)", app_js)
+        self.assertIn('id="problem-timer-toggle"', app_js)
+        self.assertIn('id="problem-timer-reset"', app_js)
+        self.assertIn("syncProblemTimer();", app_js)
+        self.assertIn(".problem-timer", styles_css)
+        self.assertIn(".problem-timer-display", styles_css)
+
     def test_theme_toggle_is_available_on_list_and_detail_pages(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

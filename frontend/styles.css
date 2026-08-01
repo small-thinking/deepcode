@@ -191,6 +191,36 @@ button {
   gap: 8px;
 }
 
+.problem-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 4px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+}
+
+.problem-timer-display {
+  min-width: 68px;
+  color: var(--blue);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.problem-timer-toggle {
+  min-width: 68px;
+}
+
+.problem-timer .icon-button {
+  width: 30px;
+  min-height: 30px;
+  color: var(--muted);
+}
+
 .main-nav {
   display: inline-flex;
   align-items: center;

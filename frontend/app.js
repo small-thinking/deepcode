@@ -1,4 +1,5 @@
 const THEME_KEY = "deepcode-theme";
+const PROBLEM_TIMERS_KEY = "deepcode-problem-timers";
 const PLAYGROUND_CODE_KEY = "deepcode-playground-code";
 const PLAYGROUND_SESSIONS_KEY = "deepcode-playground-sessions";
 const LEGACY_PLAYGROUND_SNAPSHOTS_KEY = "deepcode-playground-snapshots";
@@ -73,6 +74,7 @@ const app = document.querySelector("#app");
 let codeEditor = null;
 let activePaneResize = null;
 let runTimer = null;
+let problemTimer = null;
 
 function initialTheme() {
   const stored = localStorage.getItem(THEME_KEY);
@@ -102,6 +104,117 @@ function themeToggleLabel() {
 
 function themeToggleButton() {
   return `<button class="ghost-button theme-toggle" id="theme-toggle" aria-pressed="${state.theme === "dark"}">${themeToggleLabel()}</button>`;
+}
+
+function loadProblemTimers() {
+  try {
+    const timers = JSON.parse(localStorage.getItem(PROBLEM_TIMERS_KEY) || "{}");
+    return timers && typeof timers === "object" && !Array.isArray(timers) ? timers : {};
+  } catch {
+    return {};
+  }
+}
+
+function problemTimerFor(slug) {
+  const saved = loadProblemTimers()[slug];
+  const elapsedMs = Number(saved?.elapsedMs);
+  const startedAt = Number(saved?.startedAt);
+  return {
+    elapsedMs: Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) : 0,
+    startedAt: Number.isFinite(startedAt) && startedAt > 0 ? startedAt : null,
+  };
+}
+
+function problemTimerIsRunning(timer) {
+  return timer.startedAt !== null;
+}
+
+function problemTimerElapsedMs(timer) {
+  return timer.elapsedMs + (problemTimerIsRunning(timer) ? Math.max(0, Date.now() - timer.startedAt) : 0);
+}
+
+function formatProblemTimer(timer) {
+  const totalSeconds = Math.floor(problemTimerElapsedMs(timer) / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":");
+}
+
+function saveProblemTimer(slug, timer) {
+  const timers = loadProblemTimers();
+  if (!timer.elapsedMs && !problemTimerIsRunning(timer)) {
+    delete timers[slug];
+  } else {
+    timers[slug] = { elapsedMs: timer.elapsedMs, startedAt: timer.startedAt };
+  }
+  localStorage.setItem(PROBLEM_TIMERS_KEY, JSON.stringify(timers));
+}
+
+function renderProblemTimer(problem) {
+  const timer = problemTimerFor(problem.slug);
+  const running = problemTimerIsRunning(timer);
+  const action = running ? "Pause" : timer.elapsedMs ? "Resume" : "Start";
+  return `
+    <div class="problem-timer" role="group" aria-label="Problem timer">
+      <time class="problem-timer-display" id="problem-timer-display" aria-label="Elapsed time">${formatProblemTimer(timer)}</time>
+      <button class="ghost-button problem-timer-toggle" id="problem-timer-toggle" aria-pressed="${running}">${action}</button>
+      <button class="icon-button" id="problem-timer-reset" aria-label="Reset problem timer" title="Reset timer">↻</button>
+    </div>
+  `;
+}
+
+function stopProblemTimer() {
+  if (!problemTimer) return;
+  clearInterval(problemTimer);
+  problemTimer = null;
+}
+
+function updateProblemTimerDisplay() {
+  if (!state.selected) return;
+  const timer = problemTimerFor(state.selected.slug);
+  const display = document.querySelector("#problem-timer-display");
+  if (display) display.textContent = formatProblemTimer(timer);
+}
+
+function syncProblemTimer() {
+  stopProblemTimer();
+  if (!state.selected || !problemTimerIsRunning(problemTimerFor(state.selected.slug))) return;
+  updateProblemTimerDisplay();
+  problemTimer = setInterval(updateProblemTimerDisplay, 1000);
+}
+
+function toggleProblemTimer() {
+  if (!state.selected) return;
+  const slug = state.selected.slug;
+  const timer = problemTimerFor(slug);
+  if (problemTimerIsRunning(timer)) {
+    timer.elapsedMs = problemTimerElapsedMs(timer);
+    timer.startedAt = null;
+  } else {
+    timer.startedAt = Date.now();
+  }
+  saveProblemTimer(slug, timer);
+  syncProblemTimer();
+  updateProblemTimerDisplay();
+  const button = document.querySelector("#problem-timer-toggle");
+  if (button) {
+    const running = problemTimerIsRunning(timer);
+    button.textContent = running ? "Pause" : timer.elapsedMs ? "Resume" : "Start";
+    button.setAttribute("aria-pressed", String(running));
+  }
+}
+
+function resetProblemTimer() {
+  if (!state.selected) return;
+  saveProblemTimer(state.selected.slug, { elapsedMs: 0, startedAt: null });
+  stopProblemTimer();
+  updateProblemTimerDisplay();
+  const button = document.querySelector("#problem-timer-toggle");
+  if (button) {
+    button.textContent = "Start";
+    button.setAttribute("aria-pressed", "false");
+  }
 }
 
 function mainNavigation() {
@@ -1139,6 +1252,7 @@ function render() {
   bindEvents();
   mountEditor();
   applyPaneSizes();
+  syncProblemTimer();
   scrollPendingCustomTestIntoView();
 }
 
@@ -1515,7 +1629,10 @@ function renderDetail() {
           <button class="ghost-button" id="problem-back-button">← Problems</button>
           ${mainNavigation()}
         </div>
-        <div class="topbar-actions">${themeToggleButton()}</div>
+        <div class="topbar-actions">
+          ${renderProblemTimer(problem)}
+          ${themeToggleButton()}
+        </div>
       </header>
       <section class="detail-layout" ${paneLayoutStyle()}>
         <article class="detail-panel">
@@ -2102,6 +2219,8 @@ function bindEvents() {
     });
   });
   document.querySelector("#problem-back-button")?.addEventListener("click", backToList);
+  document.querySelector("#problem-timer-toggle")?.addEventListener("click", toggleProblemTimer);
+  document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
   document.querySelectorAll("[data-run-test-index]").forEach((button) => {
     button.addEventListener("click", () => runTests(Number(button.dataset.runTestIndex)));
