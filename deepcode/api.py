@@ -89,6 +89,7 @@ def _handle_api_request(
             difficulty=_first(query, "difficulty"),
             search=_first(query, "search"),
             sort=_first(query, "sort") or "id",
+            order=_first(query, "order") or "asc",
         )
         problems = _with_personal_status(context, problems)
         return 200, {

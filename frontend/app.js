@@ -37,6 +37,7 @@ const state = {
     category: "all",
     difficulty: "all",
     sort: "id",
+    order: "asc",
   },
   selected: null,
   customTests: [],
@@ -290,6 +291,13 @@ function paramsFromFilters() {
     if (value && value !== "all") params.set(key, value);
   });
   return params.toString();
+}
+
+function setProblemSort(sortKey) {
+  const sameColumn = state.filters.sort === sortKey;
+  state.filters.order = sameColumn && state.filters.order === "asc" ? "desc" : "asc";
+  state.filters.sort = sortKey;
+  loadProblems();
 }
 
 async function loadProblems() {
@@ -1445,17 +1453,38 @@ function problemTable() {
     <table>
       <thead>
         <tr>
-          <th>#</th>
-          <th>Status</th>
-          <th>Title</th>
-          <th>Difficulty</th>
-          <th>Category</th>
-          <th>Companies</th>
-          <th>Tags</th>
+          ${problemSortHeader("id", "#", "number")}
+          <th scope="col">Status</th>
+          ${problemSortHeader("title", "Title")}
+          ${problemSortHeader("difficulty", "Difficulty")}
+          <th scope="col">Category</th>
+          <th scope="col">Companies</th>
+          <th scope="col">Tags</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
+  `;
+}
+
+function problemSortHeader(sortKey, label, accessibleLabel = label) {
+  const active = state.filters.sort === sortKey;
+  const order = active && state.filters.order === "desc" ? "desc" : "asc";
+  const ariaSort = active ? (order === "desc" ? "descending" : "ascending") : "none";
+  const nextOrder = active && order === "asc" ? "descending" : "ascending";
+  const indicator = active ? (order === "asc" ? "↑" : "↓") : "↕";
+  return `
+    <th scope="col" aria-sort="${ariaSort}">
+      <button
+        class="problem-sort-button ${active ? "active" : ""}"
+        type="button"
+        data-problem-sort="${escapeHtml(sortKey)}"
+        aria-label="Sort by ${escapeHtml(accessibleLabel)} ${nextOrder}"
+      >
+        <span>${escapeHtml(label)}</span>
+        <span class="sort-indicator" aria-hidden="true">${indicator}</span>
+      </button>
+    </th>
   `;
 }
 
@@ -2040,8 +2069,13 @@ function bindEvents() {
     state.filters.search = document.querySelector("#search").value.trim();
     state.filters.category = document.querySelector("#category").value;
     state.filters.difficulty = document.querySelector("#difficulty").value;
-    state.filters.sort = document.querySelector("#sort").value;
+    const selectedSort = document.querySelector("#sort").value;
+    if (state.filters.sort !== selectedSort) state.filters.order = "asc";
+    state.filters.sort = selectedSort;
     loadProblems();
+  });
+  document.querySelectorAll("[data-problem-sort]").forEach((button) => {
+    button.addEventListener("click", () => setProblemSort(button.dataset.problemSort));
   });
   document.querySelector("#search")?.addEventListener("keydown", (event) => {
     if (event.key === "Enter") document.querySelector("#apply-filters").click();

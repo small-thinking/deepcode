@@ -28,6 +28,24 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["categories"], ["Machine Learning"])
             self.assertEqual(payload["difficulties"], ["easy"])
 
+    def test_lists_problems_in_requested_sort_direction(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root)
+            self._write_problem(root, "alpha", "1", {"title": "Alpha"})
+            self._write_problem(root, "zulu", "2", {"title": "Zulu"})
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "GET",
+                "/api/problems",
+                {"sort": ["title"], "order": ["desc"]},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual([problem["slug"] for problem in payload["problems"]], ["zulu", "alpha"])
+
     def test_server_dispatches_mutating_api_methods(self):
         self.assertTrue(hasattr(DeepCodeHandler, "do_PUT"))
         self.assertTrue(hasattr(DeepCodeHandler, "do_DELETE"))

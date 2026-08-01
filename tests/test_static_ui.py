@@ -92,7 +92,7 @@ class StaticUiTest(unittest.TestCase):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn("<th>Companies</th>", app_js)
+        self.assertIn('<th scope="col">Companies</th>', app_js)
         self.assertIn("problem.companies", app_js)
         self.assertIn("function renderProblemMetadata", app_js)
         self.assertIn('metadata: "problem-section problem-metadata-section"', app_js)
@@ -301,12 +301,28 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("function problemCompleted", app_js)
         self.assertIn("function problemStatusBadge", app_js)
         self.assertIn("personal_status", app_js)
-        self.assertIn("<th>Status</th>", app_js)
+        self.assertIn('<th scope="col">Status</th>', app_js)
         self.assertIn('class="status-cell"', app_js)
         self.assertIn("✓", app_js)
         self.assertIn(".completion-badge", styles_css)
         self.assertIn(".completion-badge.completed", styles_css)
         self.assertIn(".status-cell", styles_css)
+
+    def test_problem_table_headers_control_sort_direction(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('order: "asc"', app_js)
+        self.assertIn("function setProblemSort(sortKey)", app_js)
+        self.assertIn("function problemSortHeader(sortKey, label, accessibleLabel = label)", app_js)
+        self.assertIn('problemSortHeader("id", "#", "number")', app_js)
+        self.assertIn('problemSortHeader("title", "Title")', app_js)
+        self.assertIn('problemSortHeader("difficulty", "Difficulty")', app_js)
+        self.assertIn('aria-sort="${ariaSort}"', app_js)
+        self.assertIn('data-problem-sort="${escapeHtml(sortKey)}"', app_js)
+        self.assertIn("setProblemSort(button.dataset.problemSort)", app_js)
+        self.assertIn(".problem-sort-button", styles_css)
+        self.assertIn(".sort-indicator", styles_css)
 
     def test_reset_code_clears_local_completion_status(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
