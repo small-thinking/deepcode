@@ -320,6 +320,35 @@ class EvaluatorRegistryTest(unittest.TestCase):
         self.assertIn("AssertionError", result["results"][0]["actual_output"])
         self.assertTrue(result["results"][1]["passed"])
 
+    def test_ml_modeling_reports_simple_assertion_actual_and_expected_values(self):
+        result = evaluate_submission(
+            EvaluationRequest(
+                code="def square(x):\n    return x + 1\n",
+                problem={"evaluation": {"type": "ml_modeling"}},
+                tests=[{"name": "wrong value", "test": "assert square(4) == 16"}],
+                environment={"timeout_seconds": 2},
+            )
+        )
+
+        case = result["results"][0]
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(case["assertion_mismatch"], {"actual": "5", "expected": "16", "message": None})
+        self.assertIn("AssertionError", case["actual_output"])
+
+    def test_ml_modeling_keeps_tracebacks_for_non_equality_assertions(self):
+        result = evaluate_submission(
+            EvaluationRequest(
+                code="def ready():\n    return False\n",
+                problem={"evaluation": {"type": "ml_modeling"}},
+                tests=[{"name": "condition", "test": "assert ready()"}],
+                environment={"timeout_seconds": 2},
+            )
+        )
+
+        case = result["results"][0]
+        self.assertNotIn("assertion_mismatch", case)
+        self.assertIn("AssertionError", case["actual_output"])
+
     def test_ml_modeling_times_out_cleanly(self):
         result = evaluate_submission(
             EvaluationRequest(

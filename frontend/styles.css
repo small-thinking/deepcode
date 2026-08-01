@@ -1118,6 +1118,33 @@ pre {
   margin-bottom: 10px;
 }
 
+.assertion-mismatch {
+  margin: 0 0 10px;
+  color: var(--red);
+  font-size: 13px;
+}
+
+.assertion-mismatch p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.result-traceback {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.result-traceback summary {
+  cursor: pointer;
+}
+
+.result-traceback pre {
+  max-height: 220px;
+  margin-top: 8px;
+  overflow: auto;
+}
+
 .test-detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
