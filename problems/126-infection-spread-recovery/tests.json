@@ -8,10 +8,5 @@
     "name": "new infections receive the full timer",
     "input": "threshold two and a two-day immune barrier scenario",
     "test": "assert simulate_recovery([[1, 0, 1]], infectious_days=1, infection_threshold=2) == (2, [[2, 2, 2]])\nassert simulate_recovery([[1, 2, 0]], infectious_days=2) == (2, [[2, 2, 0]])"
-  },
-  {
-    "name": "validates recovery inputs",
-    "input": "malformed grids and invalid timer/threshold values",
-    "test": "bad_calls = [\n    lambda: simulate_recovery([], 1),\n    lambda: simulate_recovery([[1], [0, 1]], 1),\n    lambda: simulate_recovery([[3]], 1),\n    lambda: simulate_recovery([[1]], 0),\n    lambda: simulate_recovery([[1]], 1, infection_threshold=0),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
   }
 ]

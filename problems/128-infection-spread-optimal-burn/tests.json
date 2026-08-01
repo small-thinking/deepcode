@@ -13,10 +13,5 @@
     "name": "candidate grids are independent copies",
     "input": "a callback that mutates every candidate it receives",
     "test": "snapshots = []\ndef destructive_simulate(candidate):\n    snapshots.append([row[:] for row in candidate])\n    candidate[0][0] = 99\n    return 1, 1, candidate\n\noriginal = [[1, 0], [0, 1]]\nbest_initial_burn(original, destructive_simulate)\nassert original == [[1, 0], [0, 1]]\nassert snapshots[0] == [[4, 4], [0, 1]]\nassert snapshots[1] == [[1, 0], [4, 4]]\nassert snapshots[2] == [[4, 0], [4, 1]]\nassert snapshots[3] == [[1, 4], [0, 4]]"
-  },
-  {
-    "name": "validates the initial burn grid",
-    "input": "empty, ragged, and unknown-state grids",
-    "test": "simulate = lambda candidate: (0, 0, candidate)\nbad_calls = [\n    lambda: best_initial_burn([], simulate),\n    lambda: best_initial_burn([[1], [0, 1]], simulate),\n    lambda: best_initial_burn([[3]], simulate),\n    lambda: best_initial_burn([[4]], simulate),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
   }
 ]

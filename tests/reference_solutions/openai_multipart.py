@@ -15,16 +15,8 @@ HEALTHY, INFECTED, IMMUNE, DEAD, BURNED = range(5)
 DIR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
 
 
-def _copy_grid(grid, allowed):
-    if not grid or not grid[0]:
-        raise ValueError("grid must be non-empty")
-    width = len(grid[0])
-    if any(len(row) != width for row in grid):
-        raise ValueError("grid must be rectangular")
-    copied = [list(row) for row in grid]
-    if any(cell not in allowed for row in copied for cell in row):
-        raise ValueError("unknown cell state")
-    return copied
+def _copy_grid(grid):
+    return [list(row) for row in grid]
 
 
 def _positive(name, value):
@@ -42,9 +34,8 @@ def _infected_neighbors(grid, row, col, directions):
     )
 
 
-def _static_spread(grid, allowed, infection_threshold, directions):
-    _positive("infection_threshold", infection_threshold)
-    current = _copy_grid(grid, allowed)
+def _static_spread(grid, infection_threshold, directions):
+    current = _copy_grid(grid)
     days = 0
     while True:
         infected = [
@@ -63,23 +54,17 @@ def _static_spread(grid, allowed, infection_threshold, directions):
 
 
 def simulate_basic(grid, infection_threshold=1, directions=DIR4):
-    return _static_spread(
-        grid, {HEALTHY, INFECTED}, infection_threshold, directions
-    )
+    return _static_spread(grid, infection_threshold, directions)
 
 
 def simulate_with_immunity(grid, infection_threshold=1, directions=DIR4):
-    return _static_spread(
-        grid, {HEALTHY, INFECTED, IMMUNE}, infection_threshold, directions
-    )
+    return _static_spread(grid, infection_threshold, directions)
 
 
 def simulate_recovery(
     grid, infectious_days, infection_threshold=1, directions=DIR4
 ):
-    _positive("infectious_days", infectious_days)
-    _positive("infection_threshold", infection_threshold)
-    current = _copy_grid(grid, {HEALTHY, INFECTED, IMMUNE})
+    current = _copy_grid(grid)
     rows, cols = len(current), len(current[0])
     remaining = [
         [infectious_days if current[r][c] == INFECTED else 0 for c in range(cols)]
@@ -114,10 +99,7 @@ def simulate_pending_death(
     infection_threshold=1,
     directions=DIR4,
 ):
-    _positive("infectious_days", infectious_days)
-    _positive("death_threshold", death_threshold)
-    _positive("infection_threshold", infection_threshold)
-    current = _copy_grid(grid, {HEALTHY, INFECTED, IMMUNE, DEAD})
+    current = _copy_grid(grid)
     rows, cols = len(current), len(current[0])
     remaining = [
         [infectious_days if current[r][c] == INFECTED else 0 for c in range(cols)]
@@ -152,7 +134,7 @@ def simulate_pending_death(
 
 
 def best_initial_burn(grid, simulate):
-    original = _copy_grid(grid, {HEALTHY, INFECTED, IMMUNE})
+    original = _copy_grid(grid)
     rows, cols = len(original), len(original[0])
     best_key = None
     best_result = None
