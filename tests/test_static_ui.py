@@ -151,6 +151,20 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".assertion-mismatch", styles_css)
         self.assertIn(".result-traceback", styles_css)
 
+    def test_editor_undo_history_is_persisted_per_session(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+
+        self.assertIn('EDITOR_HISTORY_STORAGE_KEY = "deepcode-editor-history"', app_js)
+        self.assertIn("EDITOR_HISTORY_LIMIT = 100", app_js)
+        self.assertIn("function historyForEditorSession(sessionKey, code)", app_js)
+        self.assertIn("function undoEditorHistory()", app_js)
+        self.assertIn("function redoEditorHistory()", app_js)
+        self.assertIn("function resetEditorHistory(code)", app_js)
+        self.assertIn('name: "deepcodeUndo"', app_js)
+        self.assertIn('mac: "Command-Z"', app_js)
+        self.assertIn('name: "deepcodeRedo"', app_js)
+        self.assertIn('mac: "Command-Shift-Z"', app_js)
+
     def test_running_checks_show_progress_feedback(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

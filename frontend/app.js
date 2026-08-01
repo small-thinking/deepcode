@@ -1,5 +1,8 @@
 const THEME_KEY = "deepcode-theme";
 const PROBLEM_TIMERS_KEY = "deepcode-problem-timers";
+const EDITOR_HISTORY_STORAGE_KEY = "deepcode-editor-history";
+const EDITOR_HISTORY_LIMIT = 100;
+const EDITOR_HISTORY_SESSION_LIMIT = 6;
 const PLAYGROUND_CODE_KEY = "deepcode-playground-code";
 const PLAYGROUND_SESSIONS_KEY = "deepcode-playground-sessions";
 const LEGACY_PLAYGROUND_SNAPSHOTS_KEY = "deepcode-playground-snapshots";
@@ -477,6 +480,11 @@ function codeKey(slug) {
   return `deepcode-code:${slug}`;
 }
 
+function editorSessionKey() {
+  if (state.view === "playground") return "playground";
+  return state.selected ? `problem:${state.selected.slug}` : null;
+}
+
 function starterKey(slug) {
   return `deepcode-starter:${slug}`;
 }
@@ -559,6 +567,116 @@ function currentCode() {
     return localStorage.getItem(PLAYGROUND_CODE_KEY) ?? PLAYGROUND_STARTER_CODE;
   }
   return state.selected ? localStorage.getItem(codeKey(state.selected.slug)) ?? state.selected.starter_code ?? "" : "";
+}
+
+function validEditorHistory(value) {
+  if (!value || typeof value !== "object" || !Array.isArray(value.undo) || !Array.isArray(value.redo)) return null;
+  const undo = value.undo.filter((snapshot) => typeof snapshot === "string").slice(-EDITOR_HISTORY_LIMIT);
+  const redo = value.redo.filter((snapshot) => typeof snapshot === "string").slice(-EDITOR_HISTORY_LIMIT);
+  if (!undo.length) return null;
+  return {
+    undo,
+    redo,
+    updatedAt: Number.isFinite(value.updatedAt) ? value.updatedAt : 0,
+  };
+}
+
+function loadEditorHistories() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(EDITOR_HISTORY_STORAGE_KEY) || "{}");
+    if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
+    return Object.fromEntries(
+      Object.entries(saved)
+        .map(([key, value]) => [key, validEditorHistory(value)])
+        .filter(([, history]) => history)
+    );
+  } catch {
+    return {};
+  }
+}
+
+function persistEditorHistories(histories) {
+  const recentHistories = Object.fromEntries(
+    Object.entries(histories)
+      .sort(([, left], [, right]) => right.updatedAt - left.updatedAt)
+      .slice(0, EDITOR_HISTORY_SESSION_LIMIT)
+  );
+  try {
+    localStorage.setItem(EDITOR_HISTORY_STORAGE_KEY, JSON.stringify(recentHistories));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function historyForEditorSession(sessionKey, code) {
+  const histories = loadEditorHistories();
+  const history = histories[sessionKey];
+  if (history && history.undo[history.undo.length - 1] === code) return history;
+
+  const initialHistory = { undo: [code], redo: [], updatedAt: Date.now() };
+  histories[sessionKey] = initialHistory;
+  persistEditorHistories(histories);
+  return initialHistory;
+}
+
+function persistEditorHistory(sessionKey, history) {
+  const histories = loadEditorHistories();
+  histories[sessionKey] = history;
+  persistEditorHistories(histories);
+}
+
+function recordEditorHistory(session) {
+  if (session.$deepcodeApplyingHistory || !session.$deepcodeHistory || !session.$deepcodeSessionKey) return;
+  const history = session.$deepcodeHistory;
+  const code = session.getValue();
+  if (history.undo[history.undo.length - 1] === code) return;
+  history.undo.push(code);
+  if (history.undo.length > EDITOR_HISTORY_LIMIT) history.undo.splice(0, history.undo.length - EDITOR_HISTORY_LIMIT);
+  history.redo = [];
+  history.updatedAt = Date.now();
+  persistEditorHistory(session.$deepcodeSessionKey, history);
+}
+
+function applyEditorHistorySnapshot(session, code) {
+  session.$deepcodeApplyingHistory = true;
+  session.setValue(code);
+  session.$deepcodeApplyingHistory = false;
+  saveCode(code);
+}
+
+function undoEditorHistory() {
+  const session = codeEditor?.session;
+  const history = session?.$deepcodeHistory;
+  if (!session || !history || history.undo.length < 2) return;
+  history.redo.push(history.undo.pop());
+  history.updatedAt = Date.now();
+  persistEditorHistory(session.$deepcodeSessionKey, history);
+  applyEditorHistorySnapshot(session, history.undo[history.undo.length - 1]);
+}
+
+function redoEditorHistory() {
+  const session = codeEditor?.session;
+  const history = session?.$deepcodeHistory;
+  if (!session || !history || !history.redo.length) return;
+  const code = history.redo.pop();
+  history.undo.push(code);
+  history.updatedAt = Date.now();
+  persistEditorHistory(session.$deepcodeSessionKey, history);
+  applyEditorHistorySnapshot(session, code);
+}
+
+function resetEditorHistory(code) {
+  const sessionKey = editorSessionKey();
+  if (!sessionKey) return;
+  const history = { undo: [code], redo: [], updatedAt: Date.now() };
+  persistEditorHistory(sessionKey, history);
+  const session = codeEditor?.session;
+  if (!session || session.$deepcodeSessionKey !== sessionKey) {
+    return;
+  }
+  session.$deepcodeHistory = history;
+  applyEditorHistorySnapshot(session, code);
 }
 
 function editorCode() {
@@ -953,6 +1071,8 @@ function mountEditor() {
   aceContainer.hidden = false;
   window.ace.config.set("basePath", "/vendor/ace");
   codeEditor = window.ace.edit(aceContainer);
+  const sessionKey = editorSessionKey();
+  codeEditor.setValue(currentCode(), -1);
   setEditorTheme();
   codeEditor.session.setMode("ace/mode/python");
   codeEditor.session.setUseWorker(false);
@@ -967,12 +1087,29 @@ function mountEditor() {
     enableBasicAutocompletion: true,
     enableLiveAutocompletion: true,
   });
-  codeEditor.setValue(currentCode(), -1);
-  codeEditor.session.on("change", () => saveCode(codeEditor.getValue()));
+  if (sessionKey) {
+    const session = codeEditor.session;
+    session.$deepcodeSessionKey = sessionKey;
+    session.$deepcodeHistory = historyForEditorSession(sessionKey, session.getValue());
+    session.on("change", () => {
+      saveCode(session.getValue());
+      recordEditorHistory(session);
+    });
+  }
   codeEditor.commands.addCommand({
     name: "runCode",
     bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
     exec: () => (state.view === "playground" ? runPlayground() : runTests()),
+  });
+  codeEditor.commands.addCommand({
+    name: "deepcodeUndo",
+    bindKey: { win: "Ctrl-Z", mac: "Command-Z" },
+    exec: undoEditorHistory,
+  });
+  codeEditor.commands.addCommand({
+    name: "deepcodeRedo",
+    bindKey: { win: "Ctrl-Y|Ctrl-Shift-Z", mac: "Command-Shift-Z" },
+    exec: redoEditorHistory,
   });
 }
 
@@ -1153,6 +1290,7 @@ async function runPlayground(sessionId = null) {
 
 function resetPlayground() {
   localStorage.setItem(PLAYGROUND_CODE_KEY, PLAYGROUND_STARTER_CODE);
+  resetEditorHistory(PLAYGROUND_STARTER_CODE);
   state.playgroundResult = null;
   state.playgroundRunSource = "";
   state.error = null;
@@ -1161,7 +1299,9 @@ function resetPlayground() {
 
 async function resetCode() {
   if (!state.selected) return;
-  localStorage.setItem(codeKey(state.selected.slug), state.selected.starter_code || "");
+  const starterCode = state.selected.starter_code || "";
+  localStorage.setItem(codeKey(state.selected.slug), starterCode);
+  resetEditorHistory(starterCode);
   state.runResult = null;
   state.activeResultIndex = 0;
   state.error = null;
