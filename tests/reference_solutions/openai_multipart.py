@@ -117,7 +117,7 @@ def simulate_pending_death(
     _positive("infectious_days", infectious_days)
     _positive("death_threshold", death_threshold)
     _positive("infection_threshold", infection_threshold)
-    current = _copy_grid(grid, {HEALTHY, INFECTED, IMMUNE, DEAD, BURNED})
+    current = _copy_grid(grid, {HEALTHY, INFECTED, IMMUNE, DEAD})
     rows, cols = len(current), len(current[0])
     remaining = [
         [infectious_days if current[r][c] == INFECTED else 0 for c in range(cols)]
@@ -151,13 +151,7 @@ def simulate_pending_death(
     return days, dead_count, current
 
 
-def best_initial_burn(
-    grid,
-    infectious_days,
-    death_threshold,
-    infection_threshold=1,
-    directions=DIR4,
-):
+def best_initial_burn(grid, simulate):
     original = _copy_grid(grid, {HEALTHY, INFECTED, IMMUNE})
     rows, cols = len(original), len(original[0])
     best_key = None
@@ -174,13 +168,7 @@ def best_initial_burn(
             for row in range(rows):
                 burned[row][index] = BURNED
             axis_rank = 1
-        days, dead_count, final_grid = simulate_pending_death(
-            burned,
-            infectious_days,
-            death_threshold,
-            infection_threshold,
-            directions,
-        )
+        days, dead_count, final_grid = simulate(burned)
         key = (dead_count, days, axis_rank, index)
         if best_key is None or key < best_key:
             best_key = key

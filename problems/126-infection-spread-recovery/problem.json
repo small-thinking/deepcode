@@ -1,0 +1,36 @@
+{
+  "id": "126",
+  "slug": "infection-spread-recovery",
+  "title": "Infection Spread Simulation III — Recovery Timer",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["infection-spread", "series", "part-3", "simulation", "state-machine"],
+  "companies": ["OpenAI"],
+  "prompt": "This standalone problem is the third exercise in the Infection Spread Simulation series. Use `HEALTHY = 0`, `INFECTED = 1`, and `IMMUNE = 2`.\n\nImplement `simulate_recovery(grid, infectious_days, infection_threshold=1, directions=DIR4)`. An infected cell transmits for exactly `infectious_days` daily updates, then becomes immune. Initially infected cells start with the full timer. A cell infected during today's update starts with the full timer, does not decrement today, and begins transmitting from tomorrow's snapshot. Immune cells never change or transmit. All updates are synchronous.\n\nReturn `(days_to_stability, final_grid)` when no infected cells remain. Validate a non-empty rectangular grid, known states, and positive integer thresholds/timers. Do not mutate the input. You do not need to implement Parts I–II.",
+  "starter_code": "HEALTHY, INFECTED, IMMUNE = range(3)\nDIR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n\ndef simulate_recovery(\n    grid, infectious_days, infection_threshold=1, directions=DIR4\n):\n    pass\n",
+  "example": {
+    "input": "simulate_recovery([[1, 0, 0]], infectious_days=1)",
+    "output": "(3, [[2, 2, 2]])",
+    "reasoning": "A one-day infection produces a moving wave; every infected cell later becomes immune."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "OpenAI infection simulation report",
+      "url": "https://www.1point3acres.com/bbs/thread-1183292-1-1.html"
+    },
+    {
+      "label": "OpenAI five-part follow-up report",
+      "url": "https://www.1point3acres.com/bbs/thread-1181608-1-1.html"
+    }
+  ],
+  "created_at": "2026-07-31"
+}

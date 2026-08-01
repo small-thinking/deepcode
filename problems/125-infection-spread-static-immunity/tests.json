@@ -1,0 +1,17 @@
+[
+  {
+    "name": "immune cells form a permanent barrier",
+    "input": "infected cells separated from healthy cells by immunity",
+    "test": "assert simulate_with_immunity([[1, 2, 0], [0, 2, 0]]) == (1, [[1, 2, 0], [1, 2, 0]])\nassert simulate_with_immunity([[2]]) == (0, [[2]])"
+  },
+  {
+    "name": "threshold remains synchronous and input is unchanged",
+    "input": "two sources around one cell with threshold two",
+    "test": "original = [[1, 0, 1], [2, 2, 2]]\nassert simulate_with_immunity(original, infection_threshold=2) == (1, [[1, 1, 1], [2, 2, 2]])\nassert original == [[1, 0, 1], [2, 2, 2]]"
+  },
+  {
+    "name": "validates immunity inputs",
+    "input": "empty, ragged, unknown-state, and invalid threshold",
+    "test": "bad_calls = [\n    lambda: simulate_with_immunity([]),\n    lambda: simulate_with_immunity([[1], [2, 0]]),\n    lambda: simulate_with_immunity([[3]]),\n    lambda: simulate_with_immunity([[1]], infection_threshold=0),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]

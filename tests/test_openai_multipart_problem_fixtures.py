@@ -26,8 +26,20 @@ class OpenAIMultipartProblemFixtureTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed", result)
         self.assertEqual(result["passed"], len(problem["tests"]))
 
-    def test_infection_spread_simulation_reference_solution_passes(self):
+    def test_infection_spread_basic_reference_solution_passes(self):
         self._assert_reference_solution_passes("infection-spread-simulation")
+
+    def test_infection_spread_immunity_reference_solution_passes(self):
+        self._assert_reference_solution_passes("infection-spread-static-immunity")
+
+    def test_infection_spread_recovery_reference_solution_passes(self):
+        self._assert_reference_solution_passes("infection-spread-recovery")
+
+    def test_infection_spread_pending_death_reference_solution_passes(self):
+        self._assert_reference_solution_passes("infection-spread-pending-death")
+
+    def test_infection_spread_optimal_burn_reference_solution_passes(self):
+        self._assert_reference_solution_passes("infection-spread-optimal-burn")
 
     def test_session_tracker_reference_solution_passes(self):
         self._assert_reference_solution_passes("session-tracker")

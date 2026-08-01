@@ -1,0 +1,36 @@
+{
+  "id": "125",
+  "slug": "infection-spread-static-immunity",
+  "title": "Infection Spread Simulation II — Static Immunity",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["infection-spread", "series", "part-2", "simulation", "grid"],
+  "companies": ["OpenAI"],
+  "prompt": "This standalone problem is the second exercise in the Infection Spread Simulation series. Use `HEALTHY = 0`, `INFECTED = 1`, and `IMMUNE = 2`.\n\nImplement `simulate_with_immunity(grid, infection_threshold=1, directions=DIR4)`. Propagation is synchronous: every daily transition reads the same start-of-day grid. A healthy cell becomes infected when it has at least `infection_threshold` infected neighbors. Infected cells remain infected. Immune cells never change and do not transmit.\n\nReturn `(days_to_stability, final_grid)`. Count a day only when at least one cell changes. Validate a non-empty rectangular grid, known states, and a positive integer threshold. Do not mutate the input. You do not need to implement Part I.",
+  "starter_code": "HEALTHY, INFECTED, IMMUNE = range(3)\nDIR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n\ndef simulate_with_immunity(grid, infection_threshold=1, directions=DIR4):\n    pass\n",
+  "example": {
+    "input": "simulate_with_immunity([[1, 2, 0], [0, 2, 0]])",
+    "output": "(1, [[1, 2, 0], [1, 2, 0]])",
+    "reasoning": "The immune column blocks the infection from reaching the right side."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "OpenAI infection simulation report",
+      "url": "https://www.1point3acres.com/bbs/thread-1183292-1-1.html"
+    },
+    {
+      "label": "OpenAI five-part follow-up report",
+      "url": "https://www.1point3acres.com/bbs/thread-1181608-1-1.html"
+    }
+  ],
+  "created_at": "2026-07-31"
+}
