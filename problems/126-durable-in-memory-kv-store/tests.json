@@ -1,0 +1,32 @@
+[
+  {
+    "name": "[Part 1] mutations survive replay",
+    "input": "nested JSON values, overwrite, delete, and reopen",
+    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    path = Path(tmp) / 'store.jsonl'\n    store = LogBackedKVStore(path)\n    store.set('model', {'name': 'gpt', 'sizes': [1, 2]})\n    store.set('count', 1)\n    store.set('count', 2)\n    store.delete('model')\n    store.delete('missing')\n    assert store.get('count') == 2\n    assert store.get('model', 'fallback') == 'fallback'\n    recovered = LogBackedKVStore(path)\n    assert recovered.get('count') == 2\n    assert recovered.get('model') is None"
+  },
+  {
+    "name": "[Part 1] torn final fragment is ignored",
+    "input": "valid record followed by a non-newline-terminated partial record",
+    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    path = Path(tmp) / 'store.jsonl'\n    store = LogBackedKVStore(path)\n    store.set('safe', {'value': 7})\n    with path.open('ab') as handle:\n        handle.write(b'{\\\"op\\\":\\\"set\\\",\\\"key\\\":')\n    recovered = LogBackedKVStore(path)\n    assert recovered.get('safe') == {'value': 7}\n    assert recovered.get('unknown') is None"
+  },
+  {
+    "name": "[Part 1] complete corruption and invalid inputs are rejected",
+    "input": "malformed newline-terminated record, non-string key, and non-JSON value",
+    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    corrupt = Path(tmp) / 'corrupt.jsonl'\n    corrupt.write_bytes(b'not-json\\n')\n    try:\n        LogBackedKVStore(corrupt)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass\n\n    store = LogBackedKVStore(Path(tmp) / 'valid.jsonl')\n    for key, value in [(1, 'value'), ('bad', {1, 2})]:\n        try:\n            store.set(key, value)\n            assert False, 'expected ValueError'\n        except ValueError:\n            pass"
+  },
+  {
+    "name": "[Part 2] snapshot splits only between records and reloads",
+    "input": "small file limit requiring several sorted data files",
+    "test": "import json\nimport tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp) / 'snapshots'\n    store = MultiFileSnapshotKVStore(root, max_file_bytes=50)\n    store.set('c', {'n': 3})\n    store.set('a', {'n': 1})\n    store.set('b', {'n': 2})\n    generation = store.save_snapshot()\n    assert (root / 'CURRENT').read_text(encoding='utf-8').strip() == generation\n    files = sorted((root / generation).glob('*.jsonl'))\n    assert len(files) >= 2\n    records = []\n    for path in files:\n        raw = path.read_bytes()\n        assert raw.endswith(b'\\n')\n        assert len(raw) <= 50\n        records.extend(json.loads(line) for line in raw.decode().splitlines())\n    assert [record['key'] for record in records] == ['a', 'b', 'c']\n\n    restored = MultiFileSnapshotKVStore(root, max_file_bytes=50)\n    restored.load_snapshot()\n    assert [restored.get(key) for key in ('a', 'b', 'c')] == [\n        {'n': 1}, {'n': 2}, {'n': 3}\n    ]"
+  },
+  {
+    "name": "[Part 2] unpublished generations are ignored",
+    "input": "published snapshot, later in-memory edits, and unrelated generation directory",
+    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp) / 'snapshots'\n    store = MultiFileSnapshotKVStore(root, max_file_bytes=200)\n    store.set('answer', 42)\n    generation = store.save_snapshot()\n    store.set('answer', 99)\n    unpublished = root / 'generation-unpublished'\n    unpublished.mkdir()\n    (unpublished / '00000.jsonl').write_text('{\\\"key\\\": \\\"answer\\\", \\\"value\\\": -1}\\n')\n    restored = MultiFileSnapshotKVStore(root, max_file_bytes=200)\n    restored.load_snapshot()\n    assert restored.get('answer') == 42\n    assert (root / 'CURRENT').read_text().strip() == generation"
+  },
+  {
+    "name": "[Part 2] oversized record preserves current snapshot",
+    "input": "new value whose one encoded record exceeds max_file_bytes",
+    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp) / 'snapshots'\n    store = MultiFileSnapshotKVStore(root, max_file_bytes=80)\n    store.set('safe', 'small')\n    generation = store.save_snapshot()\n    store.set('huge', 'x' * 500)\n    try:\n        store.save_snapshot()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass\n    assert (root / 'CURRENT').read_text().strip() == generation\n    restored = MultiFileSnapshotKVStore(root, max_file_bytes=80)\n    restored.load_snapshot()\n    assert restored.get('safe') == 'small'\n    assert restored.get('huge') is None"
+  }
+]

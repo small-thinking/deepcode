@@ -1,0 +1,27 @@
+[
+  {
+    "name": "[Part 1] forward pass matches the logical unsharded matrix",
+    "input": "three shards with different output widths",
+    "test": "import numpy as np\n\na = np.array([[1.0, -2.0, 0.5], [0.0, 3.0, 1.0]])\nshards = [\n    np.array([[1.0], [2.0], [-1.0]]),\n    np.array([[0.5, 1.5], [-1.0, 0.0], [2.0, 3.0]]),\n    np.array([[4.0], [0.5], [-2.0]]),\n]\nexpected = a @ np.concatenate(shards, axis=1)\nactual = column_sharded_matmul(a, shards)\nassert isinstance(actual, np.ndarray)\nassert actual.shape == (2, 4)\nassert np.allclose(actual, expected)"
+  },
+  {
+    "name": "[Part 1] inputs are not mutated",
+    "input": "copied input and shard arrays",
+    "test": "import numpy as np\n\na = np.array([[1.0, 2.0]])\nshards = [np.array([[1.0], [0.0]]), np.array([[0.0], [1.0]])]\na_before = a.copy()\nshards_before = [shard.copy() for shard in shards]\ncolumn_sharded_matmul(a, shards)\nassert np.array_equal(a, a_before)\nassert all(np.array_equal(x, y) for x, y in zip(shards, shards_before))"
+  },
+  {
+    "name": "[Part 2] analytical gradients match the unsharded formulas",
+    "input": "two shards and a dense upstream gradient",
+    "test": "import numpy as np\n\na = np.array([[1.0, 2.0], [-1.0, 0.5]])\nshards = [np.array([[1.0], [3.0]]), np.array([[2.0, -1.0], [0.0, 4.0]])]\ndy = np.array([[0.5, -1.0, 2.0], [1.5, 0.25, -0.5]])\ny, da, db_shards = column_sharded_matmul_with_grads(a, shards, dy)\nb = np.concatenate(shards, axis=1)\nassert np.allclose(y, a @ b)\nassert np.allclose(da, dy @ b.T)\nwidths = [shard.shape[1] for shard in shards]\nparts = np.split(dy, np.cumsum(widths)[:-1], axis=1)\nassert len(db_shards) == len(shards)\nfor db, part, shard in zip(db_shards, parts, shards):\n    assert db.shape == shard.shape\n    assert np.allclose(db, a.T @ part)"
+  },
+  {
+    "name": "[Part 2] gradients pass finite-difference checks",
+    "input": "scalar loss sum(y * dy) perturbed in a and both shards",
+    "test": "import numpy as np\n\na = np.array([[0.2, -0.4], [1.0, 0.3]], dtype=float)\nshards = [np.array([[0.5], [-0.2]], dtype=float), np.array([[0.7, -1.0], [0.1, 0.8]], dtype=float)]\ndy = np.array([[1.2, -0.3, 0.5], [-0.7, 0.4, 0.9]], dtype=float)\n_, da, dbs = column_sharded_matmul_with_grads(a, shards, dy)\n\ndef loss(a_value, shard_values):\n    return float(np.sum(column_sharded_matmul(a_value, shard_values) * dy))\n\neps = 1e-6\nfor index in np.ndindex(a.shape):\n    plus, minus = a.copy(), a.copy()\n    plus[index] += eps\n    minus[index] -= eps\n    numeric = (loss(plus, shards) - loss(minus, shards)) / (2 * eps)\n    assert np.isclose(numeric, da[index], atol=1e-6)\nfor shard_index, shard in enumerate(shards):\n    for index in np.ndindex(shard.shape):\n        plus = [value.copy() for value in shards]\n        minus = [value.copy() for value in shards]\n        plus[shard_index][index] += eps\n        minus[shard_index][index] -= eps\n        numeric = (loss(a, plus) - loss(a, minus)) / (2 * eps)\n        assert np.isclose(numeric, dbs[shard_index][index], atol=1e-6)"
+  },
+  {
+    "name": "[All parts] malformed shapes are rejected",
+    "input": "empty shards, rank mismatch, input mismatch, and dy mismatch",
+    "test": "import numpy as np\n\nbad_calls = [\n    lambda: column_sharded_matmul(np.ones((2, 2)), []),\n    lambda: column_sharded_matmul(np.ones(2), [np.ones((2, 1))]),\n    lambda: column_sharded_matmul(np.ones((2, 3)), [np.ones((2, 1))]),\n    lambda: column_sharded_matmul(np.ones((2, 2)), [np.ones((2, 1)), np.ones((3, 1))]),\n    lambda: column_sharded_matmul_with_grads(np.ones((2, 2)), [np.ones((2, 1))], np.ones((3, 1))),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]

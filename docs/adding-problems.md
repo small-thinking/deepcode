@@ -232,6 +232,17 @@ For `ml_modeling`, use assertions directly in `test`:
 ]
 ```
 
+## Multipart Problems
+
+Keep one interview-question family in one problem folder. When the source has
+substantial coding follow-ups, write them as `### Part 1`, `### Part 2`, and so
+on in the single `prompt`, with a blank line after each heading; include every
+required function or class stub in the
+same `starter_code`; and keep one flat `tests.json` list whose test names begin
+with `[Part N]`. Do not add a top-level `parts` field or create separate problem
+folders for follow-ups. A submission completes the problem only when the tests
+for every part pass.
+
 ## Comparators
 
 Use `exact` when the expected output should match exactly after whitespace normalization:

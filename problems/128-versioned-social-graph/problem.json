@@ -1,0 +1,36 @@
+{
+  "id": "128",
+  "slug": "versioned-social-graph",
+  "title": "Versioned Social Graph",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["graph", "snapshot", "versioning", "recommendation", "multipart"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `VersionedSocialGraph` for string user IDs. The graph is directed: `follow(a, b)` means `a` follows `b`. A successful follow or unfollow creates the next integer version; an idempotent mutation is a no-op. The initial version is `0`.\n\n### Part 1 — O(1) snapshots and historical edges\n\nImplement `follow(follower, followee)`, `unfollow(follower, followee)`, `snapshot()`, and `is_following(follower, followee, snapshot_id=None)`. Reject self-follows and non-string IDs with `ValueError`. `snapshot()` returns the current version in O(1) time without copying the graph. Historical edge queries must reflect the state at the requested version. `None` means the current version; invalid snapshot IDs raise `ValueError`. Store a change timeline per edge so mutation cost does not depend on graph size.\n\n### Part 2 — Historical follower lists\n\nImplement `get_followees(user, snapshot_id=None)` and `get_followers(user, snapshot_id=None)`. Return lexicographically sorted lists for the requested version. Maintain outgoing and incoming indexes of edges that have ever existed so these queries do not scan every edge in the graph.\n\n### Part 3 — Friend-of-friend recommendations\n\nImplement `recommend(user, k, snapshot_id=None)`. For each user reachable by exactly two outgoing follow edges at the requested version, score the candidate by how many of `user`'s direct followees follow that candidate. Exclude `user` and anyone already followed directly. Return at most `k` `(candidate, score)` tuples, ordered by descending score and then lexicographic candidate ID. Require `k` to be a non-negative integer.",
+  "starter_code": "class VersionedSocialGraph:\n    def __init__(self):\n        pass\n\n    def follow(self, follower, followee):\n        pass\n\n    def unfollow(self, follower, followee):\n        pass\n\n    def snapshot(self):\n        pass\n\n    def is_following(self, follower, followee, snapshot_id=None):\n        pass\n\n    def get_followees(self, user, snapshot_id=None):\n        pass\n\n    def get_followers(self, user, snapshot_id=None):\n        pass\n\n    def recommend(self, user, k, snapshot_id=None):\n        pass\n",
+  "example": {
+    "input": "g.follow('a', 'b'); old = g.snapshot(); g.unfollow('a', 'b')",
+    "output": "g.is_following('a', 'b', old) is True and g.is_following('a', 'b') is False",
+    "reasoning": "The edge timeline answers both the historical and current query without copying the graph."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "OpenAI follower and snapshot system report",
+      "url": "https://www.1point3acres.com/bbs/thread-1183651-1-1.html"
+    },
+    {
+      "label": "OpenAI recommendation follow-up report",
+      "url": "https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=1181536"
+    }
+  ],
+  "created_at": "2026-07-31"
+}
