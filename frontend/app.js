@@ -2127,6 +2127,22 @@ function renderRunLogLines() {
 
 function renderResultCase(item, index) {
   if (!item) return "";
+  const mismatch = item.assertion_mismatch;
+  const hasSimpleMismatch =
+    mismatch && typeof mismatch.actual === "string" && typeof mismatch.expected === "string";
+  const expectedLabel = hasSimpleMismatch ? "Expected result" : "Expected";
+  const actualLabel = hasSimpleMismatch ? "Actual result" : "Actual";
+  const mismatchMessage = hasSimpleMismatch && mismatch.message ? `<p>${escapeHtml(mismatch.message)}</p>` : "";
+  const traceback = hasSimpleMismatch
+    ? `
+      <details class="result-traceback">
+        <summary>View assertion traceback</summary>
+        <pre>${escapeHtml(item.actual_output)}</pre>
+      </details>
+    `
+    : "";
+  const expected = hasSimpleMismatch ? mismatch.expected : item.expected_output;
+  const actual = hasSimpleMismatch ? mismatch.actual : item.actual_output;
 
   return `
     <div
@@ -2137,10 +2153,12 @@ function renderResultCase(item, index) {
     >
       <h4><span class="status-dot"></span>${escapeHtml(item.name || "test")}</h4>
       <div class="mini-block result-input"><span>Input</span><pre>${escapeHtml(item.input || item.test || "")}</pre></div>
+      ${hasSimpleMismatch ? `<div class="assertion-mismatch"><strong>Result mismatch</strong>${mismatchMessage}</div>` : ""}
       <div class="result-columns">
-        <div class="mini-block"><span>Expected</span><pre>${escapeHtml(item.expected_output)}</pre></div>
-        <div class="mini-block"><span>Actual</span><pre>${escapeHtml(item.actual_output)}</pre></div>
+        <div class="mini-block"><span>${expectedLabel}</span><pre>${escapeHtml(expected)}</pre></div>
+        <div class="mini-block"><span>${actualLabel}</span><pre>${escapeHtml(actual)}</pre></div>
       </div>
+      ${traceback}
     </div>
   `;
 }

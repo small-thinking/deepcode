@@ -140,6 +140,17 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".result-tab", styles_css)
         self.assertIn(".result-case", styles_css)
 
+    def test_simple_assertion_mismatches_show_values_before_tracebacks(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("const mismatch = item.assertion_mismatch", app_js)
+        self.assertIn('"Expected result"', app_js)
+        self.assertIn('"Actual result"', app_js)
+        self.assertIn("View assertion traceback", app_js)
+        self.assertIn(".assertion-mismatch", styles_css)
+        self.assertIn(".result-traceback", styles_css)
+
     def test_running_checks_show_progress_feedback(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

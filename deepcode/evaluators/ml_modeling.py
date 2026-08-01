@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ast
+import json
 import os
 import queue
 import re
@@ -22,6 +24,32 @@ _TRACEBACK_FRAME_RE = re.compile(
 )
 _SUBMISSION_SCRIPT_NAMES = {"submission_check.py", "submission_test.py"}
 _SUBMISSION_PATH_RE = re.compile(r'File "[^"]*[\\/](submission_(?:check|test)\.py)"')
+_ASSERTION_MISMATCH_PREFIX = "DEEPCODE_ASSERTION_MISMATCH:"
+_ASSERTION_MISMATCH_LIMIT = 2_000
+_ASSERTION_MISMATCH_HELPERS = f'''import json as _deepcode_json
+
+
+def _deepcode_safe_repr(value):
+    try:
+        text = repr(value)
+    except Exception as error:
+        text = f"<unrepresentable {{type(value).__name__}}: {{error}}>"
+    if len(text) > {_ASSERTION_MISMATCH_LIMIT}:
+        return text[:{_ASSERTION_MISMATCH_LIMIT}] + "... (truncated)"
+    return text
+
+
+def _deepcode_assert_equal(actual, expected, message_factory=None):
+    if actual == expected:
+        return
+    message = message_factory() if message_factory is not None else None
+    payload = {{
+        "actual": _deepcode_safe_repr(actual),
+        "expected": _deepcode_safe_repr(expected),
+        "message": _deepcode_safe_repr(message) if message is not None else None,
+    }}
+    raise AssertionError("{_ASSERTION_MISMATCH_PREFIX}" + _deepcode_json.dumps(payload, ensure_ascii=False))
+'''
 
 
 class MlModelingEvaluator:
@@ -54,23 +82,14 @@ def run_modeling_checks(
     results = []
     for test in tests:
         case_timeout = test.get("timeout_seconds", timeout_seconds)
-        passed, actual_output = _run_single_check(
+        passed, actual_output, assertion_mismatch = _run_single_check(
             code=code,
             test_code=test["test"],
             timeout_seconds=case_timeout,
             runtime=runtime or {},
             resource_limiter_factory=resource_limiter_factory,
         )
-        results.append(
-            {
-                "name": test.get("name", "check"),
-                "input": test.get("input", ""),
-                "test": test["test"],
-                "expected_output": str(test.get("expected_output", "All assertions pass")).strip(),
-                "actual_output": actual_output,
-                "passed": passed,
-            }
-        )
+        results.append(_result_for_check(test, passed, actual_output, assertion_mismatch))
 
     passed_count = sum(1 for result in results if result["passed"])
     total = len(results)
@@ -94,21 +113,14 @@ def stream_modeling_checks(
         case_timeout = test.get("timeout_seconds", timeout_seconds)
         name = test.get("name", "check")
         yield {"type": "check_started", "index": index, "name": name}
-        passed, actual_output = yield from _run_single_check_stream(
+        passed, actual_output, assertion_mismatch = yield from _run_single_check_stream(
             code=code,
             test_code=test["test"],
             timeout_seconds=case_timeout,
             runtime=runtime or {},
             resource_limiter_factory=resource_limiter_factory,
         )
-        result = {
-            "name": name,
-            "input": test.get("input", ""),
-            "test": test["test"],
-            "expected_output": str(test.get("expected_output", "All assertions pass")).strip(),
-            "actual_output": actual_output,
-            "passed": passed,
-        }
+        result = _result_for_check(test, passed, actual_output, assertion_mismatch)
         results.append(result)
         yield {"type": "check_finished", "index": index, "result": result}
 
@@ -131,8 +143,8 @@ def _run_single_check(
     timeout_seconds: int | float,
     runtime: dict[str, Any],
     resource_limiter_factory: ResourceLimiterFactory | None,
-) -> tuple[bool, str]:
-    script = _build_script(code, test_code)
+) -> tuple[bool, str, dict[str, str | None] | None]:
+    script = _build_script(code, _instrument_simple_equality_assertions(test_code))
     with tempfile.TemporaryDirectory(prefix="deepcode-modeling-") as tmp:
         script_path = Path(tmp) / "submission_check.py"
         script_path.write_text(script, encoding="utf-8")
@@ -147,12 +159,12 @@ def _run_single_check(
                 preexec_fn=resource_limiter_factory() if os.name == "posix" and resource_limiter_factory else None,
             )
         except subprocess.TimeoutExpired:
-            return False, f"Timed out after {timeout_seconds} seconds"
+            return False, f"Timed out after {timeout_seconds} seconds", None
 
     stdout = process.stdout.strip()
     stderr = process.stderr.strip()
     actual_output = _format_output(process.returncode, stdout, stderr)
-    return process.returncode == 0, actual_output
+    return process.returncode == 0, actual_output, _extract_assertion_mismatch(stderr)
 
 
 def _run_single_check_stream(
@@ -161,8 +173,8 @@ def _run_single_check_stream(
     timeout_seconds: int | float,
     runtime: dict[str, Any],
     resource_limiter_factory: ResourceLimiterFactory | None,
-) -> Generator[dict[str, Any], None, tuple[bool, str]]:
-    script = _build_script(code, test_code)
+) -> Generator[dict[str, Any], None, tuple[bool, str, dict[str, str | None] | None]]:
+    script = _build_script(code, _instrument_simple_equality_assertions(test_code))
     output: dict[str, list[str]] = {"stdout": [], "stderr": []}
     timed_out = False
     returncode = 1
@@ -217,12 +229,91 @@ def _run_single_check_stream(
             reader.join(timeout=0.1)
 
     if timed_out:
-        return False, f"Timed out after {timeout_seconds} seconds"
+        return False, f"Timed out after {timeout_seconds} seconds", None
 
     stdout = "".join(output["stdout"]).strip()
     stderr = "".join(output["stderr"]).strip()
     actual_output = _format_output(returncode, stdout, stderr)
-    return returncode == 0, actual_output
+    return returncode == 0, actual_output, _extract_assertion_mismatch(stderr)
+
+
+def _result_for_check(
+    test: dict[str, Any],
+    passed: bool,
+    actual_output: str,
+    assertion_mismatch: dict[str, str | None] | None,
+) -> dict[str, Any]:
+    result = {
+        "name": test.get("name", "check"),
+        "input": test.get("input", ""),
+        "test": test["test"],
+        "expected_output": str(test.get("expected_output", "All assertions pass")).strip(),
+        "actual_output": actual_output,
+        "passed": passed,
+    }
+    if assertion_mismatch is not None:
+        result["assertion_mismatch"] = assertion_mismatch
+    return result
+
+
+class _SimpleEqualityAssertionTransformer(ast.NodeTransformer):
+    def visit_Assert(self, node: ast.Assert) -> ast.expr:
+        self.generic_visit(node)
+        comparison = node.test
+        if not (
+            isinstance(comparison, ast.Compare)
+            and len(comparison.ops) == 1
+            and isinstance(comparison.ops[0], ast.Eq)
+        ):
+            return node
+
+        message_factory = (
+            ast.Lambda(
+                args=ast.arguments(
+                    posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[], vararg=None, kwarg=None
+                ),
+                body=node.msg,
+            )
+            if node.msg is not None
+            else ast.Constant(value=None)
+        )
+        replacement = ast.Expr(
+            value=ast.Call(
+                func=ast.Name(id="_deepcode_assert_equal", ctx=ast.Load()),
+                args=[comparison.left, comparison.comparators[0], message_factory],
+                keywords=[],
+            )
+        )
+        return ast.copy_location(replacement, node)
+
+
+def _instrument_simple_equality_assertions(test_code: str) -> str:
+    try:
+        parsed = ast.parse(test_code)
+    except SyntaxError:
+        return test_code
+    transformed = _SimpleEqualityAssertionTransformer().visit(parsed)
+    ast.fix_missing_locations(transformed)
+    return f"{_ASSERTION_MISMATCH_HELPERS}\n\n{ast.unparse(transformed)}"
+
+
+def _extract_assertion_mismatch(stderr: str) -> dict[str, str | None] | None:
+    for line in reversed(stderr.splitlines()):
+        if not line.startswith(f"AssertionError: {_ASSERTION_MISMATCH_PREFIX}"):
+            continue
+        try:
+            payload = json.loads(line.split(_ASSERTION_MISMATCH_PREFIX, maxsplit=1)[1])
+        except json.JSONDecodeError:
+            return None
+        if not isinstance(payload, dict):
+            return None
+        actual = payload.get("actual")
+        expected = payload.get("expected")
+        message = payload.get("message")
+        if not isinstance(actual, str) or not isinstance(expected, str) or (message is not None and not isinstance(message, str)):
+            return None
+        return {"actual": actual, "expected": expected, "message": message}
+    return None
 
 
 def _start_stream_reader(
