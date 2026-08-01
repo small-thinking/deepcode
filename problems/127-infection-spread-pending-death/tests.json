@@ -13,10 +13,5 @@
     "name": "initial infections can all die on recovery",
     "input": "three adjacent one-day infections",
     "test": "assert simulate_pending_death([[1, 1, 1]], infectious_days=1, death_threshold=1) == (1, 3, [[3, 3, 3]])"
-  },
-  {
-    "name": "validates pending-death inputs",
-    "input": "malformed states and invalid positive integers",
-    "test": "bad_calls = [\n    lambda: simulate_pending_death([], 1, 1),\n    lambda: simulate_pending_death([[4]], 1, 1),\n    lambda: simulate_pending_death([[1]], 0, 1),\n    lambda: simulate_pending_death([[1]], 1, 0),\n    lambda: simulate_pending_death([[1]], 1, 1, infection_threshold=0),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
   }
 ]

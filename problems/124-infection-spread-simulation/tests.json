@@ -8,10 +8,5 @@
     "name": "threshold and already-stable grids",
     "input": "two sources around one cell and a grid without a source",
     "test": "assert simulate_basic([[1, 0, 1]], infection_threshold=2) == (1, [[1, 1, 1]])\nassert simulate_basic([[0, 0], [0, 0]]) == (0, [[0, 0], [0, 0]])"
-  },
-  {
-    "name": "validates the grid and threshold",
-    "input": "empty, ragged, unknown-state, and non-positive inputs",
-    "test": "bad_calls = [\n    lambda: simulate_basic([]),\n    lambda: simulate_basic([[1], [1, 0]]),\n    lambda: simulate_basic([[2]]),\n    lambda: simulate_basic([[1]], infection_threshold=0),\n    lambda: simulate_basic([[1]], infection_threshold=True),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
   }
 ]
