@@ -338,6 +338,45 @@ td {
   border-bottom: 1px solid var(--line);
 }
 
+.problem-sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.problem-sort-button:hover,
+.problem-sort-button:focus-visible,
+.problem-sort-button.active {
+  color: var(--text);
+}
+
+.problem-sort-button:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+
+.sort-indicator {
+  color: var(--blue);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.problem-sort-button:not(.active) .sort-indicator {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
 tbody tr {
   cursor: pointer;
   transition: background 120ms ease;

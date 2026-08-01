@@ -40,6 +40,7 @@ class ProblemStore:
         difficulty: str | None = None,
         search: str | None = None,
         sort: str = "id",
+        order: str = "asc",
     ) -> list[dict[str, Any]]:
         problems = [self._summary(problem) for problem in self._load_all()]
 
@@ -58,7 +59,7 @@ class ProblemStore:
                 or any(needle in company.casefold() for company in problem.get("companies", []))
             ]
 
-        return sorted(problems, key=self._sort_key(sort))
+        return sorted(problems, key=self._sort_key(sort), reverse=order.casefold() == "desc")
 
     def categories(self) -> list[str]:
         return sorted({problem["category"] for problem in self._load_all() if problem.get("category")})
@@ -112,9 +113,9 @@ class ProblemStore:
             if sort == "title":
                 return problem.get("title", "").casefold()
             if sort == "category":
-                return (problem.get("category", "").casefold(), self._id_sort_value(problem.get("id")))
+                return problem.get("category", "").casefold()
             if sort == "difficulty":
-                return (difficulty_order.get(problem.get("difficulty", ""), 99), self._id_sort_value(problem.get("id")))
+                return difficulty_order.get(problem.get("difficulty", ""), 99)
             return self._id_sort_value(problem.get("id"))
 
         return key

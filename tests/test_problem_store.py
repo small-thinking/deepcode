@@ -68,6 +68,18 @@ class ProblemStoreTest(unittest.TestCase):
 
             self.assertEqual([problem["id"] for problem in store.list_problems()], ["3", "20"])
             self.assertEqual([problem["display_id"] for problem in store.list_problems()], [1, 2])
+            self.assertEqual(
+                [problem["id"] for problem in store.list_problems(sort="id", order="desc")], ["20", "3"]
+            )
+            self.assertEqual(
+                [problem["id"] for problem in store.list_problems(sort="title", order="desc")], ["20", "3"]
+            )
+            self.assertEqual(
+                [problem["id"] for problem in store.list_problems(sort="difficulty")], ["20", "3"]
+            )
+            self.assertEqual(
+                [problem["id"] for problem in store.list_problems(sort="difficulty", order="desc")], ["3", "20"]
+            )
             self.assertEqual(store.categories(), ["Linear Algebra", "Machine Learning"])
             self.assertEqual(store.get_problem("mean-prediction")["tests"][0]["name"], "basic")
             self.assertEqual(store.get_problem("20")["slug"], "mean-prediction")
