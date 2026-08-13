@@ -1,0 +1,27 @@
+[
+  {
+    "name": "FEFO consumes the earliest-expiring grants across lots",
+    "input": "two simultaneously active grants and one charge spanning both",
+    "test": "ledger = GPUCreditLedger()\nledger.add_credit('early', 4, 0, 5)\nledger.add_credit('later', 10, 0, 20)\nledger.charge(5, 1)\nassert ledger.get_balance(1) == 9\nassert ledger.get_balance(4) == 9\nassert ledger.get_balance(5) == 9"
+  },
+  {
+    "name": "out-of-order arrival is replayed in event-time order",
+    "input": "charge arrives before a grant that started before it",
+    "test": "ledger = GPUCreditLedger()\nledger.charge(4, 10)\nledger.add_credit('late-arrival', 5, 0, 20)\nledger.add_credit('future', 100, 11, 30)\nassert ledger.get_balance(10) == 1\nassert ledger.get_balance(11) == 101\nassert ledger.get_balance(10) == 1"
+  },
+  {
+    "name": "same-timestamp grants precede charges and expiration is exclusive",
+    "input": "a grant and charge at 10, then a charge at its expiry",
+    "test": "ledger = GPUCreditLedger()\nledger.charge(3, 10)\nledger.add_credit('same-time', 3, 10, 12)\nassert ledger.get_balance(10) == 0\nledger.add_credit('expires-now', 2, 0, 12)\nledger.charge(1, 12)\nassert ledger.get_balance(12) is None"
+  },
+  {
+    "name": "failed replay is atomic and a valid backdated grant can repair it",
+    "input": "a charge larger than available credit, followed by a backdated repair",
+    "test": "ledger = GPUCreditLedger()\nledger.add_credit('first', 3, 0, 30)\nledger.charge(5, 10)\nassert ledger.get_balance(20) is None\nledger.add_credit('repair', 2, 0, 30)\nassert ledger.get_balance(20) == 0"
+  },
+  {
+    "name": "queries do not mutate state and invalid grant or charge input is rejected",
+    "input": "a past query after a future query, plus malformed calls",
+    "test": "ledger = GPUCreditLedger()\nledger.add_credit('credit', 5, 0, 10)\nassert ledger.get_balance(20) == 0\nassert ledger.get_balance(5) == 5\nbad_calls = [\n    lambda: ledger.add_credit('credit', 1, 0, 1),\n    lambda: ledger.add_credit('', 1, 0, 1),\n    lambda: ledger.add_credit('zero', 0, 0, 1),\n    lambda: ledger.add_credit('backwards', 1, 2, 2),\n    lambda: ledger.add_credit('not-a-time', 1, 0.5, 2),\n    lambda: ledger.charge(0, 1),\n    lambda: ledger.get_balance(1.5),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]
