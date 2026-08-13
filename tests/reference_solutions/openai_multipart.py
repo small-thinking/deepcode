@@ -317,6 +317,91 @@ class OutOfOrderActiveSessionTracker:
         return self.active_per_user.get(user_id, 0)
 
 
+# GPU Credit Ledger II
+
+
+class GPUCreditLedger:
+    def __init__(self):
+        self.events = []
+        self.grant_ids = set()
+        self.sequence = 0
+
+    @staticmethod
+    def _timestamp(name, value):
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"{name} must be an integer timestamp")
+        return value
+
+    def add_credit(self, grant_id, amount, start, expires_at):
+        if not isinstance(grant_id, str) or not grant_id:
+            raise ValueError("grant ID must be a non-empty string")
+        if grant_id in self.grant_ids:
+            raise ValueError("duplicate grant ID")
+        _positive("amount", amount)
+        start = self._timestamp("start", start)
+        expires_at = self._timestamp("expires_at", expires_at)
+        if start >= expires_at:
+            raise ValueError("start must be before expiration")
+        self.grant_ids.add(grant_id)
+        self.events.append(
+            (start, 0, self.sequence, "grant", grant_id, amount, expires_at)
+        )
+        self.sequence += 1
+
+    def charge(self, amount, timestamp):
+        _positive("amount", amount)
+        timestamp = self._timestamp("timestamp", timestamp)
+        self.events.append((timestamp, 1, self.sequence, "charge", amount))
+        self.sequence += 1
+
+    def get_balance(self, timestamp):
+        timestamp = self._timestamp("timestamp", timestamp)
+        active = []
+        total = 0
+
+        def expire(now):
+            nonlocal total
+            while active and active[0][0] <= now:
+                total -= heapq.heappop(active)[-1]
+
+        events = sorted(
+            (event for event in self.events if event[0] <= timestamp),
+            key=lambda event: event[:3],
+        )
+        for event_time, _, sequence, kind, *payload in events:
+            expire(event_time)
+            if kind == "grant":
+                grant_id, amount, expires_at = payload
+                heapq.heappush(active, (expires_at, grant_id, sequence, amount))
+                total += amount
+                continue
+
+            amount = payload[0]
+            if total < amount:
+                return None
+            total -= amount
+            remaining_charge = amount
+            while remaining_charge:
+                expires_at, grant_id, grant_sequence, remaining = heapq.heappop(
+                    active
+                )
+                consumed = min(remaining_charge, remaining)
+                remaining_charge -= consumed
+                if remaining > consumed:
+                    heapq.heappush(
+                        active,
+                        (
+                            expires_at,
+                            grant_id,
+                            grant_sequence,
+                            remaining - consumed,
+                        ),
+                    )
+
+        expire(timestamp)
+        return total
+
+
 # Durable In-Memory Key-Value Store
 
 

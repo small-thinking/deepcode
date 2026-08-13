@@ -44,6 +44,9 @@ class OpenAIMultipartProblemFixtureTest(unittest.TestCase):
     def test_session_tracker_reference_solution_passes(self):
         self._assert_reference_solution_passes("session-tracker")
 
+    def test_gpu_credit_ledger_reference_solution_passes(self):
+        self._assert_reference_solution_passes("gpu-credit-ledger-ii")
+
     def test_durable_kv_store_reference_solution_passes(self):
         self._assert_reference_solution_passes("durable-in-memory-kv-store")
 
