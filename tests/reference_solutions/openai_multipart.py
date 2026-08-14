@@ -327,8 +327,8 @@ class GPUCreditLedger:
         self.sequence = 0
 
     def add_credit(self, grant_id, amount, start, expires_at):
-        if not isinstance(grant_id, str) or not grant_id:
-            raise ValueError("grant ID must be a non-empty string")
+        if not isinstance(grant_id, str):
+            raise ValueError("grant ID must be a string")
         if grant_id in self.grant_ids:
             raise ValueError("duplicate grant ID")
         if amount <= 0:
