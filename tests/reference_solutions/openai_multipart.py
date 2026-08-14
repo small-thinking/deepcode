@@ -326,12 +326,6 @@ class GPUCreditLedger:
         self.grant_ids = set()
         self.sequence = 0
 
-    @staticmethod
-    def _timestamp(name, value):
-        if isinstance(value, bool) or not isinstance(value, int):
-            raise ValueError(f"{name} must be an integer timestamp")
-        return value
-
     def add_credit(self, grant_id, amount, start, expires_at):
         if not isinstance(grant_id, str) or not grant_id:
             raise ValueError("grant ID must be a non-empty string")
@@ -339,8 +333,6 @@ class GPUCreditLedger:
             raise ValueError("duplicate grant ID")
         if amount <= 0:
             raise ValueError("amount must be positive")
-        start = self._timestamp("start", start)
-        expires_at = self._timestamp("expires_at", expires_at)
         if start >= expires_at:
             raise ValueError("start must be before expiration")
         self.grant_ids.add(grant_id)
@@ -352,12 +344,10 @@ class GPUCreditLedger:
     def charge(self, amount, timestamp):
         if amount <= 0:
             raise ValueError("amount must be positive")
-        timestamp = self._timestamp("timestamp", timestamp)
         self.events.append((timestamp, 1, self.sequence, "charge", amount))
         self.sequence += 1
 
     def get_balance(self, timestamp):
-        timestamp = self._timestamp("timestamp", timestamp)
         active = []
         total = 0
 
