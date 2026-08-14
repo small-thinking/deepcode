@@ -337,7 +337,8 @@ class GPUCreditLedger:
             raise ValueError("grant ID must be a non-empty string")
         if grant_id in self.grant_ids:
             raise ValueError("duplicate grant ID")
-        _positive("amount", amount)
+        if amount <= 0:
+            raise ValueError("amount must be positive")
         start = self._timestamp("start", start)
         expires_at = self._timestamp("expires_at", expires_at)
         if start >= expires_at:
@@ -349,7 +350,8 @@ class GPUCreditLedger:
         self.sequence += 1
 
     def charge(self, amount, timestamp):
-        _positive("amount", amount)
+        if amount <= 0:
+            raise ValueError("amount must be positive")
         timestamp = self._timestamp("timestamp", timestamp)
         self.events.append((timestamp, 1, self.sequence, "charge", amount))
         self.sequence += 1

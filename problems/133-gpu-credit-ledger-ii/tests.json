@@ -20,8 +20,8 @@
     "test": "ledger = GPUCreditLedger()\nledger.add_credit('first', 3, 0, 30)\nledger.charge(5, 10)\nassert ledger.get_balance(20) is None\nledger.add_credit('repair', 2, 0, 30)\nassert ledger.get_balance(20) == 0"
   },
   {
-    "name": "queries do not mutate state and invalid grant or charge input is rejected",
-    "input": "a past query after a future query, plus malformed calls",
-    "test": "ledger = GPUCreditLedger()\nledger.add_credit('credit', 5, 0, 10)\nassert ledger.get_balance(20) == 0\nassert ledger.get_balance(5) == 5\nbad_calls = [\n    lambda: ledger.add_credit('credit', 1, 0, 1),\n    lambda: ledger.add_credit('', 1, 0, 1),\n    lambda: ledger.add_credit('zero', 0, 0, 1),\n    lambda: ledger.add_credit('backwards', 1, 2, 2),\n    lambda: ledger.add_credit('not-a-time', 1, 0.5, 2),\n    lambda: ledger.charge(0, 1),\n    lambda: ledger.get_balance(1.5),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+    "name": "queries are isolated, positive fractional amounts are valid, and malformed calls fail",
+    "input": "a past query after a future query, fractional credit and charge, plus malformed calls",
+    "test": "ledger = GPUCreditLedger()\nledger.add_credit('credit', 5, 0, 10)\nassert ledger.get_balance(20) == 0\nassert ledger.get_balance(5) == 5\nledger.add_credit('fractional', 2.5, 0, 10)\nledger.charge(0.75, 5)\nassert ledger.get_balance(5) == 6.75\nbad_calls = [\n    lambda: ledger.add_credit('credit', 1, 0, 1),\n    lambda: ledger.add_credit('', 1, 0, 1),\n    lambda: ledger.add_credit('zero', 0, 0, 1),\n    lambda: ledger.add_credit('backwards', 1, 2, 2),\n    lambda: ledger.add_credit('not-a-time', 1, 0.5, 2),\n    lambda: ledger.charge(0, 1),\n    lambda: ledger.get_balance(1.5),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
   }
 ]
