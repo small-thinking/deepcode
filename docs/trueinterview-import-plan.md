@@ -30,13 +30,18 @@ Opportunity 2026 currently contains 18 in-scope companies:
 
 TrueInterview's 48-company directory covers only five of those companies:
 
-| Execution order | Opportunity company | TrueInterview company | Problems | Modules | Current DeepCode problems |
+| Execution order | Opportunity company | TrueInterview company | Public problems | Earlier directory modules | Current DeepCode problems |
 | --- | --- | --- | ---: | ---: | ---: |
-| 1 | SpaceXAI / xAI-related roles | xAI | 28 | 4 | 0 |
-| 2 | Harvey | Harvey | 8 | 3 | 2 |
-| 3 | Airbnb | Airbnb | 27 | 3 | 0 |
-| 4 | Anthropic | Anthropic | 57 | 5 | 5 |
-| 5 | OpenAI | OpenAI | 68 | 5 | 23 |
+| 1 | SpaceXAI / xAI-related roles | xAI | 35 | 4 | 0 |
+| 2 | Harvey | Harvey | 9 | 3 | 2 |
+| 3 | Airbnb | Airbnb | 34 | 3 | 0 |
+| 4 | Anthropic | Anthropic | 67 | 5 | 5 |
+| 5 | OpenAI | OpenAI | 80 | 5 | 23 |
+
+Problem counts above are the public-homepage figures verified on 2026-08-16.
+They already differ from the earlier authenticated company-directory snapshot,
+so every future authorized audit must save its date, page, and counting method
+instead of treating these numbers as stable inventory totals.
 
 The other 13 in-scope companies are absent from the TrueInterview directory:
 Abridge, Faire, Google DeepMind, Luma AI, Mistral AI, OpenEvidence, Plaud,
@@ -63,6 +68,91 @@ recommendation must be based on reconciled counts for the five covered
 companies, the proportion of gated questions that are likely runnable in
 DeepCode, the official price and renewal terms, and the amount of genuinely new
 content after semantic deduplication.
+
+### Official plan comparison
+
+Verified from the official [Plans & Pricing](https://trueinterview.io/premium)
+page on 2026-08-16:
+
+| Plan | Monthly | Three months | Annual | Full company question banks |
+| --- | ---: | ---: | ---: | --- |
+| Free | $0 | n/a | n/a | No; only the first questions for a company/round |
+| Pro | $39 | $89 | $149 | No |
+| Insider | $69 | $159 | $299 | Yes |
+
+Both paid tiers advertise a seven-day trial. Checkout requires a card, the
+first charge is described as occurring after the trial, cancellation during the
+trial is described as free, and cancellation after payment retains access
+through the paid period. The public pages do not clearly guarantee that every
+company question has a visible raw test suite, document taxes/refunds in
+detail, or provide an export/download feature. `Real tests` means server-side
+judging and must not be interpreted as downloadable hidden tests.
+
+For this project, Pro is not the relevant upgrade because it does not unlock
+the complete company banks. The only potentially relevant temporary upgrade is
+Insider Monthly, currently advertised at $69, and it should not be purchased
+until the authorization gate below is cleared.
+
+## Authorization Gate
+
+The official [Terms of Service](https://trueinterview.io/terms), updated
+2026-07-15, prohibit scraping, data mining, automated access, extracting the
+site's structure/taxonomy/arrangement, and extracting a substantial portion of
+the service. A subscription grants access; it does not grant permission to
+republish problem statements, tests, or solutions in a GitHub repository.
+
+Accordingly, the planned automated five-company inventory and corpus import are
+paused. Do not resume browser enumeration, purchase a subscription for this
+purpose, or add TrueInterview-derived repository content until TrueInterview
+provides written permission covering the intended use.
+
+The permission request should ask whether the user may:
+
+1. use an automated browser to inventory the five named company banks;
+2. store source metadata and access status in a private local repository;
+3. create independently worded, runnable derivative exercises and tests;
+4. publish those derivative exercises in the public DeepCode GitHub repository;
+5. cite canonical TrueInterview URLs and company associations;
+6. use an official export/API instead of browser automation; and
+7. receive the full Insider feature set during the advertised trial.
+
+Recommended contact: `kevin@trueinterview.io`. Keep private/internal permission
+and public-republication permission as separate questions; approval for one
+does not imply the other.
+
+Suggested permission email:
+
+```text
+Subject: Permission request for a personal TrueInterview-to-DeepCode study project
+
+Hi Kevin,
+
+I use TrueInterview for personal interview preparation and maintain an
+open-source local coding-practice project called DeepCode. I would like to
+audit the xAI, Harvey, Airbnb, Anthropic, and OpenAI question banks, identify
+questions not already represented in DeepCode, and create independently
+worded, runnable practice exercises with my own reference implementations and
+tests.
+
+Could you clarify whether I have permission to:
+
+1. use an automated browser to inventory those five company banks;
+2. store question metadata and canonical TrueInterview URLs in a private local
+   repository;
+3. create derivative exercises for private personal use; and
+4. publish independently worded derivative exercises and tests in DeepCode's
+   public GitHub repository?
+
+If browser automation is not permitted, is there an official export or API I
+may use? Also, does the seven-day Insider trial immediately include the full
+company question banks?
+
+I will not reproduce TrueInterview editorial solutions verbatim or attempt to
+access hidden server-side tests. I am happy to follow attribution, rate-limit,
+or non-public-use conditions you specify.
+
+Thank you.
+```
 
 ## Source Identity and Deduplication
 
@@ -136,6 +226,9 @@ DeepCode contract and implementation from the accessible evidence.
 
 ## Per-Company Workflow
 
+This workflow is contingent on written authorization for the relevant access,
+storage, derivative-work, and publication scope.
+
 1. Reconcile company-page problem/module counts and enumerate all question
    associations.
 2. Deduplicate the association list by canonical question slug.
@@ -175,18 +268,19 @@ cases are visible in the DeepCode UI.
 Keep browser inventory read-only and serialize repository integration so IDs,
 slugs, fixtures, and checkpoints cannot race.
 
-1. Plan and import infrastructure.
-2. xAI pilot: inventory all 28 associations, then complete at most two free
+1. Obtain written authorization and record its exact scope.
+2. Plan and import infrastructure.
+3. xAI pilot: inventory all current associations, then complete at most two free
    questions end to end, including one negative duplicate/gated/unsupported
    decision.
-3. Remaining accessible xAI deltas.
-4. Harvey's eight associations.
-5. Airbnb's 27 associations.
-6. Anthropic's 57 associations.
-7. OpenAI's 68 associations.
-8. Re-evaluate gated, runnable, non-duplicate counts and make the paid-access
+4. Remaining accessible xAI deltas.
+5. Harvey inventory.
+6. Airbnb inventory.
+7. Anthropic inventory.
+8. OpenAI inventory.
+9. Re-evaluate gated, runnable, non-duplicate counts and make the paid-access
    recommendation.
-9. If paid access is explicitly approved and activated by the user, resume only
+10. If paid access is explicitly approved and activated by the user, resume only
    the gated manifest rows in the same company order.
 
 Use one focused PR for a small company batch. Split dense Anthropic/OpenAI work
@@ -221,9 +315,11 @@ page/trap link.
 
 | Batch | Inventory | Dedupe | Implementation | Verification | PR / status |
 | --- | --- | --- | --- | --- | --- |
-| Shared plan | complete | n/a | complete | pending review checks | current branch |
-| Five-company Free/paid audit | in progress | pending | n/a | pending | not started |
-| xAI pilot | pending | pending | pending | pending | not started |
+| Shared plan | complete | n/a | complete | complete | PR #53 merged |
+| Official Free/paid audit | complete | n/a | n/a | complete | Insider required for full banks |
+| Authorization request | blocked on external permission | n/a | n/a | pending | required before automated access/import |
+| Five-company inventory | paused | pending | n/a | pending | Terms authorization gate |
+| xAI pilot | paused | pending | pending | pending | Terms authorization gate |
 | xAI remaining | pending | pending | pending | pending | not started |
 | Harvey | pending | pending | pending | pending | not started |
 | Airbnb | pending | pending | pending | pending | not started |
