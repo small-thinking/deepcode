@@ -113,6 +113,24 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('metadata: "problem-section problem-metadata-section"', app_js)
         self.assertIn(".company-list", styles_css)
 
+    def test_company_hub_has_navigation_profiles_and_related_problem_routes(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('data-app-view="companies"', app_js)
+        self.assertIn("async function loadCompanies()", app_js)
+        self.assertIn("async function loadCompany(identifier)", app_js)
+        self.assertIn('"/api/companies"', app_js)
+        self.assertIn('location.hash = "#/companies"', app_js)
+        self.assertIn('location.hash.match(/^#\\/companies\\/(.+)$/)', app_js)
+        self.assertIn("function renderCompanies()", app_js)
+        self.assertIn("function renderCompanyDetail()", app_js)
+        self.assertIn('data-company-problem=', app_js)
+        self.assertIn("Company Hub", app_js)
+        self.assertIn(".company-card-grid", styles_css)
+        self.assertIn(".company-detail-panel", styles_css)
+        self.assertIn(".interview-stage-card", styles_css)
+
     def test_problem_workspace_has_resizable_pane_hooks(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

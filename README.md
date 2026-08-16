@@ -37,6 +37,7 @@ environment.
 From the browser you can:
 
 - Browse available ML coding and lightweight modeling problems.
+- Browse source-backed Company Hub profiles with company links, hiring pages, stage and funding context, interview-process signals, and linked practice questions.
 - Open the PyTorch Playground for free-form Python and PyTorch experiments,
   with an auto-saved draft, named browser-local sessions, Save for code or name
   updates, Save as new for copies, and a stdout/stderr console.
@@ -85,6 +86,7 @@ See [docs/architecture.md](docs/architecture.md) for the local system architectu
 - `deepcode/evaluators/`: evaluator interfaces and registered evaluation backends.
 - `frontend/`: browser UI assets served by the backend.
 - `problems/`: file-backed problem definitions and evaluator test cases.
+- `companies/`: file-backed company research profiles linked to problem metadata.
 - `.deepcode/`: local-only user state such as completed problems, ignored by git.
 - `data/` and `runs/`: optional local-only folders for future dataset-backed tasks and run artifacts.
 - `tests/`: backend and static UI regression tests.

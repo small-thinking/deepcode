@@ -43,7 +43,9 @@ const state = {
     sort: "id",
     order: "asc",
   },
+  companies: [],
   selected: null,
+  selectedCompany: null,
   customTests: [],
   dataLink: null,
   dataLinkTarget: "",
@@ -224,6 +226,7 @@ function mainNavigation() {
   return `
     <nav class="main-nav" aria-label="Main navigation">
       <button class="nav-tab ${state.view === "problems" ? "active" : ""}" data-app-view="problems">Problems</button>
+      <button class="nav-tab ${state.view === "companies" ? "active" : ""}" data-app-view="companies">Companies</button>
       <button class="nav-tab ${state.view === "playground" ? "active" : ""}" data-app-view="playground">Playground</button>
     </nav>
   `;
@@ -418,6 +421,7 @@ function setProblemSort(sortKey) {
 
 async function loadProblems() {
   state.view = "problems";
+  state.selectedCompany = null;
   state.loading = true;
   state.error = null;
   render();
@@ -437,6 +441,7 @@ async function loadProblems() {
 
 async function loadProblem(identifier) {
   state.view = "problems";
+  state.selectedCompany = null;
   state.error = null;
   state.runResult = null;
   state.activeResultIndex = 0;
@@ -457,6 +462,46 @@ async function loadProblem(identifier) {
     state.activeTab = "description";
     syncStarterCode(state.selected);
     location.hash = `#/problems/${state.selected.slug}`;
+  } catch (error) {
+    state.error = error.message;
+  } finally {
+    state.loading = false;
+    render();
+  }
+}
+
+async function loadCompanies() {
+  if (codeEditor) saveCode(editorCode());
+  state.view = "companies";
+  state.selected = null;
+  state.selectedCompany = null;
+  state.error = null;
+  state.loading = true;
+  render();
+  try {
+    const payload = await api("/api/companies");
+    state.companies = payload.companies || [];
+    location.hash = "#/companies";
+  } catch (error) {
+    state.error = error.message;
+  } finally {
+    state.loading = false;
+    render();
+  }
+}
+
+async function loadCompany(identifier) {
+  if (codeEditor) saveCode(editorCode());
+  state.view = "companies";
+  state.selected = null;
+  state.selectedCompany = null;
+  state.error = null;
+  state.loading = true;
+  render();
+  try {
+    const payload = await api(`/api/companies/${encodeURIComponent(identifier)}`);
+    state.selectedCompany = payload.company;
+    location.hash = `#/companies/${state.selectedCompany.slug}`;
   } catch (error) {
     state.error = error.message;
   } finally {
@@ -1345,6 +1390,7 @@ function backToList() {
   const needsProblemCatalog = state.problems.length === 0;
   state.view = "problems";
   state.selected = null;
+  state.selectedCompany = null;
   state.runResult = null;
   state.activeResultIndex = 0;
   state.error = null;
@@ -1356,10 +1402,25 @@ function backToList() {
   render();
 }
 
+function backToCompanies() {
+  const needsCompanyCatalog = state.companies.length === 0;
+  state.view = "companies";
+  state.selected = null;
+  state.selectedCompany = null;
+  state.error = null;
+  location.hash = "#/companies";
+  if (needsCompanyCatalog) {
+    loadCompanies();
+    return;
+  }
+  render();
+}
+
 function openPlayground() {
   if (codeEditor) saveCode(editorCode());
   state.view = "playground";
   state.selected = null;
+  state.selectedCompany = null;
   state.error = null;
   if (location.hash !== "#/playground") {
     location.hash = "#/playground";
@@ -1384,6 +1445,12 @@ function render() {
   teardownEditor();
   if (state.view === "playground") {
     renderPlayground();
+  } else if (state.view === "companies") {
+    if (state.selectedCompany) {
+      renderCompanyDetail();
+    } else {
+      renderCompanies();
+    }
   } else if (state.selected) {
     renderDetail();
   } else {
@@ -1394,6 +1461,182 @@ function render() {
   applyPaneSizes();
   syncProblemTimer();
   scrollPendingCustomTestIntoView();
+}
+
+function companyStageSummary(stage) {
+  return [stage?.company_state, stage?.funding_stage].filter(Boolean).join(" · ") || "Not researched";
+}
+
+function companyFundingSummary(stage) {
+  return [stage?.amount, stage?.valuation, stage?.last_announced ? `announced ${stage.last_announced}` : ""]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function externalLinks(links, className = "reference-list") {
+  const items = (links || [])
+    .filter((link) => link && link.label && link.url)
+    .map(
+      (link) => `
+        <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
+          ${escapeHtml(link.label)}
+        </a>
+      `
+    )
+    .join("");
+  return items ? `<div class="${className}">${items}</div>` : "";
+}
+
+function renderCompanies() {
+  const cards = state.companies
+    .map((company) => {
+      const stage = company.stage || {};
+      const funding = companyFundingSummary(stage);
+      return `
+        <button class="company-card" data-company-slug="${escapeHtml(company.slug)}">
+          <div class="company-card-heading">
+            <div>
+              <h2>${escapeHtml(company.name)}</h2>
+              <p>${escapeHtml(company.summary)}</p>
+            </div>
+            <span class="company-stage-badge">${escapeHtml(companyStageSummary(stage))}</span>
+          </div>
+          ${funding ? `<p class="company-funding">${escapeHtml(funding)}</p>` : ""}
+          <footer><strong>${escapeHtml(company.problem_count || 0)}</strong> related DeepCode problem${company.problem_count === 1 ? "" : "s"}</footer>
+        </button>
+      `;
+    })
+    .join("");
+
+  app.innerHTML = `
+    <main class="page company-page">
+      <header class="topbar">
+        <div class="brand">
+          <div class="mark">DC</div>
+          <div>
+            <h1>Company Hub</h1>
+            <p>Research context, interview signals, and linked practice.</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          ${mainNavigation()}
+          ${themeToggleButton()}
+        </div>
+      </header>
+      ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
+      <section class="company-intro">
+        <div>
+          <strong>${state.companies.length}</strong>
+          <span>profile${state.companies.length === 1 ? "" : "s"}</span>
+        </div>
+        <p>Profiles are source-backed snapshots. Financing and interview information can change, so each profile records the latest review date and evidence tier.</p>
+      </section>
+      <section class="company-card-grid" aria-label="Company profiles">
+        ${state.loading ? `<div class="loading-screen">Loading company profiles...</div>` : cards || `<div class="empty-state">No company profiles yet.</div>`}
+      </section>
+    </main>
+  `;
+}
+
+function companyMetaRow(label, value) {
+  if (!value) return "";
+  return `<div class="company-meta-row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
+}
+
+function renderCompanyDetail() {
+  const company = state.selectedCompany;
+  const stage = company.stage || {};
+  const interview = company.interview_process || {};
+  const interviewStages = (interview.stages || [])
+    .map(
+      (item) => `
+        <article class="interview-stage-card">
+          <div class="interview-stage-heading">
+            <h3>${escapeHtml(item.name)}</h3>
+            <span class="evidence-badge">${escapeHtml(item.evidence_tier)}</span>
+          </div>
+          <p>${escapeHtml(item.signal)}</p>
+          ${externalLinks(item.sources, "company-source-list")}
+        </article>
+      `
+    )
+    .join("");
+  const notes = (company.notes || [])
+    .map((note) => `<article class="company-note"><strong>${escapeHtml(note.label)}</strong><p>${escapeHtml(note.detail)}</p></article>`)
+    .join("");
+  const relatedProblems = (company.related_problems || [])
+    .map(
+      (problem) => `
+        <button class="company-problem-card" data-company-problem="${escapeHtml(problem.slug)}">
+          <span>#${escapeHtml(problem.display_id ?? problem.id)}</span>
+          <strong>${escapeHtml(problem.title)}</strong>
+          <small>${escapeHtml(problem.category)} · ${escapeHtml(problem.difficulty)}</small>
+        </button>
+      `
+    )
+    .join("");
+
+  app.innerHTML = `
+    <main class="page company-page company-detail-page">
+      <header class="topbar">
+        <div class="company-detail-navigation">
+          <button class="ghost-button" id="company-back-button">← Companies</button>
+          ${mainNavigation()}
+        </div>
+        <div class="topbar-actions">${themeToggleButton()}</div>
+      </header>
+      ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
+      <article class="company-detail-panel">
+        <header class="company-hero">
+          <div>
+            <p class="eyebrow">Company profile</p>
+            <h1>${escapeHtml(company.name)}</h1>
+            <p>${escapeHtml(company.summary)}</p>
+          </div>
+          <div class="company-hero-stage">
+            <span class="company-stage-badge">${escapeHtml(companyStageSummary(stage))}</span>
+            <small>Last reviewed ${escapeHtml(company.updated_at || "not recorded")}</small>
+          </div>
+        </header>
+
+        <section class="company-detail-section">
+          <h2>Stage & financing</h2>
+          <dl class="company-meta-grid">
+            ${companyMetaRow("Company state", stage.company_state)}
+            ${companyMetaRow("Funding stage", stage.funding_stage)}
+            ${companyMetaRow("Last announced", stage.last_announced)}
+            ${companyMetaRow("Amount", stage.amount)}
+            ${companyMetaRow("Valuation", stage.valuation)}
+          </dl>
+          ${externalLinks(stage.source ? [stage.source] : [], "company-source-list")}
+        </section>
+
+        <section class="company-detail-section">
+          <h2>Company links</h2>
+          ${externalLinks(company.links)}
+        </section>
+
+        <section class="company-detail-section">
+          <div class="company-section-heading">
+            <div>
+              <h2>Interview process</h2>
+              <p>${escapeHtml(interview.summary || "No interview-process context recorded yet.")}</p>
+            </div>
+            ${interview.evidence_tier ? `<span class="evidence-badge">${escapeHtml(interview.evidence_tier)}</span>` : ""}
+          </div>
+          <div class="interview-stage-list">${interviewStages || `<div class="empty-state">No stage signals recorded yet.</div>`}</div>
+        </section>
+
+        <section class="company-detail-section">
+          <h2>Related DeepCode problems</h2>
+          <div class="company-problem-list">${relatedProblems || `<div class="empty-state">No linked problems yet.</div>`}</div>
+        </section>
+
+        ${notes ? `<section class="company-detail-section"><h2>Research notes</h2><div class="company-note-list">${notes}</div></section>` : ""}
+        ${company.references?.length ? `<section class="company-detail-section"><h2>Sources</h2>${externalLinks(company.references)}</section>` : ""}
+      </article>
+    </main>
+  `;
 }
 
 function scrollPendingCustomTestIntoView() {
@@ -2310,6 +2553,8 @@ function bindEvents() {
     button.addEventListener("click", () => {
       if (button.dataset.appView === "playground") {
         openPlayground();
+      } else if (button.dataset.appView === "companies") {
+        loadCompanies();
       } else {
         backToList();
       }
@@ -2358,6 +2603,12 @@ function bindEvents() {
   document.querySelectorAll("tbody tr[data-slug]").forEach((row) => {
     row.addEventListener("click", () => loadProblem(row.dataset.slug));
   });
+  document.querySelectorAll("[data-company-slug]").forEach((button) => {
+    button.addEventListener("click", () => loadCompany(button.dataset.companySlug));
+  });
+  document.querySelectorAll("[data-company-problem]").forEach((button) => {
+    button.addEventListener("click", () => loadProblem(button.dataset.companyProblem));
+  });
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", () => {
       saveCode(editorCode());
@@ -2377,6 +2628,7 @@ function bindEvents() {
     });
   });
   document.querySelector("#problem-back-button")?.addEventListener("click", backToList);
+  document.querySelector("#company-back-button")?.addEventListener("click", backToCompanies);
   document.querySelector("#problem-timer-toggle")?.addEventListener("click", toggleProblemTimer);
   document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
@@ -2414,6 +2666,15 @@ function bootFromHash() {
   const match = location.hash.match(/^#\/problems\/(.+)$/);
   if (match) {
     loadProblem(decodeURIComponent(match[1]));
+    return;
+  }
+  if (location.hash === "#/companies") {
+    loadCompanies();
+    return;
+  }
+  const companyMatch = location.hash.match(/^#\/companies\/(.+)$/);
+  if (companyMatch) {
+    loadCompany(decodeURIComponent(companyMatch[1]));
   } else {
     loadProblems();
   }
@@ -2431,7 +2692,21 @@ window.addEventListener("hashchange", () => {
     if (!state.selected || state.selected.slug !== slug) {
       loadProblem(slug);
     }
-  } else if (!location.hash && (state.selected || state.view === "playground")) {
+    return;
+  }
+  if (location.hash === "#/companies") {
+    if (state.view !== "companies" || state.selectedCompany) {
+      loadCompanies();
+    }
+    return;
+  }
+  const companyMatch = location.hash.match(/^#\/companies\/(.+)$/);
+  if (companyMatch) {
+    const slug = decodeURIComponent(companyMatch[1]);
+    if (!state.selectedCompany || state.selectedCompany.slug !== slug) {
+      loadCompany(slug);
+    }
+  } else if (!location.hash && (state.selected || state.selectedCompany || state.view === "playground")) {
     backToList();
   }
 });
