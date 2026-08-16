@@ -7,6 +7,7 @@ from typing import Any
 from urllib.parse import unquote
 
 from deepcode.custom_tests import CustomTestStore, validate_custom_tests
+from deepcode.company_store import CompanyStore
 from deepcode.data_links import data_link_status, remove_data_link, set_data_link
 from deepcode.evaluators import (
     EvaluationRequest,
@@ -22,6 +23,7 @@ from deepcode.user_state import UserStateStore
 @dataclass(frozen=True)
 class ApiContext:
     store: ProblemStore
+    company_store: CompanyStore | None = None
     user_state: UserStateStore | None = None
     custom_tests: CustomTestStore | None = None
 
@@ -82,6 +84,19 @@ def _handle_api_request(
         if not isinstance(payload, dict):
             raise ValueError("Request body must be a JSON object")
         return 200, run_playground(payload.get("code"))
+
+    if parts == ["api", "companies"] and method == "GET":
+        company_store = _company_store(context)
+        companies = company_store.list_companies(context.store.list_problems())
+        return 200, {"companies": companies, "total": len(companies)}
+
+    if len(parts) == 3 and parts[:2] == ["api", "companies"] and method == "GET":
+        company_store = _company_store(context)
+        try:
+            company = company_store.get_company(parts[2], context.store.list_problems())
+        except KeyError:
+            return 404, {"error": "Company not found"}
+        return 200, {"company": company}
 
     if parts == ["api", "problems"] and method == "GET":
         problems = context.store.list_problems(
@@ -230,6 +245,12 @@ def _first(query: dict[str, list[str]], key: str) -> str | None:
     if not values:
         return None
     return values[0] or None
+
+
+def _company_store(context: ApiContext) -> CompanyStore:
+    if context.company_store is None:
+        raise ValueError("Company profiles are not configured")
+    return context.company_store
 
 
 def _public_problem(problem: dict[str, Any]) -> dict[str, Any]:

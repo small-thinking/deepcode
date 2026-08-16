@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from deepcode.api import ApiContext, handle_api_request, stream_api_events
+from deepcode.company_store import CompanyStore
 from deepcode.custom_tests import CustomTestStore
 from deepcode.problem_store import ProblemStore
 from deepcode.server import DeepCodeHandler
@@ -79,6 +80,38 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["problem"]["tests"][0]["input"], "x = 4")
             self.assertEqual(payload["problem"]["tests"][0]["expected_output"], "4")
             self.assertNotIn("_runtime", payload["problem"])
+
+    def test_lists_and_fetches_company_profiles_with_related_problems(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            problems_root = root / "problems"
+            companies_root = root / "companies"
+            companies_root.mkdir()
+            self._write_problem(problems_root, "harvey-question", "1", {"companies": ["Harvey"]})
+            self._write_company(companies_root, "harvey", self._company_payload())
+            context = ApiContext(store=ProblemStore(problems_root), company_store=CompanyStore(companies_root))
+
+            status, payload = handle_api_request(context, "GET", "/api/companies", {}, None)
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["total"], 1)
+            self.assertEqual(payload["companies"][0]["problem_count"], 1)
+
+            status, payload = handle_api_request(context, "GET", "/api/companies/harvey", {}, None)
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["company"]["name"], "Harvey")
+            self.assertEqual(payload["company"]["related_problems"][0]["slug"], "harvey-question")
+
+    def test_returns_404_for_unknown_company_profile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            companies_root = root / "companies"
+            companies_root.mkdir()
+            context = ApiContext(store=ProblemStore(root / "problems"), company_store=CompanyStore(companies_root))
+
+            status, payload = handle_api_request(context, "GET", "/api/companies/missing", {}, None)
+
+            self.assertEqual(status, 404)
+            self.assertEqual(payload["error"], "Company not found")
 
     def test_runs_submission_for_problem(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -715,6 +748,33 @@ class ApiTest(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+
+    def _write_company(self, root, slug, company):
+        (root / f"{slug}.json").write_text(json.dumps(company), encoding="utf-8")
+
+    def _company_payload(self):
+        return {
+            "slug": "harvey",
+            "name": "Harvey",
+            "summary": "Legal AI.",
+            "stage": {
+                "company_state": "Private",
+                "funding_stage": "Growth round",
+                "source": {"label": "Funding", "url": "https://example.com/funding"},
+            },
+            "links": [{"label": "Website", "url": "https://example.com"}],
+            "interview_process": {
+                "stages": [
+                    {
+                        "name": "Technical screen",
+                        "signal": "Public signal.",
+                        "evidence_tier": "Candidate report",
+                        "sources": [{"label": "Source", "url": "https://example.com/source"}],
+                    }
+                ]
+            },
+            "references": [{"label": "Company", "url": "https://example.com"}],
+        }
 
 
 if __name__ == "__main__":

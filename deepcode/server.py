@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from deepcode.api import ApiContext, handle_api_request, stream_api_events
+from deepcode.company_store import CompanyStore
 from deepcode.custom_tests import CustomTestStore
 from deepcode.problem_store import ProblemStore
 from deepcode.user_state import UserStateStore
@@ -17,6 +18,7 @@ from deepcode.user_state import UserStateStore
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 PROBLEMS_DIR = BASE_DIR / "problems"
+COMPANIES_DIR = BASE_DIR / "companies"
 USER_STATE_PATH = Path(os.environ.get("DEEPCODE_USER_STATE_PATH", BASE_DIR / ".deepcode" / "user-state.json"))
 CUSTOM_TESTS_PATH = Path(os.environ.get("DEEPCODE_CUSTOM_TESTS_PATH", BASE_DIR / ".deepcode" / "custom-tests.json"))
 DEFAULT_PORT = 8848
@@ -25,6 +27,7 @@ DEFAULT_PORT = 8848
 class DeepCodeHandler(BaseHTTPRequestHandler):
     context = ApiContext(
         store=ProblemStore(PROBLEMS_DIR),
+        company_store=CompanyStore(COMPANIES_DIR),
         user_state=UserStateStore(USER_STATE_PATH),
         custom_tests=CustomTestStore(CUSTOM_TESTS_PATH),
     )

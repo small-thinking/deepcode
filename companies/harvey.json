@@ -1,0 +1,79 @@
+{
+  "slug": "harvey",
+  "name": "Harvey",
+  "summary": "Domain-specific AI for legal and professional services, with products for workflows such as contract analysis, due diligence, compliance, and litigation.",
+  "stage": {
+    "company_state": "Private",
+    "funding_stage": "Growth round",
+    "last_announced": "2026-03-25",
+    "amount": "$200M",
+    "valuation": "$11B",
+    "source": {
+      "label": "Harvey: $200M growth round at an $11B valuation",
+      "url": "https://www.harvey.ai/blog/harvey-raises-growth-round-at-dollar11-billion-valuation-co-led-by-gic-and-sequoia"
+    }
+  },
+  "links": [
+    {
+      "label": "Company website",
+      "url": "https://www.harvey.ai/company"
+    },
+    {
+      "label": "Careers and open roles",
+      "url": "https://www.harvey.ai/careers"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Partial public signal",
+    "summary": "The stored evidence supports coding questions being reported for phone and onsite contexts. It does not establish a universal Harvey interview loop; confirm the current process with the recruiter.",
+    "stages": [
+      {
+        "name": "Coding / systems-design screen",
+        "signal": "The In-Memory Unix File System prompt is publicly labeled as a phone-screen software question. The repository's linked exercise retains the observable contract and source examples.",
+        "evidence_tier": "Question-page metadata",
+        "sources": [
+          {
+            "label": "TrueInterview: In-Memory Unix File System",
+            "url": "https://trueinterview.io/questions/in-memory-unix-file-system?company=harvey"
+          }
+        ]
+      },
+      {
+        "name": "Coding / design onsite variant",
+        "signal": "Design a Text Editor is publicly labeled as an onsite software question. Citation Highlighting is also stored as a company-associated coding prompt, but public labels should not be combined into one fixed sequence.",
+        "evidence_tier": "Question-page metadata",
+        "sources": [
+          {
+            "label": "TrueInterview: Design a Text Editor",
+            "url": "https://trueinterview.io/questions/design-a-text-editor?company=harvey"
+          },
+          {
+            "label": "TrueInterview: Citation Highlighting",
+            "url": "https://trueinterview.io/questions/citation-highlighting?company=harvey"
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "label": "Preparation focus",
+      "detail": "Practice stateful API design, interval merging with provenance, and explaining trade-offs under interview constraints. Treat question-source labels as evidence of prompt type, not proof of the current official loop."
+    }
+  ],
+  "references": [
+    {
+      "label": "Harvey company overview",
+      "url": "https://www.harvey.ai/company"
+    },
+    {
+      "label": "Harvey funding announcement",
+      "url": "https://www.harvey.ai/blog/harvey-raises-growth-round-at-dollar11-billion-valuation-co-led-by-gic-and-sequoia"
+    },
+    {
+      "label": "Harvey careers",
+      "url": "https://www.harvey.ai/careers"
+    }
+  ],
+  "updated_at": "2026-08-16"
+}
