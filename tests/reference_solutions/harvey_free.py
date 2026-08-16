@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-
-
 class InMemoryUnixFileSystem:
     def __init__(self):
         self.root = {"kind": "dir", "children": {}}
@@ -104,13 +101,6 @@ class TextEditor:
         return self.left[-10:]
 
 
-@dataclass
-class CitationResult:
-    tagged_document: str
-    counts: dict[int, int]
-    citations: list[list[int]]
-
-
 def highlight_with_citations(document, sources):
     def is_word_char(char):
         return char.isalnum() or char == "_"
@@ -151,4 +141,4 @@ def highlight_with_citations(document, sources):
         citations.append(ordered)
         cursor = end
     parts.append(document[cursor:])
-    return CitationResult("".join(parts), counts, citations)
+    return "".join(parts), counts, citations
