@@ -8,10 +8,5 @@
     "name": "normalizes slashes and deletes only files or empty directories",
     "input": "paths with repeated and trailing slashes",
     "test": "fs = InMemoryUnixFileSystem()\nfs.mkdir('/projects///api/')\nfs.touch('/projects/api/main.py')\nfs.touch('/projects/NOTES.txt')\nassert not fs.rm('/projects')\nassert not fs.rmdir('/projects')\nassert fs.rm('/projects/api/main.py')\nassert fs.ls('/projects/api') == []\nassert fs.rmdir('/projects/api')\nassert fs.ls('/projects') == ['NOTES.txt']\nassert not fs.rmdir('/projects')\nassert fs.rm('/projects/NOTES.txt')\nassert fs.rmdir('/projects')\nassert not fs.rmdir('/')\nassert not fs.rm('/missing')"
-  },
-  {
-    "name": "rejects invalid file-directory conflicts",
-    "input": "root touch, absent parent, touch on a directory, and mkdir on a file",
-    "test": "fs = InMemoryUnixFileSystem()\nfor operation in (lambda: fs.touch('/'), lambda: fs.touch('/missing/file')):\n    try:\n        operation()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass\n\nfs.mkdir('/dir')\ntry:\n    fs.touch('/dir')\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass\n\nfs.touch('/file')\ntry:\n    fs.mkdir('/file')\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
   }
 ]

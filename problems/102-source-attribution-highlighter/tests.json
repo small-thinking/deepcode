@@ -1,27 +1,27 @@
 [
   {
-    "name": "[Part 1] overlapping phrases form one highlighted block",
-    "input": "document = 'A red bird sings at dawn.'; sources = ['red bird', 'bird sings']",
-    "test": "result = highlight_with_citations('A red bird sings at dawn.', ['red bird', 'bird sings'])\nassert result.tagged_document == 'A <yellow>red bird sings</yellow>[0][1] at dawn.'\nassert result.counts == {0: 1, 1: 1}\nassert result.citations == [[0, 1]]"
+    "name": "[TrueInterview Case 1] overlapping phrases form one highlighted block",
+    "input": "document = 'Read red green blue today.'; sources = ['red green', 'green blue']",
+    "test": "tagged_document, counts, citations = highlight_with_citations('Read red green blue today.', ['red green', 'green blue'])\nassert tagged_document == 'Read <yellow>red green blue</yellow>[0][1] today.'\nassert counts == {0: 1, 1: 1}\nassert citations == [[0, 1]]"
   },
   {
-    "name": "[Part 1] whitespace-adjacent matches merge without losing spacing",
-    "input": "document = 'alpha  beta, gamma'; sources = ['alpha', 'beta', 'gamma']",
-    "test": "result = highlight_with_citations('alpha  beta, gamma', ['alpha', 'beta', 'gamma'])\nassert result.tagged_document == '<yellow>alpha  beta</yellow>[0][1], <yellow>gamma</yellow>[2]'\nassert result.counts == {0: 1, 1: 1, 2: 1}\nassert result.citations == [[0, 1], [2]]"
+    "name": "[TrueInterview Case 2] citation order uses global frequency then source index",
+    "input": "document = 'Alpha beta gamma; beta gamma delta.'; sources = ['beta gamma', 'gamma', 'delta', 'beta']",
+    "test": "tagged_document, counts, citations = highlight_with_citations('Alpha beta gamma; beta gamma delta.', ['beta gamma', 'gamma', 'delta', 'beta'])\nassert tagged_document == 'Alpha <yellow>beta gamma</yellow>[0][1][3]; <yellow>beta gamma delta</yellow>[0][1][3][2].'\nassert counts == {0: 2, 1: 2, 2: 1, 3: 2}\nassert citations == [[0, 1, 3], [0, 1, 3, 2]]"
   },
   {
-    "name": "[Part 2] global frequency orders citations and duplicate sources stay distinct",
+    "name": "[TrueInterview Case 3] matching is case-sensitive and duplicate sources stay distinct",
+    "input": "document = 'blueprint BLUE blue'; sources = ['blue', 'blue', 'BLUE']",
+    "test": "tagged_document, counts, citations = highlight_with_citations('blueprint BLUE blue', ['blue', 'blue', 'BLUE'])\nassert tagged_document == 'blueprint <yellow>BLUE blue</yellow>[0][1][2]'\nassert counts == {0: 1, 1: 1, 2: 1}\nassert citations == [[0, 1, 2]]"
+  },
+  {
+    "name": "[Prompt example] global frequency orders citations across blocks",
     "input": "document = 'A red bird sings while a red fish swims.'; sources = ['red bird', 'bird sings', 'red', 'fish']",
-    "test": "result = highlight_with_citations('A red bird sings while a red fish swims.', ['red bird', 'bird sings', 'red', 'fish'])\nassert result.tagged_document == 'A <yellow>red bird sings</yellow>[2][0][1] while a <yellow>red fish</yellow>[2][3] swims.'\nassert result.counts == {0: 1, 1: 1, 2: 2, 3: 1}\nassert result.citations == [[2, 0, 1], [2, 3]]\n\nduplicates = highlight_with_citations('red red', ['red', 'red'])\nassert duplicates.tagged_document == '<yellow>red red</yellow>[0][1]'\nassert duplicates.counts == {0: 2, 1: 2}\nassert duplicates.citations == [[0, 1]]"
+    "test": "tagged_document, counts, citations = highlight_with_citations('A red bird sings while a red fish swims.', ['red bird', 'bird sings', 'red', 'fish'])\nassert tagged_document == 'A <yellow>red bird sings</yellow>[2][0][1] while a <yellow>red fish</yellow>[2][3] swims.'\nassert counts == {0: 1, 1: 1, 2: 2, 3: 1}\nassert citations == [[2, 0, 1], [2, 3]]"
   },
   {
-    "name": "word boundaries are case-sensitive and do not match inside a token",
-    "input": "document = 'sunshine sun Sun sun'; sources = ['sun', 'Sun', 'sun']",
-    "test": "result = highlight_with_citations('sunshine sun Sun sun', ['sun', 'Sun', 'sun'])\nassert result.tagged_document == 'sunshine <yellow>sun Sun sun</yellow>[0][2][1]'\nassert result.counts == {0: 2, 1: 1, 2: 2}\nassert result.citations == [[0, 2, 1]]"
-  },
-  {
-    "name": "no valid occurrence preserves the original document",
-    "input": "document = 'unrelated_text'; sources = ['related', 'text']",
-    "test": "result = highlight_with_citations('unrelated_text', ['related', 'text'])\nassert result.tagged_document == 'unrelated_text'\nassert result.counts == {0: 0, 1: 0}\nassert result.citations == []"
+    "name": "[Prompt rule] whitespace-adjacent matches merge and no matches preserve the document",
+    "input": "whitespace adjacency and a document with no valid occurrence",
+    "test": "tagged_document, counts, citations = highlight_with_citations('alpha  beta, gamma', ['alpha', 'beta', 'gamma'])\nassert tagged_document == '<yellow>alpha  beta</yellow>[0][1], <yellow>gamma</yellow>[2]'\nassert counts == {0: 1, 1: 1, 2: 1}\nassert citations == [[0, 1], [2]]\n\ntagged_document, counts, citations = highlight_with_citations('unrelated_text', ['related', 'text'])\nassert tagged_document == 'unrelated_text'\nassert counts == {0: 0, 1: 0}\nassert citations == []"
   }
 ]
