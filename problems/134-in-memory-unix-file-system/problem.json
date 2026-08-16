@@ -1,0 +1,32 @@
+{
+  "id": "134",
+  "slug": "in-memory-unix-file-system",
+  "title": "In-Memory Unix File System",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["low-level-design", "filesystem", "trie", "paths", "stateful"],
+  "companies": ["Harvey"],
+  "prompt": "Build an in-memory Unix-style file system for absolute paths such as /, /var, and /var/log.txt. Repeated slashes and a trailing slash normalize to the same location, so /x///y/ means /x/y.\n\nImplement InMemoryUnixFileSystem with these methods:\n- touch(path): create an empty file when its parent directory already exists. Calling touch on an existing file is a no-op. Raise ValueError when the path is root, the parent is absent, or the name already identifies a directory.\n- mkdir(path): create a directory with mkdir -p semantics. Missing directories along the path are created; an existing directory is a no-op. Raise ValueError if a path component names a file.\n- ls(path): return a directory's child names in lexicographic order. When path is a file, return a one-item list containing that file name.\n- rm(path): remove a file and return True. Return False for root, a missing path, or a directory.\n- rmdir(path): remove an empty non-root directory and return True. Return False for root, a missing path, a file, or a nonempty directory.\n\nA file and directory may not share a name in the same parent. All paths passed to the API are absolute.",
+  "starter_code": "class InMemoryUnixFileSystem:\n    def __init__(self):\n        pass\n\n    def touch(self, path):\n        pass\n\n    def mkdir(self, path):\n        pass\n\n    def ls(self, path):\n        pass\n\n    def rm(self, path):\n        pass\n\n    def rmdir(self, path):\n        pass\n",
+  "example": {
+    "input": "fs.mkdir('/projects/api'); fs.touch('/projects/api/main.py'); fs.touch('/projects/NOTES.txt'); fs.ls('/projects')",
+    "output": "['NOTES.txt', 'api']",
+    "reasoning": "mkdir creates missing ancestors, while ls lists both the file and directory in lexical order."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: In-Memory Unix File System",
+      "url": "https://trueinterview.io/questions/in-memory-unix-file-system?company=harvey"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

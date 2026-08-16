@@ -1,0 +1,17 @@
+[
+  {
+    "name": "matches the interview example",
+    "input": "hello, delete 2, insert world, move, delete, and move",
+    "test": "editor = TextEditor()\neditor.addText('hello')\nassert editor.deleteText(2) == 2\neditor.addText('world')\nassert editor.cursorLeft(3) == 'helwo'\nassert editor.cursorRight(4) == 'helworld'\nassert editor.deleteText(5) == 5\nassert editor.cursorLeft(1) == 'he'\nassert editor.cursorRight(2) == 'hel'"
+  },
+  {
+    "name": "stops at cursor boundaries and returns only the final ten left characters",
+    "input": "eleven characters and cursor moves larger than the text",
+    "test": "editor = TextEditor()\neditor.addText('abcdefghijk')\nassert editor.cursorLeft(100) == ''\nassert editor.deleteText(4) == 0\nassert editor.cursorRight(100) == 'bcdefghijk'\nassert editor.deleteText(100) == 11\nassert editor.cursorLeft(1) == ''"
+  },
+  {
+    "name": "inserts and deletes in the middle without dropping right-side text",
+    "input": "insert an underscore inside world",
+    "test": "editor = TextEditor()\neditor.addText('world')\nassert editor.cursorLeft(2) == 'wor'\neditor.addText('_')\nassert editor.cursorRight(10) == 'wor_ld'\nassert editor.cursorLeft(2) == 'wor_'\nassert editor.deleteText(10) == 4\nassert editor.cursorRight(10) == 'ld'"
+  }
+]
