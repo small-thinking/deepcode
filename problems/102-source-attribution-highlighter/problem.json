@@ -1,33 +1,32 @@
 {
   "id": "102",
   "slug": "source-attribution-highlighter",
-  "title": "Source Attribution Highlighter",
-  "category": "NLP Processing",
-  "difficulty": "medium",
-  "tags": ["nlp", "string-processing", "intervals", "citation"],
+  "title": "Citation Highlighting",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["string-processing", "intervals", "citation", "word-boundaries", "multipart"],
   "companies": ["Harvey"],
-  "prompt": "Implement `highlight_sources(document, sources)` for a source-attribution highlighter.\n\nFind every exact, case-sensitive occurrence of each source in `document`, but only when the source appears as a complete token or phrase. A match is invalid if the character immediately before or after it is a word character (`str.isalnum()` or `_`). For example, source `aa` does not match inside `aaaa`.\n\nReturn `(tagged_document, counts, citations)`:\n- `tagged_document` is the original document with merged matched spans wrapped in `<yellow>` and `</yellow>`.\n- `counts` maps every source string to its number of valid occurrences.\n- `citations` has one entry per highlighted span, in document order. Each entry is a sorted list of source strings that contributed to that merged span.\n\nIf matched spans overlap or touch, merge them into one highlighted span and combine their citation sources. Empty source strings should be ignored for matching and counted as `0` if present in `sources`.",
-  "starter_code": "def highlight_sources(document, sources):\n    # Return (tagged_document, counts, citations) for exact whole-token source matches.\n    pass\n",
+  "prompt": "Implement highlight_with_citations(document, sources). Given an LLM-generated document and source phrases, find every exact, case-sensitive occurrence of each phrase whose two ends are word boundaries. A word character is a letter, digit, or underscore, so source 'sun' must not match inside 'sunshine'. Every source is nonempty and starts and ends with a letter or digit.\n\n### Part 1 — Highlight matching phrases\n\nReturn the document with every matching range wrapped in <yellow> and </yellow>. Keep all original text exactly, including whitespace and punctuation. One source can match more than once, and matches from different sources can overlap. Merge intersecting matches. Also merge matches with only whitespace between their ranges, keeping that whitespace inside the highlighted block. Return the original document when nothing matches.\n\n### Part 2 — Global counts and citations\n\nReturn a CitationResult with tagged_document, counts, and citations. counts maps every zero-based source index to that source's document-wide number of valid matches. citations contains one list for each merged block, in document order. A block lists each contributing source index once, sorted by descending global count and then ascending source index. Append each block's citation indices immediately after its closing tag in the tagged document, formatted as [source_id]. Identical source strings at distinct input positions remain distinct sources.",
+  "starter_code": "from dataclasses import dataclass\n\n\n@dataclass\nclass CitationResult:\n    tagged_document: str\n    counts: dict[int, int]\n    citations: list[list[int]]\n\n\ndef highlight_with_citations(document, sources):\n    pass\n",
   "example": {
-    "input": "document = \"Harvey cites alpha and beta.\"; sources = [\"Harvey\", \"alpha\", \"beta\"]",
-    "output": "(\"<yellow>Harvey</yellow> cites <yellow>alpha</yellow> and <yellow>beta</yellow>.\", {\"Harvey\": 1, \"alpha\": 1, \"beta\": 1}, [[\"Harvey\"], [\"alpha\"], [\"beta\"]])",
-    "reasoning": "Each source appears as a complete token, so each span is highlighted and cited separately."
+    "input": "document = 'A red bird sings while a red fish swims.'; sources = ['red bird', 'bird sings', 'red', 'fish']",
+    "output": "CitationResult('A <yellow>red bird sings</yellow>[2][0][1] while a <yellow>red fish</yellow>[2][3] swims.', {0: 1, 1: 1, 2: 2, 3: 1}, [[2, 0, 1], [2, 3]])",
+    "reasoning": "The overlapping bird phrases merge. Source 2 appears twice globally, so it leads the citations in both highlighted blocks."
   },
   "environment": {
     "language": "python",
-    "timeout_seconds": 2,
+    "timeout_seconds": 3,
     "packages": [],
-    "comparator": "exact"
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
   },
   "references": [
     {
-      "label": "Python: str.find",
-      "url": "https://docs.python.org/3/library/stdtypes.html#str.find"
-    },
-    {
-      "label": "Python: str.isalnum",
-      "url": "https://docs.python.org/3/library/stdtypes.html#str.isalnum"
+      "label": "TrueInterview: Citation Highlighting",
+      "url": "https://trueinterview.io/questions/citation-highlighting?company=harvey"
     }
   ],
-  "created_at": "2026-06-12"
+  "created_at": "2026-08-16"
 }

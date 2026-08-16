@@ -1,0 +1,32 @@
+{
+  "id": "135",
+  "slug": "text-editor",
+  "title": "Design a Text Editor",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["low-level-design", "stateful", "string", "cursor", "two-stacks"],
+  "companies": ["Harvey"],
+  "prompt": "Implement a TextEditor that maintains a movable cursor. The editor starts empty with its cursor at the beginning.\n\n- addText(text) inserts text immediately before the cursor and leaves the cursor after the new text.\n- deleteText(k) removes up to k characters immediately to the left of the cursor and returns the number actually removed.\n- cursorLeft(k) moves the cursor left up to k positions and returns at most the last 10 characters to the cursor's left.\n- cursorRight(k) moves the cursor right up to k positions and returns at most the last 10 characters to the cursor's left.\n\nCursor moves stop at the beginning or end of the text. Text to the right of the cursor is preserved when inserting or deleting.",
+  "starter_code": "class TextEditor:\n    def __init__(self):\n        pass\n\n    def addText(self, text):\n        pass\n\n    def deleteText(self, k):\n        pass\n\n    def cursorLeft(self, k):\n        pass\n\n    def cursorRight(self, k):\n        pass\n",
+  "example": {
+    "input": "editor.addText('hello'); editor.deleteText(2); editor.addText('world'); editor.cursorLeft(3)",
+    "output": "'helwo'",
+    "reasoning": "Deleting leaves hel at the cursor. After adding world, moving left three places leaves helwo to the left of the cursor."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Design a Text Editor",
+      "url": "https://trueinterview.io/questions/design-a-text-editor?company=harvey"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

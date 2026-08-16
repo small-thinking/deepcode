@@ -1,50 +1,27 @@
 [
   {
-    "name": "separate whole-token matches",
-    "input": "document = 'Harvey cites alpha and beta.'; sources = ['Harvey', 'alpha', 'beta']",
-    "test": "print(highlight_sources('Harvey cites alpha and beta.', ['Harvey', 'alpha', 'beta']))",
-    "expected_output": "('<yellow>Harvey</yellow> cites <yellow>alpha</yellow> and <yellow>beta</yellow>.', {'Harvey': 1, 'alpha': 1, 'beta': 1}, [['Harvey'], ['alpha'], ['beta']])"
+    "name": "[Part 1] overlapping phrases form one highlighted block",
+    "input": "document = 'A red bird sings at dawn.'; sources = ['red bird', 'bird sings']",
+    "test": "result = highlight_with_citations('A red bird sings at dawn.', ['red bird', 'bird sings'])\nassert result.tagged_document == 'A <yellow>red bird sings</yellow>[0][1] at dawn.'\nassert result.counts == {0: 1, 1: 1}\nassert result.citations == [[0, 1]]"
   },
   {
-    "name": "substring inside token is not a match",
-    "input": "document = 'aaaa'; sources = ['aa']",
-    "test": "print(highlight_sources('aaaa', ['aa']))",
-    "expected_output": "('aaaa', {'aa': 0}, [])"
+    "name": "[Part 1] whitespace-adjacent matches merge without losing spacing",
+    "input": "document = 'alpha  beta, gamma'; sources = ['alpha', 'beta', 'gamma']",
+    "test": "result = highlight_with_citations('alpha  beta, gamma', ['alpha', 'beta', 'gamma'])\nassert result.tagged_document == '<yellow>alpha  beta</yellow>[0][1], <yellow>gamma</yellow>[2]'\nassert result.counts == {0: 1, 1: 1, 2: 1}\nassert result.citations == [[0, 1], [2]]"
   },
   {
-    "name": "counts repeated token occurrences",
-    "input": "document = 'aa aa, aa.'; sources = ['aa']",
-    "test": "print(highlight_sources('aa aa, aa.', ['aa']))",
-    "expected_output": "('<yellow>aa</yellow> <yellow>aa</yellow>, <yellow>aa</yellow>.', {'aa': 3}, [['aa'], ['aa'], ['aa']])"
+    "name": "[Part 2] global frequency orders citations and duplicate sources stay distinct",
+    "input": "document = 'A red bird sings while a red fish swims.'; sources = ['red bird', 'bird sings', 'red', 'fish']",
+    "test": "result = highlight_with_citations('A red bird sings while a red fish swims.', ['red bird', 'bird sings', 'red', 'fish'])\nassert result.tagged_document == 'A <yellow>red bird sings</yellow>[2][0][1] while a <yellow>red fish</yellow>[2][3] swims.'\nassert result.counts == {0: 1, 1: 1, 2: 2, 3: 1}\nassert result.citations == [[2, 0, 1], [2, 3]]\n\nduplicates = highlight_with_citations('red red', ['red', 'red'])\nassert duplicates.tagged_document == '<yellow>red red</yellow>[0][1]'\nassert duplicates.counts == {0: 2, 1: 2}\nassert duplicates.citations == [[0, 1]]"
   },
   {
-    "name": "merges overlapping source intervals",
-    "input": "document = 'New York City office'; sources = ['New York', 'York City']",
-    "test": "print(highlight_sources('New York City office', ['New York', 'York City']))",
-    "expected_output": "('<yellow>New York City</yellow> office', {'New York': 1, 'York City': 1}, [['New York', 'York City']])"
+    "name": "word boundaries are case-sensitive and do not match inside a token",
+    "input": "document = 'sunshine sun Sun sun'; sources = ['sun', 'Sun', 'sun']",
+    "test": "result = highlight_with_citations('sunshine sun Sun sun', ['sun', 'Sun', 'sun'])\nassert result.tagged_document == 'sunshine <yellow>sun Sun sun</yellow>[0][2][1]'\nassert result.counts == {0: 2, 1: 1, 2: 2}\nassert result.citations == [[0, 2, 1]]"
   },
   {
-    "name": "punctuation separates adjacent matches",
-    "input": "document = 'alpha-beta'; sources = ['alpha', 'beta']",
-    "test": "print(highlight_sources('alpha-beta', ['alpha', 'beta']))",
-    "expected_output": "('<yellow>alpha</yellow>-<yellow>beta</yellow>', {'alpha': 1, 'beta': 1}, [['alpha'], ['beta']])"
-  },
-  {
-    "name": "case-sensitive exact match",
-    "input": "document = 'Harvey harvey HARVEY'; sources = ['Harvey', 'harvey']",
-    "test": "print(highlight_sources('Harvey harvey HARVEY', ['Harvey', 'harvey']))",
-    "expected_output": "('<yellow>Harvey</yellow> <yellow>harvey</yellow> HARVEY', {'Harvey': 1, 'harvey': 1}, [['Harvey'], ['harvey']])"
-  },
-  {
-    "name": "underscore keeps substring inside token invalid",
-    "input": "document = 'source_id source'; sources = ['source']",
-    "test": "print(highlight_sources('source_id source', ['source']))",
-    "expected_output": "('source_id <yellow>source</yellow>', {'source': 1}, [['source']])"
-  },
-  {
-    "name": "empty document and empty source",
-    "input": "document = ''; sources = ['', 'alpha']",
-    "test": "print(highlight_sources('', ['', 'alpha']))",
-    "expected_output": "('', {'': 0, 'alpha': 0}, [])"
+    "name": "no valid occurrence preserves the original document",
+    "input": "document = 'unrelated_text'; sources = ['related', 'text']",
+    "test": "result = highlight_with_citations('unrelated_text', ['related', 'text'])\nassert result.tagged_document == 'unrelated_text'\nassert result.counts == {0: 0, 1: 0}\nassert result.citations == []"
   }
 ]
