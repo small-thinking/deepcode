@@ -1599,6 +1599,15 @@ pre {
   gap: 14px;
 }
 
+.company-card-heading > div,
+.company-hero > div:first-child {
+  min-width: 0;
+}
+
+.company-card-heading > div {
+  flex: 1 1 0;
+}
+
 .company-card h2,
 .company-detail-section h2,
 .interview-stage-card h3 {
@@ -1629,6 +1638,14 @@ pre {
   font-weight: 800;
   line-height: 1.25;
   white-space: nowrap;
+}
+
+.company-card .company-stage-badge {
+  flex: 0 1 auto;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: right;
+  white-space: normal;
 }
 
 .evidence-badge {
@@ -1699,6 +1716,21 @@ pre {
 .company-detail-section h2 {
   margin-bottom: 14px;
   font-size: 17px;
+}
+
+.company-stage-pending-note {
+  max-width: 720px;
+  margin: 0;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--inset-bg);
+  line-height: 1.55;
+}
+
+.company-stage-pending-note strong {
+  color: var(--text);
 }
 
 .company-meta-grid {

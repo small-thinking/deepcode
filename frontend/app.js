@@ -1489,7 +1489,16 @@ function render() {
 }
 
 function companyStageSummary(stage) {
-  return [stage?.company_state, stage?.funding_stage].filter(Boolean).join(" · ") || "Not researched";
+  if (stageResearchPending(stage)) return "";
+  return [stage?.company_state, stage?.funding_stage].filter(Boolean).join(" · ");
+}
+
+function stageResearchPending(stage) {
+  const status = [stage?.company_state, stage?.funding_stage]
+    .filter(Boolean)
+    .join(" ")
+    .toLocaleLowerCase();
+  return status.includes("not independently verified") || status.includes("not recorded in opportunity 2026");
 }
 
 function companyFundingSummary(stage) {
@@ -1516,6 +1525,7 @@ function renderCompanies() {
   const cards = state.companies
     .map((company) => {
       const stage = company.stage || {};
+      const stageSummary = companyStageSummary(stage);
       const funding = companyFundingSummary(stage);
       return `
         <button class="company-card" data-company-slug="${escapeHtml(company.slug)}">
@@ -1524,7 +1534,7 @@ function renderCompanies() {
               <h2>${escapeHtml(company.name)}</h2>
               <p>${escapeHtml(company.summary)}</p>
             </div>
-            <span class="company-stage-badge">${escapeHtml(companyStageSummary(stage))}</span>
+            ${stageSummary ? `<span class="company-stage-badge">${escapeHtml(stageSummary)}</span>` : ""}
           </div>
           ${funding ? `<p class="company-funding">${escapeHtml(funding)}</p>` : ""}
           <footer><strong>${escapeHtml(company.problem_count || 0)}</strong> related DeepCode problem${company.problem_count === 1 ? "" : "s"}</footer>
@@ -1554,7 +1564,7 @@ function renderCompanies() {
           <strong>${state.companies.length}</strong>
           <span>profile${state.companies.length === 1 ? "" : "s"}</span>
         </div>
-        <p>Profiles are source-backed snapshots. Financing and interview information can change, so each profile records the latest review date and evidence tier.</p>
+        <p>Profiles capture hiring and interview context. A stage badge appears only when financing or company-stage data has an attributable source; other profiles keep that research explicitly pending.</p>
       </section>
       <section class="company-card-grid" aria-label="Company profiles">
         ${state.loading ? `<div class="loading-screen">Loading company profiles...</div>` : cards || `<div class="empty-state">No company profiles yet.</div>`}
@@ -1571,6 +1581,8 @@ function companyMetaRow(label, value) {
 function renderCompanyDetail() {
   const company = state.selectedCompany;
   const stage = company.stage || {};
+  const stageSummary = companyStageSummary(stage);
+  const stagePending = stageResearchPending(stage);
   const interview = company.interview_process || {};
   const interviewStages = (interview.stages || [])
     .map(
@@ -1619,21 +1631,27 @@ function renderCompanyDetail() {
             <p>${escapeHtml(company.summary)}</p>
           </div>
           <div class="company-hero-stage">
-            <span class="company-stage-badge">${escapeHtml(companyStageSummary(stage))}</span>
+            ${stageSummary ? `<span class="company-stage-badge">${escapeHtml(stageSummary)}</span>` : ""}
             <small>Last reviewed ${escapeHtml(company.updated_at || "not recorded")}</small>
           </div>
         </header>
 
         <section class="company-detail-section">
           <h2>Stage & financing</h2>
-          <dl class="company-meta-grid">
-            ${companyMetaRow("Company state", stage.company_state)}
-            ${companyMetaRow("Funding stage", stage.funding_stage)}
-            ${companyMetaRow("Last announced", stage.last_announced)}
-            ${companyMetaRow("Amount", stage.amount)}
-            ${companyMetaRow("Valuation", stage.valuation)}
-          </dl>
-          ${externalLinks(stage.source ? [stage.source] : [], "company-source-list")}
+          ${
+            stagePending
+              ? `<p class="company-stage-pending-note"><strong>Research pending.</strong> This profile has hiring and interview context from Opportunity 2026, but DeepCode does not yet have an independently sourced company-stage or financing record.</p>`
+              : `
+                <dl class="company-meta-grid">
+                  ${companyMetaRow("Company state", stage.company_state)}
+                  ${companyMetaRow("Funding stage", stage.funding_stage)}
+                  ${companyMetaRow("Last announced", stage.last_announced)}
+                  ${companyMetaRow("Amount", stage.amount)}
+                  ${companyMetaRow("Valuation", stage.valuation)}
+                </dl>
+                ${externalLinks(stage.source ? [stage.source] : [], "company-source-list")}
+              `
+          }
         </section>
 
         <section class="company-detail-section">
