@@ -1,6 +1,7 @@
 {
   "slug": "spacexai-xai-related-roles",
   "name": "SpaceXAI / xAI-related roles",
+  "aliases": ["xAI"],
   "summary": "Opportunity 2026 scope for xAI-related roles in SpaceX's integrated AI segment, focused on evaluation, human data, post-training, and model-quality loops.",
   "stage": {
     "company_state": "Not independently verified",
