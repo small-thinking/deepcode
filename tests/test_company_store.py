@@ -27,6 +27,54 @@ class CompanyStoreTest(unittest.TestCase):
             },
         )
 
+    def test_committed_profiles_cover_the_opportunity_2026_company_snapshot(self):
+        root = Path(__file__).resolve().parents[1]
+        companies = CompanyStore(root / "companies")
+        problems = ProblemStore(root / "problems").list_problems()
+
+        profiles = companies.list_companies(problems)
+
+        self.assertEqual(len(profiles), 25)
+        self.assertEqual(
+            {profile["name"] for profile in profiles},
+            {
+                "Abridge",
+                "AfterQuery",
+                "Airbnb",
+                "Anthropic",
+                "Black Forest Labs",
+                "EvenUp",
+                "Faire",
+                "Fieldguide",
+                "Glean",
+                "Google DeepMind",
+                "Hark",
+                "Harvey",
+                "Luma AI",
+                "Microsoft AI",
+                "Mistral AI",
+                "OpenAI",
+                "OpenEvidence",
+                "Plaud",
+                "Reducto",
+                "Reflection AI",
+                "Runway",
+                "Sierra",
+                "SpaceXAI / xAI-related roles",
+                "Thinking Machines Lab",
+                "XDOF",
+            },
+        )
+        self.assertTrue(
+            all(
+                any(link["label"] == "Opportunity 2026 profile" for link in companies.get_company(profile["slug"], problems)["links"])
+                for profile in profiles
+            )
+        )
+        reflection = companies.get_company("ReflectionAI", problems)
+        self.assertEqual(reflection["name"], "Reflection AI")
+        self.assertEqual(reflection["problem_count"], 2)
+
     def test_lists_profiles_and_links_matching_problem_companies(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

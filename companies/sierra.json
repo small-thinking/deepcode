@@ -1,0 +1,19 @@
+{
+  "slug": "sierra",
+  "name": "Sierra",
+  "summary": "Conversational AI company tracked for conversation analytics, retrieval, personalization, feedback loops, real-time pipelines, and agent evaluation.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: Sierra profile", "url": "https://app.notion.com/35b6ce51456d81ec9683c924da7f8604"}
+  },
+  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/35b6ce51456d81ec9683c924da7f8604"}, {"label": "Careers", "url": "https://sierra.ai/careers"}, {"label": "1Point3Acres reports", "url": "https://www.1point3acres.com/interview/company/Sierra"}],
+  "interview_process": {
+    "evidence_tier": "AI-native coding — Opportunity 2026 classification",
+    "summary": "The tracker treats this as AI-native coding preparation rather than a fixed interview loop.",
+    "stages": [{"name": "Preparation context", "signal": "Conversation analytics, retrieval/ranking/personalization, feedback loops, real-time pipelines, and agent evaluation or experimentation.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Sierra profile", "url": "https://app.notion.com/35b6ce51456d81ec9683c924da7f8604"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "2 · Targeted Prep; core tracks include Intelligence, Agent Architecture, and Agent Builder."}],
+  "references": [{"label": "Sierra careers", "url": "https://sierra.ai/careers"}],
+  "updated_at": "2026-07-30"
+}

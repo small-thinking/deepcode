@@ -1,0 +1,19 @@
+{
+  "slug": "evenup",
+  "name": "EvenUp",
+  "summary": "Legal AI company retained for document AI, long-context reasoning, RAG, evaluation, and post-training-adjacent interview context.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: EvenUp profile", "url": "https://app.notion.com/37b6ce51456d812f99a7c8c96d39ab80"}
+  },
+  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/37b6ce51456d812f99a7c8c96d39ab80"}, {"label": "Careers", "url": "https://www.evenuplaw.com/careers/"}],
+  "interview_process": {
+    "evidence_tier": "Mixed or role-dependent — Opportunity 2026 classification",
+    "summary": "The tracker records an OA and post-training preparation topics, rather than a universal loop.",
+    "stages": [{"name": "Preparation context", "signal": "Wine-quality EDA/modeling, SFT/RFT, LoRA/QLoRA, reward and evaluation design, legal document AI, and long-context RAG.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: EvenUp profile", "url": "https://app.notion.com/37b6ce51456d812f99a7c8c96d39ab80"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "4 · Skip / No Interview Value; retained recruiter and compensation context only."}],
+  "references": [{"label": "EvenUp careers", "url": "https://www.evenuplaw.com/careers/"}],
+  "updated_at": "2026-07-31"
+}

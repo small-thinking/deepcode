@@ -1,0 +1,22 @@
+{
+  "slug": "airbnb",
+  "name": "Airbnb",
+  "summary": "Travel marketplace tracked for applied GenAI opportunities adjacent to post-training, retrieval/search, LLM evaluation, and feedback learning.",
+  "stage": {
+    "company_state": "Public-company status not independently verified in this profile",
+    "funding_stage": "Not applicable / not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: Airbnb profile", "url": "https://app.notion.com/3976ce51456d81969c4cc6d5ace80528"}
+  },
+  "links": [
+    {"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3976ce51456d81969c4cc6d5ace80528"},
+    {"label": "Careers", "url": "https://careers.airbnb.com/"}
+  ],
+  "interview_process": {
+    "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
+    "summary": "The tracker recommends targeted preparation if exploratory recruiting progresses; it does not establish a role-specific loop.",
+    "stages": [{"name": "Preparation context", "signal": "Post-training, RAG/search, LLM eval and testing automation, feedback learning, and guardrails for CSxAI work.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Airbnb profile", "url": "https://app.notion.com/3976ce51456d81969c4cc6d5ace80528"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "2 · Targeted Prep; concrete requisition scope should be confirmed with the recruiter."}],
+  "references": [{"label": "Airbnb careers", "url": "https://careers.airbnb.com/"}],
+  "updated_at": "2026-07-30"
+}

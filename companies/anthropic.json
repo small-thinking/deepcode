@@ -1,0 +1,23 @@
+{
+  "slug": "anthropic",
+  "name": "Anthropic",
+  "summary": "AI safety and model-development company tracked for model evaluations, production post-training, safeguards, agents, and knowledge-focused research engineering.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: Anthropic canonical profile", "url": "https://app.notion.com/35c6ce51456d81dea2bcc85dcc7fc0d9"}
+  },
+  "links": [
+    {"label": "Opportunity 2026 profile", "url": "https://app.notion.com/35c6ce51456d81dea2bcc85dcc7fc0d9"},
+    {"label": "Careers", "url": "https://www.anthropic.com/careers"},
+    {"label": "1Point3Acres reports", "url": "https://www.1point3acres.com/bbs/tag-9878-1.html"}
+  ],
+  "interview_process": {
+    "evidence_tier": "Mixed or role-dependent — Opportunity 2026 classification",
+    "summary": "Preparation is role-dependent; the tracker explicitly avoids presenting a single standard loop.",
+    "stages": [{"name": "Preparation context", "signal": "Model evaluations, production post-training, synthetic-data safety evaluation, agents, and research-to-product systems.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Anthropic canonical profile", "url": "https://app.notion.com/35c6ce51456d81dea2bcc85dcc7fc0d9"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "3 · Serious Prep. This is the canonical entry; a duplicate archival tracker row is intentionally not represented as a second DeepCode profile."}],
+  "references": [{"label": "Anthropic careers", "url": "https://www.anthropic.com/careers"}],
+  "updated_at": "2026-07-30"
+}

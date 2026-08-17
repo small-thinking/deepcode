@@ -1,0 +1,23 @@
+{
+  "slug": "abridge",
+  "name": "Abridge",
+  "summary": "Clinical AI company tracked for medical NLP, evidence extraction, retrieval, summarization, and evaluation-oriented roles.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: Abridge profile", "url": "https://app.notion.com/37b6ce51456d810a87d5ccd13f5c53a6"}
+  },
+  "links": [
+    {"label": "Opportunity 2026 profile", "url": "https://app.notion.com/37b6ce51456d810a87d5ccd13f5c53a6"},
+    {"label": "Careers", "url": "https://www.abridge.com/careers"},
+    {"label": "1Point3Acres reports", "url": "https://www.1point3acres.com/interview/company/abridge"}
+  ],
+  "interview_process": {
+    "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
+    "summary": "The tracker records preparation context, not a confirmed standard interview loop.",
+    "stages": [{"name": "Preparation context", "signal": "Medical NLP, foundation models, evidence extraction, summarization, retrieval, agent runtime, and evals.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Abridge profile", "url": "https://app.notion.com/37b6ce51456d810a87d5ccd13f5c53a6"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "1 · Practice / Calibration. The tracker identifies ML Scientist and GenAI engineering roles as relevant context."}],
+  "references": [{"label": "Abridge career page", "url": "https://www.abridge.com/careers"}],
+  "updated_at": "2026-07-30"
+}

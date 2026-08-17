@@ -113,6 +113,18 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('metadata: "problem-section problem-metadata-section"', app_js)
         self.assertIn(".company-list", styles_css)
 
+    def test_problem_companies_filter_and_link_to_matching_profiles(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('id="company"', app_js)
+        self.assertIn("company_profiles", app_js)
+        self.assertIn("function companyProfileSlug(companyName)", app_js)
+        self.assertIn("function companyLabelList(values", app_js)
+        self.assertIn("data-company-profile", app_js)
+        self.assertIn("event.stopPropagation()", app_js)
+        self.assertIn(".company-label-link", styles_css)
+
     def test_company_hub_has_navigation_profiles_and_related_problem_routes(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

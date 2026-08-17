@@ -102,6 +102,7 @@ def _handle_api_request(
         problems = context.store.list_problems(
             category=_first(query, "category"),
             difficulty=_first(query, "difficulty"),
+            company=_first(query, "company"),
             search=_first(query, "search"),
             sort=_first(query, "sort") or "id",
             order=_first(query, "order") or "asc",
@@ -111,6 +112,8 @@ def _handle_api_request(
             "problems": problems,
             "categories": context.store.categories(),
             "difficulties": context.store.difficulties(),
+            "companies": context.store.companies(),
+            "company_profiles": _company_profile_summaries(context),
             "total": len(problems),
         }
 
@@ -251,6 +254,20 @@ def _company_store(context: ApiContext) -> CompanyStore:
     if context.company_store is None:
         raise ValueError("Company profiles are not configured")
     return context.company_store
+
+
+def _company_profile_summaries(context: ApiContext) -> list[dict[str, Any]]:
+    """Expose only the fields the problem list needs to link company labels."""
+    if context.company_store is None:
+        return []
+    return [
+        {
+            "slug": company["slug"],
+            "name": company["name"],
+            "aliases": company.get("aliases", []),
+        }
+        for company in context.company_store.list_companies(context.store.list_problems())
+    ]
 
 
 def _public_problem(problem: dict[str, Any]) -> dict[str, Any]:

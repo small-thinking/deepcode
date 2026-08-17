@@ -15,6 +15,10 @@
   },
   "links": [
     {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/37b6ce51456d81daa344e95f91dae5b8"
+    },
+    {
       "label": "Company website",
       "url": "https://www.harvey.ai/company"
     },
@@ -73,6 +77,10 @@
     {
       "label": "Harvey careers",
       "url": "https://www.harvey.ai/careers"
+    },
+    {
+      "label": "Opportunity 2026: Harvey profile",
+      "url": "https://app.notion.com/37b6ce51456d81daa344e95f91dae5b8"
     }
   ],
   "updated_at": "2026-08-16"

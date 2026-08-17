@@ -36,10 +36,13 @@ const state = {
   problems: [],
   categories: [],
   difficulties: [],
+  companyNames: [],
+  companyProfiles: [],
   filters: {
     search: "",
     category: "all",
     difficulty: "all",
+    company: "all",
     sort: "id",
     order: "asc",
   },
@@ -431,6 +434,8 @@ async function loadProblems() {
     state.problems = payload.problems;
     state.categories = payload.categories;
     state.difficulties = payload.difficulties;
+    state.companyNames = payload.companies || [];
+    state.companyProfiles = payload.company_profiles || [];
   } catch (error) {
     state.error = error.message;
   } finally {
@@ -1437,6 +1442,26 @@ function labelList(values, className = "label-list") {
   return labels ? `<div class="${className}">${labels}</div>` : "";
 }
 
+function companyProfileSlug(companyName) {
+  const normalized = String(companyName ?? "").trim().toLocaleLowerCase();
+  if (!normalized) return null;
+  const profile = state.companyProfiles.find((item) =>
+    [item.name, ...(item.aliases || [])].some((value) => String(value ?? "").trim().toLocaleLowerCase() === normalized)
+  );
+  return profile?.slug || null;
+}
+
+function companyLabelList(values, className = "company-list") {
+  const labels = (values || [])
+    .map((value) => {
+      const profileSlug = companyProfileSlug(value);
+      if (!profileSlug) return `<span class="label">${escapeHtml(value)}</span>`;
+      return `<button class="label company-label-link" type="button" data-company-profile="${escapeHtml(profileSlug)}">${escapeHtml(value)}</button>`;
+    })
+    .join("");
+  return labels ? `<div class="${className}">${labels}</div>` : "";
+}
+
 function problemDisplayId(problem) {
   return problem?.display_id ?? problem?.id ?? "";
 }
@@ -1670,6 +1695,14 @@ function renderList() {
     }),
   ].join("");
 
+  const companyOptions = [
+    `<option value="all">All Companies</option>`,
+    ...state.companyNames.map((company) => {
+      const selected = state.filters.company === company ? "selected" : "";
+      return `<option value="${escapeHtml(company)}" ${selected}>${escapeHtml(company)}</option>`;
+    }),
+  ].join("");
+
   app.innerHTML = `
     <main class="page">
       <header class="topbar">
@@ -1701,6 +1734,7 @@ function renderList() {
           <input class="field" id="search" value="${escapeHtml(state.filters.search)}" placeholder="Search problems..." />
           <select class="field" id="category">${categoryOptions}</select>
           <select class="field" id="difficulty">${difficultyOptions}</select>
+          <select class="field" id="company">${companyOptions}</select>
           <select class="field" id="sort">
             <option value="id" ${state.filters.sort === "id" ? "selected" : ""}>Sort by ID</option>
             <option value="title" ${state.filters.sort === "title" ? "selected" : ""}>Sort by Title</option>
@@ -1939,7 +1973,7 @@ function problemTable() {
         <td class="title-cell">${escapeHtml(problem.title)}</td>
         <td>${difficultyPill(problem.difficulty)}</td>
         <td class="category-cell">${escapeHtml(problem.category)}</td>
-        <td>${labelList(problem.companies, "company-list") || `<span class="muted-cell">-</span>`}</td>
+        <td>${companyLabelList(problem.companies) || `<span class="muted-cell">-</span>`}</td>
         <td>${labelList(problem.tags)}</td>
       </tr>
     `
@@ -2133,7 +2167,7 @@ function renderProblemDataInfo(data) {
 }
 
 function renderProblemMetadata(problem) {
-  const companies = labelList(problem.companies, "company-list") || "None";
+  const companies = companyLabelList(problem.companies) || "None";
   const tags = labelList(problem.tags) || "None";
   return renderProblemBlock(
     PROBLEM_SECTION_CLASSES.metadata,
@@ -2589,6 +2623,7 @@ function bindEvents() {
     state.filters.search = document.querySelector("#search").value.trim();
     state.filters.category = document.querySelector("#category").value;
     state.filters.difficulty = document.querySelector("#difficulty").value;
+    state.filters.company = document.querySelector("#company").value;
     const selectedSort = document.querySelector("#sort").value;
     if (state.filters.sort !== selectedSort) state.filters.order = "asc";
     state.filters.sort = selectedSort;
@@ -2602,6 +2637,12 @@ function bindEvents() {
   });
   document.querySelectorAll("tbody tr[data-slug]").forEach((row) => {
     row.addEventListener("click", () => loadProblem(row.dataset.slug));
+  });
+  document.querySelectorAll("[data-company-profile]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      loadCompany(button.dataset.companyProfile);
+    });
   });
   document.querySelectorAll("[data-company-slug]").forEach((button) => {
     button.addEventListener("click", () => loadCompany(button.dataset.companySlug));

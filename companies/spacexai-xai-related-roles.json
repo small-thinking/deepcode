@@ -1,0 +1,19 @@
+{
+  "slug": "spacexai-xai-related-roles",
+  "name": "SpaceXAI / xAI-related roles",
+  "summary": "Opportunity 2026 scope for xAI-related roles in SpaceX's integrated AI segment, focused on evaluation, human data, post-training, and model-quality loops.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: SpaceXAI / xAI-related roles profile", "url": "https://app.notion.com/3bd6ce51456d81bea0c2fc0f29c650d8"}
+  },
+  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3bd6ce51456d81bea0c2fc0f29c650d8"}, {"label": "xAI careers", "url": "https://x.ai/careers/open-roles"}],
+  "interview_process": {
+    "evidence_tier": "Mixed or role-dependent — Opportunity 2026 classification",
+    "summary": "This profile intentionally scopes xAI-related roles separately from legacy SpaceX domain-coding expectations.",
+    "stages": [{"name": "Preparation context", "signal": "Model and agent evaluation, training-data strategy and quality, post-training/RL concepts, project depth, and codebase depth.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: SpaceXAI / xAI-related roles profile", "url": "https://app.notion.com/3bd6ce51456d81bea0c2fc0f29c650d8"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "1 · Practice / Calibration, only for aligned evaluation or human-data roles rather than as a generic warm-up."}],
+  "references": [{"label": "xAI open roles", "url": "https://x.ai/careers/open-roles"}],
+  "updated_at": "2026-08-15"
+}

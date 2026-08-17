@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 SUMMARY_FIELDS = (
     "slug",
     "name",
+    "aliases",
     "summary",
     "stage",
     "updated_at",
@@ -32,7 +33,7 @@ class CompanyStore:
 
     def get_company(self, identifier: str, problems: list[dict[str, Any]]) -> dict[str, Any]:
         for company in self._load_all():
-            if identifier.casefold() in {company["slug"].casefold(), company["name"].casefold()}:
+            if identifier.casefold() in {value.casefold() for value in self._identifiers(company)}:
                 result = deepcopy(company)
                 result["related_problems"] = self._related_problems(company, problems)
                 result["problem_count"] = len(result["related_problems"])
@@ -52,7 +53,7 @@ class CompanyStore:
         return companies
 
     def _related_problems(self, company: dict[str, Any], problems: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        company_name = company["name"].casefold()
+        company_names = {value.casefold() for value in self._identifiers(company)}
         related = [
             {
                 key: deepcopy(problem[key])
@@ -60,9 +61,13 @@ class CompanyStore:
                 if key in problem
             }
             for problem in problems
-            if any(str(value).casefold() == company_name for value in problem.get("companies", []))
+            if any(str(value).casefold() in company_names for value in problem.get("companies", []))
         ]
         return sorted(related, key=lambda problem: (problem.get("display_id", 0), str(problem.get("title", "")).casefold()))
+
+    @staticmethod
+    def _identifiers(company: dict[str, Any]) -> list[str]:
+        return [company["slug"], company["name"], *company.get("aliases", [])]
 
     def _validate(self, company: dict[str, Any], path: Path) -> None:
         if not isinstance(company, dict):
@@ -74,6 +79,10 @@ class CompanyStore:
         for key in ("slug", "name", "summary"):
             if not isinstance(company[key], str) or not company[key].strip():
                 raise ValueError(f"{path} field `{key}` must be a non-empty string")
+
+        aliases = company.get("aliases", [])
+        if not isinstance(aliases, list) or any(not isinstance(alias, str) or not alias.strip() for alias in aliases):
+            raise ValueError(f"{path} field `aliases` must be a list of non-empty strings")
 
         stage = company["stage"]
         if not isinstance(stage, dict):

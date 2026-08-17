@@ -41,7 +41,7 @@ From the browser you can:
 - Open the PyTorch Playground for free-form Python and PyTorch experiments,
   with an auto-saved draft, named browser-local sessions, Save for code or name
   updates, Save as new for copies, and a stdout/stderr console.
-- Filter by category, difficulty, or search text.
+- Filter by company, category, difficulty, or search text; company labels with a profile open its research hub.
 - Read the prompt, starter code, example, and visible test cases.
 - Write Python in the editor and run the local evaluator.
 - Add local-only custom tests for ML coding problems when you want extra edge
@@ -86,7 +86,7 @@ See [docs/architecture.md](docs/architecture.md) for the local system architectu
 - `deepcode/evaluators/`: evaluator interfaces and registered evaluation backends.
 - `frontend/`: browser UI assets served by the backend.
 - `problems/`: file-backed problem definitions and evaluator test cases.
-- `companies/`: file-backed company research profiles linked to problem metadata.
+- `companies/`: file-backed company research profiles linked to problem metadata; the committed profiles mirror the Opportunity 2026 company snapshot.
 - `.deepcode/`: local-only user state such as completed problems, ignored by git.
 - `data/` and `runs/`: optional local-only folders for future dataset-backed tasks and run artifacts.
 - `tests/`: backend and static UI regression tests.

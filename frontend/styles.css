@@ -319,7 +319,7 @@ button {
 
 .filter-row {
   display: grid;
-  grid-template-columns: minmax(200px, 1fr) minmax(150px, 210px) minmax(130px, 170px) minmax(130px, 180px) auto;
+  grid-template-columns: minmax(200px, 1fr) minmax(140px, 190px) minmax(130px, 160px) minmax(140px, 190px) minmax(130px, 180px) auto;
   gap: 8px;
 }
 
@@ -461,6 +461,26 @@ tbody tr:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.company-label-link {
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  padding: 2px 6px;
+}
+
+.company-label-link:hover,
+.company-label-link:focus-visible {
+  border-color: var(--blue);
+  color: var(--text);
+}
+
+.company-label-link:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .muted-cell {

@@ -38,6 +38,7 @@ class ProblemStore:
         self,
         category: str | None = None,
         difficulty: str | None = None,
+        company: str | None = None,
         search: str | None = None,
         sort: str = "id",
         order: str = "asc",
@@ -48,6 +49,13 @@ class ProblemStore:
             problems = [problem for problem in problems if problem.get("category") == category]
         if difficulty and difficulty.lower() not in {"all", "any"}:
             problems = [problem for problem in problems if problem.get("difficulty") == difficulty]
+        if company and company.casefold() not in {"all", "all companies"}:
+            company_key = company.casefold()
+            problems = [
+                problem
+                for problem in problems
+                if any(str(value).casefold() == company_key for value in problem.get("companies", []))
+            ]
         if search:
             needle = search.casefold()
             problems = [
@@ -68,6 +76,18 @@ class ProblemStore:
         order = {"easy": 0, "medium": 1, "hard": 2}
         values = {problem["difficulty"] for problem in self._load_all() if problem.get("difficulty")}
         return sorted(values, key=lambda value: (order.get(value, 99), value))
+
+    def companies(self) -> list[str]:
+        """Return the stable, display-ready company labels used by the catalog."""
+        return sorted(
+            {
+                company
+                for problem in self._load_all()
+                for company in problem.get("companies", [])
+                if isinstance(company, str) and company.strip()
+            },
+            key=str.casefold,
+        )
 
     def get_problem(self, identifier: str) -> dict[str, Any]:
         for problem in self._load_all():

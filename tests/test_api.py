@@ -101,6 +101,12 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["company"]["name"], "Harvey")
             self.assertEqual(payload["company"]["related_problems"][0]["slug"], "harvey-question")
 
+            status, payload = handle_api_request(context, "GET", "/api/problems", {"company": ["Harvey"]}, None)
+            self.assertEqual(status, 200)
+            self.assertEqual([problem["slug"] for problem in payload["problems"]], ["harvey-question"])
+            self.assertEqual(payload["companies"], ["Harvey"])
+            self.assertEqual(payload["company_profiles"], [{"slug": "harvey", "name": "Harvey", "aliases": []}])
+
     def test_returns_404_for_unknown_company_profile(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
