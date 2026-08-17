@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from datetime import date
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -16,6 +17,7 @@ SUMMARY_FIELDS = (
     "difficulty",
     "tags",
     "companies",
+    "interview_frequency",
     "example",
     "evaluation",
     "environment",
@@ -171,6 +173,7 @@ class ProblemStore:
         self._validate_relative_path(problem, problem_dir, "data", "path")
         self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")
         self._validate_companies(problem, problem_dir)
+        self._validate_interview_frequency(problem, problem_dir)
         self._validate_references(problem, problem_dir)
 
     def _read_json(self, path: Path) -> Any:
@@ -255,6 +258,45 @@ class ProblemStore:
         for index, company in enumerate(companies, start=1):
             if not isinstance(company, str) or not company.strip():
                 raise ValueError(f"{problem_dir}/problem.json field `companies[{index}]` must be non-empty")
+
+    def _validate_interview_frequency(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        frequency = problem.get("interview_frequency")
+        if frequency is None:
+            return
+        if not isinstance(frequency, dict) or not frequency:
+            raise ValueError(f"{problem_dir}/problem.json field `interview_frequency` must be a non-empty object")
+
+        company_labels = {
+            company.casefold()
+            for company in problem.get("companies", [])
+            if isinstance(company, str) and company.strip()
+        }
+        for company, entry in frequency.items():
+            if not isinstance(company, str) or not company.strip() or company.casefold() not in company_labels:
+                raise ValueError(f"{problem_dir}/problem.json field `interview_frequency` has an unknown company")
+            if not isinstance(entry, dict) or set(entry) != {"stars", "source_record_ids", "synced_at"}:
+                raise ValueError(f"{problem_dir}/problem.json field `interview_frequency.{company}` has an invalid shape")
+
+            stars = entry["stars"]
+            if isinstance(stars, bool) or not isinstance(stars, int) or not 0 <= stars <= 5:
+                raise ValueError(f"{problem_dir}/problem.json field `interview_frequency.{company}.stars` must be an integer from 0 to 5")
+
+            record_ids = entry["source_record_ids"]
+            if (
+                not isinstance(record_ids, list)
+                or not record_ids
+                or any(not isinstance(record_id, str) or not record_id.strip() for record_id in record_ids)
+                or len({record_id.casefold() for record_id in record_ids}) != len(record_ids)
+            ):
+                raise ValueError(f"{problem_dir}/problem.json field `interview_frequency.{company}.source_record_ids` must be unique non-empty strings")
+
+            synced_at = entry["synced_at"]
+            if not isinstance(synced_at, str):
+                raise ValueError(f"{problem_dir}/problem.json field `interview_frequency.{company}.synced_at` must be an ISO date")
+            try:
+                date.fromisoformat(synced_at)
+            except ValueError as error:
+                raise ValueError(f"{problem_dir}/problem.json field `interview_frequency.{company}.synced_at` must be an ISO date") from error
 
     def _id_sort_value(self, value: Any):
         text = str(value)

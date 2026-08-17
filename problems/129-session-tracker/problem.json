@@ -4,8 +4,26 @@
   "title": "Session Tracker",
   "category": "Systems Coding",
   "difficulty": "hard",
-  "tags": ["sliding-window", "streaming", "heap", "watermark", "multipart"],
-  "companies": ["OpenAI"],
+  "tags": [
+    "sliding-window",
+    "streaming",
+    "heap",
+    "watermark",
+    "multipart"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "interview_frequency": {
+    "OpenAI": {
+      "stars": 2,
+      "source_record_ids": [
+        "3976ce51456d8114904acc5d05bfbcc7",
+        "3af6ce51456d8147a1f0f75e5ba4f287"
+      ],
+      "synced_at": "2026-08-16"
+    }
+  },
   "prompt": "Build an in-memory, single-threaded analytics service over chat events. The active window contains integer minute timestamps in the closed interval `[T - 14, T]`.\n\n### Part 1 — Recent interaction counts\n\nImplement `RecentInteractionTracker(window=15)`. `process_event(user_id, chat_id, timestamp)` receives duplicate-free events with non-decreasing timestamps. `get_num_recent_interactions(user_id, chat_id)` returns the count in the active window at the largest timestamp seen. Memory must be proportional to active-window events, including for keys that are never queried again.\n\n### Part 2 — Active sessions\n\nImplement `OrderedActiveSessionTracker(window=15)`. `process_event(..., event_type)` accepts `interact` and `end`. A `(user, chat)` pair is active when its latest interaction is inside the window and no subsequently processed `end` has deactivated it. Equal timestamps use call order. `get_num_active_sessions(user_id)` returns the active chat count. Repeated interactions must not double-count a session.\n\n### Part 3 — Out-of-order events\n\nImplement `OutOfOrderActiveSessionTracker(window=15, allowed_lateness=2)`. Track `max_seen` and define `watermark = max_seen - allowed_lateness`. Buffer accepted events and apply them in event-time order only when their timestamp is at or before the watermark. Return `False` for an event at or behind an already-finalized watermark; otherwise process it and return `True`. At equal event time, `end` wins over `interact`. Queries are final as of the watermark.\n\nPartitioning, replay, hot-key handling, and fault tolerance are system-design follow-ups and are intentionally outside this coding problem.",
   "starter_code": "class RecentInteractionTracker:\n    def __init__(self, window=15):\n        pass\n\n    def process_event(self, user_id, chat_id, timestamp):\n        pass\n\n    def get_num_recent_interactions(self, user_id, chat_id):\n        pass\n\n\nclass OrderedActiveSessionTracker:\n    def __init__(self, window=15):\n        pass\n\n    def process_event(self, user_id, chat_id, timestamp, event_type):\n        pass\n\n    def get_num_active_sessions(self, user_id):\n        pass\n\n\nclass OutOfOrderActiveSessionTracker:\n    def __init__(self, window=15, allowed_lateness=2):\n        pass\n\n    def process_event(self, user_id, chat_id, timestamp, event_type):\n        pass\n\n    def get_num_active_sessions(self, user_id):\n        pass\n",
   "example": {

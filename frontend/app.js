@@ -1451,12 +1451,26 @@ function companyProfileSlug(companyName) {
   return profile?.slug || null;
 }
 
-function companyLabelList(values, className = "company-list") {
+function companyFrequencyBadge(frequency) {
+  const stars = frequency?.stars;
+  if (!Number.isInteger(stars) || stars < 1 || stars > 5) return "";
+  return `<span class="company-frequency" aria-label="Interview-signal frequency tier ${stars}">${"★".repeat(stars)}</span>`;
+}
+
+function companyFrequencyFor(frequencies, companyName) {
+  return Object.entries(frequencies || {}).find(
+    ([company]) => String(company).trim().toLocaleLowerCase() === String(companyName).trim().toLocaleLowerCase()
+  )?.[1];
+}
+
+function companyLabelList(values, className = "company-list", frequencies = {}) {
   const labels = (values || [])
     .map((value) => {
       const profileSlug = companyProfileSlug(value);
-      if (!profileSlug) return `<span class="label">${escapeHtml(value)}</span>`;
-      return `<button class="label company-label-link" type="button" data-company-profile="${escapeHtml(profileSlug)}">${escapeHtml(value)}</button>`;
+      const label = profileSlug
+        ? `<button class="label company-label-link" type="button" data-company-profile="${escapeHtml(profileSlug)}">${escapeHtml(value)}</button>`
+        : `<span class="label">${escapeHtml(value)}</span>`;
+      return `<span class="company-label-with-frequency">${label}${companyFrequencyBadge(companyFrequencyFor(frequencies, value))}</span>`;
     })
     .join("");
   return labels ? `<div class="${className}">${labels}</div>` : "";
@@ -1996,7 +2010,7 @@ function problemTable() {
         <td class="title-cell">${escapeHtml(problem.title)}</td>
         <td>${difficultyPill(problem.difficulty)}</td>
         <td class="category-cell">${escapeHtml(problem.category)}</td>
-        <td>${companyLabelList(problem.companies) || `<span class="muted-cell">-</span>`}</td>
+        <td>${companyLabelList(problem.companies, "company-list", problem.interview_frequency) || `<span class="muted-cell">-</span>`}</td>
         <td>${labelList(problem.tags)}</td>
       </tr>
     `
@@ -2190,7 +2204,7 @@ function renderProblemDataInfo(data) {
 }
 
 function renderProblemMetadata(problem) {
-  const companies = companyLabelList(problem.companies) || "None";
+  const companies = companyLabelList(problem.companies, "company-list", problem.interview_frequency) || "None";
   const tags = labelList(problem.tags) || "None";
   return renderProblemBlock(
     PROBLEM_SECTION_CLASSES.metadata,

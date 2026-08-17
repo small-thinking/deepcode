@@ -109,9 +109,14 @@ class StaticUiTest(unittest.TestCase):
 
         self.assertIn('<th scope="col">Companies</th>', app_js)
         self.assertIn("problem.companies", app_js)
+        self.assertIn("problem.interview_frequency", app_js)
         self.assertIn("function renderProblemMetadata", app_js)
+        self.assertIn("function companyFrequencyBadge(frequency)", app_js)
+        self.assertIn("Interview-signal frequency tier", app_js)
+        self.assertIn('"★".repeat(stars)', app_js)
         self.assertIn('metadata: "problem-section problem-metadata-section"', app_js)
         self.assertIn(".company-list", styles_css)
+        self.assertIn(".company-frequency", styles_css)
 
     def test_problem_companies_filter_and_link_to_matching_profiles(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")

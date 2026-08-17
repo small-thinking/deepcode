@@ -81,6 +81,23 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["problem"]["tests"][0]["expected_output"], "4")
             self.assertNotIn("_runtime", payload["problem"])
 
+    def test_exposes_interview_frequency_tiers_without_raw_counts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root)
+            frequency = {
+                "OpenAI": {"stars": 3, "source_record_ids": ["canonical-row-1"], "synced_at": "2026-08-16"}
+            }
+            self._write_problem(root, "toy", "1", {"companies": ["OpenAI"], "interview_frequency": frequency})
+            context = ApiContext(store=store)
+
+            _, list_payload = handle_api_request(context, "GET", "/api/problems", {}, None)
+            _, detail_payload = handle_api_request(context, "GET", "/api/problems/toy", {}, None)
+
+            self.assertEqual(list_payload["problems"][0]["interview_frequency"], frequency)
+            self.assertEqual(detail_payload["problem"]["interview_frequency"], frequency)
+            self.assertNotIn("seen_count", json.dumps(detail_payload["problem"]["interview_frequency"]))
+
     def test_lists_and_fetches_company_profiles_with_related_problems(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

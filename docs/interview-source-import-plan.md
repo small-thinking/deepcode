@@ -26,10 +26,13 @@ The first source-audit batch covers these companies:
 4. Anthropic
 5. OpenAI
 
-Company coverage and question counts are volatile source metadata. Keep them in
-private working notes with a verification date and counting method; do not add
-source-platform names, domains, pricing, account details, or proprietary corpus
-statistics to this repository or to pull-request content.
+Company coverage and question counts are volatile source metadata. Keep raw
+values in private working notes with a verification date and counting method;
+do not add source-platform names, domains, pricing, account details, or raw
+proprietary corpus statistics to this repository or to pull-request content.
+An explicitly user-authorized, source-neutral `0`–`5` interview-signal tier may
+be stored per DeepCode company association, together with opaque canonical
+record IDs and a sync date; it must not reveal the count behind the tier.
 
 ## Authorization Gate
 
