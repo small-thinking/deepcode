@@ -1,0 +1,17 @@
+[
+  {
+    "name": "rebuilds a nested trace after each event",
+    "input": "one outer call with two inner calls",
+    "test": "events = [('enter', 'root'), ('enter', 'parse'), ('exit', 'parse'), ('enter', 'write'), ('exit', 'write'), ('exit', 'root')]\nassert compress_trace(events) == [(('root',), 1), (('root', 'parse'), 1), (('root',), 1), (('root', 'write'), 1), (('root',), 1), ((), 1)]"
+  },
+  {
+    "name": "keeps recursive frames distinct by depth",
+    "input": "a function recursively enters itself twice",
+    "test": "events = [('enter', 'walk'), ('enter', 'walk'), ('enter', 'walk'), ('exit', 'walk'), ('exit', 'walk'), ('exit', 'walk')]\nassert compress_trace(events) == [(('walk',), 1), (('walk', 'walk'), 1), (('walk', 'walk', 'walk'), 1), (('walk', 'walk'), 1), (('walk',), 1), ((), 1)]"
+  },
+  {
+    "name": "an empty event stream has no samples",
+    "input": "no events",
+    "test": "assert compress_trace([]) == []"
+  }
+]

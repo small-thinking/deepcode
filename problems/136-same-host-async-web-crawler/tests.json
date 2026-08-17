@@ -1,0 +1,17 @@
+[
+  {
+    "name": "filters other hosts and normalizes fragments",
+    "input": "same-host graph with repeated fragment variants",
+    "test": "import asyncio\nclass Web:\n    def __init__(self):\n        self.pages = {\n            'http://docs.test/': ['http://docs.test/a#one', 'http://docs.test/a#two', 'http://docs.test/b', 'http://other.test/skip'],\n            'http://docs.test/a': ['http://docs.test/c?x=1#part'],\n            'http://docs.test/b': [],\n            'http://docs.test/c?x=1': []\n        }\n        self.calls = []\n    async def get_urls(self, url):\n        self.calls.append(url)\n        return self.pages[url]\nweb = Web()\nresult = asyncio.run(crawl('http://docs.test/#home', web, workers=2))\nassert result == {'http://docs.test/', 'http://docs.test/a', 'http://docs.test/b', 'http://docs.test/c?x=1'}\nassert sorted(web.calls) == ['http://docs.test/', 'http://docs.test/a', 'http://docs.test/b', 'http://docs.test/c?x=1']"
+  },
+  {
+    "name": "cycles do not cause duplicate fetches",
+    "input": "three pages linked in a cycle",
+    "test": "import asyncio\nclass Web:\n    def __init__(self):\n        self.pages = {\n            'http://site.test/': ['http://site.test/a'],\n            'http://site.test/a': ['http://site.test/b'],\n            'http://site.test/b': ['http://site.test/', 'http://site.test/a']\n        }\n        self.calls = []\n    async def get_urls(self, url):\n        self.calls.append(url)\n        return self.pages[url]\nweb = Web()\nassert asyncio.run(crawl('http://site.test/', web)) == set(web.pages)\nassert len(web.calls) == len(set(web.calls)) == 3"
+  },
+  {
+    "name": "independent pages can use the bounded worker pool concurrently",
+    "input": "root with two slow children and two workers",
+    "test": "import asyncio\nclass Web:\n    def __init__(self):\n        self.pages = {\n            'http://parallel.test/': ['http://parallel.test/a', 'http://parallel.test/b'],\n            'http://parallel.test/a': [],\n            'http://parallel.test/b': []\n        }\n        self.active = 0\n        self.peak = 0\n    async def get_urls(self, url):\n        self.active += 1\n        self.peak = max(self.peak, self.active)\n        await asyncio.sleep(0.01)\n        self.active -= 1\n        return self.pages[url]\nweb = Web()\nassert asyncio.run(crawl('http://parallel.test/', web, workers=2)) == set(web.pages)\nassert web.peak == 2"
+  }
+]

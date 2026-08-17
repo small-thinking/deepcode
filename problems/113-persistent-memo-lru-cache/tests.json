@@ -18,5 +18,15 @@
     "name": "malformed log lines are ignored",
     "input": "cache file with one bad line",
     "test": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as tmp:\n    path = Path(tmp) / 'cache.jsonl'\n    path.write_text('{bad json\\n', encoding='utf-8')\n    cache = MemoLRUCache(2, str(path))\n    def one():\n        return 1\n    assert cache.get_or_compute(one) == 1"
+  },
+  {
+    "name": "nested arguments are canonicalized before lookup",
+    "input": "equivalent nested dictionaries with different insertion order",
+    "test": "calls = []\ndef render(options, active=False):\n    calls.append((options, active))\n    return options['config']['label'] if active else 'inactive'\ncache = MemoLRUCache(2)\nfirst = {'levels': [3, 8], 'config': {'label': 'ready', 'limit': 4}}\nsecond = {'config': {'limit': 4, 'label': 'ready'}, 'levels': [3, 8]}\nassert cache.get_or_compute(render, kwargs={'options': first, 'active': True}) == 'ready'\nassert cache.get_or_compute(render, kwargs={'active': True, 'options': second}) == 'ready'\nassert len(calls) == 1"
+  },
+  {
+    "name": "an incomplete final persistence record preserves prior replay",
+    "input": "valid access followed by a truncated JSON line",
+    "test": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as tmp:\n    path = Path(tmp) / 'cache.jsonl'\n    def ident(x):\n        return x\n    cache = MemoLRUCache(2, str(path))\n    assert cache.get_or_compute(ident, args=[7]) == 7\n    with path.open('ab') as handle:\n        handle.write(b'{\\\"event\\\":')\n    restored = MemoLRUCache(2, str(path))\n    calls = []\n    def ident(x):\n        calls.append(x)\n        return x\n    assert restored.get_or_compute(ident, args=[7]) == 7\n    assert calls == []"
   }
 ]

@@ -8,5 +8,15 @@
     "name": "threshold and already-stable grids",
     "input": "two sources around one cell and a grid without a source",
     "test": "assert simulate_basic([[1, 0, 1]], infection_threshold=2) == (1, [[1, 1, 1]])\nassert simulate_basic([[0, 0], [0, 0]]) == (0, [[0, 0], [0, 0]])"
+  },
+  {
+    "name": "source-shaped waves reach every cell from a top-center source",
+    "input": "three-by-three grid with one source and threshold one",
+    "test": "assert simulate_basic([[0, 1, 0], [0, 0, 0], [0, 0, 0]]) == (3, [[1, 1, 1], [1, 1, 1], [1, 1, 1]])"
+  },
+  {
+    "name": "two diagonal sources complete in two synchronous days",
+    "input": "opposite corners of a three-by-three grid",
+    "test": "assert simulate_basic([[0, 0, 1], [0, 0, 0], [1, 0, 0]]) == (2, [[1, 1, 1], [1, 1, 1], [1, 1, 1]])\nassert simulate_basic([[0, 1], [1, 1]], infection_threshold=2) == (1, [[1, 1], [1, 1]])"
   }
 ]

@@ -1,0 +1,40 @@
+{
+  "id": "136",
+  "slug": "same-host-async-web-crawler",
+  "title": "Same-Host Async Web Crawler",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": [
+    "web-crawler",
+    "asyncio",
+    "concurrency",
+    "url",
+    "graph"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `async def crawl(start_url, web, workers=4)`. `await web.get_urls(url)` returns the outgoing URLs for a page. Return a `set` containing every URL reachable from `start_url` whose hostname is the same as the start URL's hostname.\n\nRules:\n- Fetch each canonical URL at most once, including in cyclic graphs.\n- Canonicalization removes the fragment (`#...`) but preserves scheme, hostname, path, and query string.\n- URLs on another hostname must not be returned or fetched.\n- Issue at most `workers` concurrent `web.get_urls` calls. Your bookkeeping must be race-safe: two workers must not fetch the same URL.\n\nYou may assume URLs are absolute HTTP URLs and `workers` is positive. Use only the Python standard library.",
+  "starter_code": "async def crawl(start_url, web, workers=4):\n    pass\n",
+  "example": {
+    "input": "await crawl('http://docs.test/', web, workers=2)",
+    "output": "{'http://docs.test/', 'http://docs.test/guide'}",
+    "reasoning": "Only links on docs.test are traversed; a repeated link to the guide is fetched once."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Web Crawler (free)",
+      "url": "https://trueinterview.io/questions/web-crawler?company=anthropic"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

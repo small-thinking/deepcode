@@ -47,6 +47,10 @@
     {
       "label": "Python: json",
       "url": "https://docs.python.org/3/library/json.html"
+    },
+    {
+      "label": "TrueInterview: In-Memory Cache Bug-Fix + Durability (free)",
+      "url": "https://trueinterview.io/questions/coding-q2-lru-cache-durability?company=anthropic"
     }
   ],
   "created_at": "2026-06-15"
