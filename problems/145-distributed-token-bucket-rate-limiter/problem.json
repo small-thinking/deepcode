@@ -1,0 +1,32 @@
+{
+  "id": "145",
+  "slug": "distributed-token-bucket-rate-limiter",
+  "title": "Distributed Token-Bucket Rate Limiter",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["rate-limiting", "token-bucket", "distributed-systems", "stateful", "algorithm"],
+  "companies": ["xAI"],
+  "prompt": "Implement the core state transition for a per-user token-bucket rate limiter backed by a cache. This is the deterministic coding portion of the xAI-style question; the production concurrency discussion is a follow-up, not something a local unit test can prove.\n\nThe supplied `DistributedCache` has `get(key)` and `put(key, value)` methods. Implement:\n\n- `refill_token_bucket(bucket, current_time)`: lazily add `max(0, current_time - bucket.last_refill_time) * bucket.refill_rate` tokens, capped at `bucket.capacity`. A clock that moves backwards must not reduce tokens or move the refill timestamp backwards.\n- `allow_request(cache, user_id, tokens_requested=1, capacity=100, refill_rate=10.0, current_time=0.0)`: load that user's bucket, create a full bucket for a missing user, refill it at `current_time`, and allow the request only when enough tokens remain. Persist the refreshed state after both accepted and denied requests.\n\nUse the key `rate_limit:{user_id}`. A newly created bucket starts full at `current_time`, so its first request does not receive an extra refill. `tokens_requested` is positive. Keep each user's state independent.\n\nIn a real distributed deployment, a separate GET/refill/check/PUT sequence is not atomic. Be ready to explain how a Redis Lua script, a conditional write, or a short-lived distributed lock prevents two servers from overspending the same bucket, and the trade-offs of each.",
+  "starter_code": "from dataclasses import dataclass\n\n\n+@dataclass\n+class TokenBucket:\n+    tokens: float\n+    last_refill_time: float\n+    capacity: int\n+    refill_rate: float\n+\n+\n+def refill_token_bucket(bucket, current_time):\n+    # Return the updated bucket. Do not let clock skew remove tokens.\n+    pass\n+\n+\n+def allow_request(cache, user_id, tokens_requested=1, capacity=100, refill_rate=10.0, current_time=0.0):\n+    # `cache` exposes get(key) and put(key, value).\n+    pass\n",
+  "example": {
+    "input": "cache = DictCache(); allow_request(cache, 'member-7', tokens_requested=3, capacity=5, refill_rate=2.0, current_time=10.0)",
+    "output": "True",
+    "reasoning": "A new bucket starts with five tokens, so spending three is allowed and leaves two."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Distributed Rate Limiter (free)",
+      "url": "https://trueinterview.io/questions/distributed-rate-limiter?company=xai"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

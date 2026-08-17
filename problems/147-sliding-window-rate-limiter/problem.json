@@ -1,0 +1,32 @@
+{
+  "id": "147",
+  "slug": "sliding-window-rate-limiter",
+  "title": "Sliding-Window Rate Limiter",
+  "category": "Low-Level Design",
+  "difficulty": "medium",
+  "tags": ["rate-limiting", "sliding-window", "queue", "stateful", "low-level-design"],
+  "companies": ["xAI"],
+  "prompt": "Implement a per-user sliding-window rate limiter. `SlidingWindowRateLimiter(limit, window)` receives a maximum accepted-request count and an integer window length in seconds. Its `allow(user_id, timestamp)` method returns whether that request is accepted.\n\nAt integer time `t`, count only requests for the same user that were previously accepted and whose timestamps lie in `[t - window + 1, t]`. Accept and record the current timestamp when that count is below `limit`; otherwise reject it without recording it. Timestamps supplied to `allow` are non-decreasing globally.\n\nUse per-user queues or deques so each accepted timestamp is added and removed at most once. Do not rescan a user's full history for every request.",
+  "starter_code": "from collections import defaultdict, deque\n\n\n+class SlidingWindowRateLimiter:\n+    def __init__(self, limit, window):\n+        pass\n\n+    def allow(self, user_id, timestamp):\n+        # Return True when this request is accepted, otherwise False.\n+        pass\n",
+  "example": {
+    "input": "limiter = SlidingWindowRateLimiter(limit=2, window=6); [limiter.allow('sam', t) for t in [3, 4, 5, 8, 10]]",
+    "output": "[True, True, False, False, True]",
+    "reasoning": "At time 10, the request at time 3 is outside the inclusive six-second window and no longer counts."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Design and Implement a Sliding Window Rate Limiter (free)",
+      "url": "https://trueinterview.io/questions/f6b060d7-ad6e-5167-9988-9cb05356483f?company=xai"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

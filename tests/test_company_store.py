@@ -99,6 +99,19 @@ class CompanyStoreTest(unittest.TestCase):
             },
         )
 
+        xai = companies.get_company("xAI", problems)
+        self.assertEqual(xai["name"], "SpaceXAI / xAI-related roles")
+        self.assertEqual(
+            {problem["slug"] for problem in xai["related_problems"]},
+            {
+                "distributed-token-bucket-rate-limiter",
+                "notification-system-event-batch",
+                "sliding-window-rate-limiter",
+                "data-parallel-fsdp-matrix-multiplication",
+                "nested-structure-flatten-unflatten",
+            },
+        )
+
     def test_lists_profiles_and_links_matching_problem_companies(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

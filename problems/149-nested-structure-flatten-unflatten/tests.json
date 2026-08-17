@@ -1,0 +1,17 @@
+[
+  {
+    "name": "flatten uses depth-first order and dictionary insertion order",
+    "input": "nested dictionaries, lists, tuples, and empty containers",
+    "test": "structure = {'west': [3, 5], 'east': {'items': [{'id': 7}], 'end': 9}}\nassert flatten(structure) == [3, 5, 7, 9]\nassert flatten((2, [4, (6, 8)], {'value': 10})) == [2, 4, 6, 8, 10]\nassert flatten({'items': [], 'pair': (), 'mapping': {}}) == []\nassert flatten(73) == [73]"
+  },
+  {
+    "name": "unflatten preserves shape, tuple type, keys, and template contents",
+    "input": "a nested dictionary template and four replacement integers",
+    "test": "template = {'front': [2, 4], 'back': {'records': [{'count': 6}], 'last': 8}}\nresult = unflatten([21, 23, 25, 27], template)\nassert result == {'front': [21, 23], 'back': {'records': [{'count': 25}], 'last': 27}}\nassert template == {'front': [2, 4], 'back': {'records': [{'count': 6}], 'last': 8}}\ntuple_result = unflatten([14, 16, 18, 20], (3, [5, 7], {'value': 9}))\nassert tuple_result == (14, [16, 18], {'value': 20})\nassert isinstance(tuple_result, tuple)"
+  },
+  {
+    "name": "too few, too many, and leaf-free templates reject mismatched data",
+    "input": "three kinds of flat-list length mismatch",
+    "test": "for flat_list, template in [([12, 14], [4, 6, 8]), ([19, 21], {'only': 5}), ([33], {'items': [], 'pair': (), 'mapping': {}})]:\n    try:\n        unflatten(flat_list, template)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass\nassert unflatten([], {'items': [], 'pair': (), 'mapping': {}}) == {'items': [], 'pair': (), 'mapping': {}}"
+  }
+]

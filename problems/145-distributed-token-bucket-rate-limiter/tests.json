@@ -1,0 +1,17 @@
+[
+  {
+    "name": "lazy refill caps capacity and preserves state under clock skew",
+    "input": "a bucket with 42 tokens, then a backwards timestamp",
+    "test": "bucket = TokenBucket(tokens=42.0, last_refill_time=200.0, capacity=90, refill_rate=8.0)\nupdated = refill_token_bucket(bucket, 201.0)\nassert updated.tokens == 50.0\nassert updated.last_refill_time == 201.0\nassert refill_token_bucket(TokenBucket(tokens=50.0, last_refill_time=201.0, capacity=90, refill_rate=8.0), 300.0).tokens == 90\nskewed = refill_token_bucket(updated, 199.0)\nassert skewed.tokens == 50.0\nassert skewed.last_refill_time == 201.0"
+  },
+  {
+    "name": "requests spend per-user buckets and denied requests persist refills",
+    "input": "two users with a capacity-three bucket and later refill",
+    "test": "class DictCache:\n    def __init__(self):\n        self.data = {}\n    def get(self, key):\n        return self.data.get(key)\n    def put(self, key, value):\n        self.data[key] = value\n\ncache = DictCache()\nassert allow_request(cache, 'red', capacity=3, refill_rate=2.0, current_time=10.0)\nassert allow_request(cache, 'red', tokens_requested=2, capacity=3, refill_rate=2.0, current_time=10.0)\nassert not allow_request(cache, 'red', capacity=3, refill_rate=2.0, current_time=10.0)\nassert cache.get('rate_limit:red').tokens == 0\nassert allow_request(cache, 'blue', capacity=3, refill_rate=2.0, current_time=10.0)\nassert not allow_request(cache, 'red', tokens_requested=3, capacity=3, refill_rate=2.0, current_time=11.0)\nassert cache.get('rate_limit:red').tokens == 2.0\nassert allow_request(cache, 'red', tokens_requested=2, capacity=3, refill_rate=2.0, current_time=11.0)"
+  },
+  {
+    "name": "first request uses the supplied creation capacity without bonus refill",
+    "input": "one new user, capacity five, requesting six tokens",
+    "test": "class DictCache:\n    def __init__(self):\n        self.data = {}\n    def get(self, key):\n        return self.data.get(key)\n    def put(self, key, value):\n        self.data[key] = value\n\ncache = DictCache()\nassert not allow_request(cache, 'batch', tokens_requested=6, capacity=5, refill_rate=100.0, current_time=999.0)\nbucket = cache.get('rate_limit:batch')\nassert bucket.tokens == 5\nassert bucket.last_refill_time == 999.0"
+  }
+]

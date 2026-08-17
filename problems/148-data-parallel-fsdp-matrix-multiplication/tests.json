@@ -1,0 +1,17 @@
+[
+  {
+    "name": "two-device data parallel and FSDP results match NumPy",
+    "input": "A(6,4), B(4,8), two devices",
+    "test": "import numpy as np\nrng = np.random.default_rng(17)\na = rng.normal(size=(6, 4))\nb = rng.normal(size=(4, 8))\nexpected = a @ b\nassert np.allclose(dp_mat_mul(a, b, 2), expected)\nassert np.allclose(fsdp_mat_mul(a, b, 2), expected)"
+  },
+  {
+    "name": "four devices preserve rank order and route work through the communicator",
+    "input": "A(12,6), B(6,8), four devices",
+    "test": "import numpy as np\nBaseCommunicator = Communicator\nclass RecordingCommunicator(BaseCommunicator):\n    sends = []\n    receives = []\n    def send(self, src, dst, data):\n        type(self).sends.append((src, dst, np.asarray(data).shape))\n        super().send(src, dst, data)\n    def recv(self, dst):\n        type(self).receives.append(dst)\n        return super().recv(dst)\nCommunicator = RecordingCommunicator\nrng = np.random.default_rng(9)\na = rng.normal(size=(12, 6))\nb = rng.normal(size=(6, 8))\nassert np.allclose(dp_mat_mul(a, b, 4), a @ b)\nassert RecordingCommunicator.sends\nassert RecordingCommunicator.receives\nRecordingCommunicator.sends.clear()\nRecordingCommunicator.receives.clear()\nassert np.allclose(fsdp_mat_mul(a, b, 4), a @ b)\nassert len(RecordingCommunicator.sends) >= 20\nassert len(RecordingCommunicator.receives) >= 20"
+  },
+  {
+    "name": "one device works and invalid partitions are rejected",
+    "input": "one-device matrix product and malformed shapes",
+    "test": "import numpy as np\na = np.arange(12.0).reshape(6, 2)\nb = np.arange(8.0).reshape(2, 4)\nassert np.allclose(dp_mat_mul(a, b, 1), a @ b)\nassert np.allclose(fsdp_mat_mul(a, b, 1), a @ b)\nfor call in [\n    lambda: dp_mat_mul(np.ones(2), np.ones((2, 2)), 1),\n    lambda: fsdp_mat_mul(np.ones((3, 2)), np.ones((3, 2)), 1),\n    lambda: dp_mat_mul(np.ones((3, 2)), np.ones((2, 4)), 2),\n    lambda: fsdp_mat_mul(np.ones((4, 2)), np.ones((2, 5)), 2),\n    lambda: dp_mat_mul(np.ones((2, 2)), np.ones((2, 2)), 0),\n]:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+  }
+]

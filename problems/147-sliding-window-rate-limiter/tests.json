@@ -1,0 +1,17 @@
+[
+  {
+    "name": "source example counts only previously accepted requests",
+    "input": "limit two, window six, six interleaved requests",
+    "test": "limiter = SlidingWindowRateLimiter(2, 6)\nrequests = [(3, 'sam'), (4, 'sam'), (5, 'sam'), (6, 'lee'), (8, 'sam'), (10, 'sam')]\nassert [limiter.allow(user, timestamp) for timestamp, user in requests] == [True, True, False, True, False, True]"
+  },
+  {
+    "name": "the exact lower boundary remains in the window",
+    "input": "accepted requests at times 0, 4, and 5 with a five-second window",
+    "test": "limiter = SlidingWindowRateLimiter(2, 5)\nassert limiter.allow('u', 0)\nassert limiter.allow('u', 4)\nassert not limiter.allow('u', 4)\nassert limiter.allow('u', 5)\nassert not limiter.allow('u', 8)\nassert limiter.allow('u', 9)"
+  },
+  {
+    "name": "users are independent and rejected requests do not consume a slot",
+    "input": "two users and one rejected request",
+    "test": "limiter = SlidingWindowRateLimiter(1, 10)\nassert limiter.allow('red', 1)\nassert not limiter.allow('red', 2)\nassert limiter.allow('blue', 2)\nassert limiter.allow('red', 11)\nassert not limiter.allow('red', 12)"
+  }
+]
