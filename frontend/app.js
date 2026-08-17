@@ -417,9 +417,17 @@ function paramsFromFilters() {
 
 function setProblemSort(sortKey) {
   const sameColumn = state.filters.sort === sortKey;
-  state.filters.order = sameColumn && state.filters.order === "asc" ? "desc" : "asc";
+  state.filters.order = sameColumn
+    ? state.filters.order === "asc"
+      ? "desc"
+      : "asc"
+    : defaultProblemSortOrder(sortKey);
   state.filters.sort = sortKey;
   loadProblems();
+}
+
+function defaultProblemSortOrder(sortKey) {
+  return sortKey === "frequency" ? "desc" : "asc";
 }
 
 async function loadProblems() {
@@ -2682,7 +2690,7 @@ function bindEvents() {
     state.filters.difficulty = document.querySelector("#difficulty").value;
     state.filters.company = document.querySelector("#company").value;
     const selectedSort = document.querySelector("#sort").value;
-    if (state.filters.sort !== selectedSort) state.filters.order = "asc";
+    if (state.filters.sort !== selectedSort) state.filters.order = defaultProblemSortOrder(selectedSort);
     state.filters.sort = selectedSort;
     loadProblems();
   });

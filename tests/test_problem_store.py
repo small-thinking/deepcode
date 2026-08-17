@@ -238,7 +238,11 @@ class ProblemStoreTest(unittest.TestCase):
                     "id": problem_id,
                     "slug": folder,
                     "title": folder,
-                    "category": "ML Systems",
+                    "category": {
+                        "no-signal": "Algorithms",
+                        "multi-company-signal": "Systems Coding",
+                        "strong-signal": "Computer Vision",
+                    }[folder],
                     "difficulty": "medium",
                     "companies": list(frequency),
                     "prompt": "Return one.",
