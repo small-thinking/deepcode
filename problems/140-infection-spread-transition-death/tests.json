@@ -1,0 +1,17 @@
+[
+  {
+    "name": "transition-day pressure causes death",
+    "input": "two adjacent one-day infections with death threshold one",
+    "test": "original = [[1, 1]]\nassert simulate_transition_death(original, infectious_days=1, death_threshold=1) == (1, [[3, 3]])\nassert original == [[1, 1]]"
+  },
+  {
+    "name": "a transition without enough pressure becomes immunity",
+    "input": "one moving infection wave with death threshold one",
+    "test": "assert simulate_transition_death([[1, 0, 0]], infectious_days=1, death_threshold=1) == (3, [[2, 2, 2]])\nassert simulate_transition_death([[1, 2, 0]], infectious_days=1, death_threshold=1) == (1, [[2, 2, 0]])"
+  },
+  {
+    "name": "death decisions use the start-of-day active snapshot",
+    "input": "two older infections and one newly infected cell",
+    "test": "assert simulate_transition_death([[1, 1, 0]], infectious_days=2, death_threshold=1) == (3, [[3, 3, 2]])"
+  }
+]
