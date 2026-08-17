@@ -1,6 +1,6 @@
 # Adding Company Profiles
 
-Company profiles are file-backed research records under `companies/`. The committed set mirrors the current Opportunity 2026 company snapshot, so every tracked company has a profile destination even before it has a DeepCode question. A question may still use an unprofiled company label (for example, the catalog's non-company `General` label); it stays plain text rather than becoming a broken link.
+Company profiles are file-backed research records under `companies/`. The committed set includes the current Opportunity 2026 company snapshot and every employer named by an imported DeepCode question, so each company label has a profile destination. Reserved non-company labels such as `General` may remain plain text.
 
 ```text
 companies/
@@ -56,6 +56,6 @@ Each profile requires `slug`, `name`, `summary`, and `stage`. `stage` has a stab
 
 `aliases` is optional. Use it only when an existing problem label is a genuine alternate spelling of the same company, not to merge related but distinct employers.
 
-The Company Hub links a profile to every DeepCode question whose `companies` list contains the profile's `name` (case-insensitive exact match), or an explicit `aliases` entry. The Problems list automatically turns only matched company labels into profile links and exposes every catalog label in the Company filter.
+The Company Hub links a profile to every DeepCode question whose `companies` list contains the profile's `name` (case-insensitive exact match), or an explicit `aliases` entry. When importing a question that names a new employer, add its profile in the same change and use attributable company, careers, or financing sources. The Problems list automatically turns only matched company labels into profile links and exposes every catalog label in the Company filter.
 
 The Opportunity 2026 import deliberately leaves a stage as `Not independently verified` / `Not recorded in Opportunity 2026` when the tracker contains no stage or financing source. Replace those placeholders only with an attributable company or financing source; do not infer a stage from the company's interview priority.

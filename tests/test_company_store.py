@@ -34,7 +34,7 @@ class CompanyStoreTest(unittest.TestCase):
 
         profiles = companies.list_companies(problems)
 
-        self.assertEqual(len(profiles), 20)
+        self.assertEqual(len(profiles), 21)
         self.assertEqual(
             {profile["name"] for profile in profiles},
             {
@@ -51,6 +51,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "OpenAI",
                 "OpenEvidence",
                 "Plaud",
+                "Reddit",
                 "Reducto",
                 "Reflection AI",
                 "Runway",
@@ -60,12 +61,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "XDOF",
             },
         )
-        self.assertTrue(
-            all(
-                any(link["label"] == "Opportunity 2026 profile" for link in companies.get_company(profile["slug"], problems)["links"])
-                for profile in profiles
-            )
-        )
+        self.assertTrue(all(companies.get_company(profile["slug"], problems)["links"] for profile in profiles))
         reflection = companies.get_company("ReflectionAI", problems)
         self.assertEqual(reflection["name"], "Reflection AI")
         self.assertEqual(reflection["problem_count"], 2)
@@ -74,6 +70,33 @@ class CompanyStoreTest(unittest.TestCase):
         self.assertEqual(
             set(abridge["business_snapshot"]),
             {"founded", "team_size", "arr_or_revenue", "valuation", "latest_financing", "sources"},
+        )
+
+    def test_every_employer_label_with_problems_has_a_company_profile(self):
+        root = Path(__file__).resolve().parents[1]
+        companies = CompanyStore(root / "companies")
+        problems = ProblemStore(root / "problems").list_problems()
+
+        profile_identifiers = {
+            identifier.casefold()
+            for profile in companies._load_all()
+            for identifier in (profile["slug"], profile["name"], *profile.get("aliases", []))
+        }
+        company_labels = {company.casefold() for problem in problems for company in problem.get("companies", [])}
+
+        self.assertEqual(company_labels - profile_identifiers - {"general"}, set())
+
+        reddit = companies.get_company("reddit", problems)
+        self.assertEqual(reddit["stage"]["company_state"], "Public")
+        self.assertEqual(reddit["problem_count"], 4)
+        self.assertEqual(
+            {problem["slug"] for problem in reddit["related_problems"]},
+            {
+                "moderator-list-hierarchy",
+                "report-chain",
+                "word-search-ii",
+                "merge-chat-message-windows",
+            },
         )
 
     def test_lists_profiles_and_links_matching_problem_companies(self):

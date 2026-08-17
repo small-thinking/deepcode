@@ -1568,12 +1568,10 @@ function renderCompanies() {
       return `
         <button class="company-card" data-company-slug="${escapeHtml(company.slug)}">
           <div class="company-card-heading">
-            <div>
-              <h2>${escapeHtml(company.name)}</h2>
-              <p>${escapeHtml(company.summary)}</p>
-            </div>
+            <h2>${escapeHtml(company.name)}</h2>
             ${stageSummary ? `<span class="company-stage-badge">${escapeHtml(stageSummary)}</span>` : ""}
           </div>
+          <p class="company-card-summary">${escapeHtml(company.summary)}</p>
           ${funding ? `<p class="company-funding">${escapeHtml(funding)}</p>` : ""}
           <footer><strong>${escapeHtml(company.problem_count || 0)}</strong> related DeepCode problem${company.problem_count === 1 ? "" : "s"}</footer>
         </button>
