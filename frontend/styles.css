@@ -463,6 +463,20 @@ tbody tr:hover {
   gap: 6px;
 }
 
+.company-label-with-frequency {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.company-frequency {
+  color: var(--amber);
+  font-size: 12px;
+  letter-spacing: 1px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .company-label-link {
   cursor: pointer;
   border: 1px solid transparent;

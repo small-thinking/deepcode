@@ -74,6 +74,11 @@ Recommended fields:
 - `companies`: Optional list of company names associated with the source prompt,
   such as `["OpenAI"]` or `["Anthropic"]`. Use an empty list or omit the field
   for general concept drills without a company source.
+- `interview_frequency`: Optional per-company interview-signal tier. Keep only
+  `stars` (`0` through `5`), source-neutral stable record IDs, and `synced_at`;
+  do not store raw source counts. A nonzero tier renders as stars beside that
+  company label: `1 → ★`, `2–5 → ★★`, `6–10 → ★★★`, `11–15 → ★★★★`, and
+  `16+ → ★★★★★`. The key must match an entry in `companies`.
 - `evaluation.type`: Evaluator backend. Omit it or use `ml_coding` for current problems.
 - `environment.timeout_seconds`: Per-test timeout. Keep ML coding tasks short.
 - `environment.comparator`: `exact` or `numeric`.
@@ -83,6 +88,11 @@ Recommended fields:
 The browser-facing `#` is generated as `display_id` after the catalog loads, so
 problem authors do not need to renumber existing problem files when adding a new
 question.
+
+Use the global `$opportunity-question-frequency-sync` skill to refresh this
+metadata from the canonical Opportunity 2026 question bank. It validates stable
+record-to-slug mappings and produces a source-neutral patch plan; never copy raw
+counts into this repository.
 
 Current limitations:
 

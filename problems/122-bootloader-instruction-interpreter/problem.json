@@ -4,8 +4,25 @@
   "title": "Bootloader Instruction Interpreter",
   "category": "Systems Coding",
   "difficulty": "medium",
-  "tags": ["interpreter", "simulation", "loop-detection", "parsing", "debugging"],
-  "companies": ["Anthropic"],
+  "tags": [
+    "interpreter",
+    "simulation",
+    "loop-detection",
+    "parsing",
+    "debugging"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "interview_frequency": {
+    "Anthropic": {
+      "stars": 2,
+      "source_record_ids": [
+        "3736ce51456d815e8d45f3d897054986"
+      ],
+      "synced_at": "2026-08-16"
+    }
+  },
   "prompt": "Implement two helpers for a tiny bootloader instruction language.\n\n`run_bootloader(lines)` parses and executes instruction strings from `pc = 0` with a global accumulator `acc = 0`. Supported instructions are:\n- `plus N`: add signed integer `N` to `acc`, then move to the next instruction.\n- `jump N`: move the program counter by relative offset `N`.\n- `next N`: ignore operand `N` and move to the next instruction.\n\nReturn `{\"status\": \"terminated\", \"acc\": acc, \"pc\": len(lines)}` if execution reaches exactly one past the last instruction. Return `{\"status\": \"loop\", \"acc\": acc, \"pc\": pc}` immediately before re-executing an instruction; in this case `pc` is the repeated instruction index. If the program counter jumps below `0` or beyond `len(lines)`, raise `ValueError`. Unknown operations or malformed instructions should also raise `ValueError`.\n\n`fix_bootloader(lines)` should flip exactly one `jump` to `next` or one `next` to `jump` so that the program terminates, then return the accumulator after termination. Do not flip `plus` instructions. If no single flip terminates the program, raise `ValueError`.",
   "starter_code": "def run_bootloader(lines):\n    # Return {'status': 'terminated'|'loop', 'acc': int, 'pc': int}.\n    pass\n\n\ndef fix_bootloader(lines):\n    # Return accumulator after flipping one jump/next so the program terminates.\n    pass\n",
   "example": {

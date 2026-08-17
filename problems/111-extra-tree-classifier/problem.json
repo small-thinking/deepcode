@@ -4,8 +4,25 @@
   "title": "Extra Tree Classifier",
   "category": "ML Coding",
   "difficulty": "hard",
-  "tags": ["numpy", "decision-tree", "classification", "gini", "randomized-tree"],
-  "companies": ["Anthropic"],
+  "tags": [
+    "numpy",
+    "decision-tree",
+    "classification",
+    "gini",
+    "randomized-tree"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "interview_frequency": {
+    "Anthropic": {
+      "stars": 1,
+      "source_record_ids": [
+        "3716ce51456d819bb81eee28a4e12d1a"
+      ],
+      "synced_at": "2026-08-16"
+    }
+  },
   "prompt": "Implement `ExtraTreeClassifier`, a small extremely randomized decision tree for classification.\n\nRequired behavior:\n- `__init__(max_depth=5, min_leaf=1, n_features=None, n_thresholds=1, seed=0)` stores the settings and creates deterministic randomness.\n- `fit(X, y)` builds one tree and returns `self`.\n- At each internal node, sample up to `n_features` candidate feature indexes without replacement. If `n_features` is `None`, use `max(1, int(sqrt(n_columns)))`.\n- For each sampled feature, draw `n_thresholds` uniform thresholds between that feature's min and max at the node. Choose the threshold with the largest Gini impurity reduction while respecting `min_leaf` on both sides.\n- Stop at `max_depth`, pure labels, too few rows to split, or no valid split. Leaves predict the majority label, with NumPy's deterministic tie behavior.\n- `predict(X)` returns one predicted label per row. Raise `ValueError` if predicting before fitting.",
   "starter_code": "import numpy as np\n\n\nclass ExtraTreeClassifier:\n    def __init__(self, max_depth=5, min_leaf=1, n_features=None, n_thresholds=1, seed=0):\n        pass\n\n    def fit(self, X, y):\n        pass\n\n    def predict_one(self, x):\n        pass\n\n    def predict(self, X):\n        pass\n",
   "example": {
@@ -16,7 +33,9 @@
   "environment": {
     "language": "python",
     "timeout_seconds": 5,
-    "packages": ["numpy"],
+    "packages": [
+      "numpy"
+    ],
     "comparator": "assertions"
   },
   "evaluation": {

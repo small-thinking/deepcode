@@ -179,6 +179,13 @@ class ProblemStoreTest(unittest.TestCase):
                     "difficulty": "medium",
                     "tags": ["batching"],
                     "companies": ["Anthropic", "OpenAI"],
+                    "interview_frequency": {
+                        "Anthropic": {
+                            "stars": 3,
+                            "source_record_ids": ["canonical-row-1"],
+                            "synced_at": "2026-08-16",
+                        }
+                    },
                     "prompt": "Return one.",
                     "starter_code": "def one():\n    pass\n",
                     "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
@@ -194,6 +201,19 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertEqual(store.list_problems(search="anthropic")[0]["slug"], "company-problem")
             self.assertEqual(store.list_problems(company="openai")[0]["slug"], "company-problem")
             self.assertEqual(store.companies(), ["Anthropic", "OpenAI"])
+            self.assertEqual(store.list_problems()[0]["interview_frequency"]["Anthropic"]["stars"], 3)
+            self.assertEqual(store.get_problem("company-problem")["interview_frequency"]["Anthropic"]["synced_at"], "2026-08-16")
+
+    def test_committed_frequency_tiers_are_per_company_and_source_neutral(self):
+        root = Path(__file__).resolve().parents[1]
+        store = ProblemStore(root / "problems")
+
+        spreadsheet = store.get_problem("spreadsheet-dependency-cycle")
+        self.assertEqual(spreadsheet["interview_frequency"]["Harvey"]["stars"], 1)
+        self.assertEqual(spreadsheet["interview_frequency"]["Sierra"]["stars"], 2)
+        self.assertEqual(store.get_problem("infection-spread-simulation")["interview_frequency"]["OpenAI"]["stars"], 5)
+        self.assertEqual(store.get_problem("linux-cd-path-resolution")["interview_frequency"]["OpenAI"]["stars"], 0)
+        self.assertNotIn("seen_count", json.dumps(spreadsheet["interview_frequency"]))
 
     def test_rejects_invalid_reference_links(self):
         invalid_values = [
@@ -259,6 +279,41 @@ class ProblemStoreTest(unittest.TestCase):
 
                 with self.assertRaisesRegex(ValueError, "companies"):
                     ProblemStore(root).get_problem("bad-companies")
+
+    def test_rejects_invalid_interview_frequency_metadata(self):
+        invalid_values = [
+            {"Unknown": {"stars": 1, "source_record_ids": ["row-1"], "synced_at": "2026-08-16"}},
+            {"Anthropic": {"stars": 6, "source_record_ids": ["row-1"], "synced_at": "2026-08-16"}},
+            {"Anthropic": {"stars": 1, "source_record_ids": [], "synced_at": "2026-08-16"}},
+            {"Anthropic": {"stars": 1, "source_record_ids": ["row-1"], "synced_at": "today"}},
+            {"Anthropic": {"stars": 1, "source_record_ids": ["row-1"], "synced_at": "2026-08-16", "seen_count": 1}},
+        ]
+
+        for frequency in invalid_values:
+            with self.subTest(frequency=frequency), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                self._write_problem(
+                    root,
+                    "bad-frequency",
+                    {
+                        "id": "12",
+                        "slug": "bad-frequency",
+                        "title": "Bad Frequency",
+                        "category": "Machine Learning",
+                        "difficulty": "easy",
+                        "tags": ["metadata"],
+                        "companies": ["Anthropic"],
+                        "interview_frequency": frequency,
+                        "prompt": "Return one.",
+                        "starter_code": "def one():\n    pass\n",
+                        "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                        "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                    },
+                    [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+                )
+
+                with self.assertRaisesRegex(ValueError, "interview_frequency"):
+                    ProblemStore(root).get_problem("bad-frequency")
 
     def test_supports_private_runtime_paths_for_future_modeling_tasks(self):
         with tempfile.TemporaryDirectory() as tmp:

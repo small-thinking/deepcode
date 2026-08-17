@@ -4,8 +4,25 @@
   "title": "Contiguous One Blocks",
   "category": "Algorithms",
   "difficulty": "easy",
-  "tags": ["arrays", "strings", "run-length", "state-machine", "tensor-prep"],
-  "companies": ["ReflectionAI"],
+  "tags": [
+    "arrays",
+    "strings",
+    "run-length",
+    "state-machine",
+    "tensor-prep"
+  ],
+  "companies": [
+    "ReflectionAI"
+  ],
+  "interview_frequency": {
+    "ReflectionAI": {
+      "stars": 1,
+      "source_record_ids": [
+        "35e6ce51456d81839efeef7faaa223ef"
+      ],
+      "synced_at": "2026-08-16"
+    }
+  },
   "prompt": "Implement `label_one_blocks(bits)`.\n\nGiven a sequence of binary values, return a list of integers with the same length. Each `0` becomes `-1`. Each contiguous block of `1` values receives a block id, starting from `0` and increasing from left to right. All ones in the same contiguous block share the same id.\n\nAccept either a string of `'0'` and `'1'` characters or an iterable containing integer `0` and `1` values. Raise `ValueError` for any other value.",
   "starter_code": "def label_one_blocks(bits):\n    # Convert each 0 to -1 and each contiguous block of 1s to its block id.\n    pass\n",
   "example": {
