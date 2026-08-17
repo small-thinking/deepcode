@@ -395,6 +395,10 @@ class StaticUiTest(unittest.TestCase):
 
         self.assertIn('order: "asc"', app_js)
         self.assertIn("function setProblemSort(sortKey)", app_js)
+        self.assertIn("function defaultProblemSortOrder(sortKey)", app_js)
+        self.assertIn('return sortKey === "frequency" ? "desc" : "asc"', app_js)
+        self.assertIn(": defaultProblemSortOrder(sortKey);", app_js)
+        self.assertIn("state.filters.order = defaultProblemSortOrder(selectedSort)", app_js)
         self.assertIn("function problemSortHeader(sortKey, label, accessibleLabel = label)", app_js)
         self.assertIn('problemSortHeader("id", "#", "number")', app_js)
         self.assertIn('problemSortHeader("title", "Title")', app_js)
