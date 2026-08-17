@@ -3,17 +3,74 @@
   "name": "XDOF",
   "summary": "Physical-AI company tracked for VLA/VLM, egocentric and teleoperation data, temporal grounding, robot-data curation, and evaluation loops.",
   "stage": {
-    "company_state": "Not independently verified",
-    "funding_stage": "Not recorded in Opportunity 2026",
-    "source": {"label": "Opportunity 2026: XDOF profile", "url": "https://app.notion.com/3ae6ce51456d81cb8e0cda6cc1890576"}
+    "company_state": "Private",
+    "funding_stage": "Series A",
+    "last_announced": "2026-06-17",
+    "amount": "$70M",
+    "source": {
+      "label": "Cooley: XDOF $70M Series A",
+      "url": "https://www.cooley.com/news/coverage/2026/2026-06-17-xdof-emerges-from-stealth-with-%2470-million-raise"
+    }
   },
-  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3ae6ce51456d81cb8e0cda6cc1890576"}, {"label": "Careers", "url": "https://www.xdof.ai/careers"}],
+  "business_snapshot": {
+    "founded": "2024",
+    "team_size": "~60 employees (Jun 2026)",
+    "arr_or_revenue": "Not publicly disclosed",
+    "valuation": "Not publicly disclosed",
+    "latest_financing": "Series A · $70M · Jun 2026",
+    "sources": [
+      {
+        "label": "Cooley: XDOF $70M Series A",
+        "url": "https://www.cooley.com/news/coverage/2026/2026-06-17-xdof-emerges-from-stealth-with-%2470-million-raise"
+      },
+      {
+        "label": "TechCrunch: XDOF founding and team size",
+        "url": "https://tech.yahoo.com/ai/articles/collecting-robot-training-data-dirty-150000640.html"
+      },
+      {
+        "label": "XDOF on LinkedIn (company status)",
+        "url": "https://www.linkedin.com/company/xdofai"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/3ae6ce51456d81cb8e0cda6cc1890576"
+    },
+    {
+      "label": "Careers",
+      "url": "https://www.xdof.ai/careers"
+    }
+  ],
   "interview_process": {
     "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
     "summary": "No attributable role-specific public interview report is stored; preparation topics are JD-based inference.",
-    "stages": [{"name": "Preparation context", "signal": "VLA/VLM, egocentric and teleoperation video, temporal grounding, action-conditioned understanding, robot-data curation and evaluation, and distributed PyTorch.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: XDOF profile", "url": "https://app.notion.com/3ae6ce51456d81cb8e0cda6cc1890576"}]}]
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "VLA/VLM, egocentric and teleoperation video, temporal grounding, action-conditioned understanding, robot-data curation and evaluation, and distributed PyTorch.",
+        "evidence_tier": "Opportunity 2026 planning context",
+        "sources": [
+          {
+            "label": "Opportunity 2026: XDOF profile",
+            "url": "https://app.notion.com/3ae6ce51456d81cb8e0cda6cc1890576"
+          }
+        ]
+      }
+    ]
   },
-  "notes": [{"label": "Interview priority", "detail": "1 · Practice / Calibration; Robotics Data Engineer is the most executable bridge role in the tracker."}],
-  "references": [{"label": "XDOF careers", "url": "https://www.xdof.ai/careers"}],
-  "updated_at": "2026-07-30"
+  "notes": [
+    {
+      "label": "Interview priority",
+      "detail": "1 · Practice / Calibration; Robotics Data Engineer is the most executable bridge role in the tracker."
+    }
+  ],
+  "references": [
+    {
+      "label": "XDOF careers",
+      "url": "https://www.xdof.ai/careers"
+    }
+  ],
+  "updated_at": "2026-08-16"
 }

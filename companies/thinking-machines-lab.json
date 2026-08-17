@@ -3,17 +3,79 @@
   "name": "Thinking Machines Lab",
   "summary": "Research organization tracked for post-training data, human and synthetic data quality, scalable oversight, evaluation, and research-infrastructure work.",
   "stage": {
-    "company_state": "Not independently verified",
-    "funding_stage": "Not recorded in Opportunity 2026",
-    "source": {"label": "Opportunity 2026: Thinking Machines Lab profile", "url": "https://app.notion.com/35e6ce51456d81658fd9c7da6d8152aa"}
+    "company_state": "Private",
+    "funding_stage": "Seed",
+    "last_announced": "2025-07",
+    "amount": "~$2B",
+    "valuation": "$12B",
+    "source": {
+      "label": "Yahoo Finance: reported $2B seed at $12B",
+      "url": "https://finance.yahoo.com/news/mira-muratis-ai-startup-thinking-170344492.html"
+    }
   },
-  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/35e6ce51456d81658fd9c7da6d8152aa"}, {"label": "Careers", "url": "https://job-boards.greenhouse.io/thinkingmachines"}, {"label": "1Point3Acres reports", "url": "https://www.1point3acres.com/bbs/search.php?mod=forum&searchid=176035&orderby=lastpost&ascdesc=desc&searchsubmit=yes&kw=Thinking+Machines"}],
+  "business_snapshot": {
+    "founded": "2025",
+    "team_size": "~120 employees (reported Mar 2026)",
+    "arr_or_revenue": "Not publicly disclosed",
+    "valuation": "$12B (last confirmed financing valuation, Jul 2025)",
+    "latest_financing": "Seed · ~$2B · Jul 2025",
+    "sources": [
+      {
+        "label": "Yahoo Finance: reported $2B seed at $12B",
+        "url": "https://finance.yahoo.com/news/mira-muratis-ai-startup-thinking-170344492.html"
+      },
+      {
+        "label": "Axios: launch and reported team size",
+        "url": "https://www.axios.com/2025/02/18/mira-murati-thinking-machines-lab-startup"
+      },
+      {
+        "label": "Axios: 2026 company update",
+        "url": "https://www.axios.com/2026/03/10/nvidia-thinking-machines-mira-murati"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/35e6ce51456d81658fd9c7da6d8152aa"
+    },
+    {
+      "label": "Careers",
+      "url": "https://job-boards.greenhouse.io/thinkingmachines"
+    },
+    {
+      "label": "1Point3Acres reports",
+      "url": "https://www.1point3acres.com/bbs/search.php?mod=forum&searchid=176035&orderby=lastpost&ascdesc=desc&searchsubmit=yes&kw=Thinking+Machines"
+    }
+  ],
   "interview_process": {
     "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
     "summary": "The tracker has role and preparation synthesis but insufficient public signal for a standard loop.",
-    "stages": [{"name": "Preparation context", "signal": "Human and synthetic data, data quality, evaluation and metrics, scalable oversight, human-AI collaboration, code, and research blend.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Thinking Machines Lab profile", "url": "https://app.notion.com/35e6ce51456d81658fd9c7da6d8152aa"}]}]
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Human and synthetic data, data quality, evaluation and metrics, scalable oversight, human-AI collaboration, code, and research blend.",
+        "evidence_tier": "Opportunity 2026 planning context",
+        "sources": [
+          {
+            "label": "Opportunity 2026: Thinking Machines Lab profile",
+            "url": "https://app.notion.com/35e6ce51456d81658fd9c7da6d8152aa"
+          }
+        ]
+      }
+    ]
   },
-  "notes": [{"label": "Interview priority", "detail": "3 · Serious Prep; Post-Training Data is recorded as the best-fit role family."}],
-  "references": [{"label": "Thinking Machines Lab careers", "url": "https://job-boards.greenhouse.io/thinkingmachines"}],
-  "updated_at": "2026-07-30"
+  "notes": [
+    {
+      "label": "Interview priority",
+      "detail": "3 · Serious Prep; Post-Training Data is recorded as the best-fit role family."
+    }
+  ],
+  "references": [
+    {
+      "label": "Thinking Machines Lab careers",
+      "url": "https://job-boards.greenhouse.io/thinkingmachines"
+    }
+  ],
+  "updated_at": "2026-08-16"
 }

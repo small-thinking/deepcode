@@ -3,17 +3,72 @@
   "name": "Plaud",
   "summary": "Speech and LLM company tracked for evaluation harnesses, data pipelines, LLM-as-a-Judge, preference data, and adversarial testing.",
   "stage": {
-    "company_state": "Not independently verified",
-    "funding_stage": "Not recorded in Opportunity 2026",
-    "source": {"label": "Opportunity 2026: Plaud profile", "url": "https://app.notion.com/3be6ce51456d81dcad53e6d40317653c"}
+    "company_state": "Private",
+    "funding_stage": "Bootstrapped / no announced institutional round",
+    "source": {
+      "label": "Forbes: Plaud reported as bootstrapped",
+      "url": "https://www.forbes.com/sites/iainmartin/2025/09/02/how-an-ai-notetaker-became-one-of-the-few-profitable-ai-startups/"
+    }
   },
-  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3be6ce51456d81dcad53e6d40317653c"}, {"label": "Careers", "url": "https://jobs.ashbyhq.com/Plaud"}],
+  "business_snapshot": {
+    "founded": "2021",
+    "team_size": "501–1,000 employees (LinkedIn size band)",
+    "arr_or_revenue": ">$100M software ARR (Jun 2026; excludes hardware)",
+    "valuation": "Not publicly disclosed",
+    "latest_financing": "No company-announced institutional round located (reported bootstrapped)",
+    "sources": [
+      {
+        "label": "TechCrunch: reported software ARR",
+        "url": "https://techcrunch.com/2026/06/16/plaud-says-its-software-business-topped-100m-in-arr-after-shipping-over-2m-ai-notetakers/"
+      },
+      {
+        "label": "Forbes: Plaud reported as bootstrapped",
+        "url": "https://www.forbes.com/sites/iainmartin/2025/09/02/how-an-ai-notetaker-became-one-of-the-few-profitable-ai-startups/"
+      },
+      {
+        "label": "Plaud on LinkedIn (founded and team-size band)",
+        "url": "https://www.linkedin.com/company/plaudai"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/3be6ce51456d81dcad53e6d40317653c"
+    },
+    {
+      "label": "Careers",
+      "url": "https://jobs.ashbyhq.com/Plaud"
+    }
+  ],
   "interview_process": {
     "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
     "summary": "Public role-specific interview-process evidence remains insufficient in the tracker.",
-    "stages": [{"name": "Preparation context", "signal": "Speech/LLM evaluation harnesses, data pipelines, LLM-as-a-Judge, preference data, adversarial testing, and human-in-the-loop quality.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Plaud profile", "url": "https://app.notion.com/3be6ce51456d81dcad53e6d40317653c"}]}]
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Speech/LLM evaluation harnesses, data pipelines, LLM-as-a-Judge, preference data, adversarial testing, and human-in-the-loop quality.",
+        "evidence_tier": "Opportunity 2026 planning context",
+        "sources": [
+          {
+            "label": "Opportunity 2026: Plaud profile",
+            "url": "https://app.notion.com/3be6ce51456d81dcad53e6d40317653c"
+          }
+        ]
+      }
+    ]
   },
-  "notes": [{"label": "Interview priority", "detail": "1 · Practice / Calibration."}],
-  "references": [{"label": "Plaud careers", "url": "https://jobs.ashbyhq.com/Plaud"}],
-  "updated_at": "2026-08-15"
+  "notes": [
+    {
+      "label": "Interview priority",
+      "detail": "1 · Practice / Calibration."
+    }
+  ],
+  "references": [
+    {
+      "label": "Plaud careers",
+      "url": "https://jobs.ashbyhq.com/Plaud"
+    }
+  ],
+  "updated_at": "2026-08-16"
 }

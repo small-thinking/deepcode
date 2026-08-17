@@ -138,13 +138,15 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("function renderCompanies()", app_js)
         self.assertIn("function renderCompanyDetail()", app_js)
         self.assertIn("function stageResearchPending(stage)", app_js)
-        self.assertIn("Research pending.", app_js)
+        self.assertIn("function renderBusinessSnapshot(snapshot)", app_js)
+        self.assertIn("Business snapshot", app_js)
+        self.assertIn("Private-company valuation is not public-market capitalization.", app_js)
         self.assertIn('data-company-problem=', app_js)
         self.assertIn("Company Hub", app_js)
         self.assertIn(".company-card-grid", styles_css)
         self.assertIn(".company-detail-panel", styles_css)
         self.assertIn(".interview-stage-card", styles_css)
-        self.assertIn(".company-stage-pending-note", styles_css)
+        self.assertIn(".company-meta-grid", styles_css)
         self.assertIn(".company-card-heading > div", styles_css)
 
     def test_problem_workspace_has_resizable_pane_hooks(self):

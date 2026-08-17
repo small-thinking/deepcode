@@ -3,17 +3,75 @@
   "name": "OpenEvidence",
   "summary": "Clinical evidence and retrieval company tracked for cited-answer systems, evidence-quality evaluation, quality-latency loops, and data-platform reliability.",
   "stage": {
-    "company_state": "Not independently verified",
-    "funding_stage": "Not recorded in Opportunity 2026",
-    "source": {"label": "Opportunity 2026: OpenEvidence profile", "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"}
+    "company_state": "Private",
+    "funding_stage": "Series D",
+    "last_announced": "2026-01-21",
+    "amount": "$250M",
+    "valuation": "$12B",
+    "source": {
+      "label": "OpenEvidence: reported $250M Series D at $12B",
+      "url": "https://finance.yahoo.com/news/openevidence-raises-250-million-build-130000615.html"
+    }
   },
-  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"}, {"label": "Careers", "url": "https://jobs.ashbyhq.com/openevidence"}],
+  "business_snapshot": {
+    "founded": "2021 (LinkedIn; some reporting says 2022)",
+    "team_size": "11–50 employees (LinkedIn size band)",
+    "arr_or_revenue": ">$100M annual revenue (reported Jan 2026)",
+    "valuation": "$12B (Jan 2026)",
+    "latest_financing": "Series D · $250M · Jan 2026",
+    "sources": [
+      {
+        "label": "Yahoo Finance: reported $250M Series D at $12B",
+        "url": "https://finance.yahoo.com/news/openevidence-raises-250-million-build-130000615.html"
+      },
+      {
+        "label": "TechCrunch: reported annual revenue",
+        "url": "https://techcrunch.com/2026/01/21/openevidence-hits-12b-valuation-with-new-round-led-thrive-dst/"
+      },
+      {
+        "label": "OpenEvidence on LinkedIn (founded and team-size band)",
+        "url": "https://www.linkedin.com/company/openevidence"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"
+    },
+    {
+      "label": "Careers",
+      "url": "https://jobs.ashbyhq.com/openevidence"
+    }
+  ],
   "interview_process": {
     "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
     "summary": "The tracker records role context and a take-home scope caveat; it does not assert a full interview sequence.",
-    "stages": [{"name": "Preparation context", "signal": "Retrieval/reranking with cited answers and abstention, evidence-quality evaluation, offline/online quality-latency loops, and take-home scope clarification.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: OpenEvidence profile", "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"}]}]
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Retrieval/reranking with cited answers and abstention, evidence-quality evaluation, offline/online quality-latency loops, and take-home scope clarification.",
+        "evidence_tier": "Opportunity 2026 planning context",
+        "sources": [
+          {
+            "label": "Opportunity 2026: OpenEvidence profile",
+            "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"
+          }
+        ]
+      }
+    ]
   },
-  "notes": [{"label": "Interview priority", "detail": "1 · Practice / Calibration, conditional on the in-person and take-home boundaries."}],
-  "references": [{"label": "OpenEvidence careers", "url": "https://jobs.ashbyhq.com/openevidence"}],
+  "notes": [
+    {
+      "label": "Interview priority",
+      "detail": "1 · Practice / Calibration, conditional on the in-person and take-home boundaries."
+    }
+  ],
+  "references": [
+    {
+      "label": "OpenEvidence careers",
+      "url": "https://jobs.ashbyhq.com/openevidence"
+    }
+  ],
   "updated_at": "2026-08-16"
 }

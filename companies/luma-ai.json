@@ -3,17 +3,75 @@
   "name": "Luma AI",
   "summary": "Multimodal AI company tracked for evaluation infrastructure, data and model-quality loops, visual-generation metrics, and agent tool-calling evaluation.",
   "stage": {
-    "company_state": "Not independently verified",
-    "funding_stage": "Not recorded in Opportunity 2026",
-    "source": {"label": "Opportunity 2026: Luma AI profile", "url": "https://app.notion.com/3836ce51456d817f959efc472fcd4eaa"}
+    "company_state": "Private",
+    "funding_stage": "Series C",
+    "last_announced": "2025-11-19",
+    "amount": "$900M",
+    "valuation": "$4B post-money",
+    "source": {
+      "label": "Luma AI: $900M Series C",
+      "url": "https://lumalabs.ai/news/series-c"
+    }
   },
-  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3836ce51456d817f959efc472fcd4eaa"}, {"label": "Careers", "url": "https://lumalabs.ai/careers"}],
+  "business_snapshot": {
+    "founded": "2021 (approx.)",
+    "team_size": "130+ employees (Nov 2025)",
+    "arr_or_revenue": "Not publicly disclosed",
+    "valuation": "$4B post-money (reported Nov 2025)",
+    "latest_financing": "Series C · $900M · Nov 2025",
+    "sources": [
+      {
+        "label": "Luma AI: $900M Series C",
+        "url": "https://lumalabs.ai/news/series-c"
+      },
+      {
+        "label": "The Information: reported $4B valuation",
+        "url": "https://www.theinformation.com/briefings/luma-raises-900-million-investment-led-humain/"
+      },
+      {
+        "label": "Luma AI on LinkedIn (company status)",
+        "url": "https://www.linkedin.com/company/lumalabsai"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/3836ce51456d817f959efc472fcd4eaa"
+    },
+    {
+      "label": "Careers",
+      "url": "https://lumalabs.ai/careers"
+    }
+  ],
   "interview_process": {
     "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
     "summary": "The tracker contains role-aligned preparation areas, not a confirmed interview sequence.",
-    "stages": [{"name": "Preparation context", "signal": "Multimodal evaluation infrastructure, model/data/evaluation loops, visual-generation metrics, human-to-automated evaluation translation, and tool-calling evaluation.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Luma AI profile", "url": "https://app.notion.com/3836ce51456d817f959efc472fcd4eaa"}]}]
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Multimodal evaluation infrastructure, model/data/evaluation loops, visual-generation metrics, human-to-automated evaluation translation, and tool-calling evaluation.",
+        "evidence_tier": "Opportunity 2026 planning context",
+        "sources": [
+          {
+            "label": "Opportunity 2026: Luma AI profile",
+            "url": "https://app.notion.com/3836ce51456d817f959efc472fcd4eaa"
+          }
+        ]
+      }
+    ]
   },
-  "notes": [{"label": "Interview priority", "detail": "3 · Serious Prep."}],
-  "references": [{"label": "Luma AI careers", "url": "https://lumalabs.ai/careers"}],
-  "updated_at": "2026-07-30"
+  "notes": [
+    {
+      "label": "Interview priority",
+      "detail": "3 · Serious Prep."
+    }
+  ],
+  "references": [
+    {
+      "label": "Luma AI careers",
+      "url": "https://lumalabs.ai/careers"
+    }
+  ],
+  "updated_at": "2026-08-16"
 }

@@ -1564,7 +1564,7 @@ function renderCompanies() {
           <strong>${state.companies.length}</strong>
           <span>profile${state.companies.length === 1 ? "" : "s"}</span>
         </div>
-        <p>Profiles capture hiring and interview context. A stage badge appears only when financing or company-stage data has an attributable source; other profiles keep that research explicitly pending.</p>
+        <p>Profiles capture hiring and interview context. Stage badges appear only when the profile cites a public source. Where a business snapshot is tracked, it uses the same fixed fields and marks unavailable figures as not publicly disclosed.</p>
       </section>
       <section class="company-card-grid" aria-label="Company profiles">
         ${state.loading ? `<div class="loading-screen">Loading company profiles...</div>` : cards || `<div class="empty-state">No company profiles yet.</div>`}
@@ -1578,11 +1578,32 @@ function companyMetaRow(label, value) {
   return `<div class="company-meta-row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
 }
 
+function renderBusinessSnapshot(snapshot) {
+  if (!snapshot) return "";
+  return `
+    <section class="company-detail-section">
+      <div class="company-section-heading">
+        <div>
+          <h2>Business snapshot</h2>
+          <p>Publicly sourced figures only. Private-company valuation is not public-market capitalization.</p>
+        </div>
+      </div>
+      <dl class="company-meta-grid">
+        ${companyMetaRow("Founded", snapshot.founded)}
+        ${companyMetaRow("Team size", snapshot.team_size)}
+        ${companyMetaRow("ARR / annualized revenue", snapshot.arr_or_revenue)}
+        ${companyMetaRow("Latest valuation", snapshot.valuation)}
+        ${companyMetaRow("Latest financing", snapshot.latest_financing)}
+      </dl>
+      ${externalLinks(snapshot.sources, "company-source-list")}
+    </section>
+  `;
+}
+
 function renderCompanyDetail() {
   const company = state.selectedCompany;
   const stage = company.stage || {};
   const stageSummary = companyStageSummary(stage);
-  const stagePending = stageResearchPending(stage);
   const interview = company.interview_process || {};
   const interviewStages = (interview.stages || [])
     .map(
@@ -1636,23 +1657,7 @@ function renderCompanyDetail() {
           </div>
         </header>
 
-        <section class="company-detail-section">
-          <h2>Stage & financing</h2>
-          ${
-            stagePending
-              ? `<p class="company-stage-pending-note"><strong>Research pending.</strong> This profile has hiring and interview context from Opportunity 2026, but DeepCode does not yet have an independently sourced company-stage or financing record.</p>`
-              : `
-                <dl class="company-meta-grid">
-                  ${companyMetaRow("Company state", stage.company_state)}
-                  ${companyMetaRow("Funding stage", stage.funding_stage)}
-                  ${companyMetaRow("Last announced", stage.last_announced)}
-                  ${companyMetaRow("Amount", stage.amount)}
-                  ${companyMetaRow("Valuation", stage.valuation)}
-                </dl>
-                ${externalLinks(stage.source ? [stage.source] : [], "company-source-list")}
-              `
-          }
-        </section>
+        ${renderBusinessSnapshot(company.business_snapshot)}
 
         <section class="company-detail-section">
           <h2>Company links</h2>

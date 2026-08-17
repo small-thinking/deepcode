@@ -16,6 +16,14 @@ SUMMARY_FIELDS = (
     "updated_at",
 )
 
+BUSINESS_SNAPSHOT_FIELDS = (
+    "founded",
+    "team_size",
+    "arr_or_revenue",
+    "valuation",
+    "latest_financing",
+)
+
 
 class CompanyStore:
     """Read company research profiles and link them to the problem catalog."""
@@ -92,6 +100,15 @@ class CompanyStore:
                 raise ValueError(f"{path} field `stage.{key}` must be a non-empty string")
         if "source" in stage:
             self._validate_links(stage["source"], f"{path} field `stage.source`", allow_single=True)
+
+        snapshot = company.get("business_snapshot")
+        if snapshot is not None:
+            if not isinstance(snapshot, dict):
+                raise ValueError(f"{path} field `business_snapshot` must be an object")
+            for key in BUSINESS_SNAPSHOT_FIELDS:
+                if not isinstance(snapshot.get(key), str) or not snapshot[key].strip():
+                    raise ValueError(f"{path} field `business_snapshot.{key}` must be a non-empty string")
+            self._validate_links(snapshot.get("sources", []), f"{path} field `business_snapshot.sources`")
 
         self._validate_links(company.get("links", []), f"{path} field `links`")
         self._validate_links(company.get("references", []), f"{path} field `references`")
