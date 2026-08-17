@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds duplicate bytes across nested directories",
+    "input": "two files with the same content in different directories",
+    "test": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp)\n    (root / 'docs').mkdir()\n    (root / 'archive').mkdir()\n    first = root / 'docs' / 'report.txt'\n    second = root / 'archive' / 'report-copy.txt'\n    first.write_bytes(b'same report')\n    second.write_bytes(b'same report')\n    (root / 'docs' / 'unique.txt').write_bytes(b'unique')\n    assert find_duplicate_files(root, chunk_size=2) == [[str(second), str(first)]]"
+  },
+  {
+    "name": "keeps empty-file groups but excludes same-size differences",
+    "input": "three empty files and two distinct three-byte files",
+    "test": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp)\n    (root / 'nested').mkdir()\n    empty_a = root / 'a.empty'\n    empty_b = root / 'nested' / 'b.empty'\n    empty_c = root / 'c.empty'\n    for path in (empty_a, empty_b, empty_c):\n        path.write_bytes(b'')\n    (root / 'one.bin').write_bytes(b'abc')\n    (root / 'two.bin').write_bytes(b'xyz')\n    assert find_duplicate_files(root, chunk_size=1) == [[str(empty_a), str(empty_c), str(empty_b)]]"
+  },
+  {
+    "name": "hashes files larger than a single chunk",
+    "input": "two matching multi-chunk binary files",
+    "test": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp)\n    payload = b'0123456789' * 100\n    left = root / 'left.bin'\n    right = root / 'right.bin'\n    left.write_bytes(payload)\n    right.write_bytes(payload)\n    assert find_duplicate_files(root, chunk_size=7) == [[str(left), str(right)]]"
+  }
+]

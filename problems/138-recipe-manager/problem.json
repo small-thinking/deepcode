@@ -1,0 +1,40 @@
+{
+  "id": "138",
+  "slug": "recipe-manager",
+  "title": "Recipe Manager",
+  "category": "Low-Level Design",
+  "difficulty": "medium",
+  "tags": [
+    "low-level-design",
+    "crud",
+    "search",
+    "stateful",
+    "sorting"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement a `RecipeManager` that stores recipes with an ID, a name, and a list of ingredients. Recipe IDs are strings.\n\nRequired methods:\n- `add_recipe(recipe_id, name, ingredients)` returns `True` and stores the recipe unless the ID already exists or another recipe has the same case-insensitive name. Otherwise return `False`.\n- `get_recipe(recipe_id)` returns `{'id': ..., 'name': ..., 'ingredients': ...}` or `None`.\n- `update_recipe(recipe_id, name, ingredients)` returns `True` only when the recipe exists and the proposed case-insensitive name is not used by a different recipe. Changing only the capitalization of its own name is allowed.\n- `delete_recipe(recipe_id)` removes an existing recipe and returns `True`, otherwise returns `False`.\n- `search_recipes(query)` returns recipes whose names contain `query`, case-insensitively. `get_all_recipes()` returns every recipe. Both lists are ordered by ingredient count ascending, then numeric recipe ID ascending.\n- `add_user(user_id, username)` creates a user only if the user ID is new. `edit_recipe(user_id, recipe_id, name, ingredients)` applies the same update rules but returns `False` when the user does not exist.\n\nReturn recipe dictionaries in the same shape as `get_recipe`. You may assume recipe IDs used by sorting are decimal integer strings.",
+  "starter_code": "class RecipeManager:\n    def __init__(self):\n        pass\n\n    def add_recipe(self, recipe_id, name, ingredients):\n        pass\n\n    def get_recipe(self, recipe_id):\n        pass\n\n    def update_recipe(self, recipe_id, name, ingredients):\n        pass\n\n    def delete_recipe(self, recipe_id):\n        pass\n\n    def search_recipes(self, query):\n        pass\n\n    def get_all_recipes(self):\n        pass\n\n    def add_user(self, user_id, username):\n        pass\n\n    def edit_recipe(self, user_id, recipe_id, name, ingredients):\n        pass\n",
+  "example": {
+    "input": "manager.add_recipe('2', 'Pasta', ['noodles', 'tomato']); manager.get_recipe('2')",
+    "output": "{'id': '2', 'name': 'Pasta', 'ingredients': ['noodles', 'tomato']}",
+    "reasoning": "A recipe is addressable by ID while name uniqueness is case-insensitive."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Recipe Manager (free)",
+      "url": "https://trueinterview.io/questions/recipe-manager?company=anthropic"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

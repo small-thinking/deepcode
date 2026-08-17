@@ -1,0 +1,39 @@
+{
+  "id": "137",
+  "slug": "stack-trace-reconstruction",
+  "title": "Stack Trace Reconstruction",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "stack",
+    "trace",
+    "event-stream",
+    "recursion"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `compress_trace(events)` for a valid stream of call events. Each event is a pair `('enter', function_name)` or `('exit', function_name)`. An exit event always closes the most recently entered active invocation of that function.\n\nAfter each event, sample the active call stack, from outermost to innermost. Return a run-length encoding of those samples as a list of `(active_stack, count)` pairs, where `active_stack` is a tuple of function names. Combine only adjacent identical stack samples. The empty tuple represents that no call is active.\n\nA function can be recursive, so two active frames may have the same name. You may assume the stream is well-formed; validation is not required.",
+  "starter_code": "def compress_trace(events):\n    pass\n",
+  "example": {
+    "input": "compress_trace([('enter', 'main'), ('enter', 'parse'), ('exit', 'parse'), ('exit', 'main')])",
+    "output": "[(('main',), 1), (('main', 'parse'), 1), (('main',), 1), ((), 1)]",
+    "reasoning": "The stack is recorded immediately after each event, including the final empty stack."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Stack Trace Reconstruction (free)",
+      "url": "https://trueinterview.io/questions/coding-q3-stack-trace?company=anthropic"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "enforces IDs and names while supporting CRUD",
+    "input": "duplicate IDs, case-insensitive names, and deletion",
+    "test": "manager = RecipeManager()\nassert manager.add_recipe('2', 'Pasta', ['noodles', 'tomato'])\nassert not manager.add_recipe('2', 'Soup', ['water'])\nassert not manager.add_recipe('3', 'PASTA', ['other'])\nassert manager.get_recipe('2') == {'id': '2', 'name': 'Pasta', 'ingredients': ['noodles', 'tomato']}\nassert manager.update_recipe('2', 'pasta', ['noodles'])\nassert manager.get_recipe('2') == {'id': '2', 'name': 'pasta', 'ingredients': ['noodles']}\nassert manager.delete_recipe('2')\nassert manager.get_recipe('2') is None\nassert manager.add_recipe('4', 'Pasta', ['noodles'])\nassert not manager.delete_recipe('missing')"
+  },
+  {
+    "name": "search and list use ingredient count then numeric ID ordering",
+    "input": "matching recipe names with tied ingredient counts",
+    "test": "manager = RecipeManager()\nassert manager.add_recipe('10', 'Tomato Pasta', ['tomato'])\nassert manager.add_recipe('2', 'Tomato Soup', ['tomato'])\nassert manager.add_recipe('7', 'Tomato Salad', ['tomato', 'basil'])\nassert [recipe['id'] for recipe in manager.search_recipes('TOMATO')] == ['2', '10', '7']\nassert [recipe['id'] for recipe in manager.get_all_recipes()] == ['2', '10', '7']"
+  },
+  {
+    "name": "editing requires an existing user and respects name conflicts",
+    "input": "user-mediated update",
+    "test": "manager = RecipeManager()\nassert manager.add_recipe('1', 'Soup', ['water'])\nassert manager.add_recipe('2', 'Curry', ['spice'])\nassert not manager.edit_recipe('u1', '1', 'Stew', ['water'])\nassert manager.add_user('u1', 'Ada')\nassert not manager.add_user('u1', 'Grace')\nassert not manager.edit_recipe('u1', '1', 'CURRY', ['water'])\nassert manager.edit_recipe('u1', '1', 'Stew', ['water', 'salt'])\nassert manager.get_recipe('1') == {'id': '1', 'name': 'Stew', 'ingredients': ['water', 'salt']}"
+  }
+]

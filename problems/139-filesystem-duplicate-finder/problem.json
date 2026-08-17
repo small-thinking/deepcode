@@ -1,0 +1,40 @@
+{
+  "id": "139",
+  "slug": "filesystem-duplicate-finder",
+  "title": "Filesystem Duplicate Finder",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "filesystem",
+    "hashing",
+    "streaming",
+    "io",
+    "deduplication"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `find_duplicate_files(root, chunk_size=8192)`. Recursively inspect the regular files below directory `root` and return groups of files with exactly identical bytes. Omit files that have no duplicate.\n\nRead file contents incrementally in chunks no larger than `chunk_size`; do not read an entire file into memory at once. Use a content hash to group candidates. Return a deterministic result: sort paths lexicographically within each group and sort groups by their first path. Each returned path must be a string.\n\nYou may assume `root` is an existing directory and `chunk_size` is positive. Use only the Python standard library.",
+  "starter_code": "def find_duplicate_files(root, chunk_size=8192):\n    pass\n",
+  "example": {
+    "input": "find_duplicate_files('/tmp/archive', chunk_size=4096)",
+    "output": "[['/tmp/archive/a.txt', '/tmp/archive/copy/a.txt']]",
+    "reasoning": "Only files with the same byte sequence are returned together."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: File Deduplication (free)",
+      "url": "https://trueinterview.io/questions/42afe615-f6b2-494c-807f-37c309841f8b?company=anthropic"
+    }
+  ],
+  "created_at": "2026-08-16"
+}
