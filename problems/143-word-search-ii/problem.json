@@ -1,0 +1,32 @@
+{
+  "id": "143",
+  "slug": "word-search-ii",
+  "title": "Word Search II",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["trie", "dfs", "backtracking", "grid", "string-search", "reddit"],
+  "companies": ["Reddit"],
+  "prompt": "Implement `Solution.findWords(board, words)`. Return every distinct word that can be traced in the character grid. Consecutive letters in one word must use horizontally or vertically adjacent cells, and a cell may be used at most once in that word.\n\nConstraints make one DFS per word too slow: `board` can be up to 12 by 12, `words` can contain up to 30,000 lowercase words, and each word can have length up to 10. Build a trie for all candidate words, walk the board with DFS, and prune exhausted trie branches when useful. The returned collection must contain no duplicates; its order is not part of the contract. Restore the board before returning.",
+  "starter_code": "from typing import List\n\n\nclass TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.word = None\n\n\nclass Solution:\n    def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:\n        pass\n",
+  "example": {
+    "input": "board = [['m', 'o', 'o', 'n'], ['s', 't', 'a', 'r'], ['p', 'l', 'a', 'n'], ['c', 'l', 'o', 'u']]; words = ['moon', 'star', 'plan', 'clou', 'stone']",
+    "output": "['moon', 'star', 'plan', 'clou']",
+    "reasoning": "The first four words each have an edge-adjacent path; stone does not."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Word Search II (free)",
+      "url": "https://trueinterview.io/questions/word-search-ii?company=reddit"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "142",
+  "slug": "report-chain",
+  "title": "Report Chain",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["tree", "hierarchy", "dfs", "lowest-common-ancestor", "low-level-design", "reddit"],
+  "companies": ["Reddit"],
+  "prompt": "You receive a valid organization tree as `relations`, where every row is `[manager, report_1, report_2, ...]`. There is exactly one root. Preserve the report order in each row. One indentation level is four dots (`....`).\n\nImplement these functions:\n\n- `build_children(relations) -> (children, root)`: return an adjacency mapping and the root name.\n- `render_full_chain(relations) -> str`: render the entire tree in pre-order, one employee per line.\n- `all_skip_level_pairs(relations) -> list[tuple[str, str]]`: return all `(manager, employee)` pairs whose employee is exactly two reporting levels below that manager, in pre-order traversal order.\n- `render_chain_for(relations, target) -> str`: render the path from the root through `target`, then the full subtree below target. Print target only once.\n- `lowest_common_manager(relations, employee1, employee2) -> str`: return the lowest shared manager.\n\nYou may assume the input is valid and every queried employee exists. Target O(n) preprocessing and traversal time for the whole hierarchy.",
+  "starter_code": "from __future__ import annotations\n\n\ndef build_children(relations: list[list[str]]) -> tuple[dict[str, list[str]], str]:\n    pass\n\n\ndef render_full_chain(relations: list[list[str]]) -> str:\n    pass\n\n\ndef all_skip_level_pairs(relations: list[list[str]]) -> list[tuple[str, str]]:\n    pass\n\n\ndef render_chain_for(relations: list[list[str]], target: str) -> str:\n    pass\n\n\ndef lowest_common_manager(relations: list[list[str]], employee1: str, employee2: str) -> str:\n    pass\n",
+  "example": {
+    "input": "relations = [['R', 'S', 'T'], ['S', 'V'], ['T', 'U']]",
+    "output": "R\\n....S\\n........V\\n....T\\n........U",
+    "reasoning": "A pre-order DFS renders reports in the order given by each relation row."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Report Chain (free)",
+      "url": "https://trueinterview.io/questions/report-chain?company=reddit"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

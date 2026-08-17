@@ -1,0 +1,17 @@
+[
+  {
+    "name": "single roster preserves rank and excludes removed moderators",
+    "input": "stage 1 audit log with remove and permission checks",
+    "test": "logs = 'nora,add,SYSTEM,11\\nowen,add,nora,12\\npriya,add,nora,13\\nquinn,add,owen,14\\npriya,remove,nora,15'\nqueries = [['can', 'nora', 'owen'], ['can', 'owen', 'nora'], ['can', 'owen', 'quinn'], ['list']]\nassert process_queries(1, logs, queries) == [True, False, True, ['nora', 'owen', 'quinn']]"
+  },
+  {
+    "name": "communities keep independent access times",
+    "input": "stage 2 audit log for gardening and photography",
+    "test": "logs = 'gardening,nora,add,SYSTEM,21\\ngardening,owen,add,nora,22\\ngardening,priya,add,nora,23\\nphotography,riley,add,SYSTEM,24\\nphotography,owen,add,riley,25\\ngardening,priya,remove,nora,26'\nqueries = [['list', 'gardening'], ['list', 'photography'], ['can', 'gardening', 'nora', 'owen'], ['can', 'photography', 'owen', 'riley']]\nassert process_queries(2, logs, queries) == [['nora', 'owen'], ['riley', 'owen'], True, False]"
+  },
+  {
+    "name": "demotion and re-add both replace effective access time",
+    "input": "stage 3 audit log with a demotion then a re-add",
+    "test": "logs = 'gaming,lea,add,SYSTEM,5\\ngaming,mo,add,lea,7\\ngaming,zoe,add,lea,9\\ngaming,mo,demote,lea,10\\ngaming,zoe,remove,lea,11\\ngaming,zoe,add,lea,12'\nqueries = [['list', 'gaming'], ['can', 'gaming', 'lea', 'mo'], ['can', 'gaming', 'mo', 'zoe']]\nassert process_queries(3, logs, queries) == [['lea', 'mo', 'zoe'], True, True]"
+  }
+]
