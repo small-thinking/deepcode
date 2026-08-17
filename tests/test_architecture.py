@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from deepcode import server
+from deepcode.problem_store import ProblemStore
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,17 +31,26 @@ class ArchitectureTest(unittest.TestCase):
         self.assertIn('parser.add_argument("--port", default=DEFAULT_PORT, type=int)', server_source)
 
     def test_problem_assets_are_scoped_to_the_owning_problem_assets_directory(self):
-        asset = ROOT / "problems" / "141-real-time-milestone-counter" / "assets" / "milestone-counter-architecture.svg"
+        problem = ProblemStore(ROOT / "problems").get_problem("batched-llm-inference-service")
+        asset = (
+            ROOT
+            / "problems"
+            / "141-batched-llm-inference-service"
+            / "assets"
+            / "batched-llm-inference-architecture.png"
+        )
 
         self.assertEqual(
             server.resolve_problem_asset(
-                "/problem-assets/real-time-milestone-counter/assets/milestone-counter-architecture.svg",
+                "/problem-assets/batched-llm-inference-service/assets/batched-llm-inference-architecture.png",
                 ROOT / "problems",
             ),
             asset.resolve(),
         )
-        self.assertIsNone(server.resolve_problem_asset("/problem-assets/real-time-milestone-counter/../secret.png", ROOT / "problems"))
-        self.assertIsNone(server.resolve_problem_asset("/problem-assets/real-time-milestone-counter/problem.json", ROOT / "problems"))
+        self.assertEqual(problem["category"], "ML System Design")
+        self.assertEqual(problem["evaluation"]["type"], "system_design")
+        self.assertIsNone(server.resolve_problem_asset("/problem-assets/batched-llm-inference-service/../secret.png", ROOT / "problems"))
+        self.assertIsNone(server.resolve_problem_asset("/problem-assets/batched-llm-inference-service/problem.json", ROOT / "problems"))
 
 
 if __name__ == "__main__":
