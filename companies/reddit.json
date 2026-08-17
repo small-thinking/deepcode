@@ -1,0 +1,57 @@
+{
+  "slug": "reddit",
+  "name": "Reddit",
+  "summary": "Community platform tracked for ranking and retrieval, ML systems, safety and GenAI, and post-training or evaluation roles.",
+  "stage": {
+    "company_state": "Public",
+    "funding_stage": "NYSE: RDDT",
+    "source": {
+      "label": "Reddit investor FAQ: NYSE listing",
+      "url": "https://investor.redditinc.com/ir-resources/investor-faqs/default.aspx"
+    }
+  },
+  "links": [
+    {
+      "label": "Careers",
+      "url": "https://redditinc.com/careers"
+    },
+    {
+      "label": "Investor relations",
+      "url": "https://investor.redditinc.com/"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Official careers page; role-dependent",
+    "summary": "This profile links the four imported free exercises. The careers page provides preparation context, not a confirmed standard interview loop.",
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Current role themes include ranking and retrieval, ML systems, safety and GenAI, post-training or evaluation, and ads or content modeling.",
+        "evidence_tier": "Official careers page; role-dependent",
+        "sources": [
+          {
+            "label": "Reddit careers",
+            "url": "https://redditinc.com/careers"
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "label": "Practice coverage",
+      "detail": "4 imported free exercises: moderator hierarchy, report chain, word search, and k-way chat-window merge."
+    }
+  ],
+  "references": [
+    {
+      "label": "TrueInterview: Reddit free questions",
+      "url": "https://trueinterview.io/problems?view=question&company=Reddit"
+    },
+    {
+      "label": "Reddit investor FAQ",
+      "url": "https://investor.redditinc.com/ir-resources/investor-faqs/default.aspx"
+    }
+  ],
+  "updated_at": "2026-08-16"
+}

@@ -152,7 +152,8 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".company-detail-panel", styles_css)
         self.assertIn(".interview-stage-card", styles_css)
         self.assertIn(".company-meta-grid", styles_css)
-        self.assertIn(".company-card-heading > div", styles_css)
+        self.assertIn('class="company-card-summary"', app_js)
+        self.assertIn(".company-card-heading h2", styles_css)
 
     def test_problem_workspace_has_resizable_pane_hooks(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")

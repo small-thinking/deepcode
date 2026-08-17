@@ -1738,13 +1738,13 @@ pre {
   gap: 14px;
 }
 
-.company-card-heading > div,
 .company-hero > div:first-child {
   min-width: 0;
 }
 
-.company-card-heading > div {
-  flex: 1 1 0;
+.company-card-heading h2 {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .company-card h2,

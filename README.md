@@ -86,7 +86,7 @@ See [docs/architecture.md](docs/architecture.md) for the local system architectu
 - `deepcode/evaluators/`: evaluator interfaces and registered evaluation backends.
 - `frontend/`: browser UI assets served by the backend.
 - `problems/`: file-backed problem definitions and evaluator test cases.
-- `companies/`: file-backed company research profiles linked to problem metadata; the committed profiles mirror the Opportunity 2026 company snapshot.
+- `companies/`: file-backed company research profiles linked to problem metadata; the committed profiles include the Opportunity 2026 snapshot and every employer named by an imported question.
 - `.deepcode/`: local-only user state such as completed problems, ignored by git.
 - `data/` and `runs/`: optional local-only folders for future dataset-backed tasks and run artifacts.
 - `tests/`: backend and static UI regression tests.
