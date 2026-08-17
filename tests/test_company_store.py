@@ -34,24 +34,19 @@ class CompanyStoreTest(unittest.TestCase):
 
         profiles = companies.list_companies(problems)
 
-        self.assertEqual(len(profiles), 25)
+        self.assertEqual(len(profiles), 20)
         self.assertEqual(
             {profile["name"] for profile in profiles},
             {
                 "Abridge",
-                "AfterQuery",
                 "Airbnb",
                 "Anthropic",
-                "Black Forest Labs",
-                "EvenUp",
                 "Faire",
-                "Fieldguide",
                 "Glean",
                 "Google DeepMind",
                 "Hark",
                 "Harvey",
                 "Luma AI",
-                "Microsoft AI",
                 "Mistral AI",
                 "OpenAI",
                 "OpenEvidence",
@@ -74,6 +69,12 @@ class CompanyStoreTest(unittest.TestCase):
         reflection = companies.get_company("ReflectionAI", problems)
         self.assertEqual(reflection["name"], "Reflection AI")
         self.assertEqual(reflection["problem_count"], 2)
+
+        abridge = companies.get_company("Abridge", problems)
+        self.assertEqual(
+            set(abridge["business_snapshot"]),
+            {"founded", "team_size", "arr_or_revenue", "valuation", "latest_financing", "sources"},
+        )
 
     def test_lists_profiles_and_links_matching_problem_companies(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -122,6 +123,15 @@ class CompanyStoreTest(unittest.TestCase):
             self._write_company(root, "broken", broken)
 
             with self.assertRaisesRegex(ValueError, "links"):
+                CompanyStore(root).list_companies([])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            broken = self._company("Broken")
+            broken["business_snapshot"] = {"founded": "2020"}
+            self._write_company(root, "broken", broken)
+
+            with self.assertRaisesRegex(ValueError, "business_snapshot.team_size"):
                 CompanyStore(root).list_companies([])
 
     def _write_company(self, root, slug, company):

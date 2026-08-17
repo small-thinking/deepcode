@@ -3,17 +3,79 @@
   "name": "Mistral AI",
   "summary": "Frontier-model company tracked for practical ML coding, research engineering, data infrastructure, and large-scale model-training work.",
   "stage": {
-    "company_state": "Not independently verified",
-    "funding_stage": "Not recorded in Opportunity 2026",
-    "source": {"label": "Opportunity 2026: Mistral AI profile", "url": "https://app.notion.com/2056ce51456d814bbef2e3d8536898ab"}
+    "company_state": "Private",
+    "funding_stage": "Series C",
+    "last_announced": "2025-09-09",
+    "amount": "€1.7B",
+    "valuation": "€11.7B post-money",
+    "source": {
+      "label": "Mistral AI: €1.7B Series C",
+      "url": "https://mistral.ai/news/mistral-ai-raises-1-7-b-to-accelerate-technological-progress-with-ai/"
+    }
   },
-  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/2056ce51456d814bbef2e3d8536898ab"}, {"label": "Careers", "url": "https://mistral.ai/careers/"}, {"label": "1Point3Acres reports", "url": "https://www.1point3acres.com/interview/company/Mistral%20AI"}],
+  "business_snapshot": {
+    "founded": "2023",
+    "team_size": "350 employees (reported Sep 2025)",
+    "arr_or_revenue": "€300M annual contract value / run-rate (Sep 2025)",
+    "valuation": "€11.7B post-money (Sep 2025)",
+    "latest_financing": "Series C · €1.7B · Sep 2025",
+    "sources": [
+      {
+        "label": "Mistral AI: €1.7B Series C",
+        "url": "https://mistral.ai/news/mistral-ai-raises-1-7-b-to-accelerate-technological-progress-with-ai/"
+      },
+      {
+        "label": "Le Monde: reported team size and annual contract value",
+        "url": "https://www.lemonde.fr/economie/article/2025/09/09/ia-la-start-up-francaise-mistral-ai-valorisee-11-7-milliards-d-euros-apres-avoir-leve-1-7-milliard_6622636_3234.html"
+      },
+      {
+        "label": "Mistral AI on LinkedIn (founded)",
+        "url": "https://uk.linkedin.com/company/mistralai"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/2056ce51456d814bbef2e3d8536898ab"
+    },
+    {
+      "label": "Careers",
+      "url": "https://mistral.ai/careers/"
+    },
+    {
+      "label": "1Point3Acres reports",
+      "url": "https://www.1point3acres.com/interview/company/Mistral%20AI"
+    }
+  ],
   "interview_process": {
     "evidence_tier": "Practical coding — Opportunity 2026 classification",
     "summary": "The tracker recommends ML coding and systems mapping; the precise alignment/evaluation team placement remains an inference.",
-    "stages": [{"name": "Preparation context", "signal": "Research engineering, data infrastructure, frontier-model training, practical ML coding, and systems trade-offs.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Mistral AI profile", "url": "https://app.notion.com/2056ce51456d814bbef2e3d8536898ab"}]}]
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Research engineering, data infrastructure, frontier-model training, practical ML coding, and systems trade-offs.",
+        "evidence_tier": "Opportunity 2026 planning context",
+        "sources": [
+          {
+            "label": "Opportunity 2026: Mistral AI profile",
+            "url": "https://app.notion.com/2056ce51456d814bbef2e3d8536898ab"
+          }
+        ]
+      }
+    ]
   },
-  "notes": [{"label": "Interview priority", "detail": "2 · Targeted Prep."}],
-  "references": [{"label": "Mistral AI careers", "url": "https://mistral.ai/careers/"}],
-  "updated_at": "2026-07-30"
+  "notes": [
+    {
+      "label": "Interview priority",
+      "detail": "2 · Targeted Prep."
+    }
+  ],
+  "references": [
+    {
+      "label": "Mistral AI careers",
+      "url": "https://mistral.ai/careers/"
+    }
+  ],
+  "updated_at": "2026-08-16"
 }

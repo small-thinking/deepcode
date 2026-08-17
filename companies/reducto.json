@@ -3,17 +3,79 @@
   "name": "Reducto",
   "summary": "Document-vision company tracked for fine-tuning evaluation, data pipelines, Python and ML debugging, and quality failure analysis.",
   "stage": {
-    "company_state": "Not independently verified",
-    "funding_stage": "Not recorded in Opportunity 2026",
-    "source": {"label": "Opportunity 2026: Reducto profile", "url": "https://app.notion.com/3be6ce51456d812ba6dec0a136f40f00"}
+    "company_state": "Private",
+    "funding_stage": "Series B",
+    "last_announced": "2025-10-14",
+    "amount": "$75M",
+    "valuation": "$600M post-money",
+    "source": {
+      "label": "Reducto: $75M Series B",
+      "url": "https://reducto.ai/blog/reducto-series-b-funding"
+    }
   },
-  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3be6ce51456d812ba6dec0a136f40f00"}, {"label": "Careers", "url": "https://jobs.ashbyhq.com/reducto"}],
+  "business_snapshot": {
+    "founded": "2023",
+    "team_size": "28 employees (founder, late 2025)",
+    "arr_or_revenue": "Eight-figure ARR (founder, late 2025)",
+    "valuation": "$600M post-money (reported Oct 2025)",
+    "latest_financing": "Series B · $75M (total funding $108M) · Oct 2025",
+    "sources": [
+      {
+        "label": "Reducto: $75M Series B",
+        "url": "https://reducto.ai/blog/reducto-series-b-funding"
+      },
+      {
+        "label": "Fortune: Reducto founded 2023",
+        "url": "https://fortune.com/2025/04/25/exclusive-reducto-ai-document-parsing-startup-raises-24-5-million-series-a-led-by-benchmark/"
+      },
+      {
+        "label": "Founder update: team size and ARR threshold",
+        "url": "https://www.linkedin.com/posts/aditabraham_its-hard-to-believe-how-much-changed-at-activity-7409651561364086784-WhHR"
+      },
+      {
+        "label": "Forge: reported $600M post-money valuation",
+        "url": "https://forgeglobal.com/reducto_ipo/"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/3be6ce51456d812ba6dec0a136f40f00"
+    },
+    {
+      "label": "Careers",
+      "url": "https://jobs.ashbyhq.com/reducto"
+    }
+  ],
   "interview_process": {
     "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
     "summary": "Only pre-interview Python and ML-debugging signal is recorded; a full loop remains unknown.",
-    "stages": [{"name": "Preparation context", "signal": "Document vision, training and fine-tuning evaluation, data pipelines, Python/ML debugging, and model-quality failure analysis.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Reducto profile", "url": "https://app.notion.com/3be6ce51456d812ba6dec0a136f40f00"}]}]
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Document vision, training and fine-tuning evaluation, data pipelines, Python/ML debugging, and model-quality failure analysis.",
+        "evidence_tier": "Opportunity 2026 planning context",
+        "sources": [
+          {
+            "label": "Opportunity 2026: Reducto profile",
+            "url": "https://app.notion.com/3be6ce51456d812ba6dec0a136f40f00"
+          }
+        ]
+      }
+    ]
   },
-  "notes": [{"label": "Interview priority", "detail": "1 · Practice / Calibration; early-stage and in-person constraints apply."}],
-  "references": [{"label": "Reducto careers", "url": "https://jobs.ashbyhq.com/reducto"}],
-  "updated_at": "2026-08-15"
+  "notes": [
+    {
+      "label": "Interview priority",
+      "detail": "1 · Practice / Calibration; early-stage and in-person constraints apply."
+    }
+  ],
+  "references": [
+    {
+      "label": "Reducto careers",
+      "url": "https://jobs.ashbyhq.com/reducto"
+    }
+  ],
+  "updated_at": "2026-08-16"
 }
