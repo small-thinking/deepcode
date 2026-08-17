@@ -62,7 +62,7 @@ Required fields:
 - `id`: Stable catalog id used for ordering and lookup. Numeric strings sort numerically.
 - `slug`: Stable URL identifier. Users can open `/problems/<slug>`.
 - `title`: Human-readable problem title.
-- `category`: Broad topic such as `Linear Algebra`, `Machine Learning`, or `Metrics`.
+- `category`: Broad topic such as `Linear Algebra`, `Machine Learning`, `System Design`, or `ML System Design`.
 - `difficulty`: Use `easy`, `medium`, or `hard`.
 - `prompt`: The full task statement shown to the user.
 - `starter_code`: Initial Python code loaded into the editor.
@@ -103,11 +103,12 @@ Current limitations:
 
 ## Evaluator Types
 
-### System Design
+### System Design and ML System Design
 
-System Design prompts are discussion and writing exercises: they do not execute
-code or expose test cases. Use `evaluation.type: "system_design"`, omit
-`starter_code` and `example`, and provide a response contract instead:
+System Design and ML System Design prompts are discussion and writing exercises:
+they do not execute code or expose test cases. Use
+`evaluation.type: "system_design"`, omit `starter_code` and `example`, and
+provide a response contract instead:
 
 ```json
 {
