@@ -25,6 +25,9 @@ SUMMARY_FIELDS = (
     "created_at",
 )
 
+PROBLEM_ASSET_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"})
+SYSTEM_DESIGN_ASSET_SECTIONS = frozenset({"prompt", "reference_answer"})
+
 
 class ProblemStore:
     """Read problem folders from disk.
@@ -160,7 +163,13 @@ class ProblemStore:
         )
 
     def _validate(self, problem: dict[str, Any], problem_dir: Path) -> None:
-        required = ["id", "slug", "title", "category", "difficulty", "prompt", "starter_code", "example"]
+        evaluation = problem.get("evaluation")
+        evaluation_type = evaluation.get("type", "ml_coding") if isinstance(evaluation, dict) else "ml_coding"
+        required = ["id", "slug", "title", "category", "difficulty", "prompt"]
+        if evaluation_type == "system_design":
+            required.append("response")
+        else:
+            required.extend(["starter_code", "example"])
         missing = [key for key in required if key not in problem]
         if missing:
             missing_text = ", ".join(missing)
@@ -186,12 +195,57 @@ class ProblemStore:
                     raise ValueError(f"{problem_dir}/tests.json test {index} is missing `test`")
         if evaluation_type == "ml_torch_lab":
             self._validate_lab_harness(problem, problem_dir)
+        if evaluation_type == "system_design":
+            self._validate_system_design_response(problem, problem_dir)
 
         self._validate_relative_path(problem, problem_dir, "data", "path")
         self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")
         self._validate_companies(problem, problem_dir)
         self._validate_interview_frequency(problem, problem_dir)
         self._validate_references(problem, problem_dir)
+        self._validate_assets(problem, problem_dir)
+
+    def _validate_system_design_response(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        response = problem.get("response")
+        if not isinstance(response, dict):
+            raise ValueError(f"{problem_dir}/problem.json field `response` must be an object")
+        for key in ("placeholder", "reference_answer"):
+            value = response.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `response.{key}` must be a non-empty string")
+
+    def _validate_assets(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        assets = problem.get("assets")
+        if assets is None:
+            return
+        if not isinstance(assets, list):
+            raise ValueError(f"{problem_dir}/problem.json field `assets` must be a list")
+
+        for index, asset in enumerate(assets, start=1):
+            if not isinstance(asset, dict):
+                raise ValueError(f"{problem_dir}/problem.json field `assets[{index}]` must be an object")
+            path_value = asset.get("path")
+            alt = asset.get("alt")
+            section = asset.get("section")
+            if not isinstance(path_value, str) or not path_value.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].path` must be a non-empty string")
+            if not isinstance(alt, str) or not alt.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].alt` must be a non-empty string")
+            if section not in SYSTEM_DESIGN_ASSET_SECTIONS:
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `assets[{index}].section` must be prompt or reference_answer"
+                )
+            if "caption" in asset and not isinstance(asset["caption"], str):
+                raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].caption` must be a string")
+
+            asset_path = Path(path_value)
+            if asset_path.is_absolute() or ".." in asset_path.parts or not asset_path.parts or asset_path.parts[0] != "assets":
+                raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].path` must be under assets/")
+            if asset_path.suffix.casefold() not in PROBLEM_ASSET_SUFFIXES:
+                suffixes = ", ".join(sorted(PROBLEM_ASSET_SUFFIXES))
+                raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].path` must use one of: {suffixes}")
+            if not (problem_dir / asset_path).is_file():
+                raise ValueError(f"{problem_dir}/problem.json asset not found: {path_value}")
 
     def _read_json(self, path: Path) -> Any:
         with path.open(encoding="utf-8") as file:

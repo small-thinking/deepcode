@@ -165,6 +165,65 @@ class ProblemStoreTest(unittest.TestCase):
                 [{"label": "Background", "url": "https://example.com/background"}],
             )
 
+    def test_loads_system_design_problem_with_reference_answer_and_assets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "milestone-counter",
+                {
+                    "id": "141",
+                    "slug": "milestone-counter",
+                    "title": "Milestone Counter",
+                    "category": "System Design",
+                    "difficulty": "medium",
+                    "prompt": "Design a counter.",
+                    "response": {"placeholder": "Start with requirements.", "reference_answer": "## A reference"},
+                    "assets": [
+                        {
+                            "path": "assets/architecture.svg",
+                            "alt": "Counter architecture",
+                            "caption": "Reference diagram.",
+                            "section": "reference_answer",
+                        }
+                    ],
+                    "evaluation": {"type": "system_design"},
+                },
+                [],
+            )
+            asset_dir = root / "milestone-counter" / "assets"
+            asset_dir.mkdir()
+            (asset_dir / "architecture.svg").write_text("<svg xmlns='http://www.w3.org/2000/svg'/>", encoding="utf-8")
+
+            problem = ProblemStore(root).get_problem("milestone-counter")
+
+            self.assertEqual(problem["evaluation"]["type"], "system_design")
+            self.assertEqual(problem["response"]["reference_answer"], "## A reference")
+            self.assertEqual(problem["assets"][0]["path"], "assets/architecture.svg")
+
+    def test_rejects_system_design_asset_outside_its_assets_folder(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "unsafe-system-design",
+                {
+                    "id": "141",
+                    "slug": "unsafe-system-design",
+                    "title": "Unsafe System Design",
+                    "category": "System Design",
+                    "difficulty": "medium",
+                    "prompt": "Design safely.",
+                    "response": {"placeholder": "Start.", "reference_answer": "## Reference"},
+                    "assets": [{"path": "../secret.png", "alt": "Nope", "section": "prompt"}],
+                    "evaluation": {"type": "system_design"},
+                },
+                [],
+            )
+
+            with self.assertRaisesRegex(ValueError, "must be under assets/"):
+                ProblemStore(root).get_problem("unsafe-system-design")
+
     def test_includes_companies_in_summaries_details_and_search(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

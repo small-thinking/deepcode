@@ -4,6 +4,9 @@ from pathlib import Path
 from deepcode import server
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 class ArchitectureTest(unittest.TestCase):
     def test_backend_serves_frontend_directory(self):
         self.assertEqual(server.FRONTEND_DIR.name, "frontend")
@@ -25,6 +28,19 @@ class ArchitectureTest(unittest.TestCase):
         self.assertEqual(server.DEFAULT_PORT, 8848)
         self.assertIn("def run(host: str = \"127.0.0.1\", port: int = DEFAULT_PORT)", server_source)
         self.assertIn('parser.add_argument("--port", default=DEFAULT_PORT, type=int)', server_source)
+
+    def test_problem_assets_are_scoped_to_the_owning_problem_assets_directory(self):
+        asset = ROOT / "problems" / "141-real-time-milestone-counter" / "assets" / "milestone-counter-architecture.svg"
+
+        self.assertEqual(
+            server.resolve_problem_asset(
+                "/problem-assets/real-time-milestone-counter/assets/milestone-counter-architecture.svg",
+                ROOT / "problems",
+            ),
+            asset.resolve(),
+        )
+        self.assertIsNone(server.resolve_problem_asset("/problem-assets/real-time-milestone-counter/../secret.png", ROOT / "problems"))
+        self.assertIsNone(server.resolve_problem_asset("/problem-assets/real-time-milestone-counter/problem.json", ROOT / "problems"))
 
 
 if __name__ == "__main__":

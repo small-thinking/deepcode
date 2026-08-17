@@ -6,12 +6,12 @@ import mimetypes
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from deepcode.api import ApiContext, handle_api_request, stream_api_events
 from deepcode.company_store import CompanyStore
 from deepcode.custom_tests import CustomTestStore
-from deepcode.problem_store import ProblemStore
+from deepcode.problem_store import PROBLEM_ASSET_SUFFIXES, ProblemStore
 from deepcode.user_state import UserStateStore
 
 
@@ -22,6 +22,31 @@ COMPANIES_DIR = BASE_DIR / "companies"
 USER_STATE_PATH = Path(os.environ.get("DEEPCODE_USER_STATE_PATH", BASE_DIR / ".deepcode" / "user-state.json"))
 CUSTOM_TESTS_PATH = Path(os.environ.get("DEEPCODE_CUSTOM_TESTS_PATH", BASE_DIR / ".deepcode" / "custom-tests.json"))
 DEFAULT_PORT = 8848
+
+
+def resolve_problem_asset(request_path: str, problems_dir: Path = PROBLEMS_DIR) -> Path | None:
+    """Resolve a committed visual under one problem's assets directory."""
+    parts = [unquote(part) for part in request_path.strip("/").split("/")]
+    if len(parts) < 4 or parts[0] != "problem-assets":
+        return None
+    slug, *asset_parts = parts[1:]
+    if not slug or any(part in {"", ".", ".."} for part in [slug, *asset_parts]):
+        return None
+
+    asset_path = Path(*asset_parts)
+    if asset_path.parts[0] != "assets" or asset_path.suffix.casefold() not in PROBLEM_ASSET_SUFFIXES:
+        return None
+
+    try:
+        problem = ProblemStore(problems_dir).get_problem(slug)
+    except (KeyError, ValueError):
+        return None
+    problem_dir = Path(problem["_runtime"]["problem_dir"])
+    assets_dir = (problem_dir / "assets").resolve()
+    file_path = (problem_dir / asset_path).resolve()
+    if not file_path.is_relative_to(assets_dir) or not file_path.is_file():
+        return None
+    return file_path
 
 
 class DeepCodeHandler(BaseHTTPRequestHandler):
@@ -51,6 +76,9 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path.startswith("/api/"):
             self._handle_api(parsed)
+            return
+        if parsed.path.startswith("/problem-assets/"):
+            self._handle_problem_asset(parsed.path)
             return
         self._handle_static(parsed.path)
 
@@ -113,6 +141,16 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
             self.send_error(404, "Static asset not found")
             return
 
+        self._send_file(file_path)
+
+    def _handle_problem_asset(self, request_path: str):
+        file_path = resolve_problem_asset(request_path)
+        if file_path is None:
+            self.send_error(404, "Problem asset not found")
+            return
+        self._send_file(file_path)
+
+    def _send_file(self, file_path: Path):
         data = file_path.read_bytes()
         content_type = mimetypes.guess_type(str(file_path))[0] or "application/octet-stream"
         self.send_response(200)
