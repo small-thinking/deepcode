@@ -1,0 +1,17 @@
+[
+  {
+    "name": "k-way merges overlapping windows in ascending order",
+    "input": "requests 2, 4, and 6 in an eleven-message conversation",
+    "test": "messages = {message_id: Message(message_id) for message_id in range(11)}\ncalls = []\ndef fake_get_chat_messages(message_id):\n    calls.append(message_id)\n    start = max(0, message_id - 5)\n    end = min(10, message_id + 5)\n    return [messages[current] for current in range(start, end + 1)]\nglobals()['get_chat_messages'] = fake_get_chat_messages\nassert [message.id for message in merge_windows([2, 4, 6])] == list(range(11))\nassert calls == [2, 4, 6]"
+  },
+  {
+    "name": "repeated requests still call the API and duplicate messages appear once",
+    "input": "two identical requests plus a partially overlapping later window",
+    "test": "messages = {message_id: Message(message_id) for message_id in range(8)}\nwindows = {1: [messages[0], messages[1], messages[2]], 5: [messages[2], messages[5], messages[7]]}\ncalls = []\ndef fake_get_chat_messages(message_id):\n    calls.append(message_id)\n    return windows[message_id]\nglobals()['get_chat_messages'] = fake_get_chat_messages\nassert [message.id for message in merge_windows([1, 1, 5])] == [0, 1, 2, 5, 7]\nassert calls == [1, 1, 5]"
+  },
+  {
+    "name": "handles empty input and empty boundary windows",
+    "input": "no IDs, then an ID whose API window is empty",
+    "test": "calls = []\ndef fake_get_chat_messages(message_id):\n    calls.append(message_id)\n    return []\nglobals()['get_chat_messages'] = fake_get_chat_messages\nassert merge_windows([]) == []\nassert merge_windows([99]) == []\nassert calls == [99]"
+  }
+]

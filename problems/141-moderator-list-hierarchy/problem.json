@@ -1,0 +1,32 @@
+{
+  "id": "141",
+  "slug": "moderator-list-hierarchy",
+  "title": "Moderator List Hierarchy",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["audit-log", "stateful", "ordering", "permissions", "reddit"],
+  "companies": ["Reddit"],
+  "prompt": "Process a newline-separated moderator audit log. A moderator ranks higher when their effective access timestamp is earlier. A removal makes a moderator inactive; a later add gives them a fresh timestamp. A demotion keeps them active but replaces their effective timestamp with the demotion timestamp. All log entries are valid and arrive in timestamp order.\n\nImplement `process_queries(stage, logs, queries)`. This single function is the browser runner contract for the three source stages:\n\n- Stage 1 log rows are `target,action,actor,timestamp`; queries are `['can', actor, target]` or `['list']`.\n- Stages 2 and 3 log rows are `community,target,action,actor,timestamp`; queries are `['can', community, actor, target]` or `['list', community]`.\n- Stage 2 uses `add` and `remove`; Stage 3 additionally uses `demote`. Each community has an independent roster.\n\nFor a `can` query, return `True` exactly when actor and target are distinct active moderators in that roster and actor's effective timestamp is earlier. For a `list` query, return the active moderator names from highest to lowest rank. Return one boolean or list result per query, in query order. Do not need to reject invalid log records.",
+  "starter_code": "def process_queries(stage, logs, queries):\n    pass\n",
+  "example": {
+    "input": "process_queries(1, 'nora,add,SYSTEM,11\\nowen,add,nora,12', [['can', 'nora', 'owen'], ['list']])",
+    "output": "[True, ['nora', 'owen']]",
+    "reasoning": "Nora joined earlier than Owen, so she ranks higher and may remove him."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Moderator List Hierarchy (free)",
+      "url": "https://trueinterview.io/questions/moderator-list-hierarchy?company=reddit"
+    }
+  ],
+  "created_at": "2026-08-16"
+}

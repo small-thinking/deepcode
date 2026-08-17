@@ -1,0 +1,12 @@
+[
+  {
+    "name": "renders the full hierarchy and emits skip-level pairs",
+    "input": "R manages S and T; S manages V; T manages U",
+    "test": "relations = [['R', 'S', 'T'], ['S', 'V'], ['T', 'U']]\nchildren, root = build_children(relations)\nassert root == 'R'\nassert children == {'R': ['S', 'T'], 'S': ['V'], 'T': ['U'], 'V': [], 'U': []}\nassert render_full_chain(relations) == 'R\\n....S\\n........V\\n....T\\n........U'\nassert all_skip_level_pairs(relations) == [('R', 'V'), ('R', 'U')]"
+  },
+  {
+    "name": "selected chain prints the target once and preserves sibling order",
+    "input": "CEO tree with a deeper ML subtree",
+    "test": "relations = [['CEO', 'Eng', 'Sales'], ['Eng', 'Infra', 'ML'], ['ML', 'Search']]\nassert render_full_chain(relations) == 'CEO\\n....Eng\\n........Infra\\n........ML\\n............Search\\n....Sales'\nassert render_chain_for(relations, 'ML') == 'CEO\\n....Eng\\n........ML\\n............Search'\nassert all_skip_level_pairs(relations) == [('CEO', 'Infra'), ('CEO', 'ML'), ('Eng', 'Search')]\nassert lowest_common_manager(relations, 'Infra', 'Search') == 'Eng'\nassert lowest_common_manager(relations, 'Search', 'Sales') == 'CEO'"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds the source example words without mutating the board",
+    "input": "four-by-four board with one missing word",
+    "test": "board = [['m', 'o', 'o', 'n'], ['s', 't', 'a', 'r'], ['p', 'l', 'a', 'n'], ['c', 'l', 'o', 'u']]\noriginal = [row[:] for row in board]\nresult = Solution().findWords(board, ['moon', 'star', 'plan', 'clou', 'stone'])\nassert set(result) == {'moon', 'star', 'plan', 'clou'}\nassert len(result) == 4\nassert board == original"
+  },
+  {
+    "name": "rejects paths that would reuse a board cell",
+    "input": "two-by-two board and a five-letter alternating word",
+    "test": "assert Solution().findWords([['p', 'q'], ['p', 'q']], ['pqpqp']) == []\nassert Solution().findWords([['z']], ['a']) == []"
+  },
+  {
+    "name": "shares trie prefixes while returning each found word once",
+    "input": "classic board with overlapping prefixes",
+    "test": "board = [['o', 'a', 'a', 'n'], ['e', 't', 'a', 'e'], ['i', 'h', 'k', 'r'], ['i', 'f', 'l', 'v']]\nresult = Solution().findWords(board, ['oath', 'pea', 'eat', 'rain'])\nassert set(result) == {'oath', 'eat'}\nassert len(result) == 2"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "id": "144",
+  "slug": "merge-chat-message-windows",
+  "title": "Merge Chat Message Windows",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["k-way-merge", "heap", "sorted-streams", "api-design", "reddit"],
+  "companies": ["Reddit"],
+  "prompt": "An existing `get_chat_messages(message_id)` API returns the requested message plus up to five nearby messages before and after it. Each returned list is ordered by ascending `Message.id`; different returned windows can overlap, and `ids` can contain duplicates.\n\nImplement `merge_windows(ids)`. Call the API once for every value in `ids`, merge all returned sorted windows, eliminate repeated message IDs, and return the unique `Message` objects in ascending ID order. Do not collect every item into a set and sort afterward: use a k-way merge with a min-heap. `Message.id` is globally unique; duplicate appearances across windows represent the same logical message. Empty input and boundary windows are valid.\n\nThe edit-history discussion from the source interview is a follow-up, not part of the executable contract.",
+  "starter_code": "import heapq\n\n\nclass Message:\n    def __init__(self, id, content=''):\n        self.id = id\n        self.content = content\n\n    def __repr__(self):\n        return f'Message(id={self.id})'\n\n\ndef get_chat_messages(message_id):\n    # The test harness replaces this placeholder.\n    return []\n\n\ndef merge_windows(ids):\n    pass\n",
+  "example": {
+    "input": "ids = [2, 4, 6] with overlapping windows over messages 0 through 10",
+    "output": "[Message(id=0), ..., Message(id=10)]",
+    "reasoning": "A heap exposes the lowest next ID from each pre-sorted window while duplicate IDs are skipped."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "TrueInterview: Merge Chat Message Windows (free)",
+      "url": "https://trueinterview.io/questions/merge-chat-message-windows?company=reddit"
+    }
+  ],
+  "created_at": "2026-08-16"
+}
