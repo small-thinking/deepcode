@@ -20,6 +20,13 @@ class CiQualityGateTest(unittest.TestCase):
         self.assertIn("git ls-files .DS_Store", text)
         self.assertIn("git check-attr filter -- docs/assets/deepcode-local-architecture.png", text)
 
+    def test_problem_image_extensions_are_tracked_with_lfs(self):
+        attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+
+        self.assertIn("problems/**/assets/*.png filter=lfs", attributes)
+        self.assertIn("problems/**/assets/*.jpg filter=lfs", attributes)
+        self.assertIn("problems/**/assets/*.jpeg filter=lfs", attributes)
+
     def test_committed_problem_catalog_loads(self):
         store = ProblemStore(ROOT / "problems")
         problems = store.list_problems()
@@ -31,6 +38,10 @@ class CiQualityGateTest(unittest.TestCase):
 
             loaded = store.get_problem(problem["slug"])
             evaluation_type = loaded["evaluation"]["type"]
+            if evaluation_type == "system_design":
+                self.assertEqual(loaded["tests"], [])
+                self.assertIn("reference_answer", loaded["response"])
+                continue
             self.assertEqual(get_evaluator(evaluation_type).name, evaluation_type)
             self.assertGreaterEqual(len(loaded["tests"]), 1)
             for test in loaded["tests"]:

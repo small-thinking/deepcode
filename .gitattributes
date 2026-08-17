@@ -1,1 +1,4 @@
 docs/assets/*.png filter=lfs diff=lfs merge=lfs -text
+problems/**/assets/*.png filter=lfs diff=lfs merge=lfs -text
+problems/**/assets/*.jpg filter=lfs diff=lfs merge=lfs -text
+problems/**/assets/*.jpeg filter=lfs diff=lfs merge=lfs -text

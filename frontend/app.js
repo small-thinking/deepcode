@@ -22,6 +22,7 @@ print(y)
 `;
 const PROBLEM_SECTION_CLASSES = {
   prompt: "problem-section problem-prompt-section",
+  assets: "problem-section problem-assets-section",
   data: "problem-section problem-data-section",
   metadata: "problem-section problem-metadata-section",
   example: "problem-section problem-example-section",
@@ -473,7 +474,11 @@ async function loadProblem(identifier) {
       await loadDataLink();
     }
     state.activeTab = "description";
-    syncStarterCode(state.selected);
+    if (isSystemDesignProblem(state.selected)) {
+      syncSystemDesignAnswer(state.selected);
+    } else {
+      syncStarterCode(state.selected);
+    }
     location.hash = `#/problems/${state.selected.slug}`;
   } catch (error) {
     state.error = error.message;
@@ -528,6 +533,10 @@ function isMlCodingProblem(problem) {
   return (evaluation.type || "ml_coding") === "ml_coding";
 }
 
+function isSystemDesignProblem(problem) {
+  return problem?.evaluation?.type === "system_design";
+}
+
 function supportsDataLinkSetup(problem) {
   const evaluation = problem?.evaluation || {};
   const type = evaluation.type || "ml_coding";
@@ -536,6 +545,33 @@ function supportsDataLinkSetup(problem) {
 
 function codeKey(slug) {
   return `deepcode-code:${slug}`;
+}
+
+function systemDesignAnswerKey(slug) {
+  return `deepcode-system-design-answer:${slug}`;
+}
+
+function currentSystemDesignAnswer(problem = state.selected) {
+  if (!problem) return "";
+  return localStorage.getItem(systemDesignAnswerKey(problem.slug)) ?? problem.response?.starter_answer ?? "";
+}
+
+function syncSystemDesignAnswer(problem) {
+  if (!isSystemDesignProblem(problem)) return;
+  const key = systemDesignAnswerKey(problem.slug);
+  if (localStorage.getItem(key) === null) localStorage.setItem(key, problem.response?.starter_answer ?? "");
+}
+
+function saveSystemDesignAnswer(value) {
+  if (!isSystemDesignProblem(state.selected)) return;
+  localStorage.setItem(systemDesignAnswerKey(state.selected.slug), value);
+}
+
+function resetSystemDesignAnswer() {
+  if (!isSystemDesignProblem(state.selected)) return;
+  localStorage.removeItem(systemDesignAnswerKey(state.selected.slug));
+  syncSystemDesignAnswer(state.selected);
+  render();
 }
 
 function editorSessionKey() {
@@ -2097,6 +2133,7 @@ function problemStatusBadge(problem) {
 
 function renderDetail() {
   const problem = state.selected;
+  const systemDesign = isSystemDesignProblem(problem);
   const displayId = problemDisplayId(state.selected);
   const env = problem.environment || {};
   const runButtonState = state.running ? "disabled" : "";
@@ -2125,8 +2162,7 @@ function renderDetail() {
             </div>
             <div class="tabs">
               ${tabButton("description", "Problem")}
-              ${tabButton("tests", "Tests")}
-              ${tabButton("environment", "Env")}
+              ${systemDesign ? "" : `${tabButton("tests", "Tests")}${tabButton("environment", "Env")}`}
             </div>
           </div>
           <div class="problem-body">${renderProblemTab(problem, env)}</div>
@@ -2141,7 +2177,7 @@ function renderDetail() {
           tabindex="0"
         ></div>
 
-        <section class="editor-panel">
+        ${systemDesign ? renderSystemDesignWorkspace(problem) : `<section class="editor-panel">
           <div class="panel-header">
             <div class="editor-actions">
               <button class="ghost-button" id="reset-code">Reset</button>
@@ -2165,7 +2201,7 @@ function renderDetail() {
             tabindex="0"
           ></div>
           <div class="results">${renderResults()}</div>
-        </section>
+        </section>`}
       </section>
     </main>
   `;
@@ -2177,6 +2213,7 @@ function tabButton(tab, label) {
 }
 
 function renderProblemTab(problem, env) {
+  if (isSystemDesignProblem(problem)) return renderProblemDescription(problem);
   if (state.activeTab === "tests") {
     return [renderProblemTests(problem.tests || []), renderCustomTests(problem)].join("");
   }
@@ -2207,11 +2244,70 @@ function renderProblemDescription(problem) {
       "Prompt",
       `<div class="problem-prompt">${markdownLite(problem.prompt)}</div>`
     ),
+    renderProblemAssets(problem, "prompt"),
     renderProblemDataInfo(problem.data),
     renderProblemMetadata(problem),
     renderProblemExample(problem.example),
     renderReferences(problem.references),
   ].join("");
+}
+
+function problemAssetUrl(problem, asset) {
+  const encodedPath = String(asset.path)
+    .split("/")
+    .map((part) => encodeURIComponent(part))
+    .join("/");
+  return `/problem-assets/${encodeURIComponent(problem.slug)}/${encodedPath}`;
+}
+
+function renderProblemAssets(problem, section) {
+  const assets = (problem.assets || []).filter((asset) => asset?.section === section && asset.path && asset.alt);
+  if (!assets.length) return "";
+  const figures = assets
+    .map(
+      (asset) => `
+        <figure class="problem-asset">
+          <img src="${escapeHtml(problemAssetUrl(problem, asset))}" alt="${escapeHtml(asset.alt)}" loading="lazy" />
+          ${asset.caption ? `<figcaption>${escapeHtml(asset.caption)}</figcaption>` : ""}
+        </figure>
+      `
+    )
+    .join("");
+  return renderProblemBlock(PROBLEM_SECTION_CLASSES.assets, "Diagrams", `<div class="problem-asset-list">${figures}</div>`);
+}
+
+function renderSystemDesignWorkspace(problem) {
+  const answer = currentSystemDesignAnswer(problem);
+  return `
+    <section class="editor-panel system-design-panel">
+      <div class="panel-header">
+        <div class="system-design-heading">
+          <h3>Your design</h3>
+          <p>Autosaved in this browser as Markdown.</p>
+        </div>
+        <button class="ghost-button" id="reset-system-design-answer">Reset</button>
+      </div>
+      <div class="system-design-workspace">
+        <label class="system-design-answer-label" for="system-design-answer">
+          <span>Draft response</span>
+          <textarea
+            id="system-design-answer"
+            class="system-design-answer"
+            spellcheck="true"
+            placeholder="${escapeHtml(problem.response?.placeholder || "Write your design here.")}"
+          >${escapeHtml(answer)}</textarea>
+        </label>
+        <p class="system-design-note">Use Markdown headings and lists to structure requirements, APIs, data model, scale, failure handling, and trade-offs.</p>
+        <details class="reference-answer">
+          <summary>Show reference answer</summary>
+          <div class="reference-answer-content">
+            ${markdownLite(problem.response?.reference_answer || "")}
+            ${renderProblemAssets(problem, "reference_answer")}
+          </div>
+        </details>
+      </div>
+    </section>
+  `;
 }
 
 function renderProblemDataInfo(data) {
@@ -2247,6 +2343,9 @@ function renderProblemMetadata(problem) {
 }
 
 function renderProblemExample(example) {
+  if (!example || ![example.input, example.output, example.reasoning].some((value) => String(value ?? "").trim())) {
+    return "";
+  }
   return renderProblemBlock(
     PROBLEM_SECTION_CLASSES.example,
     "Example",
@@ -2761,6 +2860,8 @@ function bindEvents() {
   });
   document.querySelector("#reset-code")?.addEventListener("click", resetCode);
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));
+  document.querySelector("#system-design-answer")?.addEventListener("input", (event) => saveSystemDesignAnswer(event.target.value));
+  document.querySelector("#reset-system-design-answer")?.addEventListener("click", resetSystemDesignAnswer);
 }
 
 function bootFromHash() {

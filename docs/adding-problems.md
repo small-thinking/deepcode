@@ -103,6 +103,46 @@ Current limitations:
 
 ## Evaluator Types
 
+### System Design
+
+System Design prompts are discussion and writing exercises: they do not execute
+code or expose test cases. Use `evaluation.type: "system_design"`, omit
+`starter_code` and `example`, and provide a response contract instead:
+
+```json
+{
+  "evaluation": { "type": "system_design" },
+  "response": {
+    "placeholder": "Start from clarifying questions, then state your design.",
+    "reference_answer": "## Requirements\n\n- ..."
+  }
+}
+```
+
+The browser keeps each user's draft in local storage. The committed
+`reference_answer` is rendered as Markdown inside a collapsed **Show reference
+answer** panel, so it is available for review without being visible by default.
+
+Each problem folder may add diagrams under `assets/`, including several images:
+
+```json
+"assets": [
+  {
+    "path": "assets/architecture.png",
+    "alt": "Request path from API to queue and workers",
+    "caption": "Reference architecture.",
+    "section": "reference_answer"
+  }
+]
+```
+
+`section` must be `prompt` or `reference_answer`; `path` must remain under the
+same problem's `assets/` folder. DeepCode serves those files from
+`/problem-assets/<slug>/...` and rejects path traversal. PNG and JPEG assets
+under `problems/**/assets/` are tracked through Git LFS by `.gitattributes`.
+Run `git lfs track` only when adding another binary extension, then commit the
+resulting `.gitattributes` change with the asset.
+
 ML coding problems should use the default evaluator:
 
 ```json

@@ -363,6 +363,36 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".problem-test-case", styles_css)
         self.assertIn(".problem-meta-grid", styles_css)
 
+    def test_system_design_workspace_autosaves_markdown_and_hides_reference_answer_by_default(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn('return problem?.evaluation?.type === "system_design"', app_js)
+        self.assertIn('deepcode-system-design-answer:${slug}', app_js)
+        self.assertIn('id="system-design-answer"', app_js)
+        self.assertIn('id="reset-system-design-answer"', app_js)
+        self.assertIn("Show reference answer", app_js)
+        self.assertIn("<details class=\"reference-answer\">", app_js)
+        self.assertIn("renderProblemAssets(problem, \"reference_answer\")", app_js)
+        self.assertIn(".system-design-answer", styles_css)
+        self.assertIn(".reference-answer", styles_css)
+
+    def test_problem_assets_are_rendered_from_problem_scoped_urls(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("function problemAssetUrl(problem, asset)", app_js)
+        self.assertIn("/problem-assets/${encodeURIComponent(problem.slug)}", app_js)
+        self.assertIn("function renderProblemAssets(problem, section)", app_js)
+        self.assertIn("loading=\"lazy\"", app_js)
+        self.assertIn(".problem-asset", styles_css)
+
+    def test_problem_example_is_omitted_when_a_non_coding_problem_has_no_example(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+
+        self.assertIn("function renderProblemExample(example)", app_js)
+        self.assertIn("if (!example || ![example.input, example.output, example.reasoning]", app_js)
+
     def test_detail_workspace_uses_responsive_full_width_layout(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
