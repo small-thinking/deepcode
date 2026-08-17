@@ -39,6 +39,13 @@ class ArchitectureTest(unittest.TestCase):
             / "assets"
             / "batched-llm-inference-architecture.png"
         )
+        prefix_cache_asset = (
+            ROOT
+            / "problems"
+            / "141-batched-llm-inference-service"
+            / "assets"
+            / "batched-llm-inference-prefix-cache-architecture.png"
+        )
 
         self.assertEqual(
             server.resolve_problem_asset(
@@ -47,8 +54,18 @@ class ArchitectureTest(unittest.TestCase):
             ),
             asset.resolve(),
         )
+        self.assertEqual(
+            server.resolve_problem_asset(
+                "/problem-assets/batched-llm-inference-service/assets/batched-llm-inference-prefix-cache-architecture.png",
+                ROOT / "problems",
+            ),
+            prefix_cache_asset.resolve(),
+        )
         self.assertEqual(problem["category"], "ML System Design")
         self.assertEqual(problem["evaluation"]["type"], "system_design")
+        self.assertEqual(len(problem["assets"]), 2)
+        self.assertIn("TTFT", problem["response"]["reference_answer"])
+        self.assertIn("cross-request prefix", problem["response"]["reference_answer"].lower())
         self.assertIsNone(server.resolve_problem_asset("/problem-assets/batched-llm-inference-service/../secret.png", ROOT / "problems"))
         self.assertIsNone(server.resolve_problem_asset("/problem-assets/batched-llm-inference-service/problem.json", ROOT / "problems"))
 
