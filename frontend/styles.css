@@ -426,6 +426,17 @@ tbody tr:hover {
   width: 76px;
 }
 
+.frequency-cell {
+  min-width: 92px;
+}
+
+.problem-frequency {
+  color: var(--blue);
+  font-size: 14px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
 .completion-badge {
   display: inline-flex;
   align-items: center;
