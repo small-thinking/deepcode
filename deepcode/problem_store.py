@@ -138,9 +138,26 @@ class ProblemStore:
                 return problem.get("category", "").casefold()
             if sort == "difficulty":
                 return difficulty_order.get(problem.get("difficulty", ""), 99)
+            if sort == "frequency":
+                return self._frequency_sort_value(problem)
             return self._id_sort_value(problem.get("id"))
 
         return key
+
+    @staticmethod
+    def _frequency_sort_value(problem: dict[str, Any]) -> int:
+        """Use the highest company-specific tier for the catalog Stars column."""
+        frequencies = problem.get("interview_frequency")
+        if not isinstance(frequencies, dict):
+            return 0
+        return max(
+            (
+                entry.get("stars", 0)
+                for entry in frequencies.values()
+                if isinstance(entry, dict) and isinstance(entry.get("stars", 0), int)
+            ),
+            default=0,
+        )
 
     def _validate(self, problem: dict[str, Any], problem_dir: Path) -> None:
         required = ["id", "slug", "title", "category", "difficulty", "prompt", "starter_code", "example"]

@@ -99,15 +99,23 @@ def _handle_api_request(
         return 200, {"company": company}
 
     if parts == ["api", "problems"] and method == "GET":
+        sort = _first(query, "sort") or "id"
+        order = _first(query, "order") or "asc"
         problems = context.store.list_problems(
             category=_first(query, "category"),
             difficulty=_first(query, "difficulty"),
             company=_first(query, "company"),
             search=_first(query, "search"),
-            sort=_first(query, "sort") or "id",
-            order=_first(query, "order") or "asc",
+            sort="id" if sort == "completed" else sort,
+            order="asc" if sort == "completed" else order,
         )
         problems = _with_personal_status(context, problems)
+        if sort == "completed":
+            problems = sorted(
+                problems,
+                key=lambda problem: problem.get("personal_status", {}).get("completed") is True,
+                reverse=order.casefold() == "desc",
+            )
         return 200, {
             "problems": problems,
             "categories": context.store.categories(),

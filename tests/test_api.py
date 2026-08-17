@@ -69,6 +69,25 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(payload["problems"][0]["personal_status"]["completed"], True)
 
+    def test_sorts_problems_by_local_completion_status(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            user_state = UserStateStore(root / ".deepcode" / "user-state.json")
+            self._write_problem(root / "problems", "incomplete", "1")
+            self._write_problem(root / "problems", "complete", "2")
+            user_state.mark_completed("complete")
+            context = ApiContext(store=ProblemStore(root / "problems"), user_state=user_state)
+
+            _, ascending = handle_api_request(
+                context, "GET", "/api/problems", {"sort": ["completed"], "order": ["asc"]}, None
+            )
+            _, descending = handle_api_request(
+                context, "GET", "/api/problems", {"sort": ["completed"], "order": ["desc"]}, None
+            )
+
+            self.assertEqual([problem["slug"] for problem in ascending["problems"]], ["incomplete", "complete"])
+            self.assertEqual([problem["slug"] for problem in descending["problems"]], ["complete", "incomplete"])
+
     def test_fetches_problem_detail(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = ProblemStore(Path(tmp))

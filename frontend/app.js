@@ -1457,6 +1457,22 @@ function companyFrequencyBadge(frequency) {
   return `<span class="company-frequency" aria-label="Interview-signal frequency tier ${stars}">${"★".repeat(stars)}</span>`;
 }
 
+function problemFrequencyStars(problem) {
+  return Math.max(
+    0,
+    ...Object.values(problem?.interview_frequency || {}).map((frequency) => {
+      const stars = frequency?.stars;
+      return Number.isInteger(stars) && stars >= 1 && stars <= 5 ? stars : 0;
+    })
+  );
+}
+
+function problemFrequencyBadge(problem) {
+  const stars = problemFrequencyStars(problem);
+  if (!stars) return `<span class="muted-cell" aria-label="No interview-signal frequency tier">-</span>`;
+  return `<span class="problem-frequency" aria-label="Highest interview-signal frequency tier ${stars}" title="Highest company-specific interview-signal tier">${"★".repeat(stars)}</span>`;
+}
+
 function companyFrequencyFor(frequencies, companyName) {
   return Object.entries(frequencies || {}).find(
     ([company]) => String(company).trim().toLocaleLowerCase() === String(companyName).trim().toLocaleLowerCase()
@@ -1777,6 +1793,8 @@ function renderList() {
             <option value="title" ${state.filters.sort === "title" ? "selected" : ""}>Sort by Title</option>
             <option value="difficulty" ${state.filters.sort === "difficulty" ? "selected" : ""}>Sort by Difficulty</option>
             <option value="category" ${state.filters.sort === "category" ? "selected" : ""}>Sort by Category</option>
+            <option value="frequency" ${state.filters.sort === "frequency" ? "selected" : ""}>Sort by Stars</option>
+            <option value="completed" ${state.filters.sort === "completed" ? "selected" : ""}>Sort by Complete</option>
           </select>
           <button class="primary-button" id="apply-filters">Apply</button>
         </div>
@@ -2010,7 +2028,8 @@ function problemTable() {
         <td class="title-cell">${escapeHtml(problem.title)}</td>
         <td>${difficultyPill(problem.difficulty)}</td>
         <td class="category-cell">${escapeHtml(problem.category)}</td>
-        <td>${companyLabelList(problem.companies, "company-list", problem.interview_frequency) || `<span class="muted-cell">-</span>`}</td>
+        <td>${companyLabelList(problem.companies) || `<span class="muted-cell">-</span>`}</td>
+        <td class="frequency-cell">${problemFrequencyBadge(problem)}</td>
         <td>${labelList(problem.tags)}</td>
       </tr>
     `
@@ -2022,11 +2041,12 @@ function problemTable() {
       <thead>
         <tr>
           ${problemSortHeader("id", "#", "number")}
-          <th scope="col">Status</th>
+          ${problemSortHeader("completed", "Complete")}
           ${problemSortHeader("title", "Title")}
           ${problemSortHeader("difficulty", "Difficulty")}
           <th scope="col">Category</th>
           <th scope="col">Companies</th>
+          ${problemSortHeader("frequency", "Stars")}
           <th scope="col">Tags</th>
         </tr>
       </thead>

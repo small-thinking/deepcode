@@ -215,6 +215,57 @@ class ProblemStoreTest(unittest.TestCase):
         self.assertEqual(store.get_problem("linux-cd-path-resolution")["interview_frequency"]["OpenAI"]["stars"], 0)
         self.assertNotIn("seen_count", json.dumps(spreadsheet["interview_frequency"]))
 
+    def test_sorts_by_highest_company_frequency_tier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for folder, problem_id, frequency in (
+                ("no-signal", "1", {}),
+                (
+                    "multi-company-signal",
+                    "2",
+                    {
+                        "Harvey": {"stars": 2, "source_record_ids": ["row-1"], "synced_at": "2026-08-16"},
+                        "Sierra": {"stars": 4, "source_record_ids": ["row-2"], "synced_at": "2026-08-16"},
+                    },
+                ),
+                (
+                    "strong-signal",
+                    "3",
+                    {"OpenAI": {"stars": 5, "source_record_ids": ["row-3"], "synced_at": "2026-08-16"}},
+                ),
+            ):
+                problem = {
+                    "id": problem_id,
+                    "slug": folder,
+                    "title": folder,
+                    "category": "ML Systems",
+                    "difficulty": "medium",
+                    "companies": list(frequency),
+                    "prompt": "Return one.",
+                    "starter_code": "def one():\n    pass\n",
+                    "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                    "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                }
+                if frequency:
+                    problem["interview_frequency"] = frequency
+                self._write_problem(
+                    root,
+                    folder,
+                    problem,
+                    [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+                )
+
+            store = ProblemStore(root)
+
+            self.assertEqual(
+                [problem["slug"] for problem in store.list_problems(sort="frequency", order="asc")],
+                ["no-signal", "multi-company-signal", "strong-signal"],
+            )
+            self.assertEqual(
+                [problem["slug"] for problem in store.list_problems(sort="frequency", order="desc")],
+                ["strong-signal", "multi-company-signal", "no-signal"],
+            )
+
     def test_rejects_invalid_reference_links(self):
         invalid_values = [
             "https://example.com",
