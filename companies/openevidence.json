@@ -1,0 +1,19 @@
+{
+  "slug": "openevidence",
+  "name": "OpenEvidence",
+  "summary": "Clinical evidence and retrieval company tracked for cited-answer systems, evidence-quality evaluation, quality-latency loops, and data-platform reliability.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: OpenEvidence profile", "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"}
+  },
+  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"}, {"label": "Careers", "url": "https://jobs.ashbyhq.com/openevidence"}],
+  "interview_process": {
+    "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
+    "summary": "The tracker records role context and a take-home scope caveat; it does not assert a full interview sequence.",
+    "stages": [{"name": "Preparation context", "signal": "Retrieval/reranking with cited answers and abstention, evidence-quality evaluation, offline/online quality-latency loops, and take-home scope clarification.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: OpenEvidence profile", "url": "https://app.notion.com/3be6ce51456d81e696a3cd45c359d562"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "1 · Practice / Calibration, conditional on the in-person and take-home boundaries."}],
+  "references": [{"label": "OpenEvidence careers", "url": "https://jobs.ashbyhq.com/openevidence"}],
+  "updated_at": "2026-08-16"
+}

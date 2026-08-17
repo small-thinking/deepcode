@@ -1,0 +1,19 @@
+{
+  "slug": "google-deepmind",
+  "name": "Google DeepMind",
+  "summary": "Research organization tracked for self-improving agent evaluation, multimodal reasoning, information quality, and foundational research engineering.",
+  "stage": {
+    "company_state": "Public-company subsidiary status not independently verified in this profile",
+    "funding_stage": "Not applicable / not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: Google DeepMind profile", "url": "https://app.notion.com/35b6ce51456d81e0813bdcca7351d4c2"}
+  },
+  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/35b6ce51456d81e0813bdcca7351d4c2"}, {"label": "Careers", "url": "https://deepmind.google/careers/"}, {"label": "1Point3Acres reports", "url": "https://www.1point3acres.com/bbs/tag/google-36-166.html"}],
+  "interview_process": {
+    "evidence_tier": "LC-heavy — Opportunity 2026 classification",
+    "summary": "The tracker categorizes the experience as LC-heavy and recommends preparation only after shared foundations are ready.",
+    "stages": [{"name": "Preparation context", "signal": "Agent evaluation, multimodal reasoning, information quality, foundational research, and algorithms practice.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Google DeepMind profile", "url": "https://app.notion.com/35b6ce51456d81e0813bdcca7351d4c2"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "3 · Serious Prep; not intended as an unprepared warm-up process."}],
+  "references": [{"label": "Google DeepMind careers", "url": "https://deepmind.google/careers/"}],
+  "updated_at": "2026-07-30"
+}

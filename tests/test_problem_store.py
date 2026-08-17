@@ -192,6 +192,8 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertEqual(store.list_problems()[0]["companies"], ["Anthropic", "OpenAI"])
             self.assertEqual(store.get_problem("company-problem")["companies"], ["Anthropic", "OpenAI"])
             self.assertEqual(store.list_problems(search="anthropic")[0]["slug"], "company-problem")
+            self.assertEqual(store.list_problems(company="openai")[0]["slug"], "company-problem")
+            self.assertEqual(store.companies(), ["Anthropic", "OpenAI"])
 
     def test_rejects_invalid_reference_links(self):
         invalid_values = [

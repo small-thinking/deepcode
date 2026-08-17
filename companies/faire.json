@@ -1,0 +1,19 @@
+{
+  "slug": "faire",
+  "name": "Faire",
+  "summary": "Wholesale marketplace tracked for agent-quality, retrieval/search, multimodal discovery, and LLM evaluation work.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: Faire profile", "url": "https://app.notion.com/3b76ce51456d817bae5bf3c89c68652f"}
+  },
+  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/3b76ce51456d817bae5bf3c89c68652f"}, {"label": "Careers", "url": "https://www.faire.com/careers"}],
+  "interview_process": {
+    "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
+    "summary": "The tracker holds targeted preparation topics; the process and live role status require confirmation.",
+    "stages": [{"name": "Preparation context", "signal": "Agent quality data and evaluation modeling, LLM-as-a-Judge, retrieval/search, and retailer user understanding.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Faire profile", "url": "https://app.notion.com/3b76ce51456d817bae5bf3c89c68652f"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "2 · Targeted Prep."}],
+  "references": [{"label": "Faire careers", "url": "https://www.faire.com/careers"}],
+  "updated_at": "2026-08-09"
+}

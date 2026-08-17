@@ -1,0 +1,20 @@
+{
+  "slug": "reflection-ai",
+  "name": "Reflection AI",
+  "aliases": ["ReflectionAI"],
+  "summary": "AI company tracked for evaluations, post-training, data quality, safety evaluation infrastructure, and agentic coding context.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026",
+    "source": {"label": "Opportunity 2026: Reflection AI profile", "url": "https://app.notion.com/35e6ce51456d8149b320c50b1dcfd11f"}
+  },
+  "links": [{"label": "Opportunity 2026 profile", "url": "https://app.notion.com/35e6ce51456d8149b320c50b1dcfd11f"}, {"label": "Careers", "url": "https://reflection.ai/careers/"}, {"label": "1Point3Acres reports", "url": "https://www.1point3acres.com/interview/company/reflection.ai"}],
+  "interview_process": {
+    "evidence_tier": "Insufficient public signal — Opportunity 2026 classification",
+    "summary": "The tracker has target-role context but insufficient process and culture evidence for a fixed loop.",
+    "stages": [{"name": "Preparation context", "signal": "Agentic coding, post-training, evaluations, pretraining and post-training data quality, safety evaluations, and data ingestion systems.", "evidence_tier": "Opportunity 2026 planning context", "sources": [{"label": "Opportunity 2026: Reflection AI profile", "url": "https://app.notion.com/35e6ce51456d8149b320c50b1dcfd11f"}]}]
+  },
+  "notes": [{"label": "Interview priority", "detail": "2 · Targeted Prep. Alias `ReflectionAI` links legacy DeepCode problem labels to this profile."}],
+  "references": [{"label": "Reflection AI careers", "url": "https://reflection.ai/careers/"}],
+  "updated_at": "2026-07-30"
+}
