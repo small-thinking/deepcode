@@ -1,0 +1,28 @@
+{
+  "id": "190",
+  "slug": "reactive-pickup-screen-design",
+  "title": "Design a Reactive Pickup Screen",
+  "category": "Mobile Low-Level Design",
+  "difficulty": "medium",
+  "tags": [
+    "mobile",
+    "android",
+    "jetpack-compose",
+    "state-management",
+    "real-time-updates",
+    "accessibility",
+    "low-level-design"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Design the client-side architecture for a mobile ride pickup screen implemented with Jetpack Compose. The screen presents ride status, vehicle and pickup details, ETA updates, arrival instructions, a cancellation action when allowed, and recoverable loading or connection failures. The app receives an initial ride snapshot and later asynchronous updates that can arrive late, repeat, or be received again after a process restart.\n\nCover:\n\n- Domain models for snapshots, ordered ride updates, terminal states, actions, and user-visible errors.\n- A unidirectional state flow between repository, ViewModel, and Compose UI that prevents stale updates from reviving an older state.\n- Lifecycle, process recreation, reconnection, snapshot resynchronization, one-time effects, and cancellation idempotency.\n- Rendering behavior for loading, active pickup, terminal, offline, and retry states without duplicating business rules in composables.\n- Accessibility, localization, observability, and a test strategy for race conditions and configuration changes.\n\nMake the state-transition and event-ordering rules explicit before discussing widgets.",
+  "response": {
+    "placeholder": "Model the ride as a versioned state machine first. Then show a single event reducer in the ViewModel, a thin Compose renderer, snapshot resync after reconnect, and idempotent user actions.",
+    "reference_answer": "## 1. Stable state contract\n\nThe UI is driven by a versioned `RideSnapshot`, not by individual widget callbacks. It contains a ride ID, monotonic sequence or revision, lifecycle phase, pickup coordinates and instructions, vehicle summary, ETA, cancellation eligibility, and terminal reason when present. Network messages are typed as snapshots or ordered deltas. Terminal phases are absorbing unless a newer authoritative snapshot explicitly starts a different ride.\n\nThe ViewModel exposes one immutable `PickupUiState`: loading, active, reconnecting with the last safe snapshot, recoverable error, or terminal. Ephemeral effects such as a cancellation confirmation, accessibility announcement, or navigation command are separate from durable state so a recomposition does not repeat them.\n\n## 2. Data flow and ordering\n\nA repository first fetches an authoritative snapshot, then subscribes to the ride-update stream. The ViewModel reducer applies an update only when its ride ID matches and its revision is newer than the current state. Duplicates are harmless; a gap or reconnect triggers a fresh snapshot fetch instead of guessing missing transitions. The reducer, eligibility rules, and timestamp formatting inputs live outside composables, so the same behavior is testable without rendering.\n\nCompose collects lifecycle-aware state and renders pure components for the header, vehicle card, pickup instructions, ETA, action area, and error banner. Stable keys and immutable view data avoid accidentally preserving UI state from an older ride. Map rendering is a replaceable child with a plain location model; it should not own ride lifecycle decisions.\n\n## 3. Lifecycle and user actions\n\nPersist the active ride ID and most recent safe snapshot in saved state so rotation and process recreation can immediately show meaningful context. On resume, reconnect and reconcile with a server snapshot because local state can be stale. If no valid snapshot is available, show loading rather than an invented ETA.\n\nCancellation sends an idempotency key scoped to the ride and action attempt. The ViewModel disables duplicate taps while the request is pending, but treats a timeout as unknown: it resynchronizes before presenting the final outcome. A server rejection updates the durable state and produces one error effect; it does not leave a local screen pretending cancellation succeeded.\n\n## 4. Quality and testing\n\nAll visible timing text is localized, semantically labeled, and announced only when it materially changes. The visual design supports large text, screen readers, and reduced-motion preferences. Analytics records state-transition latency, stream reconnects, stale-update drops, cancellation outcomes, and rendering errors without logging sensitive pickup details.\n\nReducer tests cover duplicate revisions, out-of-order updates, a terminal event followed by stale active data, a reconnect gap, and cancellation races. ViewModel tests use a fake repository to verify effects occur once. Compose tests assert semantic labels and states, while integration tests exercise process recreation and snapshot reconciliation.\n\n## Progressive Hints\n\n1. A recomposition is not a business event.\n2. Carry a revision with every server update.\n3. Ignore stale deltas and resync after a gap.\n4. Keep one-time effects out of persistent screen state.\n5. Treat a timed-out cancellation as unknown until a snapshot resolves it.\n6. Test the reducer before testing the layout."
+  },
+  "evaluation": {
+    "type": "system_design"
+  },
+  "created_at": "2026-08-17"
+}
