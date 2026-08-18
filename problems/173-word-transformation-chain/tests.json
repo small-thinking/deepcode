@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds a one-character chain while allowing an external target",
+    "input": "classic intermediate dictionary words without the endpoint",
+    "test": "words = ['hot', 'dot', 'dog', 'lot', 'log']\nassert transform_words('hit', 'cog', words, 1) is True\npath = transform_words('hit', 'cog', words, 3)\nassert path[0] == 'hit' and path[-1] == 'cog'\nassert len(path) == 3\nassert all(sum(left != right for left, right in zip(a, b)) in {1, 2} for a, b in zip(path, path[1:]))\nassert all(word in words for word in path[1:-1])"
+  },
+  {
+    "name": "keeps one- and two-character movement rules distinct",
+    "input": "a two-character direct move to an external target",
+    "test": "assert transform_words('bake', 'bore', [], 1) is False\nassert transform_words('bake', 'bore', [], 2) is True\nassert transform_words('bake', 'torn', ['bore', 'tone'], 3) == ['bake', 'bore', 'torn']"
+  },
+  {
+    "name": "handles endpoint, length, duplicate, and invalid-part boundaries",
+    "input": "equal words, unequal endpoints, and duplicate dictionary entries",
+    "test": "assert transform_words('same', 'same', [], 1) is True\nassert transform_words('same', 'same', [], 3) == ['same']\nassert transform_words('a', 'bb', ['bb'], 1) is False\nassert transform_words('a', 'bb', ['bb'], 3) == []\nassert transform_words('ab', 'cd', ['ac', 'ac', 'zz'], 1) is False\ntry:\n    transform_words('a', 'b', [], 4)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('invalid part should raise ValueError')"
+  }
+]

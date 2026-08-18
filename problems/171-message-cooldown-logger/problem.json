@@ -1,0 +1,26 @@
+{
+  "id": "171",
+  "slug": "message-cooldown-logger",
+  "title": "Message Cooldown Logger",
+  "category": "Systems Coding",
+  "difficulty": "easy",
+  "tags": ["hash-map", "stateful", "cooldown", "rate-limiting"],
+  "companies": ["Reddit"],
+  "prompt": "Implement a stateful `MessageCooldownLogger` for suppressing repeated log messages. `MessageCooldownLogger()` starts empty. `should_print(timestamp, message)` returns `True` when the message may be emitted and `False` when it must be suppressed.\n\nEach message has an independent fixed cooldown of 10 seconds. A call is allowed when that message has never been allowed before, or when `timestamp - last_allowed_timestamp >= 10`. Record the timestamp only for an allowed call; a suppressed call must not extend the cooldown.\n\nTimestamps are non-negative integers supplied in nondecreasing order across all calls. Messages are non-empty strings. Use expected O(1) time per call and O(number of distinct messages) state.",
+  "starter_code": "class MessageCooldownLogger:\n    def __init__(self):\n        # Store the timestamp of the most recent allowed event for each message.\n        pass\n\n    def should_print(self, timestamp, message):\n        # Return whether this message may be emitted at timestamp.\n        pass\n",
+  "example": {
+    "input": "logger = MessageCooldownLogger(); [logger.should_print(t, m) for t, m in [(1, 'sync'), (4, 'sync'), (11, 'sync')]]",
+    "output": "[True, False, True]",
+    "reasoning": "The event at time 4 is suppressed, while the event at time 11 is exactly ten seconds after the last allowed event."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
