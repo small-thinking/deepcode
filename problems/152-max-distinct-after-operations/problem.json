@@ -1,0 +1,26 @@
+{
+  "id": "152",
+  "slug": "max-distinct-after-operations",
+  "title": "Maximize Distinct Values After Bounded Adjustments",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["greedy", "sorting", "intervals", "distinct-values", "algorithm"],
+  "companies": ["xAI"],
+  "prompt": "Implement `max_distinct_after_adjustments(nums, k)`. Each integer `x` in `nums` may independently be replaced once by any integer in the inclusive interval `[x - k, x + k]`. Return the largest number of distinct values achievable after making zero or one adjustment per element.\n\n`nums` is nonempty, `k` is nonnegative, and the input list must not be mutated. The answer is a count, not the adjusted array. Handle duplicate values, overlapping adjustment intervals, `k = 0`, and values large enough that choosing greedily from the left is preferable to enumerating possible replacements.",
+  "starter_code": "def max_distinct_after_adjustments(nums, k):\n    # Return the largest achievable number of distinct integers.\n    pass\n",
+  "example": {
+    "input": "max_distinct_after_adjustments([2, 3, 3, 4, 4, 5], 2)",
+    "output": "6",
+    "reasoning": "The values can be assigned to six different integers inside their respective adjustment intervals."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

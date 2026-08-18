@@ -1,0 +1,26 @@
+{
+  "id": "150",
+  "slug": "parallel-merge-sort",
+  "title": "Parallel Merge Sort",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["sorting", "merge-sort", "parallelism", "workers", "algorithm"],
+  "companies": ["xAI"],
+  "prompt": "Implement `parallel_merge_sort(values, workers)` to return a new list of integers in nondecreasing order.\n\nTreat `workers` as logical workers so the behavior can be tested deterministically. Split the input into at most `min(workers, len(values))` contiguous, nearly equal chunks. Sort each chunk independently, then repeatedly merge sorted chunks until one sorted result remains.\n\n`workers` is a positive integer. Preserve every value, including duplicates and negatives, and leave `values` unchanged. An empty input returns an empty list.\n\nIn a production implementation, explain separately whether threads, processes, or a native numeric library are appropriate for CPU-bound sorting in the target runtime.",
+  "starter_code": "def parallel_merge_sort(values, workers):\n    # Return a freshly allocated sorted list.\n    pass\n",
+  "example": {
+    "input": "parallel_merge_sort([41, 7, 29, 14, 3, 36], workers=2)",
+    "output": "[3, 7, 14, 29, 36, 41]",
+    "reasoning": "Each worker can sort a contiguous chunk before the two ordered chunks are merged."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

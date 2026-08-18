@@ -1,0 +1,17 @@
+[
+  {
+    "name": "identifies every faulty node while honoring the group-only oracle",
+    "input": "one faulty node in a five-node cluster",
+    "test": "def make_test(faulty):\n    calls = []\n    def test(nodes):\n        assert isinstance(nodes, set)\n        assert len(nodes) >= 2\n        assert all(isinstance(node, int) for node in nodes)\n        calls.append(frozenset(nodes))\n        return not (nodes & faulty)\n    return test, calls\n\ntest, calls = make_test({3})\nassert find_faulty_nodes(5, test) == {3}\nassert calls"
+  },
+  {
+    "name": "handles no faults and a cluster with exactly two healthy nodes",
+    "input": "all-healthy and adversarial health distributions",
+    "test": "def make_test(faulty):\n    def test(nodes):\n        assert isinstance(nodes, set)\n        assert len(nodes) >= 2\n        return not (nodes & faulty)\n    return test\n\nassert find_faulty_nodes(4, make_test(set())) == set()\nfaulty = {0, 1, 3, 4, 5, 6, 7, 9}\nassert find_faulty_nodes(10, make_test(faulty)) == faulty"
+  },
+  {
+    "name": "never requires a singleton oracle call",
+    "input": "multiple faults with mixed pair outcomes",
+    "test": "seen_sizes = []\ndef test(nodes):\n    assert isinstance(nodes, set)\n    seen_sizes.append(len(nodes))\n    assert len(nodes) >= 2\n    return not (nodes & {0, 3, 6})\n\nassert find_faulty_nodes(8, test) == {0, 3, 6}\nassert seen_sizes and min(seen_sizes) >= 2"
+  }
+]

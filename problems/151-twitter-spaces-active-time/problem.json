@@ -1,0 +1,26 @@
+{
+  "id": "151",
+  "slug": "twitter-spaces-active-time",
+  "title": "Live Room Activity Tracker",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["event-processing", "sessions", "streaming", "top-k", "stateful"],
+  "companies": ["xAI"],
+  "prompt": "Build two related utilities for live audio rooms.\n\n### Part 1: accumulated participant time\n\nImplement `calculate_active_time(events, current_time=None)`. Each event is `[action, room_id, user_id, timestamp]`, where `action` is `create`, `join`, or `leave`. A create event also starts its creator's session. Return the total participant-seconds per room: overlapping participants contribute independently, so this is not a union-of-time calculation.\n\nEvents may be unordered; process them by timestamp while preserving input order for equal timestamps. Ignore duplicate copies of the exact same event. A leave without an open session is ignored. A user may leave and later join again, creating another interval. If `current_time` is supplied, close every remaining open session at that time; otherwise omit unfinished sessions. Return only rooms with at least one completed interval.\n\n### Part 2: current room population\n\nImplement `LiveRoomTracker`. `process_event(action, room_id, user_id, timestamp)` consumes one arriving event. `get_top_k(k)` returns up to `k` `(room_id, active_user_count)` pairs for nonempty rooms, ordered by descending count and then ascending room ID. An unmatched leave and a duplicate active event for an already active `(room_id, user_id)` are no-ops.\n\nThe timestamp is retained in the streaming API for a realistic event contract; Part 2 reports current membership rather than time-windowed membership.",
+  "starter_code": "def calculate_active_time(events, current_time=None):\n    # Return completed participant-seconds by room.\n    pass\n\n\nclass LiveRoomTracker:\n    def __init__(self):\n        pass\n\n    def process_event(self, action, room_id, user_id, timestamp):\n        pass\n\n    def get_top_k(self, k):\n        pass\n",
+  "example": {
+    "input": "calculate_active_time([['create', 'lounge', 'a', 100], ['join', 'lounge', 'b', 140], ['leave', 'lounge', 'b', 180], ['leave', 'lounge', 'a', 220]])",
+    "output": "{'lounge': 160}",
+    "reasoning": "The creator contributes 120 seconds and the second participant contributes 40 seconds."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

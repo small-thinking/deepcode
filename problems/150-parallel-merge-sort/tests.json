@@ -1,0 +1,12 @@
+[
+  {
+    "name": "sorts uneven chunks and keeps duplicate values",
+    "input": "six values with two logical workers",
+    "test": "values = [41, 7, 29, 14, 3, 36]\nassert parallel_merge_sort(values, 2) == [3, 7, 14, 29, 36, 41]\nassert values == [41, 7, 29, 14, 3, 36]\nassert parallel_merge_sort([9, -2, 9, 0, -2], 3) == [-2, -2, 0, 9, 9]"
+  },
+  {
+    "name": "handles empty input, one worker, and more workers than values",
+    "input": "boundary worker counts",
+    "test": "assert parallel_merge_sort([], 1) == []\nassert parallel_merge_sort([5], 1) == [5]\nassert parallel_merge_sort([4, -1, 4, 0], 1) == [-1, 0, 4, 4]\nassert parallel_merge_sort([4, -1, 4, 0], 10) == [-1, 0, 4, 4]"
+  }
+]
