@@ -1,0 +1,22 @@
+[
+  {
+    "name": "keeps clipped edge windows instead of dropping them",
+    "input": "a 2 by 3 matrix, 2 by 2 kernel, unit stride",
+    "test": "pooled, locations = max_pool_with_locations([[1, 3, 2], [4, 0, 5]], 2, 2, 1, 1)\nassert pooled == [[4, 5, 5], [4, 5, 5]]\nassert locations == [[(1, 0), (1, 2), (1, 2)], [(1, 0), (1, 2), (1, 2)]]"
+  },
+  {
+    "name": "uses the first row-major coordinate for tied maxima",
+    "input": "a window with equal maximum values",
+    "test": "pooled, locations = max_pool_with_locations([[5, 1], [5, 0]], 2, 2, 1, 1)\nassert pooled[0][0] == 5\nassert locations[0][0] == (0, 0)"
+  },
+  {
+    "name": "supports negative values and clipped non-overlapping windows",
+    "input": "a 3 by 3 matrix with a 2 by 2 kernel and stride two",
+    "test": "pooled, locations = max_pool_with_locations([[-8, -3, -6], [-4, -9, -2], [-7, -5, -1]], 2, 2, 2, 2)\nassert pooled == [[-3, -2], [-5, -1]]\nassert locations == [[(0, 1), (1, 2)], [(2, 1), (2, 2)]]"
+  },
+  {
+    "name": "pools channel-first tensors independently",
+    "input": "two 2 by 2 channels",
+    "test": "pooled, locations = max_pool_with_locations([[[1, 8], [3, 4]], [[9, 2], [9, 0]]], 2, 2, 2, 2, is_tensor=True)\nassert pooled == [[[8]], [[9]]]\nassert locations == [[[(0, 0, 1)]], [[(1, 0, 0)]]]"
+  }
+]

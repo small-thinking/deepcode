@@ -1,0 +1,26 @@
+{
+  "id": "195",
+  "slug": "clipped-max-pooling-locations",
+  "title": "Clipped Max Pooling with Locations",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["pooling", "computer-vision", "tensors", "argmax", "numpy"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `max_pool_with_locations(values, kernel_h, kernel_w, stride_h, stride_w, is_tensor=False)`. Return `(pooled, locations)`, where `pooled` contains each maximum and `locations` contains the original coordinate selected for that maximum.\n\nWhen `is_tensor=False`, `values` is a non-empty rectangular matrix and each location is `(row, column)`. When `is_tensor=True`, `values` is a non-empty channel-first tensor with shape `[channels][height][width]`; pool each channel independently and return locations as `(channel, row, column)`.\n\nUse clipped edge windows rather than padding or dropping incomplete windows. Window starts are `0, stride, 2 * stride, ...` while they remain inside the input, so a matrix of height `H` produces `ceil(H / stride_h)` pooled rows and similarly for width. A clipped window must contain at least its top-left start position.\n\nIf several values tie for a window maximum, choose the first one in row-major order inside that window. Kernel sizes and strides are positive integers. Return ordinary nested Python lists and do not mutate the input.",
+  "starter_code": "def max_pool_with_locations(values, kernel_h, kernel_w, stride_h, stride_w, is_tensor=False):\n    # Return (pooled_values, original_argmax_locations).\n    pass\n",
+  "example": {
+    "input": "max_pool_with_locations([[1, 3, 2], [4, 0, 5]], 2, 2, 1, 1)",
+    "output": "([[4, 5, 5], [4, 5, 5]], [[(1, 0), (1, 2), (1, 2)], [(1, 0), (1, 2), (1, 2)]])",
+    "reasoning": "The starts on the final row and column create clipped windows, so edge maxima are retained instead of discarded."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

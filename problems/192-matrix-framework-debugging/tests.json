@@ -1,0 +1,22 @@
+[
+  {
+    "name": "zeros creates independent rectangular storage",
+    "input": "Matrix.zeros(2, 3) followed by one element mutation",
+    "test": "matrix = Matrix.zeros(2, 3)\nassert matrix.to_ndarray().shape == (2, 3)\nmatrix.set(0, 1, 9.0)\nassert matrix.to_ndarray()[0, 1] == 9.0\nassert matrix.to_ndarray()[1, 1] == 0.0"
+  },
+  {
+    "name": "round trips rectangular decimal arrays without aliasing",
+    "input": "a 2 by 3 float array",
+    "test": "import numpy as np\nsource = np.array([[1.5, -2.25, 3.75], [4.0, 5.5, 6.25]])\nmatrix = Matrix.from_ndarray(source)\nsource[0, 0] = 99.0\nreturned = matrix.to_ndarray()\nassert returned.shape == (2, 3)\nassert np.allclose(returned, [[1.5, -2.25, 3.75], [4.0, 5.5, 6.25]])\nreturned[1, 2] = -10.0\nassert matrix.to_ndarray()[1, 2] == 6.25"
+  },
+  {
+    "name": "transposes rectangular input and reduces on the requested axis",
+    "input": "a 2 by 3 matrix",
+    "test": "import numpy as np\nmatrix = Matrix([[1, 2, 3], [4, 5, 6]])\nassert np.array_equal(matrix.transpose().to_ndarray(), [[1, 4], [2, 5], [3, 6]])\nassert matrix.transpose().to_ndarray().shape == (3, 2)\nassert matrix.sum() == 21.0\nassert np.array_equal(matrix.sum(axis=0), [5.0, 7.0, 9.0])\nassert np.array_equal(matrix.sum(axis=1), [6.0, 15.0])"
+  },
+  {
+    "name": "copy has independent backing storage",
+    "input": "copy a matrix and mutate only the returned ndarray of the copy",
+    "test": "original = Matrix([[1.0, 2.0], [3.0, 4.0]])\nclone = original.copy()\nclone.set(0, 0, 77.0)\nassert original.to_ndarray()[0, 0] == 1.0\nassert clone.to_ndarray()[0, 0] == 77.0\ntry:\n    original.sum(axis=2)\n    raise AssertionError('invalid axis must raise ValueError')\nexcept ValueError:\n    pass"
+  }
+]
