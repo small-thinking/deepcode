@@ -1,0 +1,22 @@
+[
+  {
+    "name": "permanent fields scan in lexicographic field order",
+    "input": "one key with three fields and a prefix filter",
+    "test": "db = InMemoryDatabase()\ndb.set('profile', 'city', 'Lima')\ndb.set('profile', 'age', '29')\ndb.set('profile', 'email', 'a@example.com')\nassert db.get('profile', 'city') == 'Lima'\nassert db.scan('profile') == ['age(29)', 'city(Lima)', 'email(a@example.com)']\nassert db.scan_by_prefix('profile', 'e') == ['email(a@example.com)']\nassert db.delete('profile', 'city') is True\nassert db.delete('profile', 'city') is False\nassert db.get('profile', 'city') is None"
+  },
+  {
+    "name": "timestamped reads honor start times and half-open TTLs",
+    "input": "one permanent timestamped field and one five-unit TTL field",
+    "test": "db = InMemoryDatabase()\ndb.set_at('job', 'owner', 'Ada', 10)\ndb.set_at_with_ttl('job', 'state', 'running', 10, 5)\nassert db.get_at('job', 'owner', 9) is None\nassert db.get_at('job', 'owner', 10) == 'Ada'\nassert db.get_at('job', 'state', 14) == 'running'\nassert db.get_at('job', 'state', 15) is None\nassert db.scan_at('job', 12) == ['owner(Ada)', 'state(running)']\nassert db.scan_by_prefix_at('job', 's', 12) == ['state(running)']\nassert db.delete_at('job', 'state', 15) is False\nassert db.delete_at('job', 'owner', 15) is True\nassert db.get_at('job', 'owner', 15) is None"
+  },
+  {
+    "name": "backup stores remaining TTL and restore selects the latest qualifying snapshot",
+    "input": "a backup at 23, a later backup at 30, then a restore targeted at time 29",
+    "test": "db = InMemoryDatabase()\ndb.set_at_with_ttl('task', 'state', 'queued', 20, 8)\ndb.set_at_with_ttl('task', 'lease', 'worker-1', 20, 20)\ndb.backup(23)\ndb.set_at('task', 'state', 'changed', 24)\ndb.backup(30)\ndb.restore(40, 29)\nassert db.get_at('task', 'state', 44) == 'queued'\nassert db.get_at('task', 'state', 45) is None\nassert db.get_at('task', 'lease', 56) == 'worker-1'\nassert db.get_at('task', 'lease', 57) is None"
+  },
+  {
+    "name": "backups are isolated and no qualifying restore is a no-op",
+    "input": "a snapshot followed by a live mutation and an earlier restore target",
+    "test": "db = InMemoryDatabase()\ndb.set_at_with_ttl('cache', 'answer', '42', 0, 10)\ndb.backup(3)\ndb.set_at('cache', 'answer', '99', 4)\ndb.restore(20, 2)\nassert db.get_at('cache', 'answer', 20) == '99'\ndb.restore(30, 3)\nassert db.get_at('cache', 'answer', 36) == '42'\nassert db.get_at('cache', 'answer', 37) is None\n\nfor call in (\n    lambda: db.set_at('x', 'y', 'z', -1),\n    lambda: db.set_at_with_ttl('x', 'y', 'z', 1, 0),\n    lambda: db.get_at('x', 'y', -1),\n):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]
