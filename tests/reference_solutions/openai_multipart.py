@@ -53,7 +53,7 @@ def _static_spread(grid, infection_threshold, directions):
         days += 1
 
 
-def simulate_basic(grid, infection_threshold=1, directions=DIR4):
+def simulate_basic(grid, infection_threshold=2, directions=DIR4):
     return _static_spread(grid, infection_threshold, directions)
 
 
