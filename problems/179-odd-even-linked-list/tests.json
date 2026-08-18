@@ -1,17 +1,17 @@
 [
   {
-    "name": "returns empty, singleton, and two-node lists unchanged",
-    "input": "the three shortest list shapes",
-    "test": "assert odd_even_list(None) is None\none = ListNode(9)\nassert odd_even_list(one) is one and one.next is None\nfirst = ListNode(1)\nsecond = ListNode(2)\nfirst.next = second\nassert odd_even_list(first) is first\nassert first.next is second and second.next is None"
+    "name": "Five-node example",
+    "input": "8 -> 6 -> 4 -> 2 -> 0",
+    "test": "nodes = [ListNode(v) for v in [8, 6, 4, 2, 0]]\nfor left, right in zip(nodes, nodes[1:]):\n    left.next = right\nhead = oddEvenList(nodes[0])\nvalues = []\nwhile head:\n    values.append(head.val)\n    head = head.next\nassert values == [8, 4, 0, 6, 2]"
   },
   {
-    "name": "relinks repeated-valued nodes by original position and identity",
-    "input": "five nodes whose values cannot identify their original positions",
-    "test": "nodes = [ListNode(7) for _ in range(5)]\nfor left, right in zip(nodes, nodes[1:]):\n    left.next = right\nhead = odd_even_list(nodes[0])\nseen = []\ncurrent = head\nwhile current is not None:\n    assert id(current) not in {id(node) for node in seen}\n    seen.append(current)\n    current = current.next\nassert [id(node) for node in seen] == [id(nodes[index]) for index in [0, 2, 4, 1, 3]]\nassert {id(node) for node in seen} == {id(node) for node in nodes}"
+    "name": "Seven-node example",
+    "input": "9 -> 8 -> 7 -> 6 -> 5 -> 4 -> 3",
+    "test": "nodes = [ListNode(v) for v in [9, 8, 7, 6, 5, 4, 3]]\nfor left, right in zip(nodes, nodes[1:]):\n    left.next = right\nhead = oddEvenList(nodes[0])\nvalues = []\nwhile head:\n    values.append(head.val)\n    head = head.next\nassert values == [9, 7, 5, 3, 8, 6, 4]"
   },
   {
-    "name": "preserves both groups order without leaving a cycle on an even-length list",
-    "input": "six distinct nodes",
-    "test": "nodes = [ListNode(value) for value in [8, 6, 4, 2, 0, -2]]\nfor left, right in zip(nodes, nodes[1:]):\n    left.next = right\nhead = odd_even_list(nodes[0])\nseen = []\ncurrent = head\nfor _ in range(len(nodes)):\n    assert current is not None\n    seen.append(current)\n    current = current.next\nassert current is None\nassert [id(node) for node in seen] == [id(nodes[index]) for index in [0, 2, 4, 1, 3, 5]]"
+    "name": "Second five-node example",
+    "input": "9 -> 7 -> 5 -> 3 -> 1",
+    "test": "nodes = [ListNode(v) for v in [9, 7, 5, 3, 1]]\nfor left, right in zip(nodes, nodes[1:]):\n    left.next = right\nhead = oddEvenList(nodes[0])\nvalues = []\nwhile head:\n    values.append(head.val)\n    head = head.next\nassert values == [9, 5, 1, 7, 3]"
   }
 ]

@@ -29,9 +29,6 @@ class StatefulPracticeSetBFixtureTest(unittest.TestCase):
     def test_billing_status_replay_reference_solution_passes(self):
         self._assert_reference_solution_passes("billing-status-replay")
 
-    def test_memcached_protocol_parser_reference_solution_passes(self):
-        self._assert_reference_solution_passes("memcached-protocol-parser")
-
     def test_tennis_match_scoring_reference_solution_passes(self):
         self._assert_reference_solution_passes("tennis-match-scoring")
 

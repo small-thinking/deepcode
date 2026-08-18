@@ -1,17 +1,17 @@
 {
   "id": "173",
   "slug": "word-transformation-chain",
-  "title": "Word Transformation Chain",
+  "title": "Dictionary Word Transformation Path",
   "category": "Algorithms",
   "difficulty": "medium",
   "tags": ["breadth-first-search", "graph", "strings", "shortest-path"],
   "companies": ["Reddit"],
-  "prompt": "Implement `transform_words(start, target, words, part)` for transformation chains between same-length words. A chain starts with `start`, ends with `target`, and every intermediate word must come from `words`. Duplicate words have no effect; `start` need not be in `words`; `target` is always a permitted final destination even when it is absent from `words`. Ignore dictionary words with a different length.\n\n- `part == 1`: a move must change exactly one character; return whether a chain exists.\n- `part == 2`: a move may change exactly one or exactly two characters; return whether a chain exists.\n- `part == 3`: use the same move rule as part 2 and return one minimum-length chain including both endpoints, or `[]` when none exists.\n\nIf `start` and `target` have different lengths, return `False` for parts 1 and 2 and `[]` for part 3. If they are equal, return `True` for parts 1 and 2 and `[start]` for part 3. Raise `ValueError` for any other part. Use breadth-first search over the implicit graph; do not revisit a word.",
-  "starter_code": "def transform_words(start, target, words, part):\n    # Return a reachability boolean or, for part 3, one shortest path.\n    pass\n",
+  "prompt": "You receive a start word, a target word, and a collection of permitted dictionary words. Decide whether a legal sequence of word changes links start to target.\n\nEvery eligible word has the same length. Start and target contain lowercase letters. Repeated dictionary entries have no additional effect. Start need not be in the dictionary, target is an allowed final destination even when it is absent from the dictionary, and a word must not be explored again after it is visited.\n\nPart 1: implement solve(start: str, target: str, words: list[str], part: int) -> bool. A transition changes exactly one character. All words between the endpoints must be in the dictionary.\n\nExample: solve(\"cold\", \"warm\", [\"cord\", \"card\", \"ward\"], 1) returns True through cold -> cord -> card -> ward -> warm.\n\nPart 2: one move may change exactly one or exactly two characters. Example: solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 2) returns True through bake -> bore -> tone -> torn.\n\nPart 3: return one shortest legal chain, including start and target, or [] when none exists. For solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 3), one valid result is [\"bake\", \"bore\", \"torn\"].",
+  "starter_code": "def solve(start: str, target: str, words: list[str], part: int):\n    # TODO: implement the requested part\n    pass\n",
   "example": {
-    "input": "transform_words('cold', 'warm', ['cord', 'card', 'ward'], 1)",
+    "input": "solve('cold', 'warm', ['cord', 'card', 'ward'], 1)",
     "output": "True",
-    "reasoning": "Changing one character at a time gives cold → cord → card → ward → warm. The target may be the final word even though it is absent from the dictionary."
+    "reasoning": "Changing one character at a time gives cold -> cord -> card -> ward -> warm. The target may be the final word even though it is absent from the dictionary."
   },
   "environment": {
     "language": "python",

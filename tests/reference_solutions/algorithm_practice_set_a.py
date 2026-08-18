@@ -3,11 +3,11 @@ from collections import deque
 import numpy as np
 
 
-class MessageCooldownLogger:
+class Logger:
     def __init__(self):
         self._last_allowed = {}
 
-    def should_print(self, timestamp, message):
+    def shouldPrintMessage(self, timestamp, message):
         previous = self._last_allowed.get(message)
         if previous is not None and timestamp - previous < 10:
             return False
@@ -67,6 +67,53 @@ def predict_click_probabilities(train_records, test_records, learning_rate=0.2, 
     return (1.0 / (1.0 + np.exp(-logits))).tolist()
 
 
+def _roc_auc(labels, scores):
+    positives = [score for label, score in zip(labels, scores) if label == 1]
+    negatives = [score for label, score in zip(labels, scores) if label == 0]
+    wins = sum(
+        1.0 if positive > negative else 0.5 if positive == negative else 0.0
+        for positive in positives
+        for negative in negatives
+    )
+    return wins / (len(positives) * len(negatives))
+
+
+def predict_clicks(train_data, test_data):
+    probabilities = predict_click_probabilities(train_data, test_data)
+    predictions = [int(probability >= 0.5) for probability in probabilities]
+
+    labels = [int(record["click"]) for record in train_data]
+    training_probabilities = predict_click_probabilities(train_data, train_data)
+    training_predictions = [int(probability >= 0.5) for probability in training_probabilities]
+    true_positives = sum(
+        prediction == label == 1
+        for prediction, label in zip(training_predictions, labels)
+    )
+    false_positives = sum(
+        prediction == 1 and label == 0
+        for prediction, label in zip(training_predictions, labels)
+    )
+    false_negatives = sum(
+        prediction == 0 and label == 1
+        for prediction, label in zip(training_predictions, labels)
+    )
+    precision = true_positives / (true_positives + false_positives)
+    recall = true_positives / (true_positives + false_negatives)
+
+    return {
+        "predictions": predictions,
+        "metrics": {
+            "accuracy": sum(
+                prediction == label
+                for prediction, label in zip(training_predictions, labels)
+            )
+            / len(labels),
+            "f1_score": 2 * precision * recall / (precision + recall),
+            "roc_auc": _roc_auc(labels, training_probabilities),
+        },
+    }
+
+
 def transform_words(start, target, words, part):
     if part not in {1, 2, 3}:
         raise ValueError("part must be 1, 2, or 3")
@@ -104,3 +151,7 @@ def transform_words(start, target, words, part):
             queue.append(candidate)
 
     return [] if part == 3 else False
+
+
+def solve(start, target, words, part):
+    return transform_words(start, target, words, part)

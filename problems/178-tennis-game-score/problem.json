@@ -1,17 +1,17 @@
 {
   "id": "178",
   "slug": "tennis-game-score",
-  "title": "Tennis Game Score",
+  "title": "Classic Tennis Question",
   "category": "Algorithms",
   "difficulty": "medium",
   "tags": ["simulation", "state-machine", "strings", "counting"],
   "companies": ["Reddit"],
-  "prompt": "Implement `tennis_game_score(points)` to display the score of one completed-or-in-progress tennis game. `points` is a chronological list whose elements are `'A'` or `'B'`, indicating the player that won each rally. The input contains no rallies after the game has legally finished.\n\nUse standard game scoring:\n\n- Below three points each, use `Love`, `15`, `30`, and `40`. A tied score in this range is `<label>-All`.\n- At three or more points each, a tie is `Deuce`. A one-point lead is `Advantage A` or `Advantage B`.\n- A player wins only after at least four points and a lead of at least two; return `Game A` or `Game B`.\n\nReturn the exact display string. Process the sequence in O(n) time and O(1) auxiliary space.",
-  "starter_code": "def tennis_game_score(points):\n    # Return the exact current tennis-game display.\n    pass\n",
+  "prompt": "Create a function that reports the current score of one tennis game after processing the points played. The points list records each rally winner in order: \"A\" denotes Player A and \"B\" denotes Player B.\n\ndef tennis_score(points)\n\nUse standard tennis scoring:\n\n- A player's first, second, and third points are Love, 15, 30, and 40.\n- When both players have the same number of points below 40, show both score names separated by a hyphen.\n- If each player has at least three points and their totals match, return Deuce.\n- From deuce onward, a player leading by one point has Advantage.\n- A player wins after at least four points and a lead of two or more; return Game A or Game B.\n\npoints contains only \"A\" and \"B\" and represents one game's points in chronological order. Target: O(n) time and O(1) space.",
+  "starter_code": "def tennis_score(points):\n    # TODO: implement\n    pass\n",
   "example": {
-    "input": "tennis_game_score(['B', 'A', 'B'])",
-    "output": "'15-30'",
-    "reasoning": "Player A has won one rally and player B has won two, so the displayed point labels are 15 and 30."
+    "input": "points = [\"B\", \"A\", \"B\"]",
+    "output": "\"15-30\"",
+    "reasoning": "Player A has one point and Player B has two points."
   },
   "environment": {
     "language": "python",

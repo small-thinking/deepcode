@@ -21,6 +21,10 @@ def tennis_game_score(points):
     return f"{labels[score_a]}-{labels[score_b]}"
 
 
+def tennis_score(points):
+    return tennis_game_score(points)
+
+
 def odd_even_list(head):
     if head is None or head.next is None:
         return head
@@ -35,6 +39,10 @@ def odd_even_list(head):
         even = even.next
     odd.next = even_head
     return head
+
+
+def oddEvenList(head):
+    return odd_even_list(head)
 
 
 def shortest_palindrome_prefix(s):
