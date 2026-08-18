@@ -1,0 +1,17 @@
+[
+  {
+    "name": "filters by neighborhood before choosing an exact fill",
+    "input": "an otherwise useful property outside the requested neighborhood",
+    "test": "properties = [\n    {'id': 'a', 'capacity': 6, 'neighborhood': 'north'},\n    {'id': 'b', 'capacity': 4, 'neighborhood': 'north'},\n    {'id': 'c', 'capacity': 10, 'neighborhood': 'south'},\n]\nassert best_capacity_subset(properties, 10, 'north') == [properties[0], properties[1]]"
+  },
+  {
+    "name": "ranks capacity before property count and count before index ties",
+    "input": "a lower-capacity pair, a higher-capacity singleton, and equal-capacity alternatives",
+    "test": "properties = [\n    {'id': 'six-a', 'capacity': 6},\n    {'id': 'four', 'capacity': 4},\n    {'id': 'eleven', 'capacity': 11},\n]\nassert best_capacity_subset(properties, 10) == [properties[0], properties[1]]\nproperties = [\n    {'id': 'five-a', 'capacity': 5},\n    {'id': 'five-b', 'capacity': 5},\n    {'id': 'ten', 'capacity': 10},\n]\nassert best_capacity_subset(properties, 10) == [properties[2]]\nproperties = [{'id': 'first', 'capacity': 6}, {'id': 'second', 'capacity': 6}]\nassert best_capacity_subset(properties, 6) == [properties[0]]"
+  },
+  {
+    "name": "returns an empty subset for zero or infeasible requirements",
+    "input": "a zero group size and a target beyond all eligible capacity",
+    "test": "properties = [{'capacity': 3}, {'capacity': 4, 'neighborhood': 'north'}]\nassert best_capacity_subset(properties, 0) == []\nassert best_capacity_subset(properties, 10, 'north') == []"
+  }
+]
