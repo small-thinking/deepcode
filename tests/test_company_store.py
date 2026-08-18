@@ -34,7 +34,7 @@ class CompanyStoreTest(unittest.TestCase):
 
         profiles = companies.list_companies(problems)
 
-        self.assertEqual(len(profiles), 21)
+        self.assertEqual(len(profiles), 22)
         self.assertEqual(
             {profile["name"] for profile in profiles},
             {
@@ -58,6 +58,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "Sierra",
                 "SpaceXAI / xAI-related roles",
                 "Thinking Machines Lab",
+                "Waymo",
                 "XDOF",
             },
         )
@@ -114,6 +115,13 @@ class CompanyStoreTest(unittest.TestCase):
                 "max-distinct-after-operations",
                 "gpu-node-group-testing",
             }.issubset({problem["slug"] for problem in xai["related_problems"]})
+        )
+
+        waymo = companies.get_company("Waymo", problems)
+        self.assertEqual(waymo["name"], "Waymo")
+        self.assertEqual(
+            {problem["slug"] for problem in waymo["related_problems"]},
+            {"sliding-window-rate-limiter"},
         )
 
     def test_lists_profiles_and_links_matching_problem_companies(self):
