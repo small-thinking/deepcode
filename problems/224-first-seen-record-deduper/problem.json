@@ -1,0 +1,26 @@
+{
+  "id": "224",
+  "slug": "first-seen-record-deduper",
+  "title": "First-Seen Record Deduper",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["hashing", "records", "deduplication", "data-cleaning"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `find_duplicate_indices(records) -> list[int]`. `records` is an ordered iterable of dictionaries. Process records from left to right. A record is a duplicate when any present `(field_name, value)` pair has already been claimed by an earlier non-duplicate record. Return the zero-based positions of duplicate records.\n\nClaims are scoped to a field name: the same value in two different fields is not a conflict. Before accepting a record, check all of its present fields. If it is a duplicate, do not claim any of its other values. Missing fields are ignored. Compare provided values exactly; callers are responsible for any email, phone, whitespace, or case normalization.\n\nSupport arbitrary field sets without special-casing field names. Aim for expected linear time in the total number of present fields.",
+  "starter_code": "def find_duplicate_indices(records):\n    # Return indexes of records that repeat a previously claimed same-field value.\n    pass\n",
+  "example": {
+    "input": "find_duplicate_indices([{'name': 'Lara', 'email': 'lara@example.test', 'phone': '555-014'}, {'name': 'Noah', 'email': 'noah@example.test', 'phone': '555-014'}, {'name': 'Mina', 'email': 'lara@example.test', 'phone': '555-778'}])",
+    "output": "[1, 2]",
+    "reasoning": "The second record repeats a claimed phone value and the third repeats a claimed email value."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

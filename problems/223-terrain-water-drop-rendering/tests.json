@@ -1,0 +1,17 @@
+[
+  {
+    "name": "simulates a multi-drop valley and renders without trailing spaces",
+    "input": "a symmetric terrain with four drops released near the left slope",
+    "test": "heights = [5, 4, 3, 1, 3, 4, 5]\nexpected = '+W    +\\n++W  ++\\n+++W+++\\n+++W+++\\n+++++++'\nassert pour_and_render(heights, 4, 1) == expected\nassert heights == [5, 4, 3, 1, 3, 4, 5]"
+  },
+  {
+    "name": "uses a left tie break and preserves leading blank cells",
+    "input": "equal-depth reachable basins on both sides of the source",
+    "test": "assert pour_and_render([1, 0, 2, 0, 1], 1, 2) == '  +\\n+W+ +'"
+  },
+  {
+    "name": "requires strict descent and handles an edge source",
+    "input": "equal-height columns after a descent and multiple drops from the first column",
+    "test": "assert pour_and_render([2, 1, 1], 1, 0) == '+W\\n+++'\nassert pour_and_render([2, 0, 2], 3, 0) == 'W\\n+W+\\n+W+'\nassert pour_and_render([], 0, 0) == ''"
+  }
+]

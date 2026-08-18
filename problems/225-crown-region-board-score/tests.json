@@ -1,0 +1,17 @@
+[
+  {
+    "name": "scores every connected region independently",
+    "input": "a small board with one multi-cell region and one single-cell region",
+    "test": "assert board_score([['F0', 'F1'], ['F0', 'W2']]) == 5"
+  },
+  {
+    "name": "does not join diagonal cells and keeps zero-crown terrain cells",
+    "input": "diagonal equal letters and two zero-crown singletons",
+    "test": "assert board_score([['A0', 'B9'], ['B9', 'A0']]) == 18"
+  },
+  {
+    "name": "handles a board with several regions and an empty board",
+    "input": "a five-by-five board plus both empty-grid representations",
+    "test": "grid = [['F2', 'F0', 'R1', 'R3', 'M0'], ['F1', 'P2', 'R1', 'M0', 'M0'], ['P0', 'P4', 'P1', 'F2', 'M1'], ['F3', 'F1', 'R0', 'R2', 'M1'], ['F0', 'F2', 'R0', 'R2', 'M0']]\nassert board_score(grid) == 106\nassert board_score([]) == 0\nassert board_score([[]]) == 0"
+  }
+]
