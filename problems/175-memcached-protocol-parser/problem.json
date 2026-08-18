@@ -1,0 +1,26 @@
+{
+  "id": "175",
+  "slug": "memcached-protocol-parser",
+  "title": "Byte-Framed Cache Protocol Parser",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["protocol", "bytes", "parsing", "key-value-store", "stateful"],
+  "companies": ["Reddit"],
+  "prompt": "Implement `process_protocol(data: bytes) -> bytes`, a single-connection in-memory cache protocol interpreter. The input may contain several commands back to back. Command headers are ASCII and end in `\\n`; values are arbitrary bytes. A key is a nonempty ASCII string matching `[A-Za-z0-9_-]+`. Malformed frames must raise `ValueError`.\n\nSupported requests:\n\n- `set KEY SIZE\\nPAYLOAD\\n` stores exactly `SIZE` bytes of payload and appends `STORED\\n` to the response. The byte after the payload must be the required terminating newline, even when the payload contains newlines or null bytes. A later set for the same key replaces its value.\n- `get KEY [KEY ...]\\n` appends one `VALUE KEY SIZE\\nPAYLOAD\\n` block for every requested key that exists, in request order. Repeated requested keys produce repeated blocks. Then append exactly one `END\\n` for that get request.\n\n`SIZE` is a non-negative base-10 integer. Parse with a byte cursor rather than splitting the whole stream by line, because payload bytes are not line-framed. Use only the standard library.",
+  "starter_code": "def process_protocol(data: bytes) -> bytes:\n    pass\n",
+  "example": {
+    "input": "process_protocol(b'set theme 4\\nblue\\nget theme missing\\n')",
+    "output": "b'STORED\\nVALUE theme 4\\nblue\\nEND\\n'",
+    "reasoning": "Only stored keys produce VALUE blocks, and each get ends with one END marker."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

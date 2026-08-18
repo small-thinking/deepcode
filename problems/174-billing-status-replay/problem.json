@@ -1,0 +1,26 @@
+{
+  "id": "174",
+  "slug": "billing-status-replay",
+  "title": "Reversible Billing Status Replay",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["event-replay", "undo-redo", "stateful", "object-modeling", "transactions"],
+  "companies": ["Reddit"],
+  "prompt": "Rebuild per-account balances from an unordered transaction log. Implement `BillingStatus(monetary_columns)` and `replay_billing_transactions(monetary_columns, transactions)`. The latter returns `{user_id: amounts_dict}`.\n\n`transactions` maps a unique transaction ID to a row with `user_id` and integer `timestamp`. Replay rows in ascending `(timestamp, transaction_id)` order. Every status starts every configured monetary column at `0`; a missing monetary column in a row leaves it unchanged.\n\nA normal row adds each supplied monetary value. A row with `overwrite=True` instead replaces only its supplied columns. A row with `undo_last=True` reverts that user's most recent effective normal row; `redo_last=True` reapplies that user's most recently undone row. Command rows ignore all monetary fields and never enter history. An undo or redo with no applicable history is a no-op. A new normal row clears that user's redo history, even when it changes no monetary column; empty normal rows themselves are not undoable.\n\nUndo and redo must work for both additive and overwrite rows. A user appearing only in a command or empty row must still appear in the returned mapping with all-zero balances. Treat control flags as mutually exclusive and use only the Python standard library.",
+  "starter_code": "class BillingStatus:\n    def __init__(self, monetary_columns):\n        pass\n\n    def apply_regular(self, row):\n        pass\n\n    def undo_last(self):\n        pass\n\n    def redo_last(self):\n        pass\n\n    def as_dict(self):\n        pass\n\n\ndef replay_billing_transactions(monetary_columns, transactions):\n    pass\n",
+  "example": {
+    "input": "replay_billing_transactions(('delivery', 'payment'), {'a': {'user_id': 'u1', 'timestamp': 2, 'delivery': 7}, 'b': {'user_id': 'u1', 'timestamp': 1, 'payment': 3}})",
+    "output": "{'u1': {'delivery': 7, 'payment': 3}}",
+    "reasoning": "The replay order is timestamp-first, but the two independent monetary updates both remain in the final account state."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

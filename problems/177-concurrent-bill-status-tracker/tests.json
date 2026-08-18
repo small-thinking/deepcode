@@ -1,0 +1,22 @@
+[
+  {
+    "name": "unpaid queries filter statuses and sort deterministic ties",
+    "input": "three bills with two equal due dates and one paid bill",
+    "test": "from datetime import date\ntracker = BillStatusTracker()\ntracker.add_bill('B-2', 700, date(2026, 5, 2))\ntracker.add_bill('B-1', 500, date(2026, 5, 2))\ntracker.add_bill('A-9', 300, date(2026, 4, 30))\ntracker.update_payment_status('B-2', PaymentStatus.PAID)\nassert tracker.get_unpaid_bills() == [\n    {'bill_id': 'A-9', 'amount_cents': 300, 'due_date': date(2026, 4, 30), 'status': PaymentStatus.UNPAID},\n    {'bill_id': 'B-1', 'amount_cents': 500, 'due_date': date(2026, 5, 2), 'status': PaymentStatus.UNPAID},\n]"
+  },
+  {
+    "name": "returned query rows are snapshots and status changes are reversible",
+    "input": "a bill is queried, paid, and then made unpaid again",
+    "test": "from datetime import date\ntracker = BillStatusTracker()\ntracker.add_bill('persist', 99, date(2026, 1, 1))\nsnapshot = tracker.get_unpaid_bills()\ntracker.update_payment_status('persist', PaymentStatus.PAID)\nassert snapshot[0]['status'] == PaymentStatus.UNPAID\nassert tracker.get_unpaid_bills() == []\ntracker.update_payment_status('persist', PaymentStatus.UNPAID)\nassert [row['bill_id'] for row in tracker.get_unpaid_bills()] == ['persist']"
+  },
+  {
+    "name": "concurrent inserts updates and reads remain safe",
+    "input": "eight workers synchronized at the start of their operations",
+    "test": "from datetime import date\nfrom threading import Barrier, Thread\ntracker = BillStatusTracker()\nbarrier = Barrier(8)\nfailures = []\ndef worker(index):\n    try:\n        barrier.wait()\n        bill_id = f'b{index}'\n        tracker.add_bill(bill_id, index, date(2026, 6, (index % 3) + 1))\n        if index % 2 == 0:\n            tracker.update_payment_status(bill_id, PaymentStatus.PAID)\n        else:\n            tracker.get_unpaid_bills()\n    except Exception as error:\n        failures.append(error)\nthreads = [Thread(target=worker, args=(index,)) for index in range(8)]\nfor thread in threads:\n    thread.start()\nfor thread in threads:\n    thread.join()\nassert failures == []\nrows = tracker.get_unpaid_bills()\nassert [row['bill_id'] for row in rows] == ['b3', 'b1', 'b7', 'b5']\nassert all(row['status'] == PaymentStatus.UNPAID for row in rows)"
+  },
+  {
+    "name": "invalid values duplicate IDs and unknown IDs have explicit failures",
+    "input": "invalid additions and an unknown update",
+    "test": "from datetime import date\ntracker = BillStatusTracker()\ntracker.add_bill('ok', 0, date(2026, 1, 1))\nfor call in (\n    lambda: tracker.add_bill('ok', 1, date(2026, 1, 2)),\n    lambda: tracker.add_bill('', 1, date(2026, 1, 2)),\n    lambda: tracker.add_bill('bad-amount', -1, date(2026, 1, 2)),\n    lambda: tracker.add_bill('bad-date', 1, '2026-01-02'),\n    lambda: tracker.update_payment_status('ok', 'paid'),\n):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    tracker.update_payment_status('missing', PaymentStatus.PAID)\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  }
+]
