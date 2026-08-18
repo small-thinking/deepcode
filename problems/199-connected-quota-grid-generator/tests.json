@@ -1,0 +1,17 @@
+[
+  {
+    "name": "constructs balanced connected regions across several shapes",
+    "input": "2 by 2, 2 by 4, 3 by 4, and 4 by 4 grids",
+    "test": "import random\nfrom collections import Counter, deque\n\ndef assert_valid(grid, rows, cols):\n    assert len(grid) == rows\n    assert all(len(row) == cols for row in grid)\n    flat = [value for row in grid for value in row]\n    assert set(flat) == {1, 2, 3, 4}\n    assert Counter(flat) == {label: rows * cols // 4 for label in range(1, 5)}\n    for label in range(1, 5):\n        cells = {(r, c) for r in range(rows) for c in range(cols) if grid[r][c] == label}\n        seen = {next(iter(cells))}\n        queue = deque(seen)\n        while queue:\n            r, c = queue.popleft()\n            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                neighbor = (r + dr, c + dc)\n                if neighbor in cells and neighbor not in seen:\n                    seen.add(neighbor)\n                    queue.append(neighbor)\n        assert seen == cells\n\nfor rows, cols in ((2, 2), (2, 4), (3, 4), (4, 4)):\n    assert_valid(generate_grid(rows, cols, random.Random(rows * 100 + cols)), rows, cols)"
+  },
+  {
+    "name": "uses the supplied random generator without weakening validity",
+    "input": "several deterministic random seeds for a 4 by 4 grid",
+    "test": "import random\nlayouts = []\nfor seed in range(8):\n    grid = generate_grid(4, 4, random.Random(seed))\n    layouts.append(tuple(tuple(row) for row in grid))\nassert len(set(layouts)) >= 2"
+  },
+  {
+    "name": "rejects invalid dimensions",
+    "input": "non-positive dimensions and area not divisible by four",
+    "test": "import random\nfor rows, cols in ((0, 4), (2, 3), (-1, 4)):\n    try:\n        generate_grid(rows, cols, random.Random(0))\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('invalid dimensions must raise ValueError')"
+  }
+]

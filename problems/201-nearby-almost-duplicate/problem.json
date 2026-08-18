@@ -1,0 +1,26 @@
+{
+  "id": "201",
+  "slug": "nearby-almost-duplicate",
+  "title": "Nearby Almost Duplicate",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["sliding-window", "hash-map", "buckets", "integers"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `contains_nearby_almost_duplicate(nums, index_gap, value_gap) -> bool`. Return `True` exactly when distinct indices `i` and `j` satisfy both `abs(i - j) <= index_gap` and `abs(nums[i] - nums[j]) <= value_gap`.\n\n`nums` contains integers and both gaps are nonnegative integers. An index gap of zero cannot admit two distinct positions. Handle negative values and a value gap of zero correctly.\n\nAim for expected O(n) time and O(min(n, index_gap)) space with a sliding window and buckets of width `value_gap + 1`. A bucket collision is sufficient, but neighboring buckets still need an explicit value-difference check. Expire the element that is just outside the allowed index window before checking the current value.",
+  "starter_code": "def contains_nearby_almost_duplicate(nums, index_gap, value_gap):\n    # Return whether a valid nearby, numerically close pair exists.\n    pass\n",
+  "example": {
+    "input": "contains_nearby_almost_duplicate([-6, -2, -4], 1, 2)",
+    "output": "True",
+    "reasoning": "The last two values are one index apart and differ by two."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

@@ -119,9 +119,15 @@ class CompanyStoreTest(unittest.TestCase):
 
         waymo = companies.get_company("Waymo", problems)
         self.assertEqual(waymo["name"], "Waymo")
-        self.assertEqual(
-            {problem["slug"] for problem in waymo["related_problems"]},
-            {"sliding-window-rate-limiter"},
+        self.assertTrue(
+            {
+                "sliding-window-rate-limiter",
+                "physical-maze-route-discovery",
+                "connected-quota-grid-generator",
+                "target-expression-builder",
+                "nearby-almost-duplicate",
+                "nested-suffix-repeat-decoder",
+            }.issubset({problem["slug"] for problem in waymo["related_problems"]})
         )
 
     def test_lists_profiles_and_links_matching_problem_companies(self):

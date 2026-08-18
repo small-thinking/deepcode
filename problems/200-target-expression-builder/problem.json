@@ -1,0 +1,26 @@
+{
+  "id": "200",
+  "slug": "target-expression-builder",
+  "title": "Target Expression Builder",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["backtracking", "recursion", "expression-tree", "search"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `build_expression(values, target) -> str | None`. `values` contains two to six nonnegative integers. Return an arithmetic expression that evaluates exactly to the integer `target`, or `None` if no expression exists.\n\nThe expression must use every supplied value exactly once, including duplicate values. It may contain only integer literals from `values`, binary `+`, `-`, and `*`, and parentheses. Input values may be reordered; intermediate values may be negative. Division, exponentiation, unary operators, concatenated digits, and additional literals are not allowed.\n\nThe evaluator parses the returned expression and checks the operator set, literal multiset, and exact result. Parenthesize combined subexpressions so their grouping is unambiguous. A pairwise-reduction backtracking search is appropriate for the generalized input size.",
+  "starter_code": "def build_expression(values, target):\n    # Return a valid expression using every input value once, or None.\n    pass\n",
+  "example": {
+    "input": "build_expression([5, 5, 1], 20)",
+    "output": "'(5 * (5 - 1))'",
+    "reasoning": "All three input values are used once and the expression evaluates to 20."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
