@@ -1,0 +1,26 @@
+{
+  "id": "234",
+  "slug": "maximum-profit-job-scheduling",
+  "title": "Maximum Profit Job Scheduling",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["dynamic-programming", "intervals", "binary-search", "scheduling"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `job_scheduling(start_times, end_times, profits) -> int`. The three equally sized arrays describe jobs: job `i` starts at `start_times[i]`, ends at `end_times[i]`, and earns `profits[i]`. Choose a subset with maximum total profit such that selected jobs do not overlap.\n\nA job ending at time `t` is compatible with another job starting at time `t`. Return `0` for no jobs. Use weighted interval scheduling: sort by end time, then use dynamic programming and binary search for the latest compatible earlier job.\n\nDo not assume time values are small or consecutive.",
+  "starter_code": "def job_scheduling(start_times, end_times, profits):\n    # Return the maximum profit from a compatible subset of jobs.\n    pass\n",
+  "example": {
+    "input": "job_scheduling([1, 2, 3, 3], [3, 4, 5, 6], [50, 10, 40, 70])",
+    "output": "120",
+    "reasoning": "Taking the jobs from 1 to 3 and from 3 to 6 yields the best compatible total."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

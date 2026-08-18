@@ -1,0 +1,26 @@
+{
+  "id": "233",
+  "slug": "weighted-dag-ski-score",
+  "title": "Weighted DAG Route Score",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graphs", "dag", "dynamic-programming", "topological-sort"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `max_net_score(travel, points) -> int`. `travel` is an iterable of `(from_node, cost, to_node)` triples, and `points` is an iterable of `(node, reward)` pairs. Costs and rewards may be integers or decimal integer strings. The graph is a DAG with a unique start node named `start` and at least one reachable terminal whose label begins with `END`.\n\nA route begins at `start` and ends at any terminal. Its score is the sum of rewards for nodes entered on the route minus the sum of its edge costs. The start node contributes no reward. A node omitted from `points` has reward zero, while a terminal's reward is included when it is entered. Return the largest route score.\n\nUse a topological dynamic program. Keep one best score per reached node and relax each edge with the destination reward exactly once; do not count intermediate rewards both when entering and when expanding a node.",
+  "starter_code": "def max_net_score(travel, points):\n    # Return the best reward-minus-cost score from start to any END-prefixed node.\n    pass\n",
+  "example": {
+    "input": "max_net_score([('start', '5', 'A'), ('A', '3', 'END1')], [('A', '10'), ('END1', '4')])",
+    "output": "6",
+    "reasoning": "Entering A and END1 earns 14 total points, while the two edges cost 8."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

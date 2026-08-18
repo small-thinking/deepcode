@@ -1,0 +1,17 @@
+[
+  {
+    "name": "returns a full order that respects branching prerequisites",
+    "input": "four tasks with one shared prerequisite",
+    "test": "dependencies = [(1, 0), (2, 1), (3, 0)]\norder = find_installation_order(4, dependencies)\nassert sorted(order) == [0, 1, 2, 3]\nposition = {task: index for index, task in enumerate(order)}\nassert all(position[prerequisite] < position[task] for task, prerequisite in dependencies)"
+  },
+  {
+    "name": "uses an empty list for cycles and supports independent tasks",
+    "input": "one cycle and one graph without any dependency pairs",
+    "test": "assert find_installation_order(3, [(0, 2), (1, 0), (2, 1)]) == []\nassert sorted(find_installation_order(4, [])) == [0, 1, 2, 3]"
+  },
+  {
+    "name": "validates a long prerequisite chain with a shared dependency",
+    "input": "two dependency samples containing a join point",
+    "test": "for n, dependencies in [(5, [(4, 0), (3, 4), (2, 3), (1, 2), (3, 0)]), (6, [(1, 0), (2, 1), (3, 0), (4, 2), (4, 3), (5, 4)])]:\n    order = find_installation_order(n, dependencies)\n    assert sorted(order) == list(range(n))\n    position = {task: index for index, task in enumerate(order)}\n    assert all(position[prerequisite] < position[task] for task, prerequisite in dependencies)"
+  }
+]
