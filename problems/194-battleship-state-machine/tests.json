@@ -1,0 +1,17 @@
+[
+  {
+    "name": "shots produce immutable hit sunk and completion transitions",
+    "input": "a two-cell ship and a one-cell ship",
+    "test": "state = create_game(4, {'patrol': [(0, 0), (0, 1)], 'scout': [(2, 2)]})\nfirst, result = fire(state, 0, 0)\nassert state.shots == frozenset()\nassert first.shots == frozenset({(0, 0)})\nassert first.fleet == state.fleet\nassert (result.outcome, result.ship_id, result.game_over) == ('hit', 'patrol', False)\nsecond, result = fire(first, 0, 1)\nassert (result.outcome, result.ship_id, result.game_over) == ('sunk', 'patrol', False)\nthird, result = fire(second, 2, 2)\nassert (result.outcome, result.ship_id, result.game_over) == ('sunk', 'scout', True)\nassert third.is_complete is True"
+  },
+  {
+    "name": "misses and repeated shots do not create mutable duplicate state",
+    "input": "a miss followed by the same coordinate",
+    "test": "state = create_game(2, {'solo': [(1, 1)]})\nmissed, result = fire(state, 0, 0)\nassert (result.outcome, result.ship_id, result.game_over) == ('miss', None, False)\nrepeated, result = fire(missed, 0, 0)\nassert repeated is missed\nassert (result.outcome, result.ship_id, result.game_over) == ('repeat', None, False)\nassert state.shots == frozenset()"
+  },
+  {
+    "name": "invalid placement and shot inputs are rejected",
+    "input": "overlapping bent or out-of-bounds fleets and invalid coordinates",
+    "test": "for call in (\n    lambda: create_game(0, {'solo': [(0, 0)]}),\n    lambda: create_game(3, {'bent': [(0, 0), (1, 1)]}),\n    lambda: create_game(3, {'a': [(0, 0)], 'b': [(0, 0)]}),\n    lambda: create_game(3, {'off-board': [(3, 0)]}),\n):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nstate = create_game(2, {'solo': [(1, 1)]})\nfor call in (lambda: fire(state, -1, 0), lambda: fire(state, 0, 2), lambda: fire(state, True, 0)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]
