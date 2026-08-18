@@ -1,0 +1,26 @@
+{
+  "id": "191",
+  "slug": "numpy-kmeans-clustering",
+  "title": "NumPy K-Means Clustering",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "clustering", "vectorization", "k-means"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `kmeans(X, k, n_iter, seed=None)` using NumPy only. `X` is a non-empty numeric array-like value with shape `(n_samples, n_features)`, and `1 <= k <= n_samples`. Return `(centroids, labels)`, where `centroids` has shape `(k, n_features)` and `labels` has shape `(n_samples,)`.\n\nInitialize centroids by sampling `k` distinct input rows with a local `np.random.default_rng(seed)` generator. Each iteration must assign every input point to its nearest current centroid by squared Euclidean distance, then recompute every non-empty centroid as the mean of its assigned points. An empty cluster keeps its previous centroid. Stop after `n_iter` iterations or earlier when the labels do not change or the centroid Frobenius-norm drift is below `1e-6`.\n\nVectorize the assignment and grouped centroid update: do not loop over individual samples or cluster IDs. Break ties through NumPy's normal `argmin` behavior, which selects the lower centroid index. Before returning, assign labels once more against the returned centroids so the two outputs describe the same final model. Do not mutate the caller's input.",
+  "starter_code": "import numpy as np\n\n\ndef kmeans(X, k, n_iter, seed=None):\n    # Return final centroids and the nearest-centroid label for each input row.\n    pass\n",
+  "example": {
+    "input": "kmeans([[1.0, 1.0], [2.0, 2.0], [8.0, 8.0], [9.0, 9.0]], k=2, n_iter=20, seed=42)",
+    "output": "two centroids near [1.5, 1.5] and [8.5, 8.5], with one label per row",
+    "reasoning": "Each iteration alternates nearest-centroid assignment with a vectorized grouped mean update."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

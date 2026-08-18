@@ -1,0 +1,17 @@
+[
+  {
+    "name": "uses a deterministic local seed without changing NumPy global state",
+    "input": "two runs over a separable two-cluster dataset",
+    "test": "import numpy as np\nX = np.array([[1.0, 1.0], [2.0, 2.0], [8.0, 8.0], [9.0, 9.0]])\nnp.random.seed(12345)\nexpected_next = np.random.random()\nnp.random.seed(12345)\nfirst_centroids, first_labels = kmeans(X, 2, 20, seed=7)\nactual_next = np.random.random()\nsecond_centroids, second_labels = kmeans(X, 2, 20, seed=7)\nassert np.isclose(actual_next, expected_next)\nassert np.array_equal(first_centroids, second_centroids)\nassert np.array_equal(first_labels, second_labels)\nassert first_centroids.shape == (2, 2)\nassert first_labels.shape == (4,)"
+  },
+  {
+    "name": "keeps empty centroids finite and labels consistent with returned centroids",
+    "input": "duplicate input rows with more centroids than occupied groups",
+    "test": "import numpy as np\nX = np.array([[3.0, -1.0], [3.0, -1.0], [3.0, -1.0]])\ncentroids, labels = kmeans(X, 3, 5, seed=2)\nassert centroids.shape == (3, 2)\nassert labels.shape == (3,)\nassert np.isfinite(centroids).all()\nassert np.array_equal(labels, np.argmin(((X[:, None, :] - centroids[None, :, :]) ** 2).sum(axis=2), axis=1))"
+  },
+  {
+    "name": "returns labels for the final centroids after one update",
+    "input": "a one-dimensional dataset with a single update",
+    "test": "import numpy as np\nX = np.array([[0.0], [0.1], [9.9], [10.0]])\ncentroids, labels = kmeans(X, 2, 1, seed=1)\nexpected = np.argmin(((X[:, None, :] - centroids[None, :, :]) ** 2).sum(axis=2), axis=1)\nassert np.array_equal(labels, expected)\nassert set(labels.tolist()) == {0, 1}\nassert np.allclose(np.sort(centroids[:, 0]), [0.05, 9.95])"
+  }
+]
