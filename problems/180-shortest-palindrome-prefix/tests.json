@@ -1,0 +1,18 @@
+[
+  {
+    "name": "builds the shortest front-only palindrome for ordinary cases",
+    "input": "empty, already-palindromic, and non-palindromic strings",
+    "test": "assert shortest_palindrome_prefix('') == ''\nassert shortest_palindrome_prefix('racecar') == 'racecar'\nassert shortest_palindrome_prefix('aab') == 'baab'\nassert shortest_palindrome_prefix('wxyz') == 'zyxwxyz'\nassert shortest_palindrome_prefix('aacecaaa') == 'aaacecaaa'"
+  },
+  {
+    "name": "uses a sentinel that cannot collide with input characters",
+    "input": "an already-palindromic string containing a conventional KMP separator",
+    "test": "assert shortest_palindrome_prefix('a#a') == 'a#a'\nassert shortest_palindrome_prefix('#ab') == 'ba#ab'"
+  },
+  {
+    "name": "handles a long string whose longest palindromic prefix is one character",
+    "input": "one a followed by many b characters",
+    "timeout_seconds": 1,
+    "test": "suffix = 'b' * 20000\ns = 'a' + suffix\nassert shortest_palindrome_prefix(s) == suffix + s"
+  }
+]
