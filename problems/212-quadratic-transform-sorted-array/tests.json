@@ -1,0 +1,17 @@
+[
+  {
+    "name": "fills upward quadratic output from the largest endpoints",
+    "input": "an upward quadratic over symmetric sorted inputs",
+    "test": "nums = [-4, -2, 2, 4]\nassert sort_transformed(nums, 1, 3, 5) == [3, 9, 15, 33]\nassert nums == [-4, -2, 2, 4]"
+  },
+  {
+    "name": "fills downward quadratic output from the smallest endpoints",
+    "input": "a downward quadratic over the same sorted inputs",
+    "test": "assert sort_transformed([-4, -2, 2, 4], -1, 3, 5) == [-23, -5, 1, 7]"
+  },
+  {
+    "name": "supports linear transforms and duplicates",
+    "input": "a decreasing linear transform and repeated inputs",
+    "test": "assert sort_transformed([-3, -1, 0, 2], 0, -2, 1) == [-3, 1, 3, 7]\nassert sort_transformed([0, 0, 1], 1, 0, 0) == [0, 0, 1]"
+  }
+]

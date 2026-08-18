@@ -1,0 +1,17 @@
+[
+  {
+    "name": "preserves target order duplicates and source distance",
+    "input": "a directed graph with a stale tentative route to one target",
+    "test": "edges = [('s', 'a', 10), ('s', 'b', 1), ('b', 'a', 1), ('a', 'goal', 1)]\nassert shortest_paths('s', ['a', 'missing', 'a', 's', 'goal'], edges) == [2, None, 2, 0, 3]"
+  },
+  {
+    "name": "handles a target finalized only after an improved heap entry",
+    "input": "a graph where the first discovered target path is not shortest",
+    "test": "edges = [('start', 'target', 50), ('start', 'left', 4), ('left', 'right', 4), ('right', 'target', 4)]\nassert shortest_paths('start', ['target', 'right'], iter(edges)) == [12, 8]"
+  },
+  {
+    "name": "keeps directionality and unreachable targets explicit",
+    "input": "one reverse-only edge and an isolated requested node",
+    "test": "assert shortest_paths('a', ['b', 'a', 'c'], [('b', 'a', 1)]) == [None, 0, None]"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "id": "209",
+  "slug": "directed-forest-validator",
+  "title": "Directed Forest Validator",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graphs", "trees", "cycle-detection", "topological-sort"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `is_valid_forest(edges) -> bool`. `edges` is an iterable of directed `(parent, child)` pairs whose node IDs are hashable. It describes a directed forest when every child has at most one parent, the graph has no directed cycle, and no exact edge appears twice. Multiple independent trees and multiple roots are allowed.\n\nReturn `True` for an empty edge collection. Return `False` for a self-loop, a duplicate exact edge, any node with indegree greater than one, or a cycle of any length. An iterative indegree-elimination pass is one suitable way to detect a cycle after enforcing the parent rule. Do not mutate the input.",
+  "starter_code": "def is_valid_forest(edges):\n    # Return whether the directed edges form one or more rooted trees.\n    pass\n",
+  "example": {
+    "input": "is_valid_forest([('root', 'left'), ('root', 'right'), ('other', 'leaf')])",
+    "output": "True",
+    "reasoning": "The graph has two roots and no shared child or cycle, so it is a forest rather than one required connected tree."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

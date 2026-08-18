@@ -1,0 +1,17 @@
+[
+  {
+    "name": "handles zero and exact all-acceleration targets",
+    "input": "0, 1, 3, 7, and 15",
+    "test": "assert [racecar(target) for target in [0, 1, 3, 7, 15]] == [0, 1, 2, 3, 4]"
+  },
+  {
+    "name": "finds minimum command counts around overshoot and undershoot choices",
+    "input": "small targets that require reversals",
+    "test": "assert [racecar(target) for target in [2, 4, 5, 6, 8, 10]] == [4, 5, 7, 5, 6, 7]"
+  },
+  {
+    "name": "remains correct through ten thousand",
+    "input": "target 10000",
+    "test": "answer = racecar(10_000)\nassert isinstance(answer, int)\nassert answer == 45"
+  }
+]
