@@ -76,6 +76,7 @@ const state = {
   layout: {
     problemRatio: 0.46,
     resultsRatio: 0.32,
+    resultsCollapsed: false,
   },
 };
 
@@ -406,6 +407,11 @@ function handlePaneResizeKeydown(event) {
   if (!handled) return;
   event.preventDefault();
   applyPaneSizes();
+}
+
+function toggleResultsPanel() {
+  state.layout.resultsCollapsed = !state.layout.resultsCollapsed;
+  render();
 }
 
 function paramsFromFilters() {
@@ -2175,10 +2181,18 @@ function renderDetail() {
           tabindex="0"
         ></div>
 
-        ${systemDesign ? renderSystemDesignWorkspace(problem) : `<section class="editor-panel">
+        ${systemDesign ? renderSystemDesignWorkspace(problem) : `<section class="editor-panel ${
+          state.layout.resultsCollapsed ? "results-collapsed" : ""
+        }">
           <div class="panel-header">
             <div class="editor-actions">
               <button class="ghost-button" id="reset-code">Reset</button>
+              <button
+                class="ghost-button"
+                id="toggle-results"
+                aria-controls="run-results"
+                aria-expanded="${!state.layout.resultsCollapsed}"
+              >${state.layout.resultsCollapsed ? "Show results" : "Hide results"}</button>
             </div>
             <button class="primary-button" id="run-tests" ${runButtonState} aria-busy="${state.running}">
               ${runButtonContent}
@@ -2198,7 +2212,7 @@ function renderDetail() {
             aria-label="Resize editor and results panes"
             tabindex="0"
           ></div>
-          <div class="results">${renderResults()}</div>
+          <div class="results" id="run-results" ${state.layout.resultsCollapsed ? "hidden" : ""}>${renderResults()}</div>
         </section>`}
       </section>
     </main>
@@ -2835,6 +2849,7 @@ function bindEvents() {
   document.querySelector("#problem-timer-toggle")?.addEventListener("click", toggleProblemTimer);
   document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
+  document.querySelector("#toggle-results")?.addEventListener("click", toggleResultsPanel);
   document.querySelectorAll("[data-run-test-index]").forEach((button) => {
     button.addEventListener("click", () => runTests(Number(button.dataset.runTestIndex)));
   });
