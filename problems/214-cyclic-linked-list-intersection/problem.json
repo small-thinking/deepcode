@@ -1,0 +1,26 @@
+{
+  "id": "214",
+  "slug": "cyclic-linked-list-intersection",
+  "title": "Cyclic Linked-List Intersection",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["linked-list", "cycle-detection", "graph-identity", "two-pointers"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `intersect(head_a, head_b) -> bool` for singly linked node graphs. A node exposes a `next` attribute that is either another node or `None`; either reachable chain may contain a cycle. Return `True` exactly when a node object is reachable from both heads. Compare physical node identity, not the values stored in nodes.\n\nThe inputs may be empty, share an acyclic suffix, share the same cycle through different entry nodes, or contain separate cycles. If exactly one reachable chain is cyclic, the inputs cannot intersect. Your traversal must always terminate, including for a self-loop.\n\nAim for O(n + m) time over distinct reachable nodes. A visited-identity implementation may use O(n + m) auxiliary space; a Floyd-cycle structural-case solution can reduce auxiliary space.",
+  "starter_code": "def intersect(head_a, head_b):\n    # Return whether the two reachable node graphs share a physical node.\n    pass\n",
+  "example": {
+    "input": "two prefixes that enter different positions of one shared cycle",
+    "output": "True",
+    "reasoning": "The entry nodes differ, but walking either loop reaches nodes owned by both inputs."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

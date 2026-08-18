@@ -1,0 +1,17 @@
+[
+  {
+    "name": "parses ordinary, bare, empty, and repeated parameters",
+    "input": "a query containing ordinary values, a bare key, an empty value, and repeated values",
+    "test": "assert parse_query('?x=y&debug&empty=&id=4&id=7&id=9') == {'x': 'y', 'debug': True, 'empty': '', 'id': ['4', '7', '9']}"
+  },
+  {
+    "name": "splits raw separators before decoding and ignores fragments",
+    "input": "encoded separators followed by a fragment",
+    "test": "assert parse_query('https://example.test/search?note=alpha%26beta&next=x%3Dy#top') == {'note': 'alpha&beta', 'next': 'x=y'}\nassert parse_query('?a+b=c+d') == {'a+b': 'c+d'}"
+  },
+  {
+    "name": "skips empty segments and leaves a missing query empty",
+    "input": "consecutive and trailing separators, then a URL without a query marker",
+    "test": "assert parse_query('?&&first=1&&flag&') == {'first': '1', 'flag': True}\nassert parse_query('https://example.test/path#only-fragment') == {}"
+  }
+]
