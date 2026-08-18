@@ -1,0 +1,17 @@
+[
+  {
+    "name": "replay order is deterministic and command-only users are retained",
+    "input": "unordered rows with equal timestamps and a user that only issues a command",
+    "test": "result = replay_billing_transactions(('balance', 'credit'), {\n    'z-later': {'user_id': 'ada', 'timestamp': 3, 'balance': 4},\n    'b-tie': {'user_id': 'ada', 'timestamp': 1, 'balance': 2},\n    'a-tie': {'user_id': 'ada', 'timestamp': 1, 'balance': 5, 'overwrite': True},\n    'only-command': {'user_id': 'lin', 'timestamp': 2, 'undo_last': True},\n})\nassert result == {'ada': {'balance': 11, 'credit': 0}, 'lin': {'balance': 0, 'credit': 0}}"
+  },
+  {
+    "name": "partial overwrites and undo redo use saved snapshots",
+    "input": "additive and overwrite rows followed by undo redo commands",
+    "test": "result = replay_billing_transactions(('balance', 'credit'), {\n    'one': {'user_id': 'u', 'timestamp': 1, 'balance': 10, 'credit': 2},\n    'two': {'user_id': 'u', 'timestamp': 2, 'balance': 5, 'overwrite': True},\n    'three': {'user_id': 'u', 'timestamp': 3, 'undo_last': True, 'credit': 999},\n    'four': {'user_id': 'u', 'timestamp': 4, 'redo_last': True},\n    'five': {'user_id': 'u', 'timestamp': 5, 'undo_last': True},\n    'six': {'user_id': 'u', 'timestamp': 6, 'credit': 7},\n    'seven': {'user_id': 'u', 'timestamp': 7, 'redo_last': True},\n})\nassert result == {'u': {'balance': 10, 'credit': 9}}"
+  },
+  {
+    "name": "history is isolated per user and empty normal rows invalidate redo",
+    "input": "two users with independent histories and an empty normal row",
+    "test": "result = replay_billing_transactions(('x',), {\n    'a1': {'user_id': 'a', 'timestamp': 1, 'x': 4},\n    'b1': {'user_id': 'b', 'timestamp': 1, 'x': 9},\n    'a2': {'user_id': 'a', 'timestamp': 2, 'undo_last': True},\n    'a3': {'user_id': 'a', 'timestamp': 3},\n    'a4': {'user_id': 'a', 'timestamp': 4, 'redo_last': True},\n    'b2': {'user_id': 'b', 'timestamp': 2, 'undo_last': True},\n    'b3': {'user_id': 'b', 'timestamp': 3, 'redo_last': True},\n})\nassert result == {'a': {'x': 0}, 'b': {'x': 9}}"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "ordinary games derive deuce advantage and completion from raw points",
+    "input": "a deuce game whose lead changes twice",
+    "test": "game = Game(('A', 'B'))\nfor winner in 'ABABAB':\n    game.record_point(winner)\nassert game.displayed_score() == 'deuce'\ngame.record_point('A')\nassert game.displayed_score() == 'advantage A'\ngame.record_point('B')\nassert game.displayed_score() == 'deuce'\ngame.record_point('B')\nassert game.displayed_score() == 'advantage B'\ngame.record_point('B')\nassert game.complete and game.winner == 'B'\ntry:\n    game.record_point('B')\n    raise AssertionError('expected RuntimeError')\nexcept RuntimeError:\n    pass"
+  },
+  {
+    "name": "sets switch to a tiebreak exactly at six all",
+    "input": "six ordinary games for each player followed by a 7-5 tiebreak",
+    "test": "tennis_set = TennisSet(('A', 'B'))\ndef win_game(player):\n    for _ in range(4):\n        tennis_set.record_point(player)\nfor _ in range(6):\n    win_game('A')\n    win_game('B')\nassert isinstance(tennis_set.current_game, TiebreakGame)\nfor _ in range(5):\n    tennis_set.record_point('A')\n    tennis_set.record_point('B')\ntennis_set.record_point('A')\ntennis_set.record_point('A')\nassert tennis_set.complete and tennis_set.winner == 'A'\nassert tennis_set.games_won == {'A': 7, 'B': 6}"
+  },
+  {
+    "name": "extended tiebreaks require a two-point lead",
+    "input": "a tiebreak tied at six all",
+    "test": "tiebreak = TiebreakGame(('A', 'B'))\nfor _ in range(6):\n    tiebreak.record_point('A')\n    tiebreak.record_point('B')\nassert not tiebreak.complete and tiebreak.displayed_score() == '6-6'\ntiebreak.record_point('A')\ntiebreak.record_point('A')\nassert tiebreak.complete and tiebreak.winner == 'A'\nassert tiebreak.displayed_score() == '8-6'"
+  },
+  {
+    "name": "a best-of-three match closes after two completed sets",
+    "input": "player A wins two 6-0 sets",
+    "test": "match = Match(('A', 'B'), best_of=3)\nfor _ in range(2):\n    for _ in range(6):\n        for _ in range(4):\n            match.record_point('A')\nassert match.complete and match.winner == 'A'\nassert match.sets_won == {'A': 2, 'B': 0}\nassert match.state()['complete'] is True\nfor call in (lambda: match.record_point('A'), lambda: Match(('A', 'A')), lambda: Match(('A', 'B'), best_of=2)):\n    try:\n        call()\n        raise AssertionError('expected an error')\n    except (RuntimeError, ValueError):\n        pass"
+  }
+]

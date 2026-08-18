@@ -1,0 +1,26 @@
+{
+  "id": "177",
+  "slug": "concurrent-bill-status-tracker",
+  "title": "Concurrent Bill Status Tracker",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["concurrency", "snapshots", "thread-safety", "sorting", "object-modeling"],
+  "companies": ["Reddit"],
+  "prompt": "Build an in-memory, thread-safe bill tracker. Define `PaymentStatus` with `UNPAID` and `PAID`, then implement `BillStatusTracker`.\n\n- `add_bill(bill_id, amount_cents, due_date)` inserts a new bill in the unpaid state. Bill IDs are public caller-provided nonempty strings and must be unique. Amounts are non-negative integers and `due_date` is a `datetime.date`.\n- `update_payment_status(bill_id, status)` changes an existing bill between the two enum values.\n- `get_unpaid_bills()` returns a new list of new dictionaries, each containing `bill_id`, `amount_cents`, `due_date`, and `status`. Sort results by ascending due date and then lexicographic bill ID.\n\nAll public operations may be called concurrently. A query must describe one atomic snapshot: it may reflect either side of a racing update, but never a partial mutation, and mutating future tracker state must not change dictionaries already returned. Raise `ValueError` for invalid input or duplicate IDs, and `KeyError` for an update to an unknown ID. Use only the Python standard library.",
+  "starter_code": "from enum import Enum\n\n\nclass PaymentStatus(Enum):\n    UNPAID = 'unpaid'\n    PAID = 'paid'\n\n\nclass BillStatusTracker:\n    def __init__(self):\n        pass\n\n    def add_bill(self, bill_id, amount_cents, due_date):\n        pass\n\n    def update_payment_status(self, bill_id, status):\n        pass\n\n    def get_unpaid_bills(self):\n        pass\n",
+  "example": {
+    "input": "tracker.add_bill('B-2', 700, date(2026, 5, 2)); tracker.add_bill('B-1', 500, date(2026, 5, 2)); tracker.get_unpaid_bills()",
+    "output": "[{'bill_id': 'B-1', ...}, {'bill_id': 'B-2', ...}]",
+    "reasoning": "Equal due dates use bill ID as a stable secondary ordering key."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

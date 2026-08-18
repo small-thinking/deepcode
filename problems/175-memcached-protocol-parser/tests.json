@@ -1,0 +1,22 @@
+[
+  {
+    "name": "set preserves arbitrary payload bytes and exact sizes",
+    "input": "a value containing a newline and a null byte",
+    "test": "payload = b'a\\n\\x00b'\nrequest = b'set blob 4\\n' + payload + b'\\nget blob\\n'\nassert process_protocol(request) == b'STORED\\nVALUE blob 4\\n' + payload + b'\\nEND\\n'"
+  },
+  {
+    "name": "multi-get follows request order and returns one ending marker",
+    "input": "two keys, an absent key, and one repeated key",
+    "test": "request = (b'set first 1\\nA\\n'\n           b'set second 2\\nBC\\n'\n           b'get second missing first second\\n')\nexpected = (b'STORED\\nSTORED\\n'\n            b'VALUE second 2\\nBC\\n'\n            b'VALUE first 1\\nA\\n'\n            b'VALUE second 2\\nBC\\nEND\\n')\nassert process_protocol(request) == expected"
+  },
+  {
+    "name": "later sets overwrite and absent gets are valid",
+    "input": "the same key is assigned twice before an absent lookup",
+    "test": "request = b'set k 3\\nold\\nset k 1\\nN\\nget k\\nget ghost\\n'\nassert process_protocol(request) == b'STORED\\nSTORED\\nVALUE k 1\\nN\\nEND\\nEND\\n'"
+  },
+  {
+    "name": "malformed headers and incomplete payload frames raise ValueError",
+    "input": "an invalid key and a payload without its trailing newline",
+    "test": "for request in (b'set bad/key 1\\nx\\n', b'set key 3\\nxy', b'get\\n', b'unknown key\\n'):\n    try:\n        process_protocol(request)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

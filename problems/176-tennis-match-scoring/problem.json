@@ -1,0 +1,26 @@
+{
+  "id": "176",
+  "slug": "tennis-match-scoring",
+  "title": "Tennis Match Scoring Engine",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["state-machine", "object-modeling", "simulation", "game-engine", "rules"],
+  "companies": ["Reddit"],
+  "prompt": "Implement a two-player tennis scoring model with `Game`, `TiebreakGame`, `TennisSet`, and `Match`. Store raw point counts and derive displayed scores; do not make display labels mutable state.\n\n`Game.record_point(player)` records a point for one of the configured players. An ordinary game finishes only when a player has at least four points and leads by two. `displayed_score()` returns ordinary scores using `0`, `15`, `30`, and `40`; at three or more points each it returns `deuce`, or `advantage <player>` when one player leads by one.\n\n`TiebreakGame` uses raw numeric display and finishes at seven or more points with a two-point lead. `TennisSet` owns completed games and a current game. A set finishes at at least six games with a two-game lead, except that exactly 6-6 starts a `TiebreakGame`; the tiebreak winner finishes the set at 7-6. `Match(players=('A', 'B'), best_of=3)` owns sets, records points through its current set, and finishes as soon as a player has `best_of // 2 + 1` sets. Accept positive odd best-of values; best-of-three and best-of-five must work.\n\nExpose `complete`, `winner`, and `state()` on each layer as useful. Reject an unknown player with `ValueError`; recording a point after its game, set, or match has completed raises `RuntimeError`. Use only the standard library.",
+  "starter_code": "class Game:\n    def __init__(self, players=('A', 'B')):\n        pass\n\n    def record_point(self, player):\n        pass\n\n    def displayed_score(self):\n        pass\n\n\nclass TiebreakGame(Game):\n    pass\n\n\nclass TennisSet:\n    def __init__(self, players=('A', 'B')):\n        pass\n\n    def record_point(self, player):\n        pass\n\n    def state(self):\n        pass\n\n\nclass Match:\n    def __init__(self, players=('A', 'B'), best_of=3):\n        pass\n\n    def record_point(self, player):\n        pass\n\n    def state(self):\n        pass\n",
+  "example": {
+    "input": "game = Game(); [game.record_point(player) for player in 'AAABBB']; game.displayed_score()",
+    "output": "'deuce'",
+    "reasoning": "Both players have reached three raw points, so the ordinary 40-40 display is deuce."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
