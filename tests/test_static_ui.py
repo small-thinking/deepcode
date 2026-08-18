@@ -169,6 +169,18 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("--problem-pane-width", styles_css)
         self.assertIn("--results-pane-height", styles_css)
 
+    def test_problem_workspace_can_fully_collapse_run_results(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("resultsCollapsed", app_js)
+        self.assertIn('id="toggle-results"', app_js)
+        self.assertIn('aria-controls="run-results"', app_js)
+        self.assertIn('id="run-results"', app_js)
+        self.assertIn("toggleResultsPanel", app_js)
+        self.assertIn(".editor-panel.results-collapsed", styles_css)
+        self.assertIn(".editor-panel.results-collapsed .code-results-resizer", styles_css)
+
     def test_run_results_render_cases_as_tabs(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

@@ -951,6 +951,14 @@ pre {
   min-height: 0;
 }
 
+.editor-panel.results-collapsed {
+  grid-template-rows: auto minmax(220px, 1fr);
+}
+
+.editor-panel.results-collapsed .code-results-resizer {
+  display: none;
+}
+
 .system-design-panel {
   display: flex;
   flex-direction: column;
