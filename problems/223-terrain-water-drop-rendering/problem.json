@@ -1,0 +1,26 @@
+{
+  "id": "223",
+  "slug": "terrain-water-drop-rendering",
+  "title": "Terrain Water-Drop Rendering",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["simulation", "arrays", "rendering", "greedy"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `pour_and_render(heights, units, source) -> str`. `heights[i]` is the nonnegative ground height of a terrain column. Release `units` water drops above column `source`, processing one drop at a time without mutating `heights`.\n\nA column's resting height is `heights[i] + deposited_water[i]`. For each drop, scan outward from `source` on both sides through columns whose resting height is strictly below the source resting height. Choose the side with the smaller reachable minimum resting height; if both minima tie, choose left. Walk from the source along that side while the next column is strictly lower than the current column, then deposit the drop at the final column. If neither side has a strictly lower reachable column, deposit at `source`.\n\nRender the final terrain from its highest occupied row down to row 1. Use `+` for original ground, `W` only above original ground, and spaces for empty cells. Strip trailing spaces from every row and do not include a final newline. Return an empty string for an empty terrain.",
+  "starter_code": "def pour_and_render(heights, units, source):\n    # Simulate each drop, then return the trimmed top-to-bottom terrain drawing.\n    pass\n",
+  "example": {
+    "input": "pour_and_render([2, 0, 2], 3, 0)",
+    "output": "W\\n+W+\\n+W+",
+    "reasoning": "The first two drops settle in the middle basin; the third can no longer descend and rests at the source."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

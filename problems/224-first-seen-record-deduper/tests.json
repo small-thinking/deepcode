@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds conflicts from earlier accepted records",
+    "input": "records with one repeated phone and one repeated email",
+    "test": "records = [{'name': 'Lara', 'email': 'lara@example.test', 'phone': '555-014'}, {'name': 'Noah', 'email': 'noah@example.test', 'phone': '555-014'}, {'name': 'Mina', 'email': 'lara@example.test', 'phone': '555-778'}]\nassert find_duplicate_indices(records) == [1, 2]"
+  },
+  {
+    "name": "does not let a rejected record claim another value",
+    "input": "a duplicate record containing a new phone value",
+    "test": "records = [{'email': 'first@example.test', 'phone': '111'}, {'email': 'first@example.test', 'phone': '222'}, {'email': 'later@example.test', 'phone': '222'}]\nassert find_duplicate_indices(records) == [1]"
+  },
+  {
+    "name": "keeps field scopes and raw value comparison distinct",
+    "input": "matching text in different fields, absent fields, and case or whitespace variants",
+    "test": "records = [{'email': 'Name@example.test', 'phone': '555 01'}, {'phone': 'Name@example.test'}, {}, {'email': 'name@example.test', 'phone': '55501'}]\nassert find_duplicate_indices(records) == []"
+  }
+]

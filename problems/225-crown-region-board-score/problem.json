@@ -1,0 +1,26 @@
+{
+  "id": "225",
+  "slug": "crown-region-board-score",
+  "title": "Crown Region Board Score",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graphs", "grid", "flood-fill", "connected-components"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `board_score(grid) -> int`. `grid` is a rectangular two-dimensional grid whose cells contain one terrain letter followed by one crown digit, such as `F2` or `R0`. A region is a maximal 4-connected component of cells with the same terrain letter.\n\nFor every region, compute `number_of_cells * sum_of_crowns_in_that_region`, then return the sum across all regions. Diagonal cells are not connected. A zero-crown cell still belongs to and enlarges its region. Return `0` for an empty grid.\n\nUse BFS or DFS with visited state so every cell is processed once.",
+  "starter_code": "def board_score(grid):\n    # Sum size times crowns for every 4-connected terrain region.\n    pass\n",
+  "example": {
+    "input": "board_score([['F0', 'F1'], ['F0', 'W2']])",
+    "output": "5",
+    "reasoning": "The three-cell F region has one crown and scores 3; the one-cell W region scores 2."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
