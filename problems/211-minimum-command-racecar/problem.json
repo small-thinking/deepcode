@@ -1,0 +1,26 @@
+{
+  "id": "211",
+  "slug": "minimum-command-racecar",
+  "title": "Minimum Commands for Racecar",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["dynamic-programming", "state-space-search", "shortest-path", "bit-manipulation"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `racecar(target: int) -> int`. The car starts at position `0` with speed `+1`. Command `A` first moves by the current speed and then doubles that speed. Command `R` leaves position unchanged and replaces a positive speed with `-1`, or a negative speed with `+1`. Return the fewest commands needed to reach the nonnegative integer `target` exactly. Return `0` for target `0`.\n\nTargets of the form `2^k - 1` are reached by `k` consecutive accelerations. For other targets, a dynamic-programming solution can compare overshooting once and reversing with stopping short, reversing, backing up for a chosen number of accelerations, and reversing again. Support targets through at least `10_000`.\n\nA standard bottom-up dynamic program examines a logarithmic number of undershoot choices for each value through `target`, so describe it honestly as `O(target log target)` time and `O(target)` space rather than promising a stronger bound it does not meet.",
+  "starter_code": "def racecar(target):\n    # Return the minimum number of A/R commands needed to reach target.\n    pass\n",
+  "example": {
+    "input": "racecar(6)",
+    "output": "5",
+    "reasoning": "One optimal command sequence reaches position 6 in five commands; it is not necessary to enumerate every reachable position when using the dynamic-programming recurrence."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

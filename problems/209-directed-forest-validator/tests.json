@@ -1,0 +1,17 @@
+[
+  {
+    "name": "accepts an empty graph and multiple independent rooted trees",
+    "input": "empty edges and a two-root forest",
+    "test": "assert is_valid_forest([]) is True\nassert is_valid_forest([('root-a', 'left'), ('root-a', 'right'), ('root-b', 'leaf')]) is True"
+  },
+  {
+    "name": "rejects duplicate exact edges and shared children",
+    "input": "one duplicated parent-child edge and one node with two parents",
+    "test": "assert is_valid_forest([('a', 'b'), ('a', 'b')]) is False\nassert is_valid_forest([('a', 'child'), ('other', 'child')]) is False"
+  },
+  {
+    "name": "rejects self loops and longer directed cycles",
+    "input": "a self loop and a three-node cycle with a tail",
+    "test": "assert is_valid_forest([('node', 'node')]) is False\nassert is_valid_forest([('root', 'a'), ('a', 'b'), ('b', 'c'), ('c', 'a')]) is False"
+  }
+]

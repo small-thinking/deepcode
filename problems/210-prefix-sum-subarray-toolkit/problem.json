@@ -1,0 +1,26 @@
+{
+  "id": "210",
+  "slug": "prefix-sum-subarray-toolkit",
+  "title": "Prefix-Sum Subarray Toolkit",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["arrays", "prefix-sum", "hash-map", "subarrays"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `subarray_metric(nums, mode, value) -> int` for an integer sequence. Support exactly these modes:\n\n- `count_target`: return the number of contiguous subarrays whose sum equals `value`.\n- `longest_target`: return the maximum length of a contiguous subarray whose sum equals `value`, or `0` when none exists.\n- `count_divisible`: return the number of contiguous subarrays whose sum is divisible by nonzero integer `value`. Treat a negative divisor as its absolute value.\n\nInputs can contain negative numbers and zeros. Use the zero-prefix seed so subarrays beginning at index `0` are counted correctly. For `longest_target`, retain the earliest index for each prefix sum. Raise `ValueError` for an unknown mode or a zero divisor in `count_divisible` mode.",
+  "starter_code": "def subarray_metric(nums, mode, value):\n    # Compute one of the three prefix-sum metrics.\n    pass\n",
+  "example": {
+    "input": "subarray_metric([1, -1, 0], 'count_target', 0)",
+    "output": "3",
+    "reasoning": "The zero-sum subarrays are [1, -1], [0], and [1, -1, 0]."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "208",
+  "slug": "multi-target-shortest-distances",
+  "title": "Multi-Target Shortest Distances",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graphs", "dijkstra", "shortest-path", "priority-queue"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `shortest_paths(source, targets, edges) -> list[int | float | None]` for a directed weighted graph. `edges` is an iterable of `(from_node, to_node, nonnegative_weight)` triples; node IDs are hashable. Return one shortest distance per requested target, aligned to the original `targets` order. Preserve duplicate targets.\n\nThe source has distance `0` from itself even if it does not occur in `edges`. Return `None` for a target unreachable from the source. Edge weights are nonnegative, so use Dijkstra's algorithm with a min-heap.\n\nIt is safe to stop early only after every distinct requested target has been finalized by a nonstale heap pop. Discovering a target or pushing a tentative distance is not enough, because a later path can improve it. Treat edges as directed and do not mutate caller-owned iterables.",
+  "starter_code": "def shortest_paths(source, targets, edges):\n    # Return distances in the exact order of `targets`; use None for unreachable targets.\n    pass\n",
+  "example": {
+    "input": "shortest_paths('s', ['a', 'missing', 'a', 's'], [('s', 'a', 10), ('s', 'b', 1), ('b', 'a', 1)])",
+    "output": "[2, None, 2, 0]",
+    "reasoning": "The first discovered path to `a` costs 10, but the nonstale finalized path through `b` costs 2. Duplicate targets keep duplicate output entries."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

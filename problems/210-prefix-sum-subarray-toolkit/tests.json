@@ -1,0 +1,22 @@
+[
+  {
+    "name": "counts target sums with negatives and the zero-prefix seed",
+    "input": "[1, -1, 0] with target zero",
+    "test": "assert subarray_metric([1, -1, 0], 'count_target', 0) == 3\nassert subarray_metric([1, 2, 3], 'count_target', 3) == 2"
+  },
+  {
+    "name": "keeps the earliest prefix index for the longest target sum",
+    "input": "a mixed-sign sequence with a length-four target subarray",
+    "test": "assert subarray_metric([1, -1, 5, -2, 3], 'longest_target', 3) == 4\nassert subarray_metric([2, -2], 'longest_target', 5) == 0"
+  },
+  {
+    "name": "counts divisible sums for positive or negative divisors",
+    "input": "a standard mixed-sign divisible-sum sequence",
+    "test": "nums = [4, 5, 0, -2, -3, 1]\nassert subarray_metric(nums, 'count_divisible', 5) == 7\nassert subarray_metric(nums, 'count_divisible', -5) == 7"
+  },
+  {
+    "name": "rejects unsupported modes and a zero divisor",
+    "input": "invalid mode and invalid divisor",
+    "test": "for args in [([1], 'unknown', 1), ([1], 'count_divisible', 0)]:\n    try:\n        subarray_metric(*args)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]
