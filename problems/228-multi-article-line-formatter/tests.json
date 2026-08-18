@@ -1,0 +1,17 @@
+[
+  {
+    "name": "wraps greedily without subjective reflow",
+    "input": "ordinary words that leave a one-word final line",
+    "test": "assert format_articles(['one two three'], 7) == ['one two', 'three']\nassert format_articles(['oversized'], 3) == ['oversized']"
+  },
+  {
+    "name": "attaches punctuation-leading tokens with the overflow exception",
+    "input": "a punctuation-leading token after a full line and one at article start",
+    "test": "assert format_articles(['Hello ,world next'], 5) == ['Hello ,world', 'next']\nassert format_articles(['!alert ok'], 6) == ['!alert', 'ok']"
+  },
+  {
+    "name": "places separators exactly between articles including empty ones",
+    "input": "a nonempty article, an empty middle article, and a final nonempty article",
+    "test": "assert format_articles(['First', '', 'Third'], 20) == ['First', '----', '----', 'Third']\nassert format_articles([], 20) == []"
+  }
+]

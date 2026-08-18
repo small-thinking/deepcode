@@ -1,0 +1,26 @@
+{
+  "id": "228",
+  "slug": "multi-article-line-formatter",
+  "title": "Multi-Article Line Formatter",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["strings", "greedy", "formatting", "edge-cases"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `format_articles(articles, width) -> list[str]`. Each article is a string. Split an article on whitespace and greedily form border-free output lines in word order, placing one space between adjacent words. Insert exactly one `\"----\"` separator between every adjacent pair of input articles, never after the final article. An empty article emits no text lines but still participates in those separators.\n\nDo not split words or perform subjective reflow to avoid a final one-word line. An ordinary word that does not fit after a nonempty line starts the next line; an ordinary word longer than `width` is emitted whole on its own line. For the punctuation characters `.,;:!?`, a token beginning with one of them must attach to a nonempty preceding line even if that attachment exceeds `width`. A first token has no preceding line and therefore starts its own line.\n\n`width` is positive. Return `[]` for an empty `articles` list. Process each token once; aside from the returned strings, use space proportional to one current line.",
+  "starter_code": "def format_articles(articles, width):\n    # Return greedy border-free lines with separators between articles.\n    pass\n",
+  "example": {
+    "input": "format_articles(['Hello ,world next'], 5)",
+    "output": "['Hello ,world', 'next']",
+    "reasoning": "The punctuation-leading token stays with the preceding line, even though that line overflows."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
