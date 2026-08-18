@@ -1,0 +1,17 @@
+[
+  {
+    "name": "uses object identity for empty and acyclic inputs",
+    "input": "empty heads, an acyclic Y shape, and equal-valued distinct nodes",
+    "test": "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\nassert intersect(None, Node(1)) is False\nshared = Node(9)\nshared.next = Node(10)\nleft = Node(1)\nleft.next = shared\nright = Node(2)\nright.next = Node(3)\nright.next.next = shared\nassert intersect(left, right) is True\nassert intersect(Node(7), Node(7)) is False\nassert intersect(shared, shared) is True"
+  },
+  {
+    "name": "rejects one-cycle and disjoint-cycle cases",
+    "input": "one cyclic chain paired with an acyclic chain, then two separate loops",
+    "test": "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\nloop = Node('loop')\nloop.next = loop\nplain = Node('plain')\nassert intersect(loop, plain) is False\na = Node('a')\nb = Node('b')\na.next = b\nb.next = a\nc = Node('c')\nd = Node('d')\nc.next = d\nd.next = c\nassert intersect(a, c) is False"
+  },
+  {
+    "name": "finds shared cycles with same or different entries",
+    "input": "two paths entering a common cycle at different nodes and two paths sharing a prefix before a loop",
+    "test": "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\nx = Node('x')\ny = Node('y')\nz = Node('z')\nx.next = y\ny.next = z\nz.next = x\nfirst = Node('first')\nfirst.next = x\nsecond = Node('second')\nsecond.next = y\nassert intersect(first, second) is True\nentry = Node('entry')\nentry.next = entry\nshared_prefix = Node('shared')\nshared_prefix.next = entry\nleft = Node('left')\nleft.next = shared_prefix\nright = Node('right')\nright.next = shared_prefix\nassert intersect(left, right) is True"
+  }
+]

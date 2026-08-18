@@ -1,0 +1,17 @@
+[
+  {
+    "name": "returns a minimum-cost 0/1 cover in index order",
+    "input": "three bundles with a cheaper two-bundle cover",
+    "test": "menu = [(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)]\nassert minimum_cover(menu, ['p', 'r', 's']) == (5, [(1, 1), (2, 1)])"
+  },
+  {
+    "name": "handles duplicate wanted names, irrelevant contents, and ties",
+    "input": "a repeated wanted item and two equal-cost covers",
+    "test": "menu = [(['p', 'extra'], 4), (['q'], 5), (['p', 'q'], 9)]\nassert minimum_cover(menu, ['p', 'p', 'q']) == (9, [(2, 1)])"
+  },
+  {
+    "name": "uses the documented impossible and empty sentinels",
+    "input": "an uncovered requested item and an empty requirement list",
+    "test": "assert minimum_cover([(['p'], 2)], ['p', 'q']) == (-1, [])\nassert minimum_cover([(['p'], 2)], []) == (0, [])"
+  }
+]
