@@ -1,0 +1,26 @@
+{
+  "id": "158",
+  "slug": "token-limiter",
+  "title": "Fixed-Window Token Quota",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["rate-limiting", "fixed-window", "quotas", "stateful", "accounting"],
+  "companies": ["xAI"],
+  "prompt": "Implement `process_operations(limit, window_size, operations)` for a fixed-window token quota. Every key has an independent token budget in each global calendar window. At timestamp `t`, its window starts at `floor(t / window_size) * window_size`.\n\nEach operation is one of:\n\n- `('allow', key, cost, timestamp)`: accept when the key's used tokens in that window plus `cost` is at most `limit`. Return `True` and record accepted cost; otherwise return `False` without changing usage.\n- `('reset', key, timestamp)`: erase the key's stored usage, including usage in the current calendar window, and return `'ok'`.\n\nReturn one result per operation, in order. Operations arrive with nondecreasing timestamps; `limit`, `window_size`, and every cost are positive integers. Keep state per key rather than sharing a global usage counter. The required state should be bounded by the number of keys observed in the current or most recently touched windows.",
+  "starter_code": "def process_operations(limit, window_size, operations):\n    # Return True, False, or 'ok' for every operation.\n    pass\n",
+  "example": {
+    "input": "process_operations(12, 30, [('allow', 'maya', 5, 4), ('allow', 'maya', 8, 9), ('allow', 'maya', 7, 31)])",
+    "output": "[True, False, True]",
+    "reasoning": "The second request exceeds the first window's quota. The third belongs to the next fixed calendar window."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

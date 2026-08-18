@@ -1,0 +1,17 @@
+[
+  {
+    "name": "charges weighted costs and does not charge denied requests",
+    "input": "one key with an over-budget request between two accepted requests",
+    "test": "operations = [\n    ('allow', 'a', 6, 1),\n    ('allow', 'a', 5, 2),\n    ('allow', 'a', 4, 3),\n]\nassert process_operations(10, 5, operations) == [True, False, True]"
+  },
+  {
+    "name": "uses calendar boundaries and keeps keys independent",
+    "input": "requests at a window boundary for two keys",
+    "test": "operations = [\n    ('allow', 'a', 10, 4),\n    ('allow', 'a', 1, 5),\n    ('allow', 'b', 10, 5),\n    ('allow', 'b', 1, 6),\n]\nassert process_operations(10, 5, operations) == [True, True, True, False]"
+  },
+  {
+    "name": "reset clears the key even inside its current window",
+    "input": "a reset followed by another full-budget request",
+    "test": "operations = [\n    ('allow', 'a', 7, 11),\n    ('reset', 'a', 12),\n    ('allow', 'a', 10, 12),\n    ('allow', 'a', 1, 14),\n    ('allow', 'a', 10, 15),\n]\nassert process_operations(10, 5, operations) == [True, 'ok', True, False, True]"
+  }
+]
