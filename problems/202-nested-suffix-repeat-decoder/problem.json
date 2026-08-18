@@ -5,6 +5,7 @@
   "category": "Algorithms",
   "difficulty": "hard",
   "tags": ["parsing", "stack", "strings", "nested-structure"],
+  "companies": ["Waymo"],
   "prompt": "Implement `decode_suffix_repeats(text) -> str` for valid strings with literal characters, parenthesized groups, and an optional repeat suffix. The grammar is:\n\n```text\nsequence := (literal | '(' sequence ')' ['{' nonnegative-integer '}'])*\n```\n\nA suffix applies only to the group immediately before it. A group without a suffix appears once, and `{0}` removes that group. Groups may nest; for example, `x(y(z){3}){2}` decodes to `xyzzzyzzz`. Delimiters are structural, so literals do not contain `(`, `)`, `{`, or `}`.\n\nInputs are valid and the decoded output is at most 100,000 characters. Support multi-digit repeat counts and adjacent literal/group segments. Aim for O(encoded_length + decoded_length) time; avoid repeated concatenation of growing immutable strings.",
   "starter_code": "def decode_suffix_repeats(text):\n    # Decode nested parenthesized groups with optional trailing {count} suffixes.\n    pass\n",
   "example": {
