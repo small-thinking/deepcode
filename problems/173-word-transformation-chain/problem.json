@@ -1,0 +1,26 @@
+{
+  "id": "173",
+  "slug": "word-transformation-chain",
+  "title": "Word Transformation Chain",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["breadth-first-search", "graph", "strings", "shortest-path"],
+  "companies": ["Reddit"],
+  "prompt": "Implement `transform_words(start, target, words, part)` for transformation chains between same-length words. A chain starts with `start`, ends with `target`, and every intermediate word must come from `words`. Duplicate words have no effect; `start` need not be in `words`; `target` is always a permitted final destination even when it is absent from `words`. Ignore dictionary words with a different length.\n\n- `part == 1`: a move must change exactly one character; return whether a chain exists.\n- `part == 2`: a move may change exactly one or exactly two characters; return whether a chain exists.\n- `part == 3`: use the same move rule as part 2 and return one minimum-length chain including both endpoints, or `[]` when none exists.\n\nIf `start` and `target` have different lengths, return `False` for parts 1 and 2 and `[]` for part 3. If they are equal, return `True` for parts 1 and 2 and `[start]` for part 3. Raise `ValueError` for any other part. Use breadth-first search over the implicit graph; do not revisit a word.",
+  "starter_code": "def transform_words(start, target, words, part):\n    # Return a reachability boolean or, for part 3, one shortest path.\n    pass\n",
+  "example": {
+    "input": "transform_words('cold', 'warm', ['cord', 'card', 'ward'], 1)",
+    "output": "True",
+    "reasoning": "Changing one character at a time gives cold → cord → card → ward → warm. The target may be the final word even though it is absent from the dictionary."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

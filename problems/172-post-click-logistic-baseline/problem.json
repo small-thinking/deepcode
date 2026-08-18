@@ -1,0 +1,26 @@
+{
+  "id": "172",
+  "slug": "post-click-logistic-baseline",
+  "title": "Post Click Logistic Baseline",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "logistic-regression", "classification", "feature-engineering"],
+  "companies": ["Reddit"],
+  "prompt": "Implement `predict_click_probabilities(train_records, test_records, learning_rate=0.2, steps=800)` using a deterministic full-batch logistic-regression baseline implemented with NumPy only.\n\nEach training record has numeric fields `hours_spent_reading_a`, `hours_spent_reading_b`, and `hours_spent_reading_c`, a string `current_post_category`, and a binary integer `click`. Test records omit `click`. Return one probability in `[0.0, 1.0]` for each test record, in order.\n\nBuild the category vocabulary from the training records only, sorted lexicographically. Add one one-hot column per training category. A category present only in test records must use an all-zero category vector. Normalize only the three numeric columns with training-set mean and population standard deviation; use scale `1.0` for a zero-variance column. Include an intercept and leave the one-hot columns unscaled.\n\nInitialize weights to zero, use the supplied full-batch gradient-descent settings, and do not mutate either input list or its dictionaries. When all training labels are the same, return that label as a probability for every test record instead of trying to fit a two-class model. You may assume the training list is non-empty and labels are 0 or 1.",
+  "starter_code": "import numpy as np\n\n\ndef predict_click_probabilities(train_records, test_records, learning_rate=0.2, steps=800):\n    # Return one deterministic probability per test record.\n    pass\n",
+  "example": {
+    "input": "predict_click_probabilities([{'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'science', 'click': 0}, {'hours_spent_reading_a': 1, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'science', 'click': 1}], [{'hours_spent_reading_a': 1, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'science'}])",
+    "output": "a probability greater than 0.5",
+    "reasoning": "The numeric feature is standardized from the training records and the fitted logistic baseline assigns a higher click likelihood to the higher-reading example."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

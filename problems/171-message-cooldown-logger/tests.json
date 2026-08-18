@@ -1,0 +1,17 @@
+[
+  {
+    "name": "allows the first event for each independent message",
+    "input": "interleaved events for two message keys",
+    "test": "logger = MessageCooldownLogger()\nassert [\n    logger.should_print(1, 'refresh'),\n    logger.should_print(3, 'index'),\n    logger.should_print(7, 'refresh'),\n    logger.should_print(13, 'refresh'),\n    logger.should_print(13, 'index'),\n] == [True, True, False, True, True]"
+  },
+  {
+    "name": "suppressed calls do not reset the cooldown clock",
+    "input": "one allowed message followed by a rejected attempt and a boundary retry",
+    "test": "logger = MessageCooldownLogger()\nassert logger.should_print(10, 'snapshot') is True\nassert logger.should_print(15, 'snapshot') is False\nassert logger.should_print(20, 'snapshot') is True"
+  },
+  {
+    "name": "handles same-time duplicate calls and the exact ten-second boundary",
+    "input": "two same-time calls followed by one boundary call",
+    "test": "logger = MessageCooldownLogger()\nassert logger.should_print(5, 'event') is True\nassert logger.should_print(5, 'event') is False\nassert logger.should_print(14, 'event') is False\nassert logger.should_print(15, 'event') is True"
+  }
+]
