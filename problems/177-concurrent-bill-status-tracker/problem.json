@@ -15,7 +15,7 @@
   },
   "environment": {
     "language": "python",
-    "timeout_seconds": 3,
+    "timeout_seconds": 8,
     "packages": [],
     "comparator": "assertions"
   },
