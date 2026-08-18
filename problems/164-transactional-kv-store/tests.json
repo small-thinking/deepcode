@@ -1,0 +1,22 @@
+[
+  {
+    "name": "committed state and a stored None are distinct from deletion",
+    "input": "set None, delete it, and inspect presence separately from get",
+    "test": "store = TransactionalKVStore()\nstore.set('color', 'blue')\nassert store.get('color') == 'blue'\nassert store.contains('color')\nstore.set('nullable', None)\nassert store.get('nullable') is None\nassert store.contains('nullable')\nstore.delete('nullable')\nassert store.get('nullable') is None\nassert not store.contains('nullable')"
+  },
+  {
+    "name": "inner commits remain reversible by an outer rollback",
+    "input": "outer writes, an inner commit, then the outer rollback",
+    "test": "store = TransactionalKVStore()\nstore.set('version', 1)\nstore.begin()\nstore.set('version', 2)\nstore.set('outer_only', 'yes')\nstore.begin()\nstore.set('version', 3)\nstore.set('child_only', 'yes')\nstore.commit()\nassert store.get('version') == 3\nassert store.contains('child_only')\nstore.rollback()\nassert store.get('version') == 1\nassert not store.contains('outer_only')\nassert not store.contains('child_only')"
+  },
+  {
+    "name": "nested deletes merge into parents and outer commit applies them",
+    "input": "delete a parent-visible key in a child transaction",
+    "test": "store = TransactionalKVStore()\nstore.set('keep', 'value')\nstore.set('remove', 'value')\nstore.begin()\nstore.set('keep', 'new')\nstore.begin()\nstore.delete('keep')\nstore.delete('remove')\nstore.commit()\nassert not store.contains('keep')\nassert not store.contains('remove')\nstore.commit()\nassert not store.contains('keep')\nassert not store.contains('remove')\nstore.delete('already_missing')\nassert not store.contains('already_missing')"
+  },
+  {
+    "name": "invalid transaction controls and keys raise explicit errors",
+    "input": "commit and rollback without begin plus non-string keys",
+    "test": "store = TransactionalKVStore()\nfor call in (store.commit, store.rollback):\n    try:\n        call()\n        raise AssertionError('expected RuntimeError')\n    except RuntimeError:\n        pass\nfor call in (lambda: store.get(1), lambda: store.contains(1), lambda: store.set(1, 'x'), lambda: store.delete(1)):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+  }
+]

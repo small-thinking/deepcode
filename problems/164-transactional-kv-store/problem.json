@@ -1,0 +1,26 @@
+{
+  "id": "164",
+  "slug": "transactional-kv-store",
+  "title": "Nested Transactional Key-Value Store",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["transactions", "key-value-store", "savepoints", "tombstones", "stateful"],
+  "companies": ["xAI"],
+  "prompt": "Implement an in-memory key-value store with arbitrarily nested transactions. Keys are strings and values may be any Python object, including `None`.\n\nImplement:\n\n- `get(key) -> object | None`\n- `contains(key) -> bool`\n- `set(key, value)`\n- `delete(key)`\n- `begin()`\n- `commit()`\n- `rollback()`\n\nWith no active transaction, `set` and `delete` change committed state immediately. Each `begin` opens a sparse overlay. Reads search the newest overlay first, then its parents, then committed state. Use a private deletion tombstone rather than `None`: `set('k', None)` creates a present key whose `get` result is `None`, while `delete('k')` makes `contains('k')` false.\n\nAn inner `commit` merges its overlay into its parent only. Therefore an outer `rollback` must still discard changes that a child committed. An outermost `commit` applies its overlay to committed state. `rollback` discards only the active overlay. Calling `commit` or `rollback` with no active transaction raises `RuntimeError`; non-string keys raise `TypeError`.\n\nThe required single-threaded implementation uses sparse dictionaries: begin and rollback are O(1), get is O(transaction depth), and a commit is O(number of keys changed in the active overlay).",
+  "starter_code": "class TransactionalKVStore:\n    def __init__(self):\n        pass\n\n    def get(self, key):\n        pass\n\n    def contains(self, key):\n        pass\n\n    def set(self, key, value):\n        pass\n\n    def delete(self, key):\n        pass\n\n    def begin(self):\n        pass\n\n    def commit(self):\n        pass\n\n    def rollback(self):\n        pass\n",
+  "example": {
+    "input": "store.set('mode', 'normal'); store.begin(); store.set('mode', 'preview'); store.rollback(); store.get('mode')",
+    "output": "'normal'",
+    "reasoning": "The overlay's write is visible before rollback and discarded afterward."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

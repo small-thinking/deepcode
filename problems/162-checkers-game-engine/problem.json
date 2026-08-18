@@ -1,0 +1,26 @@
+{
+  "id": "162",
+  "slug": "checkers-game-engine",
+  "title": "Checkers Game Engine",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["game-engine", "state-machine", "rules", "simulation", "object-modeling"],
+  "companies": ["xAI"],
+  "prompt": "Implement a small checkers rules engine for an 8 by 8 board. `Player.RED` moves toward decreasing row numbers; `Player.BLACK` moves toward increasing row numbers. A `Piece` has an owner and may be crowned as a king.\n\nImplement:\n\n- `CheckersGame.empty(current_player=Player.RED)`\n- `place(row, col, piece)` and `piece_at(row, col)` for deterministic board setup\n- `move(from_row, from_col, to_row, to_col) -> bool`\n- `is_game_over()` and `winner()`\n\n`move` returns `False` and leaves state unchanged for an invalid move. A regular piece moves or captures only in its forward direction. A king can move or capture in either direction. A simple move changes the row by one and a capture changes it by two while jumping exactly one opposing piece onto an empty landing square.\n\nThis exercise uses mandatory capture: if the current player has any capture, a simple move is invalid. After a capture, if the landing piece can capture again, that same piece must continue; the turn does not switch and moving another piece is invalid. Promotion occurs when a regular piece reaches the far row. To keep the rule set deterministic, promotion ends the turn even if a newly crowned king would have another capture.\n\nAfter a completed turn, the opponent loses when it has no pieces or no legal move. The engine need not implement draws, move clocks, notation, networking, or a graphical interface.",
+  "starter_code": "from dataclasses import dataclass\nfrom enum import Enum\n\n\nclass Player(Enum):\n    RED = 'red'\n    BLACK = 'black'\n\n\n@dataclass(frozen=True)\nclass Piece:\n    player: Player\n    king: bool = False\n\n\nclass CheckersGame:\n    def __init__(self, board=None, current_player=Player.RED):\n        pass\n\n    @classmethod\n    def empty(cls, current_player=Player.RED):\n        pass\n\n    def place(self, row, col, piece):\n        pass\n\n    def piece_at(self, row, col):\n        pass\n\n    def move(self, from_row, from_col, to_row, to_col):\n        # Return False without changing the game when this hop is invalid.\n        pass\n\n    def is_game_over(self):\n        pass\n\n    def winner(self):\n        pass\n",
+  "example": {
+    "input": "game = CheckersGame.empty(); game.place(5, 2, Piece(Player.RED)); game.move(5, 2, 4, 3)",
+    "output": "True",
+    "reasoning": "A red regular piece may make one forward diagonal move to an empty square."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
