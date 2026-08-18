@@ -1,0 +1,26 @@
+{
+  "id": "179",
+  "slug": "odd-even-linked-list",
+  "title": "Odd-Even Linked List",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["linked-list", "pointers", "in-place", "reordering"],
+  "companies": ["Reddit"],
+  "prompt": "Implement `odd_even_list(head)` for a singly linked list of `ListNode` objects. Return the same head node after moving nodes that began at odd 1-based positions before nodes that began at even 1-based positions. Preserve relative order within each group.\n\nFor example, the original chain `8 → 6 → 4 → 2 → 0` becomes `8 → 4 → 0 → 6 → 2`. Odd and even refer to original positions, not stored values.\n\nRelink the supplied nodes in place using O(1) auxiliary space. Do not allocate replacement list nodes, lose a node, or leave a cycle. `None`, one-node, and two-node lists must work.",
+  "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\n\ndef odd_even_list(head):\n    # Relink the existing nodes and return the original head.\n    pass\n",
+  "example": {
+    "input": "8 → 6 → 4 → 2 → 0",
+    "output": "8 → 4 → 0 → 6 → 2",
+    "reasoning": "The nodes from positions 1, 3, and 5 stay in their order before the nodes from positions 2 and 4."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

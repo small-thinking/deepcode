@@ -1,0 +1,26 @@
+{
+  "id": "180",
+  "slug": "shortest-palindrome-prefix",
+  "title": "Shortest Palindrome by Prepending",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["strings", "kmp", "prefix-function", "palindrome"],
+  "companies": ["Reddit"],
+  "prompt": "Implement `shortest_palindrome_prefix(s)` to form the shortest palindrome obtainable by adding characters only before `s`. You may not append or insert characters elsewhere. Return the resulting string.\n\nFind the longest prefix of `s` that is already a palindrome. If that prefix has length `k`, reverse the remaining suffix `s[k:]` and prepend it to `s`. The input may contain any Python string character, including punctuation such as `#`; do not rely on a literal separator that could collide with input.\n\nTarget O(n) time and O(n) space. A KMP/LPS prefix-function pass over `list(s) + [unique_sentinel] + list(reversed(s))` is one deterministic approach. Empty and already-palindromic strings should be returned unchanged.",
+  "starter_code": "def shortest_palindrome_prefix(s):\n    # Add the fewest characters to the front so the result is a palindrome.\n    pass\n",
+  "example": {
+    "input": "shortest_palindrome_prefix('aab')",
+    "output": "'baab'",
+    "reasoning": "The longest palindromic prefix is `'aa'`; reversing the remaining suffix `'b'` gives the only needed prefix."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
