@@ -1,0 +1,17 @@
+[
+  {
+    "name": "merges transitions into maximal half-open overlap intervals",
+    "input": "two streams that create two separated overlap periods",
+    "test": "left = [(1, True), (4, False), (5, True)]\nright = [(2, True), (4, False), (5, True), (7, False)]\nassert active_overlap_intervals(left, right, 9) == [(2, 4), (5, 7)]"
+  },
+  {
+    "name": "simultaneous updates are one atomic timestamp batch",
+    "input": "one signal stops while the other changes at the same timestamp",
+    "test": "left = [(1, True), (4, False)]\nright = [(1, True), (4, True), (5, False)]\nassert active_overlap_intervals(left, right, 6) == [(1, 4)]\nassert active_overlap_intervals([], [(3, True)], 8) == []\nassert active_overlap_intervals([(2, True)], [(2, True)], 5) == [(2, 5)]"
+  },
+  {
+    "name": "invalid time and value contracts fail explicitly",
+    "input": "duplicate unordered boolean-like and out-of-horizon events",
+    "test": "for call in (\n    lambda: active_overlap_intervals([(1, True), (1, False)], [], 3),\n    lambda: active_overlap_intervals([(2, True), (1, False)], [], 3),\n    lambda: active_overlap_intervals([(3, True)], [], 3),\n    lambda: active_overlap_intervals([(1, 1)], [], 3),\n    lambda: active_overlap_intervals([(True, True)], [], 3),\n    lambda: active_overlap_intervals([], [], 0),\n):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

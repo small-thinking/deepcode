@@ -1,0 +1,34 @@
+{
+  "id": "194",
+  "slug": "battleship-state-machine",
+  "title": "Battleship State Machine",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "state-machine",
+    "immutability",
+    "game-engine",
+    "validation",
+    "object-modeling"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement a pure Battleship state machine without a UI.\n\n- `create_game(size, ships) -> BattleshipState` creates a square board. `ships` is a nonempty dictionary mapping a nonempty ship ID to an iterable of occupied `(row, column)` cells. Each ship must be straight, contiguous, nonempty, in bounds, and non-overlapping with every other ship.\n- `fire(state, row, column) -> tuple[BattleshipState, ShotResult]` returns the next state and a result whose `outcome` is one of `miss`, `hit`, `sunk`, or `repeat`. `ship_id` is present only for a hit or sunk result, and `game_over` reports whether every ship is sunk after the shot.\n\n`BattleshipState` must expose immutable `size`, `fleet`, and `shots` metadata plus `is_complete`. A valid new shot returns a new state without mutating the input state. Repeating a previous shot returns the unchanged state and a `repeat` result. Invalid board sizes, placements, or shot coordinates raise `ValueError`. Use only the Python standard library.",
+  "starter_code": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass ShotResult:\n    outcome: str\n    ship_id: str | None\n    game_over: bool\n\n\n@dataclass(frozen=True)\nclass BattleshipState:\n    size: int\n    fleet: tuple\n    shots: frozenset\n\n\ndef create_game(size, ships):\n    pass\n\n\ndef fire(state, row, column):\n    pass\n",
+  "example": {
+    "input": "state = create_game(3, {'patrol': [(0, 0), (0, 1)]}); state, result = fire(state, 0, 0)",
+    "output": "result.outcome == 'hit'",
+    "reasoning": "The original state still has no recorded shots; the returned state carries the one new shot."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

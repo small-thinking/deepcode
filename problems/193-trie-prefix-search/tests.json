@@ -1,0 +1,17 @@
+[
+  {
+    "name": "completion enumerates a lexicographically ordered subtree",
+    "input": "overlapping words with an exact-prefix word",
+    "test": "trie = PrefixTrie(['dog', 'door', 'do', 'dove', 'cat'])\nassert trie.complete('do') == ['do', 'dog', 'door', 'dove']\nassert trie.complete('doo') == ['door']\nassert trie.contains('do') is True\nassert trie.contains('d') is False"
+  },
+  {
+    "name": "duplicates empty-prefix enumeration and misses are deterministic",
+    "input": "a duplicate word and a prefix absent from the trie",
+    "test": "trie = PrefixTrie()\nfor word in ('b', 'ant', 'a', 'ant'):\n    trie.insert(word)\nassert trie.complete('') == ['a', 'ant', 'b']\nassert trie.complete('z') == []\nassert trie.complete('an') == ['ant']"
+  },
+  {
+    "name": "invalid words and prefixes fail explicitly",
+    "input": "empty and non-string API arguments",
+    "test": "trie = PrefixTrie()\nfor call in (\n    lambda: trie.insert(''),\n    lambda: trie.insert(3),\n    lambda: trie.complete(None),\n    lambda: trie.contains([]),\n):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+  }
+]

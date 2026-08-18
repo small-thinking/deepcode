@@ -1,0 +1,17 @@
+[
+  {
+    "name": "csv quoting embedded newlines and default string values are preserved",
+    "input": "quoted commas embedded newline and numeric-looking text",
+    "test": "text = 'name,note,score\\nAda,\"hello, world\",07\\nLin,\"two\\nlines\",\\n'\nassert parse_csv_records(text, required_columns=('name', 'note')) == [\n    {'name': 'Ada', 'note': 'hello, world', 'score': '07'},\n    {'name': 'Lin', 'note': 'two\\nlines', 'score': ''},\n]"
+  },
+  {
+    "name": "converters are explicit and limited to named columns",
+    "input": "one numeric converter while another numeric-looking field remains text",
+    "test": "rows = parse_csv_records('id,score,code\\na,7,008\\n', converters={'score': int})\nassert rows == [{'id': 'a', 'score': 7, 'code': '008'}]\ntry:\n    parse_csv_records('id,score\\na,nope\\n', converters={'score': int})\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass"
+  },
+  {
+    "name": "schema and row-width errors are rejected",
+    "input": "missing duplicate unknown and extra-column cases",
+    "test": "for call in (\n    lambda: parse_csv_records(''),\n    lambda: parse_csv_records('id,id\\na,b\\n'),\n    lambda: parse_csv_records('id,name\\na,Ada\\n', required_columns=('score',)),\n    lambda: parse_csv_records('id,name\\na,Ada\\n', converters={'score': int}),\n    lambda: parse_csv_records('id,name\\na,Ada,extra\\n'),\n    lambda: parse_csv_records(7),\n):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "id": "193",
+  "slug": "trie-prefix-search",
+  "title": "Trie Prefix Search",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "trie",
+    "prefix-search",
+    "autocomplete",
+    "enumeration",
+    "data-structure"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement `PrefixTrie` for a minimal prefix-search contract.\n\n- `PrefixTrie(words=())` inserts each initial word.\n- `insert(word)` adds one nonempty string. Inserting an existing word is a no-op.\n- `contains(word) -> bool` reports exact membership.\n- `complete(prefix) -> list[str]` returns every stored word that begins with `prefix`, in lexicographic order. The empty prefix enumerates all stored words.\n\nWords are case-sensitive. `word` must be a nonempty string; `prefix` must be a string and may be empty. Raise `TypeError` for invalid arguments. Do not add ranking, fuzzy matching, frequency counts, result limits, or deletion behavior. Use a trie so lookup follows the prefix rather than scanning every stored word.",
+  "starter_code": "class PrefixTrie:\n    def __init__(self, words=()):\n        pass\n\n    def insert(self, word):\n        pass\n\n    def contains(self, word):\n        pass\n\n    def complete(self, prefix):\n        pass\n",
+  "example": {
+    "input": "trie = PrefixTrie(['car', 'cart', 'cat']); trie.complete('car')",
+    "output": "['car', 'cart']",
+    "reasoning": "Only complete stored words with the requested prefix are returned, including the prefix itself when it is a word."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
