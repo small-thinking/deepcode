@@ -1,0 +1,26 @@
+{
+  "id": "155",
+  "slug": "weighted-lru-cache",
+  "title": "Weighted LRU Cache",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["cache", "lru", "eviction", "linked-list", "hash-map"],
+  "companies": ["xAI"],
+  "prompt": "Implement a weighted least-recently-used cache. Capacity is measured by the sum of entry weights, not by entry count.\n\nCreate `WeightedLRUCache(capacity)` with:\n\n- `get(key) -> int | None`: return the stored integer or `None` when absent. A hit makes the key most recently used.\n- `put(key, value, weight)`: insert or replace an entry. A successful insert or replacement makes the key most recently used.\n\nKeys are strings, values are integers, and capacity and weights are positive integers (booleans are not integers for this contract). Raise `ValueError` for an invalid capacity or weight. If a new weight is greater than capacity, raise `ValueError` *before changing the cache*; existing entries must remain intact.\n\nWhen an insertion would exceed capacity, evict least-recently-used entries until the weighted total fits. On replacement, remove the old weight exactly once, update the entry, promote it to MRU, then evict older entries if necessary. `get` and a non-evicting `put` should be O(1); evicting `k` entries may take O(k).\n\nYou may use `collections.OrderedDict` or implement a hash map plus a doubly linked list. Do not recompute the total weight by scanning the cache on each operation.",
+  "starter_code": "from collections import OrderedDict\n\n\nclass WeightedLRUCache:\n    def __init__(self, capacity):\n        pass\n\n    def get(self, key):\n        # Return None for a missing key and promote a hit to MRU.\n        pass\n\n    def put(self, key, value, weight):\n        # Insert or replace one value, evicting LRU entries when necessary.\n        pass\n",
+  "example": {
+    "input": "cache = WeightedLRUCache(7); cache.put('a', 10, 3); cache.put('b', 20, 4); cache.get('a'); cache.put('c', 30, 4)",
+    "output": "cache.get('b') is None; cache.get('a') == 10; cache.get('c') == 30",
+    "reasoning": "Adding `c` requires an eviction. The earlier get made `a` recent, so `b` is evicted."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

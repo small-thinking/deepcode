@@ -1,0 +1,17 @@
+[
+  {
+    "name": "concurrent deposits preserve every inherited operation",
+    "input": "eight threads deposit 100 into one delayed account",
+    "test": "import threading\nfrom concurrent.futures import ThreadPoolExecutor\n\naccount = SynchronizedBankAccount(0, operation_delay=0.002)\ngate = threading.Barrier(8)\n\ndef deposit_worker(_):\n    gate.wait()\n    account.deposit(100)\n\nwith ThreadPoolExecutor(max_workers=8) as pool:\n    list(pool.map(deposit_worker, range(8)))\n\nassert isinstance(account, BankAccount)\nassert account.get_balance() == 800\nassert account.base_deposit_calls == 8"
+  },
+  {
+    "name": "the balance check and inherited withdrawal are one critical section",
+    "input": "six simultaneous withdrawals of 100 from a balance of 100",
+    "test": "import threading\nfrom concurrent.futures import ThreadPoolExecutor\n\naccount = SynchronizedBankAccount(100, operation_delay=0.002)\ngate = threading.Barrier(6)\n\ndef withdraw_worker(_):\n    gate.wait()\n    try:\n        account.withdraw(100)\n        return True\n    except InsufficientFunds:\n        return False\n\nwith ThreadPoolExecutor(max_workers=6) as pool:\n    outcomes = list(pool.map(withdraw_worker, range(6)))\n\nassert outcomes.count(True) == 1\nassert outcomes.count(False) == 5\nassert account.get_balance() == 0\nassert account.base_withdraw_calls == 1"
+  },
+  {
+    "name": "wrapper preserves parent validation and delegation",
+    "input": "invalid amounts plus one valid deposit and withdrawal",
+    "test": "account = SynchronizedBankAccount(10)\nfor call in (lambda: account.deposit(0), lambda: account.withdraw(-1)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\naccount.deposit(7)\naccount.withdraw(4)\nassert account.get_balance() == 13\nassert account.base_deposit_calls == 1\nassert account.base_withdraw_calls == 1"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "id": "157",
+  "slug": "in-memory-database-ttl-backup",
+  "title": "In-Memory Database with TTL Backups",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["key-value-store", "ttl", "snapshots", "time-travel", "stateful"],
+  "companies": ["xAI"],
+  "prompt": "Build an in-memory database where each top-level string key contains string field/value pairs.\n\nPermanent operations:\n\n- `set(key, field, value)`\n- `get(key, field) -> str | None`\n- `delete(key, field) -> bool`\n- `scan(key) -> list[str]`\n- `scan_by_prefix(key, prefix) -> list[str]`\n\nA scan returns `field(value)` strings ordered lexicographically by field name. A missing field returns `None`; deleting a missing field returns `False`.\n\nTimestamped operations:\n\n- `set_at(key, field, value, timestamp)` for a permanent value visible from `timestamp` onward\n- `set_at_with_ttl(key, field, value, timestamp, ttl)`\n- `get_at`, `delete_at`, `scan_at`, and `scan_by_prefix_at` with a timestamp parameter\n\nTimestamps and TTLs are non-negative integers, and TTLs must be positive. An expiring value is alive in the half-open interval `[timestamp, timestamp + ttl)`: it is absent exactly at its expiry. Calls using timestamped methods supply non-decreasing timestamps; permanent and timestamped APIs are not mixed in one scenario.\n\nFinally implement `backup(timestamp)` and `restore(timestamp, timestamp_to_restore)`. A backup is an independent snapshot of only the values alive at its timestamp. For every expiring value it must preserve its *remaining* TTL, not its original TTL or old absolute expiry. Restore selects the latest backup whose timestamp is at most `timestamp_to_restore`; it replaces live data as of `timestamp`, re-anchoring each saved remaining TTL there. If no qualifying backup exists, leave live data unchanged.\n\nUse dictionaries for average O(1) point operations and sort only the requested key's fields during scans.",
+  "starter_code": "class InMemoryDatabase:\n    def __init__(self):\n        pass\n\n    def set(self, key, field, value):\n        pass\n\n    def get(self, key, field):\n        pass\n\n    def delete(self, key, field):\n        pass\n\n    def scan(self, key):\n        pass\n\n    def scan_by_prefix(self, key, prefix):\n        pass\n\n    def set_at(self, key, field, value, timestamp):\n        pass\n\n    def set_at_with_ttl(self, key, field, value, timestamp, ttl):\n        pass\n\n    def get_at(self, key, field, timestamp):\n        pass\n\n    def delete_at(self, key, field, timestamp):\n        pass\n\n    def scan_at(self, key, timestamp):\n        pass\n\n    def scan_by_prefix_at(self, key, prefix, timestamp):\n        pass\n\n    def backup(self, timestamp):\n        pass\n\n    def restore(self, timestamp, timestamp_to_restore):\n        pass\n",
+  "example": {
+    "input": "db.set_at_with_ttl('task', 'state', 'queued', 20, 8); db.backup(23); db.restore(40, 23)",
+    "output": "db.get_at('task', 'state', 44) == 'queued'; db.get_at('task', 'state', 45) is None",
+    "reasoning": "The backup captures five units of TTL remaining at time 23, so restoration at time 40 expires at time 45."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

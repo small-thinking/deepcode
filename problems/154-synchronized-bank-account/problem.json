@@ -1,0 +1,26 @@
+{
+  "id": "154",
+  "slug": "synchronized-bank-account",
+  "title": "Synchronized Bank Account Wrapper",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["concurrency", "threading", "locking", "race-conditions", "inheritance"],
+  "companies": ["xAI"],
+  "prompt": "The supplied `BankAccount` deliberately has unsafe read-modify-write operations. Implement `SynchronizedBankAccount`, a subclass that makes the inherited API safe when several threads use the same instance. Do not change or copy the body of `BankAccount`; the synchronization belongs in the subclass wrapper.\n\nImplement:\n\n- `SynchronizedBankAccount(initial_balance=0, operation_delay=0.0)`\n- `deposit(amount)`\n- `withdraw(amount)`\n- `get_balance()`\n\n`deposit` and `withdraw` must delegate to the parent implementation while one instance-level lock protects the *entire* delegated call. Locking only a final assignment is not sufficient: another thread can already have read stale state. The inherited methods raise `ValueError` for non-positive amounts and `InsufficientFunds` for an overdraft; preserve those behaviors.\n\n`get_balance()` must return a consistent value when called outside a mutation. The supplied `operation_delay` exists only to make race tests deterministic; production correctness must not depend on a delay.\n\nFor the design discussion, explain why the same wrapper idea in a language without inheritance would use composition or embedding and still need to redeclare the synchronized methods.",
+  "starter_code": "import threading\nimport time\n\n\nclass InsufficientFunds(Exception):\n    pass\n\n\nclass BankAccount:\n    \"\"\"A legacy account. Its methods are intentionally not thread-safe.\"\"\"\n\n    def __init__(self, initial_balance=0, operation_delay=0.0):\n        if initial_balance < 0:\n            raise ValueError(\"initial_balance must be non-negative\")\n        self._balance = initial_balance\n        self.operation_delay = operation_delay\n        self.base_deposit_calls = 0\n        self.base_withdraw_calls = 0\n\n    def deposit(self, amount):\n        if amount <= 0:\n            raise ValueError(\"amount must be positive\")\n        current = self._balance\n        time.sleep(self.operation_delay)\n        self._balance = current + amount\n        self.base_deposit_calls += 1\n\n    def withdraw(self, amount):\n        if amount <= 0:\n            raise ValueError(\"amount must be positive\")\n        if self._balance < amount:\n            raise InsufficientFunds(\"insufficient balance\")\n        current = self._balance\n        time.sleep(self.operation_delay)\n        self._balance = current - amount\n        self.base_withdraw_calls += 1\n\n\nclass SynchronizedBankAccount(BankAccount):\n    def __init__(self, initial_balance=0, operation_delay=0.0):\n        # Initialize the parent account and one lock for this account.\n        pass\n\n    def deposit(self, amount):\n        # Hold the lock while delegating to super().deposit(amount).\n        pass\n\n    def withdraw(self, amount):\n        # Hold the lock while delegating to super().withdraw(amount).\n        pass\n\n    def get_balance(self):\n        pass\n",
+  "example": {
+    "input": "account = SynchronizedBankAccount(0); account.deposit(30); account.withdraw(8); account.get_balance()",
+    "output": "22",
+    "reasoning": "The wrapper preserves the inherited account operations while serializing each complete mutation."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

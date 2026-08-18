@@ -1,0 +1,17 @@
+[
+  {
+    "name": "recency controls repeated weighted evictions",
+    "input": "capacity ten with a hit before a five-weight insertion",
+    "test": "cache = WeightedLRUCache(10)\ncache.put('a', 1, 3)\ncache.put('b', 2, 3)\ncache.put('c', 3, 4)\nassert cache.get('a') == 1\ncache.put('d', 4, 5)\nassert cache.get('b') is None\nassert cache.get('c') is None\nassert cache.get('a') == 1\nassert cache.get('d') == 4"
+  },
+  {
+    "name": "replacing a key adjusts its old weight and keeps the replacement",
+    "input": "an enlarged update after another key becomes most recent",
+    "test": "cache = WeightedLRUCache(8)\ncache.put('a', 1, 3)\ncache.put('b', 2, 3)\ncache.put('c', 3, 2)\nassert cache.get('b') == 2\ncache.put('b', 20, 6)\nassert cache.get('a') is None\nassert cache.get('c') == 3\nassert cache.get('b') == 20"
+  },
+  {
+    "name": "invalid and oversized writes do not discard live entries",
+    "input": "a capacity-eight cache with invalid weights and an oversized item",
+    "test": "cache = WeightedLRUCache(8)\ncache.put('safe', 7, 5)\nfor weight in (0, -1, True):\n    try:\n        cache.put('bad', 1, weight)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    cache.put('huge', 9, 9)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\nassert cache.get('safe') == 7\nassert cache.get('huge') is None\nfor capacity in (0, -1, True):\n    try:\n        WeightedLRUCache(capacity)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]
