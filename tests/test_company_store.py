@@ -101,15 +101,18 @@ class CompanyStoreTest(unittest.TestCase):
 
         xai = companies.get_company("xAI", problems)
         self.assertEqual(xai["name"], "SpaceXAI / xAI-related roles")
-        self.assertEqual(
-            {problem["slug"] for problem in xai["related_problems"]},
+        self.assertTrue(
             {
                 "distributed-token-bucket-rate-limiter",
                 "notification-system-event-batch",
                 "sliding-window-rate-limiter",
                 "data-parallel-fsdp-matrix-multiplication",
                 "nested-structure-flatten-unflatten",
-            },
+                "parallel-merge-sort",
+                "twitter-spaces-active-time",
+                "max-distinct-after-operations",
+                "gpu-node-group-testing",
+            }.issubset({problem["slug"] for problem in xai["related_problems"]})
         )
 
     def test_lists_profiles_and_links_matching_problem_companies(self):

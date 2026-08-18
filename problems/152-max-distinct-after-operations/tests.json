@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds a full assignment across overlapping intervals",
+    "input": "six values with adjustment distance two",
+    "test": "nums = [2, 3, 3, 4, 4, 5]\nassert max_distinct_after_adjustments(nums, 2) == 6\nassert nums == [2, 3, 3, 4, 4, 5]"
+  },
+  {
+    "name": "handles zero range and intervals that cannot hold every duplicate",
+    "input": "duplicate-heavy inputs",
+    "test": "assert max_distinct_after_adjustments([7, 7, 7, 7], 1) == 3\nassert max_distinct_after_adjustments([5, 5, 5], 0) == 1\nassert max_distinct_after_adjustments([1, 1, 1, 1], 1) == 3"
+  },
+  {
+    "name": "keeps disjoint regions independent at large values",
+    "input": "unsorted values with separated adjustment intervals",
+    "test": "assert max_distinct_after_adjustments([1000000000, 2, 2, 1000000000], 1) == 4\nassert max_distinct_after_adjustments([10, 1, 1, 10], 1) == 4"
+  }
+]

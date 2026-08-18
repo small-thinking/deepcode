@@ -1,0 +1,17 @@
+[
+  {
+    "name": "orders events, ignores exact duplicates, and adds independent participant sessions",
+    "input": "unordered events for two rooms",
+    "test": "events = [\n    ['leave', 'lounge', 'a', 5300],\n    ['create', 'studio', 'b', 4700],\n    ['join', 'lounge', 'b', 4180],\n    ['leave', 'studio', 'b', 5000],\n    ['create', 'lounge', 'a', 4100],\n    ['leave', 'lounge', 'b', 4450],\n    ['leave', 'lounge', 'b', 4450],\n]\nassert calculate_active_time(events) == {'lounge': 1470, 'studio': 300}"
+  },
+  {
+    "name": "closes open sessions only when a current time is provided",
+    "input": "one completed session, one unfinished session, and an unmatched leave",
+    "test": "events = [\n    ['leave', 'lounge', 'ghost', 50],\n    ['create', 'lounge', 'a', 100],\n    ['join', 'lounge', 'b', 300],\n    ['leave', 'lounge', 'b', 600],\n    ['join', 'lounge', 'b', 700],\n]\nassert calculate_active_time(events) == {'lounge': 300}\nassert calculate_active_time(events, current_time=900) == {'lounge': 1300}"
+  },
+  {
+    "name": "tracks live room populations with stable ranking",
+    "input": "joins, duplicate joins, leaves, and tied room sizes",
+    "test": "tracker = LiveRoomTracker()\ntracker.process_event('create', 'beta', 'a', 100)\ntracker.process_event('join', 'beta', 'b', 110)\ntracker.process_event('create', 'alpha', 'c', 120)\ntracker.process_event('join', 'alpha', 'd', 130)\ntracker.process_event('join', 'alpha', 'd', 131)\nassert tracker.get_top_k(5) == [('alpha', 2), ('beta', 2)]\ntracker.process_event('leave', 'alpha', 'd', 140)\ntracker.process_event('leave', 'missing', 'nobody', 150)\nassert tracker.get_top_k(1) == [('beta', 2)]\ntracker.process_event('leave', 'beta', 'a', 160)\ntracker.process_event('leave', 'beta', 'b', 170)\nassert tracker.get_top_k(5) == [('alpha', 1)]\nassert tracker.get_top_k(0) == []"
+  }
+]

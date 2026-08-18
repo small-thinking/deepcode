@@ -1,0 +1,26 @@
+{
+  "id": "153",
+  "slug": "gpu-node-group-testing",
+  "title": "Find Faulty Nodes with Group Tests",
+  "category": "ML Systems",
+  "difficulty": "hard",
+  "tags": ["fault-isolation", "group-testing", "black-box-oracle", "gpu-clusters", "algorithm"],
+  "companies": ["xAI"],
+  "prompt": "A cluster has `n >= 2` numbered nodes and at least two healthy nodes. Implement `find_faulty_nodes(n, test)`, where `test(nodes)` accepts a Python `set` of node IDs with at least two members. It returns `True` exactly when every node in that set is healthy, and `False` when the set contains one or more faulty nodes.\n\nReturn the set of all faulty node IDs. The hidden health state is available only through `test`; do not inspect or modify the callback's closure. Do not call `test` on a singleton or empty set.\n\nThe general contract permits only quadratic worst-case oracle usage: if exactly two nodes are healthy, every tested set with three or more nodes must fail, so locating the one healthy pair can require checking pairs. Correctness and valid oracle calls matter more than a fabricated subquadratic target.",
+  "starter_code": "def find_faulty_nodes(n, test):\n    # test(nodes) accepts a set with at least two node IDs.\n    pass\n",
+  "example": {
+    "input": "n = 5 with hidden faulty nodes {1, 3}",
+    "output": "{1, 3}",
+    "reasoning": "A successful group test identifies healthy nodes; tests paired with a known healthy node classify the rest."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
