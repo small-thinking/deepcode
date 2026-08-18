@@ -1,0 +1,17 @@
+[
+  {
+    "name": "counts rewards on entered intermediate and endpoint nodes once",
+    "input": "a single route with one intermediate node",
+    "test": "travel = [('start', '5', 'A'), ('A', '3', 'END1')]\npoints = [('A', '10'), ('END1', '4')]\nassert max_net_score(travel, points) == 6"
+  },
+  {
+    "name": "chooses the best endpoint through a merged DAG suffix",
+    "input": "two start branches, two END-prefixed terminals, and an intermediate merge",
+    "test": "travel = [('start', '2', 'A'), ('start', '1', 'B'), ('A', '1', 'C'), ('B', '2', 'C'), ('A', '3', 'END1'), ('C', '1', 'END2')]\npoints = [('A', '5'), ('B', '2'), ('C', '3'), ('END1', '1'), ('END2', '4')]\nassert max_net_score(travel, points) == 8"
+  },
+  {
+    "name": "includes a direct terminal reward and defaults absent rewards to zero",
+    "input": "a zero-cost direct route and a route through an unlisted node",
+    "test": "assert max_net_score([('start', '0', 'END')], [('END', '10')]) == 10\nassert max_net_score([('start', 1, 'middle'), ('middle', 1, 'END2')], [('END2', 5)]) == 3"
+  }
+]

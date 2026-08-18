@@ -1,0 +1,26 @@
+{
+  "id": "236",
+  "slug": "ordered-split-stay-plans",
+  "title": "Ordered Two-Leg Stay Plans",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["intervals", "availability", "sets", "pairing"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `split_stays(listings, start_day, end_day) -> list[list[str]]`. `listings` maps unique listing labels to iterables of available integer days. A plan is an ordered `[first_listing, second_listing]`: the first listing covers every day in a nonempty front segment and the second covers every day in the adjacent nonempty back segment of the inclusive trip window.\n\nFor some `k` with `start_day <= k < end_day`, the first listing must cover `[start_day, k]` and the second must cover `[k + 1, end_day]`. The two listings must differ. Availability may include additional days. Return each ordered plan at most once even when several split days work, preserving the input mapping's iteration order for the outer and inner listing loops.\n\nReturn `[]` when the window has fewer than two days or when no ordered plan qualifies. Do not mutate caller-owned availability collections.",
+  "starter_code": "def split_stays(listings, start_day, end_day):\n    # Return each ordered first-leg/second-leg plan once.\n    pass\n",
+  "example": {
+    "input": "split_stays({'A': [2, 4, 5, 6, 9, 10], 'B': [4, 5, 6, 7, 8], 'C': [9, 10, 11, 12, 14], 'D': [4, 5, 7, 8, 9, 10, 11, 12]}, 4, 12)",
+    "output": "[['A', 'D'], ['B', 'C'], ['B', 'D']]",
+    "reasoning": "The output preserves first-leg versus second-leg roles, so plan order is observable."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
