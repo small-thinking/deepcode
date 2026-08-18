@@ -1,0 +1,17 @@
+[
+  {
+    "name": "signed entries balances and returned rows preserve append semantics",
+    "input": "one deposit one withdrawal and a caller-mutated result list",
+    "test": "account = Account()\naccount.deposit(4, 90)\naccount.withdraw(7, 25)\nassert account.balance(3) == 0\nassert account.balance(7) == 65\nentries = account.transactions(0, 10)\nassert entries == [(4, 90), (7, -25)]\nentries.append((99, 99))\nassert account.transactions(0, 10) == [(4, 90), (7, -25)]"
+  },
+  {
+    "name": "range endpoints are inclusive and equal timestamps retain insertion order",
+    "input": "two same-time deposits and one later withdrawal",
+    "test": "account = Account()\naccount.deposit(2, 5)\naccount.deposit(2, 3)\naccount.withdraw(3, 4)\nassert account.transactions(2, 2) == [(2, 5), (2, 3)]\nassert account.transactions(2, 3) == [(2, 5), (2, 3), (3, -4)]\nassert account.balance(2) == 8\nassert account.balance(3) == 4"
+  },
+  {
+    "name": "overdrafts invalid amounts reversed ranges and older timestamps fail safely",
+    "input": "a rejected withdrawal followed by invalid operations",
+    "test": "account = Account()\naccount.deposit(5, 10)\ntry:\n    account.withdraw(6, 11)\n    raise AssertionError('expected OverdraftError')\nexcept OverdraftError:\n    pass\nassert account.transactions(0, 10) == [(5, 10)]\nfor call in (lambda: account.deposit(4, 1), lambda: account.deposit(6, 0), lambda: account.withdraw(6, True), lambda: account.transactions(7, 6)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

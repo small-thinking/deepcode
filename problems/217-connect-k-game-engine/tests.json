@@ -1,0 +1,17 @@
+[
+  {
+    "name": "gravity and all four line directions determine the winner",
+    "input": "vertical horizontal and diagonal winning sequences",
+    "test": "vertical = ConnectKGame(4, 4, 3)\nfor player, column in ((Player.X, 1), (Player.O, 0), (Player.X, 1), (Player.O, 0), (Player.X, 1)):\n    status = vertical.make_move(player, column)\nassert status is GameStatus.PLAYER_X_WINS\nhorizontal = ConnectKGame(3, 4, 3)\nfor player, column in ((Player.X, 0), (Player.O, 3), (Player.X, 1), (Player.O, 3), (Player.X, 2)):\n    status = horizontal.make_move(player, column)\nassert status is GameStatus.PLAYER_X_WINS\ndiagonal = ConnectKGame(4, 4, 3)\nfor player, column in ((Player.X, 0), (Player.O, 1), (Player.X, 1), (Player.O, 2), (Player.X, 3), (Player.O, 2), (Player.X, 2)):\n    status = diagonal.make_move(player, column)\nassert status is GameStatus.PLAYER_X_WINS"
+  },
+  {
+    "name": "turn ownership and invalid or full columns are rejected",
+    "input": "wrong player out-of-range and a full column",
+    "test": "game = ConnectKGame(2, 2, 3)\nfor call in (lambda: game.make_move(Player.O, 0), lambda: game.make_move(Player.X, -1), lambda: game.make_move(Player.X, 2)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nassert game.make_move(Player.X, 0) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 0) is GameStatus.IN_PROGRESS\ntry:\n    game.make_move(Player.X, 0)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass"
+  },
+  {
+    "name": "K one terminal moves and board-filling moves have the right precedence",
+    "input": "a first-move win and an unwinnable full board",
+    "test": "one = ConnectKGame(2, 2, 1)\nassert one.make_move(Player.X, 0) is GameStatus.PLAYER_X_WINS\ntry:\n    one.make_move(Player.O, 1)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\ndraw = ConnectKGame(2, 2, 3)\nfor player, column in ((Player.X, 0), (Player.O, 1), (Player.X, 0), (Player.O, 1)):\n    status = draw.make_move(player, column)\nassert status is GameStatus.DRAW"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "duplicate references are preserved and base updates propagate eagerly",
+    "input": "a formula that references one base key twice",
+    "test": "store = KeyStore()\nstore.set_value('a', 2)\nstore.set_value('b', 3)\nstore.set_sum('total', ['a', 'a', 'b'])\nassert store.get_value('total') == 7\nstore.set_value('a', 4)\nassert store.get_value('total') == 11"
+  },
+  {
+    "name": "formula replacement and conversion back to a base detach old edges",
+    "input": "a formula is redefined then replaced by a base value",
+    "test": "store = KeyStore()\nstore.set_value('a', 1)\nstore.set_value('b', 2)\nstore.set_sum('total', ['a'])\nstore.set_sum('total', ['b'])\nstore.set_value('a', 9)\nassert store.get_value('total') == 2\nstore.set_value('total', 7)\nstore.set_value('b', 11)\nassert store.get_value('total') == 7\nstore.set_sum('total', ['b'])\nassert store.get_value('total') == 11"
+  },
+  {
+    "name": "direct indirect and rejected replacement cycles leave state unchanged",
+    "input": "an existing formula graph followed by invalid cycles",
+    "test": "store = KeyStore()\nfor key, value in (('a', 1), ('b', 2), ('c', 3)):\n    store.set_value(key, value)\nstore.set_sum('a', ['b'])\ntry:\n    store.set_sum('b', ['a'])\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\nassert store.get_value('b') == 2\nstore.set_sum('b', ['c'])\ntry:\n    store.set_sum('c', ['a'])\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\nstore.set_value('c', 8)\nassert store.get_value('b') == 8\nassert store.get_value('a') == 8\nstore.set_sum('a', ['b'])\nassert store.get_value('a') == 8"
+  },
+  {
+    "name": "unknown references and keys fail without creating partial state",
+    "input": "missing inputs and a failed formula definition",
+    "test": "store = KeyStore()\nstore.set_value('known', 5)\nfor call in (lambda: store.get_value('missing'), lambda: store.set_sum('new', ['missing'])):\n    try:\n        call()\n        raise AssertionError('expected KeyError')\n    except KeyError:\n        pass\ntry:\n    store.get_value('new')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  }
+]

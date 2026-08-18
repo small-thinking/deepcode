@@ -1,0 +1,33 @@
+{
+  "id": "218",
+  "slug": "keyed-box-collector",
+  "title": "Keyed Box Collector",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "graph-traversal",
+    "state-machine",
+    "dependency-resolution",
+    "breadth-first-search"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Implement a collector over boxes that can contain rewards, keys, and references to child boxes.\n\n`Box(id, candies, keys, children)` stores a box ID, a nonnegative reward count, iterable keys, and iterable child box IDs. Implement `get_max_candies(boxes, initially_open, key_to_box) -> int`. `boxes` is the complete catalog, `initially_open` contains root box IDs that are both discovered and unlocked, and `key_to_box` maps a key to the ID it unlocks.\n\nA catalog box can open exactly once only after it is both discovered and unlocked. Opening it collects its candies, reveals its keys, and discovers its child IDs. A key may unlock a catalog box before that box is discovered; it must wait until a parent reveals it. Repeated child references, duplicate keys, cycles, and self-references must not collect a box twice. A key absent from `key_to_box`, or one mapped to a box outside the catalog, has no effect. Do not mutate the supplied boxes or build a user interface.",
+  "starter_code": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Box:\n    id: object\n    candies: int\n    keys: tuple\n    children: tuple\n\n\ndef get_max_candies(boxes, initially_open, key_to_box):\n    pass\n",
+  "example": {
+    "input": "boxes = [Box('root', 2, ('brass',), ('side',)), Box('side', 5, (), ())]; get_max_candies(boxes, {'root'}, {'brass': 'side'})",
+    "output": "7",
+    "reasoning": "Opening the root both unlocks and reveals the side box, so each reward is collected once."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

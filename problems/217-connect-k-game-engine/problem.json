@@ -1,0 +1,34 @@
+{
+  "id": "217",
+  "slug": "connect-k-game-engine",
+  "title": "Connect-K Game Engine",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "game-engine",
+    "state-machine",
+    "grid",
+    "invariants",
+    "simulation"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Implement a gravity-based Connect-K game engine. The game owns turn order, but the caller must still name the player making a move.\n\n- `Player` has `X` and `O`; X always starts.\n- `GameStatus` has `IN_PROGRESS`, `PLAYER_X_WINS`, `PLAYER_O_WINS`, and `DRAW`.\n- `ConnectKGame(rows, columns, k)` creates an empty board. `rows`, `columns`, and `k` are positive integers. `k` may exceed both board dimensions; that game can still end in a draw.\n- `make_move(player, column) -> GameStatus` validates that `player` is the current player, then places its piece in the lowest unoccupied cell of `column`.\n\nA move wins when it creates at least `k` contiguous pieces for that player horizontally, vertically, or diagonally. A full board without a winning move is a draw. Check for a win before declaring a draw, so a board-filling winning move wins. Reject invalid players, invalid or full columns, moves after a terminal status, and invalid constructor arguments with `ValueError`. Do not add AI play, undo, networking, or rendering behavior.",
+  "starter_code": "from enum import Enum\n\n\nclass Player(Enum):\n    X = 'X'\n    O = 'O'\n\n\nclass GameStatus(Enum):\n    IN_PROGRESS = 'IN_PROGRESS'\n    PLAYER_X_WINS = 'PLAYER_X_WINS'\n    PLAYER_O_WINS = 'PLAYER_O_WINS'\n    DRAW = 'DRAW'\n\n\nclass ConnectKGame:\n    def __init__(self, rows, columns, k):\n        pass\n\n    def make_move(self, player, column):\n        pass\n",
+  "example": {
+    "input": "game = ConnectKGame(4, 4, 3); game.make_move(Player.X, 1)",
+    "output": "GameStatus.IN_PROGRESS",
+    "reasoning": "The first move falls to the bottom of column 1 and cannot yet form a three-piece line."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
