@@ -1,0 +1,17 @@
+[
+  {
+    "name": "schema validation and mutation isolation protect stored rows",
+    "input": "a caller row then a returned projected row are mutated",
+    "test": "db = Database()\ndb.create_table('members', ['id', 'name', 'score'])\nrow = {'id': '1', 'name': 'Ada', 'score': '07'}\ndb.insert('members', row)\nrow['name'] = 'changed'\nresult = db.query('members', ['name'])\nassert result == [{'name': 'Ada'}]\nresult[0]['name'] = 'changed again'\nassert db.query('members', ['name']) == [{'name': 'Ada'}]\nfor call in (\n    lambda: db.create_table('members', ['id']),\n    lambda: db.insert('members', {'id': '2', 'name': 'Bryn'}),\n    lambda: db.query('missing', ['id']),\n):\n    try:\n        call()\n        raise AssertionError('expected an error')\n    except (KeyError, ValueError):\n        pass"
+  },
+  {
+    "name": "callable and AND condition-list filters see full rows and numeric strings",
+    "input": "projecting names while filtering on scores",
+    "test": "db = Database()\ndb.create_table('members', ['id', 'name', 'score'])\nfor row in (\n    {'id': 'a', 'name': 'Ada', 'score': '2'},\n    {'id': 'b', 'name': 'Bryn', 'score': '10'},\n    {'id': 'c', 'name': 'Cal', 'score': '11'},\n):\n    db.insert('members', row)\nassert db.query('members', ['name'], where=lambda row: int(row['score']) >= 10) == [{'name': 'Bryn'}, {'name': 'Cal'}]\nassert db.query('members', ['id'], where=[('score', '>', '2'), ('name', '!=', 'Cal')]) == [{'id': 'b'}]\nassert db.query('members', ['id'], where=[]) == [{'id': 'a'}, {'id': 'b'}, {'id': 'c'}]"
+  },
+  {
+    "name": "sorting runs before projection uses numeric order and keeps stable ties",
+    "input": "nonprojected sort columns shared descending direction and ties",
+    "test": "db = Database()\ndb.create_table('members', ['id', 'name', 'score', 'team'])\nfor row in (\n    {'id': '1', 'name': 'Ada', 'score': '10', 'team': 'red'},\n    {'id': '2', 'name': 'Bryn', 'score': '2', 'team': 'red'},\n    {'id': '3', 'name': 'Cal', 'score': '2', 'team': 'red'},\n    {'id': '4', 'name': 'Dia', 'score': '2', 'team': 'blue'},\n):\n    db.insert('members', row)\nassert db.query('members', ['name'], where=lambda row: row['team'] == 'red', order_by='score') == [{'name': 'Bryn'}, {'name': 'Cal'}, {'name': 'Ada'}]\nassert db.query('members', ['name'], order_by=(['score', 'name'], False)) == [{'name': 'Ada'}, {'name': 'Dia'}, {'name': 'Cal'}, {'name': 'Bryn'}]\nfor call in (lambda: db.query('members', ['missing']), lambda: db.query('members', ['id'], where=[('score', '~', '2')]), lambda: db.query('members', ['id'], order_by='missing')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

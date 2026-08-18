@@ -1,0 +1,17 @@
+[
+  {
+    "name": "opened boxes collect rewards keys and discovered descendants once",
+    "input": "a nested catalog with two staged keys",
+    "test": "boxes = [\n    Box('root', 2, ('brass',), ('side',)),\n    Box('side', 5, ('silver',), ('chest',)),\n    Box('chest', 11, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {'brass': 'side', 'silver': 'chest'}) == 18"
+  },
+  {
+    "name": "an early key waits until a later parent discovers its target",
+    "input": "a target unlocked before its child reference is exposed",
+    "test": "boxes = [\n    Box('root', 1, ('open-side', 'open-chest'), ('side',)),\n    Box('side', 3, (), ('chest',)),\n    Box('chest', 7, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {'open-side': 'side', 'open-chest': 'chest'}) == 11"
+  },
+  {
+    "name": "cycles repeated references locked boxes and unknown keys are safe",
+    "input": "a cycle plus a child that has no unlocking key",
+    "test": "boxes = [\n    Box('root', 1, ('open-side', 'unknown'), ('side', 'side', 'locked')),\n    Box('side', 4, (), ('root',)),\n    Box('locked', 100, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {'open-side': 'side', 'unknown': 'not-in-catalog'}) == 5"
+  }
+]

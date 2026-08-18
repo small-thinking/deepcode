@@ -1,0 +1,33 @@
+{
+  "id": "220",
+  "slug": "timestamped-account-ledger",
+  "title": "Timestamped Account Ledger",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "ledger",
+    "binary-search",
+    "time-semantics",
+    "stateful-api"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Implement an append-only account ledger.\n\n- `deposit(timestamp, amount)` appends a positive signed entry.\n- `withdraw(timestamp, amount)` appends the negative signed entry only when it would not make the account balance negative; otherwise it raises `OverdraftError` and appends nothing.\n- `transactions(start, end) -> list[tuple[int, int]]` returns signed `(timestamp, amount)` entries with inclusive endpoints `[start, end]`, in append order.\n- `balance(timestamp) -> int` returns the cumulative balance after every entry at or before that timestamp.\n\nTimestamps are integers supplied in nondecreasing order; equal timestamps retain their insertion order. Amounts are positive integers. Invalid inputs, reversed query ranges, and attempts to append an older timestamp raise `ValueError`. Expose only copies of ledger data, and do not implement transfers, persistence, or out-of-order insertion.",
+  "starter_code": "class OverdraftError(Exception):\n    pass\n\n\nclass Account:\n    def __init__(self):\n        pass\n\n    def deposit(self, timestamp, amount):\n        pass\n\n    def withdraw(self, timestamp, amount):\n        pass\n\n    def transactions(self, start, end):\n        pass\n\n    def balance(self, timestamp):\n        pass\n",
+  "example": {
+    "input": "account = Account(); account.deposit(4, 90); account.withdraw(7, 25); account.balance(7)",
+    "output": "65",
+    "reasoning": "The withdrawal is represented by a negative ledger amount and is included at its timestamp."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

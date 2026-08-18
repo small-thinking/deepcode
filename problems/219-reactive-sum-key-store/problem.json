@@ -1,0 +1,33 @@
+{
+  "id": "219",
+  "slug": "reactive-sum-key-store",
+  "title": "Reactive Sum Key Store",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": [
+    "dependency-graph",
+    "reactive-state",
+    "topological-propagation",
+    "cycle-detection"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Implement `KeyStore`, an integer key store with eager sum formulas.\n\n- `set_value(key, value)` stores an integer base value. It may create a key or replace an existing formula.\n- `set_sum(key, refs)` defines `key` as the sum of the current values of every key in `refs`. References must already exist. Repeated references count repeatedly, and an empty formula evaluates to zero. Defining a sum replaces any prior formula on `key`.\n- `get_value(key) -> int` returns the current value.\n\nWhen a base value or formula value changes, all downstream formula values must update eagerly. `set_value` detaches an old formula even when its cached numeric value is unchanged; it should not otherwise propagate a no-op update. Reject a direct or indirect formula cycle with `ValueError` and leave the entire store unchanged. Reject unknown references or unknown `get_value` keys with `KeyError`; use `TypeError` for invalid keys, values, or reference collections. Do not implement deletion, persistence, or concurrency.",
+  "starter_code": "class KeyStore:\n    def __init__(self):\n        pass\n\n    def set_value(self, key, value):\n        pass\n\n    def set_sum(self, key, refs):\n        pass\n\n    def get_value(self, key):\n        pass\n",
+  "example": {
+    "input": "store = KeyStore(); store.set_value('a', 2); store.set_value('b', 3); store.set_sum('total', ['a', 'a', 'b']); store.get_value('total')",
+    "output": "7",
+    "reasoning": "The formula preserves duplicate references, so `a` contributes twice."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
