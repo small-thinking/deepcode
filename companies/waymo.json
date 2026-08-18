@@ -1,0 +1,53 @@
+{
+  "slug": "waymo",
+  "name": "Waymo",
+  "summary": "Autonomous-driving technology company tracked for safety-critical evaluation, simulation, ML systems, and systems-design practice.",
+  "stage": {
+    "company_state": "Alphabet company",
+    "funding_stage": "Not applicable / Alphabet company",
+    "source": {
+      "label": "Waymo About",
+      "url": "https://waymo.com/about/"
+    }
+  },
+  "links": [
+    {
+      "label": "Waymo About",
+      "url": "https://waymo.com/about/"
+    },
+    {
+      "label": "Careers",
+      "url": "https://careers.withwaymo.com/"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Official company context; role-dependent",
+    "summary": "This profile provides autonomous-driving preparation context and does not claim a standard interview loop.",
+    "stages": [
+      {
+        "name": "Preparation context",
+        "signal": "Autonomous-driving technology, safety-oriented systems, simulation and evaluation, ML systems, and coding practice.",
+        "evidence_tier": "Official company context; role-dependent",
+        "sources": [
+          {
+            "label": "Waymo About",
+            "url": "https://waymo.com/about/"
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "label": "Practice coverage",
+      "detail": "1 imported exercise: Sliding-Window Rate Limiter."
+    }
+  ],
+  "references": [
+    {
+      "label": "Waymo About",
+      "url": "https://waymo.com/about/"
+    }
+  ],
+  "updated_at": "2026-08-17"
+}
