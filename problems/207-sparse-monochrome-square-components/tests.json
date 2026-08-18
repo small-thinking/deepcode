@@ -1,0 +1,17 @@
+[
+  {
+    "name": "counts filled squares at sparse coordinates",
+    "input": "a far-away two by two square and a singleton component",
+    "test": "cells = [(1000000, 1000000, 'A'), (1000001, 1000000, 'A'), (1000000, 1000001, 'A'), (1000001, 1000001, 'A'), (7, -3, 'B')]\nassert count_square_components(cells) == 2"
+  },
+  {
+    "name": "rejects rectangles, L-shapes, and components with holes",
+    "input": "three connected non-square components in different colors",
+    "test": "rectangle = [(x, y, 'R') for x in range(10, 13) for y in range(2)]\nl_shape = [(20, 0, 'L'), (21, 0, 'L'), (20, 1, 'L')]\nhole = [(x, y, 'H') for x in range(30, 33) for y in range(3) if (x, y) != (31, 1)]\nassert count_square_components(rectangle + l_shape + hole) == 0"
+  },
+  {
+    "name": "does not merge adjacent components of different colors",
+    "input": "two same-shaped regions that touch only across a color boundary",
+    "test": "cells = [(0, 0, 'A'), (1, 0, 'A'), (0, 1, 'A'), (1, 1, 'A'), (2, 0, 'B'), (2, 1, 'B'), (3, 0, 'B'), (3, 1, 'B')]\nassert count_square_components(cells) == 2"
+  }
+]

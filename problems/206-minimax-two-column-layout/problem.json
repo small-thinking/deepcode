@@ -1,0 +1,26 @@
+{
+  "id": "206",
+  "slug": "minimax-two-column-layout",
+  "title": "Minimax Two-Column Layout",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["binary-search", "greedy", "layout", "optimization"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `minimax_divider(left_words, right_words, total_width) -> int`. Choose a nonnegative integer divider `w`: the left column has width `w` and the right column has width `total_width - w`. Words are never split. Each column wraps greedily in order, placing exactly one space between adjacent words on the same line.\n\nBoth columns must fit their own longest word. Therefore the feasible divider range is `[max_left_word_length, total_width - max_right_word_length]`; an empty word list has minimum width zero. Return `-1` if this interval is empty. Otherwise, minimize the larger of the two resulting line counts. If several dividers achieve the same minimum, return the smallest divider.\n\nUse a greedy `line_count(words, width)` helper and exploit that the left height cannot increase as `w` grows while the right height cannot decrease. Aim for O((len(left_words) + len(right_words)) * log(total_width)) time and O(1) auxiliary space.",
+  "starter_code": "def minimax_divider(left_words, right_words, total_width):\n    # Return the smallest optimal left-column width, or -1 when impossible.\n    pass\n",
+  "example": {
+    "input": "minimax_divider(['a', 'bb'], ['ccc', 'd'], 10)",
+    "output": "4",
+    "reasoning": "At width four, each column fits its two words on one line, minimizing the taller column."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

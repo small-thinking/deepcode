@@ -1,0 +1,26 @@
+{
+  "id": "203",
+  "slug": "minimal-infix-expression-serializer",
+  "title": "Minimal Infix Expression Serializer",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["trees", "parsing", "operator-precedence", "recursion"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `serialize_expression(node) -> str` for a binary arithmetic expression tree. A leaf is a variable-name string. An internal node is a tuple `(operator, left, right)`, where `operator` is one of `+`, `-`, `*`, or `/`.\n\nReturn an infix expression without spaces. Parsing it with ordinary precedence (`*` and `/` bind tighter than `+` and `-`) and left-associative binary operators must reconstruct the original tree exactly, not merely an expression with the same numeric value. Use the fewest parentheses that preserve that structure.\n\nWrap a child whose root has lower precedence than its parent. At equal precedence, a left child can be written without parentheses because parsing is left-associative. A right child must be parenthesized even when both operators are `+` or both are `*`: for example, `a+(b+c)` and `a*(b*c)` preserve right nesting while `a+b+c` and `a*b*c` do not. Unary operators are outside this contract.\n\nAim for O(n) tree traversal time and O(h) call-stack space, excluding the returned string.",
+  "starter_code": "def serialize_expression(node):\n    # Return the shortest infix string that reconstructs node exactly.\n    pass\n",
+  "example": {
+    "input": "serialize_expression(('*', ('+', 'a', 'b'), 'c'))",
+    "output": "'(a+b)*c'",
+    "reasoning": "The lower-precedence addition on the left needs parentheses before multiplication."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}
