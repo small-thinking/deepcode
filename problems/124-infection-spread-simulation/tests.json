@@ -1,16 +1,21 @@
 [
   {
-    "name": "default threshold requires two snapshot neighbors without mutating input",
+    "name": "synchronous two-neighbor waves do not mutate input",
     "input": "four corner sources in a three-by-three grid",
     "test": "original = [[1, 0, 1], [0, 0, 0], [1, 0, 1]]\nassert simulate_basic(original) == (2, [[1, 1, 1], [1, 1, 1], [1, 1, 1]])\nassert original == [[1, 0, 1], [0, 0, 0], [1, 0, 1]]"
   },
   {
-    "name": "one neighbor is insufficient and source-free grids are stable",
-    "input": "a single source and a grid without a source",
-    "test": "assert simulate_basic([[1, 0, 0]]) == (0, [[1, 0, 0]])\nassert simulate_basic([[0, 0], [0, 0]]) == (0, [[0, 0], [0, 0]])"
+    "name": "the default threshold blocks a lone source",
+    "input": "one source in a one-by-three grid",
+    "test": "assert simulate_basic([[1, 0, 0]]) == (0, [[1, 0, 0]])"
   },
   {
-    "name": "two neighboring sources infect their shared cell",
+    "name": "source-free grids are already stable",
+    "input": "a two-by-two grid without a source",
+    "test": "assert simulate_basic([[0, 0], [0, 0]]) == (0, [[0, 0], [0, 0]])"
+  },
+  {
+    "name": "two neighboring sources meet the default threshold",
     "input": "two sources around one healthy cell",
     "test": "assert simulate_basic([[1, 0, 1]]) == (1, [[1, 1, 1]])"
   },
