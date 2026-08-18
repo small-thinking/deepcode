@@ -117,6 +117,14 @@ class CompanyStoreTest(unittest.TestCase):
             }.issubset({problem["slug"] for problem in xai["related_problems"]})
         )
 
+        airbnb = companies.get_company("Airbnb", problems)
+        self.assertTrue(
+            {
+                "notification-system-event-batch",
+                "distributed-kv-store",
+            }.issubset({problem["slug"] for problem in airbnb["related_problems"]})
+        )
+
         waymo = companies.get_company("Waymo", problems)
         self.assertEqual(waymo["name"], "Waymo")
         self.assertTrue(

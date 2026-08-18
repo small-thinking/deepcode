@@ -5,7 +5,7 @@
   "category": "System Design",
   "difficulty": "medium",
   "tags": ["distributed-systems", "key-value-store", "replication", "consensus", "rebalancing"],
-  "companies": ["xAI"],
+  "companies": ["xAI", "Airbnb"],
   "prompt": "Design a distributed key-value store with `put(key, value)`, `get(key)`, and `delete(key)`. It must partition data across machines, replicate durable data, recover from node failure, and add capacity without stopping traffic.\n\nChoose a concrete baseline consistency model for single-key operations, then explain extensions for stale reads or cross-region replication. Cover:\n\n- Routing, partition ownership, replication, write acknowledgement, and read behavior.\n- Durable local storage, deletes, failure detection, repair, and recovery.\n- Safe range movement when nodes join or leave.\n- Latency, consistency, availability, and operational trade-offs.\n\nDo not claim global linearizability, arbitrary partition availability, and single-digit cross-region latency at the same time.",
   "response": {
     "placeholder": "State the single-key consistency and regional latency target first. Then draw routing to a replicated partition group, trace one write and read, and explain repair and epoch-fenced rebalancing.",
