@@ -1,0 +1,26 @@
+{
+  "id": "163",
+  "slug": "radix-cache",
+  "title": "Compressed Radix Cache",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["trie", "radix-tree", "prefix-matching", "cache", "data-structures"],
+  "companies": ["xAI"],
+  "prompt": "Implement a compressed radix tree for non-empty sequences of integers. Unlike an ordinary trie, each edge stores a list of one or more integers. A node's terminal flag records whether a complete sequence was inserted there; a structural prefix alone is not a stored sequence.\n\nImplement `RadixCache` with:\n\n- `insert(sequence)`\n- `search(sequence) -> bool` for exact membership\n- `prefix_match(sequence) -> list[int]` for the longest inserted sequence that is a prefix of the query\n- `get_all_sequences() -> list[list[int]]`\n\nInsertion is idempotent. An empty sequence is a no-op and is never stored. Reject a non-list input or an element that is not an integer (booleans are not integers here) with `TypeError`. Copy input data so mutating the caller's list cannot change the cache.\n\nWhen a new sequence partially overlaps an existing compressed edge, split that edge at their common prefix. If the new sequence ends at the split point, mark the new intermediate node terminal. `prefix_match` may return only a complete terminal sequence: a query ending in the middle of an edge does not qualify. Return all stored sequences in lexicographic order for deterministic output.\n\nAim for O(L) work for search, prefix matching, and an insertion path of length L, aside from copying the edge fragments created by a split.",
+  "starter_code": "class _Node:\n    def __init__(self):\n        self.children = {}\n        self.terminal = False\n\n\nclass RadixCache:\n    def __init__(self):\n        pass\n\n    def insert(self, sequence):\n        pass\n\n    def search(self, sequence):\n        pass\n\n    def prefix_match(self, sequence):\n        pass\n\n    def get_all_sequences(self):\n        pass\n",
+  "example": {
+    "input": "cache.insert([4, 7]); cache.insert([4, 7, 10]); cache.prefix_match([4, 7, 10, 12])",
+    "output": "[4, 7, 10]",
+    "reasoning": "Both terminal entries share compressed structure, and the longer one is the longest stored query prefix."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

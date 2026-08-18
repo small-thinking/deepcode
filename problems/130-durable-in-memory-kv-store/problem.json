@@ -12,7 +12,8 @@
     "multipart"
   ],
   "companies": [
-    "OpenAI"
+    "OpenAI",
+    "xAI"
   ],
   "interview_frequency": {
     "OpenAI": {

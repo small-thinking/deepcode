@@ -1,0 +1,22 @@
+[
+  {
+    "name": "regular pieces follow their direction and mandatory captures",
+    "input": "a red piece with one legal capture and another piece with a simple move",
+    "test": "forward = CheckersGame.empty()\nforward.place(5, 2, Piece(Player.RED))\nassert forward.move(5, 2, 4, 3)\nassert forward.piece_at(4, 3) == Piece(Player.RED)\n\nbackward = CheckersGame.empty()\nbackward.place(5, 2, Piece(Player.RED))\nassert not backward.move(5, 2, 6, 3)\nassert backward.piece_at(5, 2) == Piece(Player.RED)\n\ngame = CheckersGame.empty()\ngame.place(5, 0, Piece(Player.RED))\ngame.place(5, 4, Piece(Player.RED))\ngame.place(4, 1, Piece(Player.BLACK))\nassert not game.move(5, 4, 4, 5)\nassert game.move(5, 0, 3, 2)\nassert game.piece_at(4, 1) is None\nassert game.piece_at(3, 2) == Piece(Player.RED)"
+  },
+  {
+    "name": "a capture chain is locked to its landing piece and can end the game",
+    "input": "red captures two black pieces on successive forward jumps",
+    "test": "game = CheckersGame.empty()\ngame.place(5, 0, Piece(Player.RED))\ngame.place(4, 1, Piece(Player.BLACK))\ngame.place(2, 3, Piece(Player.BLACK))\nassert game.move(5, 0, 3, 2)\nassert game.current_player == Player.RED\nassert not game.move(3, 2, 2, 1)\nassert game.move(3, 2, 1, 4)\nassert game.piece_at(4, 1) is None\nassert game.piece_at(2, 3) is None\nassert game.piece_at(1, 4) == Piece(Player.RED)\nassert game.is_game_over()\nassert game.winner() == Player.RED"
+  },
+  {
+    "name": "promotion crowns a piece and kings can move and capture backward",
+    "input": "a red piece reaches row zero, then a crowned red piece makes backward moves",
+    "test": "promotion = CheckersGame.empty()\npromotion.place(1, 2, Piece(Player.RED))\nassert promotion.move(1, 2, 0, 3)\nassert promotion.piece_at(0, 3) == Piece(Player.RED, king=True)\nassert promotion.current_player == Player.BLACK\n\nking_move = CheckersGame.empty()\nking_move.place(3, 3, Piece(Player.RED, king=True))\nassert king_move.move(3, 3, 4, 4)\nassert king_move.piece_at(4, 4) == Piece(Player.RED, king=True)\n\nking_capture = CheckersGame.empty()\nking_capture.place(3, 3, Piece(Player.RED, king=True))\nking_capture.place(4, 4, Piece(Player.BLACK))\nassert king_capture.move(3, 3, 5, 5)\nassert king_capture.piece_at(4, 4) is None\nassert king_capture.piece_at(5, 5) == Piece(Player.RED, king=True)"
+  },
+  {
+    "name": "invalid endpoints do not mutate board state",
+    "input": "occupied destination, wrong owner, and out-of-bounds coordinates",
+    "test": "game = CheckersGame.empty()\ngame.place(5, 2, Piece(Player.RED))\ngame.place(4, 3, Piece(Player.BLACK))\nassert not game.move(5, 2, 4, 3)\nassert not game.move(4, 3, 3, 2)\nassert not game.move(5, 2, -1, 0)\nassert game.piece_at(5, 2) == Piece(Player.RED)\nassert game.piece_at(4, 3) == Piece(Player.BLACK)"
+  }
+]

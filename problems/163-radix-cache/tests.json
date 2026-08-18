@@ -1,0 +1,17 @@
+[
+  {
+    "name": "shorter terminal insertion splits an existing edge",
+    "input": "an extension inserted before its shorter prefix",
+    "test": "cache = RadixCache()\ncache.insert([1, 2, 3, 4])\ncache.insert([1, 2])\nassert cache.search([1, 2])\nassert cache.search([1, 2, 3, 4])\nassert not cache.search([1, 2, 3])\nassert cache.prefix_match([1, 2, 3, 4, 5]) == [1, 2, 3, 4]\nassert cache.prefix_match([1, 2, 3]) == [1, 2]\nassert cache.get_all_sequences() == [[1, 2], [1, 2, 3, 4]]"
+  },
+  {
+    "name": "divergent insertions split edges without treating partial prefixes as terminals",
+    "input": "three sequences sharing prefixes of different lengths",
+    "test": "cache = RadixCache()\ncache.insert([5, 6, 7])\ncache.insert([5, 6, 8])\ncache.insert([5, 9])\nassert cache.search([5, 6, 7])\nassert cache.search([5, 6, 8])\nassert cache.search([5, 9])\nassert not cache.search([5])\nassert not cache.search([5, 6])\nassert cache.prefix_match([5, 6]) == []\nassert cache.prefix_match([5, 6, 8, 0]) == [5, 6, 8]\nassert cache.get_all_sequences() == [[5, 6, 7], [5, 6, 8], [5, 9]]"
+  },
+  {
+    "name": "input snapshots, duplicates, and validation have deterministic behavior",
+    "input": "a caller-mutated sequence plus invalid inputs",
+    "test": "cache = RadixCache()\nsequence = [9, 1]\ncache.insert(sequence)\ncache.insert([9, 1])\nsequence.append(2)\nassert cache.search([9, 1])\nassert not cache.search([9, 1, 2])\nassert cache.get_all_sequences() == [[9, 1]]\nassert cache.prefix_match([]) == []\nassert not cache.search([])\nfor call in (\n    lambda: cache.insert((1, 2)),\n    lambda: cache.insert([1, True]),\n    lambda: cache.search('12'),\n    lambda: cache.prefix_match([1, 2.0]),\n):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+  }
+]
