@@ -1,0 +1,17 @@
+[
+  {
+    "name": "uses parentheses for lower precedence but not left equal precedence",
+    "input": "multiplication over addition and a left-nested subtraction",
+    "test": "assert serialize_expression(('*', ('+', 'a', 'b'), 'c')) == '(a+b)*c'\nassert serialize_expression(('-', ('+', 'a', 'b'), 'c')) == 'a+b-c'\nassert serialize_expression(('/', ('*', 'a', 'b'), 'c')) == 'a*b/c'\nassert serialize_expression('value') == 'value'"
+  },
+  {
+    "name": "preserves every right-nested equal-precedence tree",
+    "input": "right children rooted at plus, minus, multiply, and divide",
+    "test": "assert serialize_expression(('+', 'a', ('+', 'b', 'c'))) == 'a+(b+c)'\nassert serialize_expression(('+', 'a', ('-', 'b', 'c'))) == 'a+(b-c)'\nassert serialize_expression(('*', 'a', ('*', 'b', 'c'))) == 'a*(b*c)'\nassert serialize_expression(('/', 'a', ('*', 'b', 'c'))) == 'a/(b*c)'\nassert serialize_expression(('/', 'a', ('/', 'b', 'c'))) == 'a/(b/c)'"
+  },
+  {
+    "name": "round trips to the original tree without redundant grouping",
+    "input": "a mixed-precedence expression tree",
+    "test": "import ast\n\ndef to_tree(node):\n    if isinstance(node, ast.Name):\n        return node.id\n    assert isinstance(node, ast.BinOp)\n    operators = {ast.Add: '+', ast.Sub: '-', ast.Mult: '*', ast.Div: '/'}\n    return (operators[type(node.op)], to_tree(node.left), to_tree(node.right))\n\ntree = ('-', ('*', ('+', 'a', 'b'), 'c'), ('/', 'd', ('-', 'e', 'f')))\ntext = serialize_expression(tree)\nassert text == '(a+b)*c-d/(e-f)'\nassert to_tree(ast.parse(text, mode='eval').body) == tree"
+  }
+]

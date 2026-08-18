@@ -1,0 +1,26 @@
+{
+  "id": "205",
+  "slug": "persistent-axis-coverage",
+  "title": "Persistent Axis Coverage",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["intervals", "streaming", "stateful", "merging"],
+  "companies": ["Waymo"],
+  "prompt": "Implement `AxisCoverageTracker` for permanent coverage on the closed axis `[0, 100]`. Coordinates are expressed in half-unit ticks: tick `t` denotes the real coordinate `t / 2` on the original `[0, 50]` axis.\n\n`ingest(center_twice)` receives an integer center tick and permanently adds the continuous closed interval `[center_twice - 1, center_twice + 1]`, clipped to `[0, 100]`. It returns `True` exactly when the union of every interval seen so far covers the complete continuous axis `[0, 100]`; otherwise it returns `False`. An interval that touches another interval at an endpoint has no gap and must merge. Inputs wholly outside the axis add no coverage. Once the method returns `True`, it must remain `True`.\n\nStore and merge sorted disjoint intervals. Do not rely on floating-point comparisons. A straightforward correct implementation may take O(n) time per ingest for n stored ranges and O(n) state.",
+  "starter_code": "class AxisCoverageTracker:\n    def __init__(self):\n        pass\n\n    def ingest(self, center_twice):\n        # Add one clipped interval and report whether the full axis is covered.\n        pass\n",
+  "example": {
+    "input": "tracker.ingest(1), then tracker.ingest(3)",
+    "output": "False, False",
+    "reasoning": "The added tick intervals [0, 2] and [2, 4] touch and merge, but most of the axis remains uncovered."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

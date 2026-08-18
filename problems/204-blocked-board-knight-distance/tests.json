@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds shortest distances on an open board",
+    "input": "one-move and multi-move knight routes",
+    "test": "assert min_knight_moves(6, 7, (0, 0), (1, 2), set()) == 1\nassert min_knight_moves(8, 8, (0, 0), (4, 5), set()) == 3\nassert min_knight_moves(8, 8, (0, 0), (0, 0), set()) == 0"
+  },
+  {
+    "name": "respects blocked cells and can take a detour",
+    "input": "a blocked square near an otherwise reachable destination",
+    "test": "assert min_knight_moves(5, 5, (0, 0), (2, 2), {(1, 2)}) == 4\nassert min_knight_moves(5, 5, (0, 0), (2, 2), {(2, 2)}) is None\nassert min_knight_moves(5, 5, (0, 0), (2, 2), {(0, 0)}) is None"
+  },
+  {
+    "name": "returns none when the finite board has no legal route",
+    "input": "two distinct cells on a two by two board",
+    "test": "assert min_knight_moves(2, 2, (0, 0), (1, 1), set()) is None"
+  }
+]
