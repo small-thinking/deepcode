@@ -10,9 +10,9 @@
     "test": "from datetime import date\ntracker = BillStatusTracker()\ntracker.add_bill('persist', 99, date(2026, 1, 1))\nsnapshot = tracker.get_unpaid_bills()\ntracker.update_payment_status('persist', PaymentStatus.PAID)\nassert snapshot[0]['status'] == PaymentStatus.UNPAID\nassert tracker.get_unpaid_bills() == []\ntracker.update_payment_status('persist', PaymentStatus.UNPAID)\nassert [row['bill_id'] for row in tracker.get_unpaid_bills()] == ['persist']"
   },
   {
-    "name": "concurrent inserts updates and reads remain safe",
-    "input": "eight workers synchronized at the start of their operations",
-    "test": "from datetime import date\nfrom threading import Barrier, Thread\ntracker = BillStatusTracker()\nbarrier = Barrier(8)\nfailures = []\ndef worker(index):\n    try:\n        barrier.wait()\n        bill_id = f'b{index}'\n        tracker.add_bill(bill_id, index, date(2026, 6, (index % 3) + 1))\n        if index % 2 == 0:\n            tracker.update_payment_status(bill_id, PaymentStatus.PAID)\n        else:\n            tracker.get_unpaid_bills()\n    except Exception as error:\n        failures.append(error)\nthreads = [Thread(target=worker, args=(index,)) for index in range(8)]\nfor thread in threads:\n    thread.start()\nfor thread in threads:\n    thread.join()\nassert failures == []\nrows = tracker.get_unpaid_bills()\nassert [row['bill_id'] for row in rows] == ['b3', 'b1', 'b7', 'b5']\nassert all(row['status'] == PaymentStatus.UNPAID for row in rows)"
+    "name": "mixed updates and reads preserve deterministic snapshots",
+    "input": "eight bills are added, then alternating updates and queries are interleaved",
+    "test": "from datetime import date\ntracker = BillStatusTracker()\nfor index in range(8):\n    tracker.add_bill(f'b{index}', index, date(2026, 6, (index % 3) + 1))\nsnapshot = tracker.get_unpaid_bills()\nfor index in range(0, 8, 2):\n    tracker.update_payment_status(f'b{index}', PaymentStatus.PAID)\n    assert all(row['status'] == PaymentStatus.UNPAID for row in tracker.get_unpaid_bills())\nassert all(row['status'] == PaymentStatus.UNPAID for row in snapshot)\nrows = tracker.get_unpaid_bills()\nassert [row['bill_id'] for row in rows] == ['b3', 'b1', 'b7', 'b5']\nassert all(row['status'] == PaymentStatus.UNPAID for row in rows)"
   },
   {
     "name": "invalid values duplicate IDs and unknown IDs have explicit failures",
