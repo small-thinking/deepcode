@@ -1,0 +1,25 @@
+{
+  "id": "198",
+  "slug": "physical-maze-route-discovery",
+  "title": "Physical Maze Route Discovery",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["dfs", "graph-traversal", "backtracking", "api-contract"],
+  "prompt": "Implement `find_route(api) -> list[tuple[int, int]] | None` for a maze that is discovered by moving through it. The API exposes only the car's current location:\n\n- `api.current()` returns the current cell.\n- `api.neighbors()` returns a mapping from a legal direction token to the adjacent destination cell, but only for the car's current cell.\n- `api.move(direction)` physically moves the car along one direction returned by its most recent `neighbors()` call.\n- `api.is_goal()` reports whether the current cell is the target.\n\nReturn a route including both the starting cell and the goal, or `None` when the goal is unreachable. You may not inspect a full map or query neighbors for another position. A failed branch must be physically backtracked before another branch is explored.\n\nThe test API rejects illegal moves and records the car's final location. A route is valid only when it matches movements the car actually performed. The hidden maze is finite; do not invent an arbitrary visit or step cap. Aim for O(V + E) neighbor work and O(V) auxiliary space.",
+  "starter_code": "def find_route(api):\n    # Return a physically traversed route, or None when no route exists.\n    pass\n",
+  "example": {
+    "input": "A maze where start (0, 0) has an east move to (0, 1), which is the goal",
+    "output": "[(0, 0), (0, 1)]",
+    "reasoning": "The route records the start and the target after one legal physical move."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-17"
+}

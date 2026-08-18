@@ -1,0 +1,17 @@
+[
+  {
+    "name": "returns a route that the car actually traversed",
+    "input": "a reachable maze with one branch to the target",
+    "test": "class MazeApi:\n    def __init__(self, edges, start, goal):\n        self.edges = edges\n        self.position = start\n        self.goal = goal\n        self.moves = []\n        self.neighbor_queries = []\n        self._advertised = {}\n\n    def current(self):\n        return self.position\n\n    def neighbors(self):\n        self.neighbor_queries.append(self.position)\n        self._advertised = dict(self.edges.get(self.position, {}))\n        return dict(self._advertised)\n\n    def move(self, direction):\n        assert direction in self._advertised\n        self.position = self._advertised[direction]\n        self.moves.append(direction)\n        self._advertised = {}\n\n    def is_goal(self):\n        return self.position == self.goal\n\nedges = {\n    (0, 0): {'E': (0, 1), 'S': (1, 0)},\n    (0, 1): {'W': (0, 0), 'S': (1, 1)},\n    (1, 0): {'N': (0, 0)},\n    (1, 1): {'N': (0, 1)}\n}\napi = MazeApi(edges, (0, 0), (1, 1))\nroute = find_route(api)\nassert route is not None\nassert route[0] == (0, 0) and route[-1] == (1, 1)\nassert api.position == (1, 1)\nassert api.moves\nassert set(api.neighbor_queries) <= set(edges)"
+  },
+  {
+    "name": "physically backtracks after exhausting an unreachable maze",
+    "input": "a finite dead-end maze whose goal is absent",
+    "test": "class MazeApi:\n    def __init__(self):\n        self.edges = {\n            (0, 0): {'E': (0, 1)},\n            (0, 1): {'W': (0, 0), 'E': (0, 2)},\n            (0, 2): {'W': (0, 1)}\n        }\n        self.position = (0, 0)\n        self.moves = []\n        self._advertised = {}\n\n    def current(self):\n        return self.position\n\n    def neighbors(self):\n        self._advertised = dict(self.edges.get(self.position, {}))\n        return dict(self._advertised)\n\n    def move(self, direction):\n        assert direction in self._advertised\n        self.position = self._advertised[direction]\n        self.moves.append(direction)\n        self._advertised = {}\n\n    def is_goal(self):\n        return False\n\napi = MazeApi()\nassert find_route(api) is None\nassert api.position == (0, 0)\nassert api.moves.count('E') == 2 and api.moves.count('W') == 2"
+  },
+  {
+    "name": "handles a starting cell that is already the goal",
+    "input": "a goal at the current location",
+    "test": "class StartGoalApi:\n    def current(self):\n        return (4, 7)\n\n    def neighbors(self):\n        raise AssertionError('neighbors should not be queried')\n\n    def move(self, direction):\n        raise AssertionError('move should not be called')\n\n    def is_goal(self):\n        return True\n\nassert find_route(StartGoalApi()) == [(4, 7)]"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "returns an exactly valid expression when one exists",
+    "input": "three targets, including repeated input values",
+    "test": "import ast\n\ndef assert_expression(values, target):\n    expression = build_expression(values, target)\n    assert isinstance(expression, str) and expression\n    tree = ast.parse(expression, mode='eval')\n    literals = []\n\n    def evaluate(node):\n        if isinstance(node, ast.Constant) and isinstance(node.value, int) and not isinstance(node.value, bool):\n            literals.append(node.value)\n            return node.value\n        if isinstance(node, ast.BinOp) and type(node.op) in (ast.Add, ast.Sub, ast.Mult):\n            left = evaluate(node.left)\n            right = evaluate(node.right)\n            if isinstance(node.op, ast.Add):\n                return left + right\n            if isinstance(node.op, ast.Sub):\n                return left - right\n            return left * right\n        raise AssertionError('expression uses an unsupported token')\n\n    assert evaluate(tree.body) == target\n    assert sorted(literals) == sorted(values)\n\nassert_expression([3, 4, 8], 20)\nassert_expression([5, 5, 1], 20)\nassert_expression([0, 2, 3], 6)"
+  },
+  {
+    "name": "reports an impossible target without adding forbidden operations",
+    "input": "three integers that cannot reach the requested target with plus, minus, and multiply",
+    "test": "assert build_expression([2, 3, 8], 50) is None"
+  },
+  {
+    "name": "requires all inputs rather than a convenient subset",
+    "input": "a target equal to one input but three values supplied",
+    "test": "import ast\nexpression = build_expression([1, 2, 6], 6)\nassert isinstance(expression, str)\ntree = ast.parse(expression, mode='eval')\nvalues = [node.value for node in ast.walk(tree) if isinstance(node, ast.Constant)]\nassert sorted(values) == [1, 2, 6]"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "decodes nested and adjacent groups",
+    "input": "nested groups and literal text between repeated groups",
+    "test": "assert decode_suffix_repeats('x(y(z){3}){2}') == 'xyzzzyzzz'\nassert decode_suffix_repeats('pq(rs){2}t') == 'pqrsrst'\nassert decode_suffix_repeats('(m){3}n(o){2}') == 'mmmnoo'"
+  },
+  {
+    "name": "supports absent, zero, and multi-digit suffixes",
+    "input": "groups with no suffix, a zero suffix, and a twelve-times suffix",
+    "test": "assert decode_suffix_repeats('a(b)c') == 'abc'\nassert decode_suffix_repeats('r(st){0}v(w){12}') == 'rv' + 'w' * 12\nassert decode_suffix_repeats('(ab){10}') == 'ab' * 10"
+  },
+  {
+    "name": "does not apply a suffix to later literal text",
+    "input": "two repeated groups separated by a literal",
+    "test": "assert decode_suffix_repeats('(ab){2}c(de){3}') == 'ababcdedede'"
+  }
+]

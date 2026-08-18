@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds equal and neighboring-bucket matches",
+    "input": "equal values and negative values within the allowed index window",
+    "test": "assert contains_nearby_almost_duplicate([1, 7, 3, 1], 3, 0) is True\nassert contains_nearby_almost_duplicate([-6, -2, -4], 1, 2) is True\nassert contains_nearby_almost_duplicate([1, 2, 4], 2, 2) is True"
+  },
+  {
+    "name": "expires values outside the index window",
+    "input": "pairs that are close in value but one or more indices too far apart",
+    "test": "assert contains_nearby_almost_duplicate([1, 2, 3, 1], 2, 0) is False\nassert contains_nearby_almost_duplicate([1, 5, 9, 1, 5, 9], 2, 3) is False\nassert contains_nearby_almost_duplicate([1, 1], 0, 0) is False"
+  },
+  {
+    "name": "handles a large nonmatching window efficiently",
+    "input": "increasing integers with zero value gap",
+    "test": "assert contains_nearby_almost_duplicate(list(range(10000)), 500, 0) is False"
+  }
+]
