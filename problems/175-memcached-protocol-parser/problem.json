@@ -1,26 +1,18 @@
 {
   "id": "175",
   "slug": "memcached-protocol-parser",
-  "title": "Byte-Framed Cache Protocol Parser",
+  "title": "Pseudo-Memcached Protocol Server",
   "category": "Systems Coding",
   "difficulty": "medium",
   "tags": ["protocol", "bytes", "parsing", "key-value-store", "stateful"],
   "companies": ["Reddit"],
-  "prompt": "Implement `process_protocol(data: bytes) -> bytes`, a single-connection in-memory cache protocol interpreter. The input may contain several commands back to back. Command headers are ASCII and end in `\\n`; values are arbitrary bytes. A key is a nonempty ASCII string matching `[A-Za-z0-9_-]+`. Malformed frames must raise `ValueError`.\n\nSupported requests:\n\n- `set KEY SIZE\\nPAYLOAD\\n` stores exactly `SIZE` bytes of payload and appends `STORED\\n` to the response. The byte after the payload must be the required terminating newline, even when the payload contains newlines or null bytes. A later set for the same key replaces its value.\n- `get KEY [KEY ...]\\n` appends one `VALUE KEY SIZE\\nPAYLOAD\\n` block for every requested key that exists, in request order. Repeated requested keys produce repeated blocks. Then append exactly one `END\\n` for that get request.\n\n`SIZE` is a non-negative base-10 integer. Parse with a byte cursor rather than splitting the whole stream by line, because payload bytes are not line-framed. Use only the standard library.",
-  "starter_code": "def process_protocol(data: bytes) -> bytes:\n    pass\n",
-  "example": {
-    "input": "process_protocol(b'set theme 4\\nblue\\nget theme missing\\n')",
-    "output": "b'STORED\\nVALUE theme 4\\nblue\\nEND\\n'",
-    "reasoning": "Only stored keys produce VALUE blocks, and each get ends with one END marker."
-  },
-  "environment": {
-    "language": "python",
-    "timeout_seconds": 3,
-    "packages": [],
-    "comparator": "assertions"
-  },
+  "prompt": "Create a server that provides a small in-memory key-value store with memcached-style behavior. Clients communicate through TCP using ASCII, case-sensitive commands, with each command line ending in a newline. A valid key contains only characters matched by [A-Za-z0-9_-], while stored values may contain any bytes. You may use any component from the standard library.\n\nImplement these commands:\n\n- get key_name retrieves a present key as VALUE key_name byte_count followed by the raw data and a final END newline. An absent key returns only END newline.\n- set key_name byte_count receives exactly byte_count data bytes followed by a newline, saves those bytes under the key, and returns STORED newline.\n\nBonus: allow get to receive more than one key. Return a VALUE block for every present requested key, followed by exactly one final END.\n\nFraming is based on declared byte length rather than a delimiter. After set, read exactly byte_count payload bytes because a value may contain newline characters, then read the final newline. Treat command names as case-sensitive.",
   "evaluation": {
-    "type": "ml_modeling"
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Submit the complete TCP server implementation described in the prompt.",
+    "reference_answer": "No source-provided reference implementation is stored for this question."
   },
   "created_at": "2026-08-17"
 }

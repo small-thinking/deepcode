@@ -1,17 +1,17 @@
 {
   "id": "171",
   "slug": "message-cooldown-logger",
-  "title": "Message Cooldown Logger",
+  "title": "Logger Rate Limiter",
   "category": "Systems Coding",
   "difficulty": "easy",
   "tags": ["hash-map", "stateful", "cooldown", "rate-limiting"],
   "companies": ["Reddit"],
-  "prompt": "Implement a stateful `MessageCooldownLogger` for suppressing repeated log messages. `MessageCooldownLogger()` starts empty. `should_print(timestamp, message)` returns `True` when the message may be emitted and `False` when it must be suppressed.\n\nEach message has an independent fixed cooldown of 10 seconds. A call is allowed when that message has never been allowed before, or when `timestamp - last_allowed_timestamp >= 10`. Record the timestamp only for an allowed call; a suppressed call must not extend the cooldown.\n\nTimestamps are non-negative integers supplied in nondecreasing order across all calls. Messages are non-empty strings. Use expected O(1) time per call and O(number of distinct messages) state.",
-  "starter_code": "class MessageCooldownLogger:\n    def __init__(self):\n        # Store the timestamp of the most recent allowed event for each message.\n        pass\n\n    def should_print(self, timestamp, message):\n        # Return whether this message may be emitted at timestamp.\n        pass\n",
+  "prompt": "Design a logger system that receives a stream of messages with timestamps. The system enforces a 10-second cooldown: if an identical message was printed within the last 10 seconds, suppress the current message. Otherwise allow it and record its timestamp as the most recent printed time.\n\nImplement the Logger class.\n\nLogger() initializes the logger object.\nshouldPrintMessage(timestamp: int, message: str) -> bool returns True if the message should be printed at the given timestamp, and False otherwise.\n\nConstraints:\n\n- 0 <= timestamp <= 10^9.\n- 1 <= message.length <= 30.\n- message contains lowercase English letters only.\n- Timestamps are supplied in non-decreasing order across calls.\n- At most 10^4 calls are made to shouldPrintMessage.\n\nTarget: O(1) time and O(m) space.",
+  "starter_code": "class Logger:\n    def __init__(self):\n        # TODO: initialize your data structures here\n        pass\n\n    def shouldPrintMessage(self, timestamp: int, message: str) -> bool:\n        # TODO: implement the 10-second cooldown logic\n        pass\n",
   "example": {
-    "input": "logger = MessageCooldownLogger(); [logger.should_print(t, m) for t, m in [(1, 'sync'), (4, 'sync'), (11, 'sync')]]",
-    "output": "[True, False, True]",
-    "reasoning": "The event at time 4 is suppressed, while the event at time 11 is exactly ten seconds after the last allowed event."
+    "input": "[\"Logger\", \"shouldPrintMessage\", \"shouldPrintMessage\", \"shouldPrintMessage\", \"shouldPrintMessage\", \"shouldPrintMessage\"]\n[[], [1, \"hello\"], [3, \"world\"], [7, \"hello\"], [12, \"hello\"], [15, \"world\"]]",
+    "output": "[null, true, true, false, true, true]",
+    "reasoning": "The logger suppresses hello at timestamp 7 because it was printed at timestamp 1; the calls at timestamps 12 and 15 are allowed."
   },
   "environment": {
     "language": "python",

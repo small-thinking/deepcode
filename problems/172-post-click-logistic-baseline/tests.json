@@ -1,22 +1,7 @@
 [
   {
-    "name": "learns category signal and gives unseen test categories no learned one-hot column",
-    "input": "balanced labels with all numeric values equal",
-    "test": "train = [\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'art', 'click': 0},\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'art', 'click': 0},\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'books', 'click': 1},\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'books', 'click': 1},\n]\ntest = [\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'art'},\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'books'},\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'games'},\n]\nlow, high, unseen = predict_click_probabilities(train, test)\nassert 0.0 <= low <= 1.0 and 0.0 <= high <= 1.0 and 0.0 <= unseen <= 1.0\nassert low < 0.35\nassert high > 0.65\nassert 0.35 < unseen < 0.65"
-  },
-  {
-    "name": "normalizes numeric fields from training data without mutating records",
-    "input": "one category with a separable first numeric feature",
-    "test": "train = [\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 2, 'hours_spent_reading_c': 2, 'current_post_category': 'news', 'click': 0},\n    {'hours_spent_reading_a': 1, 'hours_spent_reading_b': 2, 'hours_spent_reading_c': 2, 'current_post_category': 'news', 'click': 0},\n    {'hours_spent_reading_a': 9, 'hours_spent_reading_b': 2, 'hours_spent_reading_c': 2, 'current_post_category': 'news', 'click': 1},\n    {'hours_spent_reading_a': 10, 'hours_spent_reading_b': 2, 'hours_spent_reading_c': 2, 'current_post_category': 'news', 'click': 1},\n]\ntest = [\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 2, 'hours_spent_reading_c': 2, 'current_post_category': 'news'},\n    {'hours_spent_reading_a': 10, 'hours_spent_reading_b': 2, 'hours_spent_reading_c': 2, 'current_post_category': 'news'},\n]\ntrain_before = [row.copy() for row in train]\ntest_before = [row.copy() for row in test]\nlow, high = predict_click_probabilities(train, test)\nassert low < 0.25\nassert high > 0.75\nassert train == train_before\nassert test == test_before"
-  },
-  {
-    "name": "uses a constant predictor for a one-class training set",
-    "input": "all observed clicks are positive",
-    "test": "train = [\n    {'hours_spent_reading_a': 1, 'hours_spent_reading_b': 2, 'hours_spent_reading_c': 3, 'current_post_category': 'tech', 'click': 1},\n    {'hours_spent_reading_a': 4, 'hours_spent_reading_b': 5, 'hours_spent_reading_c': 6, 'current_post_category': 'news', 'click': 1},\n]\ntest = [\n    {'hours_spent_reading_a': -10, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 10, 'current_post_category': 'tech'},\n    {'hours_spent_reading_a': 10, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': -10, 'current_post_category': 'unknown'},\n]\nassert predict_click_probabilities(train, test) == [1.0, 1.0]"
-  },
-  {
-    "name": "returns an empty prediction list for an empty test batch",
-    "input": "a two-class training set and no rows to score",
-    "test": "train = [\n    {'hours_spent_reading_a': 0, 'hours_spent_reading_b': 0, 'hours_spent_reading_c': 0, 'current_post_category': 'art', 'click': 0},\n    {'hours_spent_reading_a': 1, 'hours_spent_reading_b': 1, 'hours_spent_reading_c': 1, 'current_post_category': 'books', 'click': 1},\n]\nassert predict_click_probabilities(train, []) == []"
+    "name": "Visible source case",
+    "input": "four training records and two test records from the source question",
+    "test": "train = [\n    {'hours_spent_reading_a': 12.5, 'hours_spent_reading_b': 2.1, 'hours_spent_reading_c': 0.8, 'current_post_category': 'A', 'click': 1},\n    {'hours_spent_reading_a': 3.0, 'hours_spent_reading_b': 9.7, 'hours_spent_reading_c': 1.4, 'current_post_category': 'B', 'click': 0},\n    {'hours_spent_reading_a': 6.2, 'hours_spent_reading_b': 5.5, 'hours_spent_reading_c': 8.1, 'current_post_category': 'C', 'click': 1},\n    {'hours_spent_reading_a': 0.3, 'hours_spent_reading_b': 0.6, 'hours_spent_reading_c': 4.5, 'current_post_category': 'C', 'click': 1},\n]\ntest = [\n    {'hours_spent_reading_a': 11.0, 'hours_spent_reading_b': 1.9, 'hours_spent_reading_c': 0.2, 'current_post_category': 'A'},\n    {'hours_spent_reading_a': 2.8, 'hours_spent_reading_b': 10.1, 'hours_spent_reading_c': 1.1, 'current_post_category': 'B'},\n]\nresult = predict_clicks(train, test)\nassert result == {'predictions': [1, 0], 'metrics': {'accuracy': 1.0, 'f1_score': 1.0, 'roc_auc': 1.0}}"
   }
 ]

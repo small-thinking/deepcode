@@ -1,17 +1,27 @@
 [
   {
-    "name": "renders ordinary scores and pre-deuce ties",
-    "input": "empty, uneven, and tied rally sequences",
-    "test": "assert tennis_game_score([]) == 'Love-All'\nassert tennis_game_score(['B', 'A', 'B']) == '15-30'\nassert tennis_game_score(['A', 'B', 'A', 'B']) == '30-All'\nassert tennis_game_score(['A', 'A', 'B']) == '30-15'"
+    "name": "Love-All example",
+    "input": "points = []",
+    "test": "assert tennis_score([]) == 'Love-All'"
   },
   {
-    "name": "distinguishes deuce and either advantage",
-    "input": "six alternating rallies followed by one more rally",
-    "test": "deuce = ['A', 'B', 'A', 'B', 'A', 'B']\nassert tennis_game_score(deuce) == 'Deuce'\nassert tennis_game_score(deuce + ['A']) == 'Advantage A'\nassert tennis_game_score(deuce + ['B']) == 'Advantage B'"
+    "name": "15-30 example",
+    "input": "points = [B, A, B]",
+    "test": "assert tennis_score(['B', 'A', 'B']) == '15-30'"
   },
   {
-    "name": "requires a two-point lead to finish the game",
-    "input": "a straight win and a win after deuce",
-    "test": "assert tennis_game_score(['A', 'A', 'A', 'A']) == 'Game A'\nassert tennis_game_score(['A', 'B', 'A', 'B', 'A', 'B', 'B', 'B']) == 'Game B'"
+    "name": "Deuce example",
+    "input": "points = [A, B, A, B, A, B]",
+    "test": "assert tennis_score(['A', 'B', 'A', 'B', 'A', 'B']) == 'Deuce'"
+  },
+  {
+    "name": "Advantage B example",
+    "input": "points = [B, A, B, A, B, A, B]",
+    "test": "assert tennis_score(['B', 'A', 'B', 'A', 'B', 'A', 'B']) == 'Advantage B'"
+  },
+  {
+    "name": "Game B example",
+    "input": "points = [A, B, A, B, A, B, B, B]",
+    "test": "assert tennis_score(['A', 'B', 'A', 'B', 'A', 'B', 'B', 'B']) == 'Game B'"
   }
 ]

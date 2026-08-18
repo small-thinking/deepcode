@@ -1,17 +1,12 @@
 [
   {
-    "name": "allows the first event for each independent message",
-    "input": "interleaved events for two message keys",
-    "test": "logger = MessageCooldownLogger()\nassert [\n    logger.should_print(1, 'refresh'),\n    logger.should_print(3, 'index'),\n    logger.should_print(7, 'refresh'),\n    logger.should_print(13, 'refresh'),\n    logger.should_print(13, 'index'),\n] == [True, True, False, True, True]"
+    "name": "Example 1",
+    "input": "Logger calls at (1, hello), (3, world), (7, hello), (12, hello), and (15, world)",
+    "test": "logger = Logger()\nassert [\n    logger.shouldPrintMessage(1, 'hello'),\n    logger.shouldPrintMessage(3, 'world'),\n    logger.shouldPrintMessage(7, 'hello'),\n    logger.shouldPrintMessage(12, 'hello'),\n    logger.shouldPrintMessage(15, 'world'),\n] == [True, True, False, True, True]"
   },
   {
-    "name": "suppressed calls do not reset the cooldown clock",
-    "input": "one allowed message followed by a rejected attempt and a boundary retry",
-    "test": "logger = MessageCooldownLogger()\nassert logger.should_print(10, 'snapshot') is True\nassert logger.should_print(15, 'snapshot') is False\nassert logger.should_print(20, 'snapshot') is True"
-  },
-  {
-    "name": "handles same-time duplicate calls and the exact ten-second boundary",
-    "input": "two same-time calls followed by one boundary call",
-    "test": "logger = MessageCooldownLogger()\nassert logger.should_print(5, 'event') is True\nassert logger.should_print(5, 'event') is False\nassert logger.should_print(14, 'event') is False\nassert logger.should_print(15, 'event') is True"
+    "name": "Example 2",
+    "input": "Logger calls at (5, app), (5, app), (15, app), and (15, blog)",
+    "test": "logger = Logger()\nassert [\n    logger.shouldPrintMessage(5, 'app'),\n    logger.shouldPrintMessage(5, 'app'),\n    logger.shouldPrintMessage(15, 'app'),\n    logger.shouldPrintMessage(15, 'blog'),\n] == [True, False, True, True]"
   }
 ]

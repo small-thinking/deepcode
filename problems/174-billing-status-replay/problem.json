@@ -1,17 +1,17 @@
 {
   "id": "174",
   "slug": "billing-status-replay",
-  "title": "Reversible Billing Status Replay",
+  "title": "Billing Status Replay",
   "category": "Systems Coding",
-  "difficulty": "hard",
+  "difficulty": "medium",
   "tags": ["event-replay", "undo-redo", "stateful", "object-modeling", "transactions"],
   "companies": ["Reddit"],
-  "prompt": "Rebuild per-account balances from an unordered transaction log. Implement `BillingStatus(monetary_columns)` and `replay_billing_transactions(monetary_columns, transactions)`. The latter returns `{user_id: amounts_dict}`.\n\n`transactions` maps a unique transaction ID to a row with `user_id` and integer `timestamp`. Replay rows in ascending `(timestamp, transaction_id)` order. Every status starts every configured monetary column at `0`; a missing monetary column in a row leaves it unchanged.\n\nA normal row adds each supplied monetary value. A row with `overwrite=True` instead replaces only its supplied columns. A row with `undo_last=True` reverts that user's most recent effective normal row; `redo_last=True` reapplies that user's most recently undone row. Command rows ignore all monetary fields and never enter history. An undo or redo with no applicable history is a no-op. A new normal row clears that user's redo history, even when it changes no monetary column; empty normal rows themselves are not undoable.\n\nUndo and redo must work for both additive and overwrite rows. A user appearing only in a command or empty row must still appear in the returned mapping with all-zero balances. Treat control flags as mutually exclusive and use only the Python standard library.",
-  "starter_code": "class BillingStatus:\n    def __init__(self, monetary_columns):\n        pass\n\n    def apply_regular(self, row):\n        pass\n\n    def undo_last(self):\n        pass\n\n    def redo_last(self):\n        pass\n\n    def as_dict(self):\n        pass\n\n\ndef replay_billing_transactions(monetary_columns, transactions):\n    pass\n",
+  "prompt": "The database containing advertisers' current billing balances was lost, but the historical transaction log remains available. Reconstruct one BillingStatus instance for every user by replaying that log.\n\nTransactions are replayed in ascending transaction_timestamp order. Equal timestamps are ordered by transaction_id. monetary_columns is supplied ahead of time; omitting a monetary field leaves that field unchanged. overwrite, undo_last, and redo_last are control attributes rather than monetary fields, and a row uses at most one of them.\n\nPart 1: create a BillingStatus class initialized with ad_delivery_pennies = 0 and payment_pennies = 0. A normal transaction adds every supplied monetary value to the corresponding current balance. Write replay_transactions(monetary_columns, transactions), which returns one BillingStatus object for every user.\n\nPart 2: support overwrite=True. For each monetary field in that row, assign its value directly instead of adding it. Fields absent from the row retain their previous balance.\n\nPart 3: support undo_last=True and redo_last=True. Undo reverses the latest regular transaction for that user; redo reapplies the latest regular transaction that was undone for that user. An undo or redo with no applicable history has no effect. A command row is not itself placed in regular-transaction history, and any monetary fields on a command row are ignored. Applying a new regular transaction after an undo clears that user's redo history.",
+  "starter_code": "from typing import Any, Dict, Tuple\n\n\nclass BillingStatus:\n    def __init__(self, ad_delivery_pennies: int = 0, payment_pennies: int = 0) -> None:\n        # TODO: implement\n        pass\n\n\ndef replay_transactions(\n    monetary_columns: Tuple[str, ...],\n    transactions: Dict[str, Dict[str, Any]],\n) -> Dict[int, BillingStatus]:\n    # TODO: implement\n    return {}\n",
   "example": {
-    "input": "replay_billing_transactions(('delivery', 'payment'), {'a': {'user_id': 'u1', 'timestamp': 2, 'delivery': 7}, 'b': {'user_id': 'u1', 'timestamp': 1, 'payment': 3}})",
-    "output": "{'u1': {'delivery': 7, 'payment': 3}}",
-    "reasoning": "The replay order is timestamp-first, but the two independent monetary updates both remain in the final account state."
+    "input": "monetary_columns = ('ad_delivery_pennies', 'payment_pennies'); transactions for user 4 add delivery values 700 and 300 and payment values 250 and 150 in timestamp order",
+    "output": "{4: BillingStatus(ad_delivery_pennies=1000, payment_pennies=400)}",
+    "reasoning": "Replay is ordered by timestamp even when the input dictionary is not."
   },
   "environment": {
     "language": "python",

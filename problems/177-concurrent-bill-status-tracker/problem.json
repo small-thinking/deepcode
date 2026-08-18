@@ -1,17 +1,17 @@
 {
   "id": "177",
   "slug": "concurrent-bill-status-tracker",
-  "title": "Concurrent Bill Status Tracker",
+  "title": "Bill Status",
   "category": "Systems Coding",
   "difficulty": "medium",
   "tags": ["concurrency", "snapshots", "thread-safety", "sorting", "object-modeling"],
   "companies": ["Reddit"],
-  "prompt": "Build an in-memory, thread-safe bill tracker. Define `PaymentStatus` with `UNPAID` and `PAID`, then implement `BillStatusTracker`.\n\n- `add_bill(bill_id, amount_cents, due_date)` inserts a new bill in the unpaid state. Bill IDs are public caller-provided nonempty strings and must be unique. Amounts are non-negative integers and `due_date` is a `datetime.date`.\n- `update_payment_status(bill_id, status)` changes an existing bill between the two enum values.\n- `get_unpaid_bills()` returns a new list of new dictionaries, each containing `bill_id`, `amount_cents`, `due_date`, and `status`. Sort results by ascending due date and then lexicographic bill ID.\n\nAll public operations may be called concurrently. A query must describe one atomic snapshot: it may reflect either side of a racing update, but never a partial mutation, and mutating future tracker state must not change dictionaries already returned. Raise `ValueError` for invalid input or duplicate IDs, and `KeyError` for an update to an unknown ID. Use only the Python standard library.",
-  "starter_code": "from enum import Enum\n\n\nclass PaymentStatus(Enum):\n    UNPAID = 'unpaid'\n    PAID = 'paid'\n\n\nclass BillStatusTracker:\n    def __init__(self):\n        pass\n\n    def add_bill(self, bill_id, amount_cents, due_date):\n        pass\n\n    def update_payment_status(self, bill_id, status):\n        pass\n\n    def get_unpaid_bills(self):\n        pass\n",
+  "prompt": "Create an in-memory system for monitoring bills. It must register a bill with an identifier, amount, and due date; change whether a registered bill has been paid; and retrieve every bill that is still unpaid, ordered from earliest due date to latest.\n\nThe implementation must remain correct when multiple threads invoke operations concurrently. Submit complete code for the tracker and tests demonstrating correctness.\n\nUse the following interface:\n\nPaymentStatus has UNPAID = \"unpaid\" and PAID = \"paid\".\nBillStatusTracker.add_bill(self, bill_id: str, amount_cents: int, due_date: date) -> None\nBillStatusTracker.update_payment_status(self, bill_id: str, status: PaymentStatus) -> None\nBillStatusTracker.get_unpaid_bills(self) -> list[dict]\n\nEach returned dictionary contains bill_id, amount_cents, due_date, and status. Newly added bills begin with PaymentStatus.UNPAID. For bills with the same due date, use any consistent ordering.\n\nConstraints: keep all bill data in memory; bill_id values are unique; amount_cents is a non-negative integer; due_date is a calendar date; status updates refer to existing bills. Tests should cover ordinary usage, paid/unpaid filtering, due-date ordering, repeated status changes, empty results, and concurrent access.",
+  "starter_code": "from datetime import date\nfrom enum import Enum\n\n\nclass PaymentStatus(Enum):\n    UNPAID = \"unpaid\"\n    PAID = \"paid\"\n\n\nclass BillStatusTracker:\n    def add_bill(self, bill_id: str, amount_cents: int, due_date: date) -> None:\n        # TODO: implement\n        pass\n\n    def update_payment_status(self, bill_id: str, status: PaymentStatus) -> None:\n        # TODO: implement\n        pass\n\n    def get_unpaid_bills(self) -> list[dict]:\n        # TODO: implement\n        return []\n",
   "example": {
-    "input": "tracker.add_bill('B-2', 700, date(2026, 5, 2)); tracker.add_bill('B-1', 500, date(2026, 5, 2)); tracker.get_unpaid_bills()",
-    "output": "[{'bill_id': 'B-1', ...}, {'bill_id': 'B-2', ...}]",
-    "reasoning": "Equal due dates use bill ID as a stable secondary ordering key."
+    "input": "Add B-104 (1250, 2025-08-20), B-105 (760, 2025-08-12), and B-106 (300, 2025-08-29); mark B-105 paid; then query unpaid bills.",
+    "output": "[B-104, B-106]",
+    "reasoning": "The bill due August 12 is omitted after it is marked paid, and the remaining bills are ordered by due date."
   },
   "environment": {
     "language": "python",

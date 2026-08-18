@@ -1,38 +1,38 @@
 from datetime import date
 from enum import Enum
 from threading import RLock
-import re
 
 
 class BillingStatus:
-    def __init__(self, monetary_columns):
-        self.columns = tuple(monetary_columns)
-        self.amounts = {column: 0 for column in self.columns}
+    def __init__(self, ad_delivery_pennies=0, payment_pennies=0):
+        self.ad_delivery_pennies = ad_delivery_pennies
+        self.payment_pennies = payment_pennies
         self._applied = []
         self._undone = []
 
-    def apply_regular(self, row):
-        self._undone.clear()
-        overwrite = row.get("overwrite") is True
+    def apply_regular(self, monetary_columns, row):
         changes = {}
-        for column in self.columns:
+        for column in monetary_columns:
             if column not in row:
                 continue
-            before = self.amounts[column]
-            after = row[column] if overwrite else before + row[column]
+            before = getattr(self, column)
+            after = row[column] if row.get("overwrite") is True else before + row[column]
             changes[column] = (before, after)
+
         if not changes:
             return
+
         for column, (_before, after) in changes.items():
-            self.amounts[column] = after
+            setattr(self, column, after)
         self._applied.append(changes)
+        self._undone.clear()
 
     def undo_last(self):
         if not self._applied:
             return
         changes = self._applied.pop()
         for column, (before, _after) in changes.items():
-            self.amounts[column] = before
+            setattr(self, column, before)
         self._undone.append(changes)
 
     def redo_last(self):
@@ -40,71 +40,24 @@ class BillingStatus:
             return
         changes = self._undone.pop()
         for column, (_before, after) in changes.items():
-            self.amounts[column] = after
+            setattr(self, column, after)
         self._applied.append(changes)
 
-    def as_dict(self):
-        return dict(self.amounts)
 
-
-def replay_billing_transactions(monetary_columns, transactions):
+def replay_transactions(monetary_columns, transactions):
     statuses = {}
     for _transaction_id, row in sorted(
-        transactions.items(), key=lambda item: (item[1]["timestamp"], item[0])
+        transactions.items(), key=lambda item: (item[1]["transaction_timestamp"], item[0])
     ):
-        status = statuses.setdefault(row["user_id"], BillingStatus(monetary_columns))
+        status = statuses.setdefault(row["user_id"], BillingStatus())
         if row.get("undo_last") is True:
             status.undo_last()
-        elif row.get("redo_last") is True:
+            continue
+        if row.get("redo_last") is True:
             status.redo_last()
-        else:
-            status.apply_regular(row)
-    return {user_id: status.as_dict() for user_id, status in statuses.items()}
-
-
-_KEY_PATTERN = re.compile(rb"[A-Za-z0-9_-]+")
-
-
-def _valid_key(key):
-    return _KEY_PATTERN.fullmatch(key) is not None
-
-
-def process_protocol(data):
-    if not isinstance(data, bytes):
-        raise ValueError("data must be bytes")
-    store = {}
-    output = []
-    index = 0
-    while index < len(data):
-        line_end = data.find(b"\n", index)
-        if line_end < 0:
-            raise ValueError("unterminated command header")
-        header = data[index:line_end]
-        index = line_end + 1
-        parts = header.split(b" ")
-        if not parts or any(not part for part in parts):
-            raise ValueError("malformed command header")
-        command = parts[0]
-        if command == b"set":
-            if len(parts) != 3 or not _valid_key(parts[1]) or not parts[2].isdigit():
-                raise ValueError("invalid set command")
-            size = int(parts[2])
-            if index + size >= len(data) or data[index + size:index + size + 1] != b"\n":
-                raise ValueError("incomplete payload frame")
-            store[parts[1]] = data[index:index + size]
-            index += size + 1
-            output.append(b"STORED\n")
-        elif command == b"get":
-            if len(parts) < 2 or any(not _valid_key(key) for key in parts[1:]):
-                raise ValueError("invalid get command")
-            for key in parts[1:]:
-                if key in store:
-                    value = store[key]
-                    output.extend((b"VALUE " + key + b" " + str(len(value)).encode("ascii") + b"\n", value, b"\n"))
-            output.append(b"END\n")
-        else:
-            raise ValueError("unknown command")
-    return b"".join(output)
+            continue
+        status.apply_regular(monetary_columns, row)
+    return statuses
 
 
 def _validated_players(players):
@@ -147,6 +100,9 @@ class Game:
             return f"advantage {self.players[0] if first > second else self.players[1]}"
         labels = ("0", "15", "30", "40")
         return f"{labels[first]}-{labels[second]}"
+
+    def get_score(self):
+        return self.displayed_score()
 
     def state(self):
         return {
@@ -219,6 +175,15 @@ class TennisSet:
             "current_game": self.current_game.state(),
         }
 
+    def get_score(self):
+        return f"{self.games_won[self.players[0]]}-{self.games_won[self.players[1]]}"
+
+    def is_finished(self):
+        return self.complete
+
+    def get_winner(self):
+        return self.winner
+
 
 class Match:
     def __init__(self, players=("A", "B"), best_of=3):
@@ -262,6 +227,15 @@ class Match:
             "winner": self.winner,
             "current_set": self.current_set.state(),
         }
+
+    def get_score(self):
+        return f"{self.sets_won[self.players[0]]}-{self.sets_won[self.players[1]]}"
+
+    def is_finished(self):
+        return self.complete
+
+
+Set = TennisSet
 
 
 class PaymentStatus(Enum):
