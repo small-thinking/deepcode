@@ -1,0 +1,26 @@
+{
+  "id": "288",
+  "slug": "shard-mode-median-reducer",
+  "title": "Shard Mode and Median Reducer",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["aggregation", "distributed-systems", "frequency-counting", "median"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `reduce_shard_statistics(shards) -> tuple[int, float]`. `shards` is an iterable of finite iterables of integer observations. Treat all observations across every shard as one multiset and return `(mode, median)`. The mode is the value with the highest global frequency; if several values tie, return the smallest such value. The median is the middle value for an odd number of observations, or the arithmetic mean of the two middle values for an even number, always returned as a `float`.\n\nAggregate frequencies across shards first. To find the two middle ranks, scan only the sorted distinct values and their counts; do not concatenate every shard into one list and sort every observation. Empty shards are valid, but raise `ValueError` when there are no observations in total. Every observation must be an `int` and must not be `bool`; otherwise raise `TypeError`. Do not mutate a caller-owned shard.",
+  "starter_code": "def reduce_shard_statistics(shards):\n    # Return (smallest_tied_mode, global_median_as_float).\n    pass\n",
+  "example": {
+    "input": "reduce_shard_statistics([[3, 1, 1], [5, 3], [2]])",
+    "output": "(1, 2.5)",
+    "reasoning": "Values 1 and 3 each appear twice, so the tie rule selects 1; the two middle sorted values are 2 and 3."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
