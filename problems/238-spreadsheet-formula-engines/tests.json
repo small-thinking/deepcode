@@ -1,0 +1,27 @@
+[
+  {
+    "name": "[Part 1] stores sparse literals and defaults an unset cell to zero",
+    "input": "C3=14, D8=31, then read C3, D8, E3, and ZZ1000000",
+    "test": "sheet = Spreadsheet()\nsheet.set_cell('C3', 14)\nsheet.set_cell('D8', 31)\nassert sheet.get_cell('C3') == 14\nassert sheet.get_cell('D8') == 31\nassert sheet.get_cell('E3') == 0\nsheet.set_cell('ZZ1000000', 9)\nassert sheet.get_cell('ZZ1000000') == 9\nsheet.set_cell('C3', -4)\nassert sheet.get_cell('C3') == -4"
+  },
+  {
+    "name": "[Part 2] eagerly propagates formulas, duplicate terms, and replacements",
+    "input": "B2=12, B3=B2+18, B4=B2+B3+7, then update B2",
+    "test": "sheet = EagerSpreadsheet()\nsheet.set_cell('B2', '12')\nsheet.set_cell('B3', '=B2+18')\nsheet.set_cell('B4', '=B2+B3+7')\nassert sheet.get_cell('B3') == 30\nassert sheet.get_cell('B4') == 49\nsheet.set_cell('B2', 3)\nassert sheet.get_cell('B3') == 21\nassert sheet.get_cell('B4') == 31\nsheet.set_cell('D1', '=B2+B2+7')\nassert sheet.get_cell('D1') == 13\nsheet.set_cell('E1', '=B2+1')\nassert sheet.get_cell('E1') == 4\nsheet.set_cell('E1', 7)\nsheet.set_cell('B2', 10)\nassert sheet.get_cell('E1') == 7\nassert sheet.get_cell('B3') == 28\nassert sheet.get_cell('B4') == 45"
+  },
+  {
+    "name": "[Part 3] reevaluates lazily after writes and treats missing references as zero",
+    "input": "formula chain with an unset dependency followed by an update",
+    "test": "sheet = LazySpreadsheet()\nsheet.set_cell('B2', '12')\nsheet.set_cell('B3', '=B2+18')\nsheet.set_cell('B4', '=B2+B3+7')\nassert sheet.get_cell('B4') == 49\nsheet.set_cell('B2', 3)\nassert sheet.get_cell('B3') == 21\nassert sheet.get_cell('B4') == 31\nsheet.set_cell('H1', '=M9+M9+2')\nassert sheet.get_cell('H1') == 2\nsheet.set_cell('M9', 5)\nassert sheet.get_cell('H1') == 12"
+  },
+  {
+    "name": "[Part 4] rejects direct and indirect cycles without mutating the prior state",
+    "input": "C1=D1+2, then an attempted D1=C1+2; a separate indirect cycle",
+    "test": "sheet = ValidatedSpreadsheet()\nassert sheet.set_cell('C1', '=D1+2') is True\nassert sheet.set_cell('D1', '=C1+2') is False\nassert sheet.get_cell('D1') == 0\nassert sheet.get_cell('C1') == 2\nchain = ValidatedSpreadsheet()\nassert chain.set_cell('C1', 2) is True\nassert chain.set_cell('D1', '=C1+2') is True\nassert chain.set_cell('E1', '=D1+2') is True\nassert chain.set_cell('C1', '=E1+2') is False\nassert chain.get_cell('C1') == 2\nassert chain.get_cell('D1') == 4\nassert chain.get_cell('E1') == 6"
+  },
+  {
+    "name": "[Part 4] validates labels and formula grammar while retaining accepted values",
+    "input": "invalid labels, malformed expressions, and a legal numeric string",
+    "test": "sheet = ValidatedSpreadsheet()\nassert sheet.set_cell('C1', '12') is True\nassert sheet.get_cell('C1') == 12\nfor cell, value in (\n    ('c1', 14),\n    ('C0', 14),\n    ('C1', 'D1+6'),\n    ('C1', '=D1+'),\n    ('C1', '=D_1+6'),\n):\n    assert sheet.set_cell(cell, value) is False\nassert sheet.get_cell('C1') == 12\ntry:\n    sheet.get_cell('c1')\n    raise AssertionError('expected ValueError for an invalid label')\nexcept ValueError:\n    pass"
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "id": "239",
+  "slug": "blocking-db-connection-pool",
+  "title": "Blocking Database Connection Pool",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "low-level-design",
+    "concurrency",
+    "condition-variable",
+    "resource-pool",
+    "thread-safety"
+  ],
+  "companies": [
+    "Harvey"
+  ],
+  "prompt": "Implement a thread-safe pool for a fixed collection of already-created connection objects. The pool does not create, destroy, validate, or execute queries on those objects.\n\n```python\nclass ConnectionPool:\n    def __init__(self, connections): ...\n    def acquire(self): ...\n    def release(self, connection): ...\n```\n\n- `acquire()` returns an idle connection immediately when one exists. If every connection is checked out, it blocks efficiently until a connection is returned; do not busy-wait.\n- Each object is either idle or checked out by exactly one caller. Identity, not `==`, determines ownership.\n- `release(connection)` returns a currently checked-out object to the pool. Passing an object from another pool or releasing the same object twice raises `ValueError` and must not change the pool state.\n- A successful release wakes a waiting acquirer. The ordering of idle connections and waiters is intentionally unspecified.\n\nUse a lock and condition variable that you manage. Do not use a prebuilt concurrent queue, timeouts, health checks, replacement connections, cancellation, or shutdown behavior.",
+  "starter_code": "import threading\n\n\nclass ConnectionPool:\n    def __init__(self, connections):\n        pass\n\n    def acquire(self):\n        pass\n\n    def release(self, connection):\n        pass\n",
+  "example": {
+    "input": "pool = ConnectionPool([first, second]); held = pool.acquire(); pool.release(held)",
+    "output": "the released object becomes available to a later acquire",
+    "reasoning": "Ownership moves atomically from idle to checked out and back again."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
