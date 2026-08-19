@@ -1,0 +1,22 @@
+[
+  {
+    "name": "versions inherit settings without mutating their base version",
+    "input": "a base embedder configuration and a derived version",
+    "test": "registry = MLConfigRegistry()\nbase = {'batch_size': 8, 'precision': 'fp16', 'dropout': 0.1}\nregistry.register('embedder', 1, base)\nbase['batch_size'] = 999\nregistry.register('embedder', 2, {'batch_size': 16}, base_version=1)\nassert registry.resolve('embedder', 1) == {'batch_size': 8, 'precision': 'fp16', 'dropout': 0.1}\nassert registry.resolve('embedder', 2) == {'batch_size': 16, 'precision': 'fp16', 'dropout': 0.1}\nview = registry.resolve('embedder', 2)\nview['precision'] = 'tampered'\nassert registry.resolve('embedder', 2)['precision'] == 'fp16'"
+  },
+  {
+    "name": "activation and request overrides do not persist",
+    "input": "an active version and a valid one-request batch-size override",
+    "test": "registry = MLConfigRegistry()\nregistry.register('ranker', 1, {'learning_rate': 0.001, 'batch_size': 32, 'enabled': True})\nregistry.register('ranker', 3, {'learning_rate': 0.0005}, base_version=1)\nregistry.activate('ranker', 3)\nassert registry.resolve('ranker') == {'learning_rate': 0.0005, 'batch_size': 32, 'enabled': True}\nassert registry.resolve('ranker', overrides={'batch_size': 64}) == {'learning_rate': 0.0005, 'batch_size': 64, 'enabled': True}\nassert registry.resolve('ranker')['batch_size'] == 32\nassert registry.versions('ranker') == [1, 3]"
+  },
+  {
+    "name": "unknown versions and invalid updates leave existing versions usable",
+    "input": "a registered model followed by duplicate and invalid registrations",
+    "test": "registry = MLConfigRegistry()\nregistry.register('vision', 1, {'epochs': 3})\nfor call in (lambda: registry.register('vision', 1, {'epochs': 4}), lambda: registry.register('vision', 2, {'epochs': 4}, base_version=9), lambda: registry.register('vision', 2, {'nested': []}), lambda: registry.resolve('vision', 1, overrides={'missing': 3})):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nassert registry.resolve('vision', 1) == {'epochs': 3}\ntry:\n    registry.resolve('vision')\n    raise AssertionError('expected KeyError before activation')\nexcept KeyError:\n    pass"
+  },
+  {
+    "name": "model names versions and scalar values are validated",
+    "input": "bad model identifiers, boolean versions, and non-finite floats",
+    "test": "registry = MLConfigRegistry()\nfor call in (lambda: registry.register('', 1, {'x': 1}), lambda: registry.register('x', True, {'x': 1}), lambda: registry.register('x', 0, {'x': 1}), lambda: registry.register('x', 1, {'': 1}), lambda: registry.register('x', 1, {'x': float('inf')})):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    registry.versions('missing')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  }
+]

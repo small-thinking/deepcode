@@ -1,0 +1,26 @@
+{
+  "id": "294",
+  "slug": "employee-grant-manager",
+  "title": "Employee Grant Manager",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["access-control", "hierarchy", "grants", "stateful", "graph"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement an in-memory `EmployeeGrantManager` for a reporting hierarchy. Every employee has at most one manager. Employee IDs and resource names are non-empty strings.\n\n- `add_employee(employee_id, manager_id=None)` creates an employee. A non-`None` manager must already exist.\n- `set_manager(employee_id, manager_id)` changes a manager; `manager_id` may be `None`. Reject a self-manager or any direct or indirect cycle, leaving the hierarchy unchanged.\n- `grant(employee_id, resource, level)` sets that employee's direct grant for a resource. Levels are exactly `read`, `write`, and `admin`, ordered from weakest to strongest.\n- `revoke(employee_id, resource) -> bool` removes a direct grant and says whether one existed.\n- `access_level(employee_id, resource) -> str | None` returns the strongest grant found on that employee or any manager in its chain. A lower direct grant does not reduce a stronger inherited grant.\n- `allowed(employee_id, resource, minimum_level) -> bool` checks whether the effective level is at least the requested one.\n- `audit(resource) -> list[tuple[str, str]]` returns every employee with effective access to that resource, sorted by employee ID.\n\nUnknown employees raise `KeyError`; malformed IDs, resources, levels, or cycles raise `ValueError`. Return ordinary copies only. Do not implement groups, deny rules, expiration, persistence, or concurrency.",
+  "starter_code": "class EmployeeGrantManager:\n    def __init__(self):\n        pass\n\n    def add_employee(self, employee_id, manager_id=None):\n        pass\n\n    def set_manager(self, employee_id, manager_id):\n        pass\n\n    def grant(self, employee_id, resource, level):\n        pass\n\n    def revoke(self, employee_id, resource):\n        pass\n\n    def access_level(self, employee_id, resource):\n        pass\n\n    def allowed(self, employee_id, resource, minimum_level):\n        pass\n\n    def audit(self, resource):\n        pass\n",
+  "example": {
+    "input": "manager.add_employee('lead'); manager.add_employee('dev', 'lead'); manager.grant('lead', 'model-registry', 'write')",
+    "output": "manager.access_level('dev', 'model-registry') == 'write'",
+    "reasoning": "A report inherits its manager's access when it has no stronger direct grant."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

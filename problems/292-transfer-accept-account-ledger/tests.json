@@ -1,0 +1,22 @@
+[
+  {
+    "name": "pending transfers settle only at acceptance time",
+    "input": "two accounts, one accepted transfer, and one returned transfer record",
+    "test": "ledger = TransferLedger()\nledger.open('ana', 9)\nledger.open('bo', 2)\ntx = ledger.create_transfer('ana', 'bo', 5)\nassert tx == 'transfer-1'\nassert ledger.balance('ana') == 9\nassert ledger.transfer(tx) == {'id': 'transfer-1', 'source': 'ana', 'destination': 'bo', 'amount': 5, 'status': 'pending'}\nassert ledger.accept(tx) is True\nassert ledger.balance('ana') == 4\nassert ledger.balance('bo') == 7\nrecord = ledger.transfer(tx)\nrecord['status'] = 'tampered'\nassert ledger.transfer(tx)['status'] == 'accepted'"
+  },
+  {
+    "name": "insufficient funds reject once and leave balances unchanged",
+    "input": "a source with four credits and a seven-credit pending transfer",
+    "test": "ledger = TransferLedger()\nledger.open('a', 4)\nledger.open('b')\ntx = ledger.create_transfer('a', 'b', 7)\nassert ledger.accept(tx) is False\nassert ledger.balance('a') == 4\nassert ledger.balance('b') == 0\nassert ledger.transfer(tx)['status'] == 'rejected'\nfor call in (lambda: ledger.accept(tx), lambda: ledger.cancel(tx)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  },
+  {
+    "name": "merging rewrites pending endpoints and cancels newly self-directed work",
+    "input": "pending transfers that involve an absorbed account plus an already accepted record",
+    "test": "ledger = TransferLedger()\nledger.open('keep', 5)\nledger.open('absorb', 8)\nledger.open('other', 1)\naccepted = ledger.create_transfer('absorb', 'other', 2)\nassert ledger.accept(accepted) is True\nto_other = ledger.create_transfer('absorb', 'other', 3)\nfrom_other = ledger.create_transfer('other', 'absorb', 1)\ninside = ledger.create_transfer('keep', 'absorb', 1)\nledger.merge_accounts('keep', 'absorb')\nassert ledger.balance('keep') == 11\ntry:\n    ledger.balance('absorb')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass\nassert ledger.transfer(accepted)['source'] == 'absorb'\nassert ledger.transfer(to_other) == {'id': to_other, 'source': 'keep', 'destination': 'other', 'amount': 3, 'status': 'pending'}\nassert ledger.transfer(from_other)['destination'] == 'keep'\nassert ledger.transfer(inside)['status'] == 'cancelled'\nassert ledger.accept(to_other) is True\nassert ledger.balance('keep') == 8\nassert ledger.balance('other') == 6"
+  },
+  {
+    "name": "invalid account names amounts and merge requests fail without partial state",
+    "input": "duplicate accounts, invalid amounts, and invalid merge operands",
+    "test": "ledger = TransferLedger()\nledger.open('a', 1)\nfor call in (lambda: ledger.open('a'), lambda: ledger.open('', 0), lambda: ledger.open('b', -1), lambda: ledger.create_transfer('a', 'a', 1), lambda: ledger.create_transfer('a', 'missing', 1), lambda: ledger.create_transfer('a', 'a', True), lambda: ledger.merge_accounts('a', 'a')):\n    try:\n        call()\n        raise AssertionError('expected ValueError or KeyError')\n    except (ValueError, KeyError):\n        pass\nassert ledger.balance('a') == 1"
+  }
+]

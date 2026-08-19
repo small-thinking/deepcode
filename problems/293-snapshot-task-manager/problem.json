@@ -1,0 +1,26 @@
+{
+  "id": "293",
+  "slug": "snapshot-task-manager",
+  "title": "Snapshot Task Manager",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["task-manager", "ttl", "leases", "snapshots", "stateful"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement a deterministic in-memory `SnapshotTaskManager` with explicit integer timestamps. A task has a non-empty string ID, a non-empty string payload, and a positive lifetime TTL. Timestamps are non-negative ordinary integers, not booleans.\n\n- `create(task_id, payload, timestamp, ttl)` creates a ready task that is live on `[timestamp, timestamp + ttl)`. Existing live task IDs cannot be recreated.\n- `claim(task_id, worker, timestamp, lease_ttl) -> bool` assigns a live ready task to a non-empty worker string until `timestamp + lease_ttl`. Return `False` when the task is unknown, expired, or currently leased.\n- `finish(task_id, worker, timestamp) -> bool` removes a live task only when that worker owns an unexpired lease. Otherwise return `False`.\n- `ready(timestamp) -> list[str]` returns all live ready task IDs in lexicographic order. An expired lease makes its still-live task ready again.\n- `get(task_id, timestamp) -> dict | None` returns a copy with `task_id`, `payload`, `status` (`ready` or `leased`), and `worker` (`None` when ready); return `None` for missing or expired tasks.\n- `snapshot(timestamp) -> dict` captures only tasks live at that instant. Its returned value must be independent from future mutations and must preserve each task's remaining lifetime and, if leased, remaining lease time.\n- `restore(snapshot, timestamp)` replaces current state with a snapshot returned by `snapshot`, re-anchoring the saved remaining task and lease TTLs at `timestamp`.\n\nBefore every operation, treat a task at its lifetime endpoint as expired and a lease at its endpoint as expired. Raise `ValueError` for malformed arguments and a duplicate live task ID. Do not implement persistence, queues, retries, or concurrency.",
+  "starter_code": "class SnapshotTaskManager:\n    def __init__(self):\n        pass\n\n    def create(self, task_id, payload, timestamp, ttl):\n        pass\n\n    def claim(self, task_id, worker, timestamp, lease_ttl):\n        pass\n\n    def finish(self, task_id, worker, timestamp):\n        pass\n\n    def ready(self, timestamp):\n        pass\n\n    def get(self, task_id, timestamp):\n        pass\n\n    def snapshot(self, timestamp):\n        pass\n\n    def restore(self, snapshot, timestamp):\n        pass\n",
+  "example": {
+    "input": "manager.create('email', 'send receipt', 10, 8); manager.claim('email', 'worker-a', 11, 3); manager.ready(14)",
+    "output": "['email']",
+    "reasoning": "The lease is half-open, so it expires at 14 while the task itself remains live until 18."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

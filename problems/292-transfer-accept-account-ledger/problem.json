@@ -1,0 +1,26 @@
+{
+  "id": "292",
+  "slug": "transfer-accept-account-ledger",
+  "title": "Transfer-Accept Account Ledger",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["ledger", "transfers", "state-machine", "account-merge"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement a single-threaded `TransferLedger` for accounts with two-phase transfers.\n\n- `open(account_id, initial_balance=0)` creates a new account with a non-negative integer balance.\n- `balance(account_id) -> int` returns its balance.\n- `create_transfer(source, destination, amount) -> str` creates a pending transfer and returns deterministic IDs `transfer-1`, `transfer-2`, and so on. It does not move money yet. Source and destination must be distinct existing accounts and amount must be a positive integer.\n- `accept(transfer_id) -> bool` settles a pending transfer using the source balance at acceptance time. On success, debit the source, credit the destination, mark it `accepted`, and return `True`. If funds are insufficient, leave balances unchanged, mark it `rejected`, and return `False`. A terminal transfer cannot be accepted again.\n- `cancel(transfer_id)` changes only a pending transfer to `cancelled`; cancelling a terminal transfer raises `ValueError`.\n- `merge_accounts(keep, absorb)` combines `absorb` into `keep` and removes `absorb`. Rewrite either endpoint of every *pending* transfer from `absorb` to `keep`. If that rewrite makes a pending transfer point from an account to itself, cancel it. Historical terminal transfer records are not rewritten.\n- `transfer(transfer_id) -> dict` returns a copy containing `id`, `source`, `destination`, `amount`, and `status`.\n\nAccount IDs are non-empty strings. Amounts and initial balances are ordinary integers, not booleans. Unknown accounts or transfer IDs raise `KeyError`; malformed IDs, amounts, and invalid merges raise `ValueError`. Keep this in memory only: persistence, fees, concurrency, and partial merges are outside scope.",
+  "starter_code": "class TransferLedger:\n    def __init__(self):\n        pass\n\n    def open(self, account_id, initial_balance=0):\n        pass\n\n    def balance(self, account_id):\n        pass\n\n    def create_transfer(self, source, destination, amount):\n        pass\n\n    def accept(self, transfer_id):\n        pass\n\n    def cancel(self, transfer_id):\n        pass\n\n    def merge_accounts(self, keep, absorb):\n        pass\n\n    def transfer(self, transfer_id):\n        pass\n",
+  "example": {
+    "input": "ledger.open('ana', 9); ledger.open('bo', 2); tx = ledger.create_transfer('ana', 'bo', 5); ledger.accept(tx)",
+    "output": "ledger.balance('ana') == 4 and ledger.balance('bo') == 7",
+    "reasoning": "Creating a transfer is only a proposal. Balances change when its pending record is accepted."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
