@@ -1,0 +1,22 @@
+[
+  {
+    "name": "full snapshots support latest-at-or-before historical reads",
+    "input": "three snapshots for one record at versions two five and eight",
+    "test": "db = VersionedGetWhenDatabase()\ndb.write('job', 2, {'state': 'draft', 'owner': 'ada'})\ndb.write('job', 5, {'state': 'ready', 'owner': 'ada'})\ndb.write('job', 8, {'state': 'done', 'owner': 'ben'})\nassert db.get_at('job', 1) is None\nassert db.get_at('job', 6) == {'id': 'job', 'version': 5, 'fields': {'state': 'ready', 'owner': 'ada'}}\nassert db.get_at('job', 8)['fields']['owner'] == 'ben'"
+  },
+  {
+    "name": "get_when returns the first matching snapshot after its lower bound",
+    "input": "a state that becomes ready at five then later returns to draft",
+    "test": "db = VersionedGetWhenDatabase()\ndb.write('job', 2, {'state': 'draft'})\ndb.write('job', 5, {'state': 'ready'})\ndb.write('job', 8, {'state': 'draft'})\nassert db.get_when('job', 'state', 'ready') == {'id': 'job', 'version': 5, 'fields': {'state': 'ready'}}\nassert db.get_when('job', 'state', 'draft', min_version=3) == {'id': 'job', 'version': 8, 'fields': {'state': 'draft'}}\nassert db.get_when('job', 'state', 'ready', min_version=6) is None"
+  },
+  {
+    "name": "history is inclusive copied and ordered by record version",
+    "input": "a record history queried over a bounded interval then caller-mutated",
+    "test": "db = VersionedGetWhenDatabase()\nfor version, state in ((1, 'a'), (3, 'b'), (6, 'c')):\n    db.write('job', version, {'state': state})\nhistory = db.history('job', 2, 6)\nassert [row['version'] for row in history] == [3, 6]\nhistory[0]['fields']['state'] = 'tampered'\nassert db.get_at('job', 3)['fields']['state'] == 'b'"
+  },
+  {
+    "name": "versions field values and ranges are validated atomically",
+    "input": "an initial record followed by non-advancing and malformed writes",
+    "test": "db = VersionedGetWhenDatabase()\ndb.write('job', 2, {'state': 'draft'})\nfor call in (lambda: db.write('job', 2, {'state': 'ready'}), lambda: db.write('job', 1, {'state': 'ready'}), lambda: db.write('job', 3, {}), lambda: db.write('job', 3, {'state': []}), lambda: db.history('job', 5, 4), lambda: db.get_when('job', '', 'draft')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nassert db.get_at('job', 2)['fields']['state'] == 'draft'\ntry:\n    db.get_at('missing', 1)\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  }
+]

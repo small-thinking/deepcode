@@ -1,0 +1,19 @@
+{
+  "id": "327",
+  "slug": "typed-resource-registry",
+  "title": "Typed Resource Registry",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["python", "data-structures", "registry", "type-validation", "copying"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement a `Resource` value object and a `TypedResourceRegistry` for a small set of typed Python data structures. This is a registry, not a versioned document database: a name has at most one current resource and replacement is intentionally out of scope.\n\nA `Resource(name, kind, payload)` supports exactly these kinds:\n\n- `text`: a string payload.\n- `count`: a non-negative ordinary integer payload; booleans are invalid.\n- `labels`: a non-empty list or tuple of distinct non-empty strings, preserving order.\n- `properties`: a non-empty mapping from non-empty string keys to scalar `None`, strings, booleans, ordinary integers, or finite floats.\n\nImplement:\n\n- `register(resource)` validates and stores a resource under its name. Duplicate names raise `ValueError`.\n- `get(name, expected_kind=None) -> Resource` returns an independent copy. If `expected_kind` is supplied and differs from the stored kind, raise `TypeError`.\n- `names(kind=None) -> list[str]` returns names in lexicographic order, optionally for one valid kind.\n- `remove(name) -> bool` deletes a present resource and reports whether it existed.\n\nNames and kinds are non-empty strings. Unknown `get` names raise `KeyError`; malformed resources or unknown kind filters raise `ValueError`. A caller must not be able to mutate stored labels or properties through either the input resource or a returned resource.",
+  "starter_code": "class Resource:\n    def __init__(self, name, kind, payload):\n        self.name = name\n        self.kind = kind\n        self.payload = payload\n\n\nclass TypedResourceRegistry:\n    def __init__(self):\n        pass\n\n    def register(self, resource):\n        pass\n\n    def get(self, name, expected_kind=None):\n        pass\n\n    def names(self, kind=None):\n        pass\n\n    def remove(self, name):\n        pass\n",
+  "example": {
+    "input": "registry.register(Resource('labels', 'labels', ['quality', 'safety']))",
+    "output": "registry.get('labels').payload == ['quality', 'safety']",
+    "reasoning": "The registry retains the ordered label list as an independent typed resource."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-19"
+}

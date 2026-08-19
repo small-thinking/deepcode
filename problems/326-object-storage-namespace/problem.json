@@ -1,0 +1,19 @@
+{
+  "id": "326",
+  "slug": "object-storage-namespace",
+  "title": "Object Storage Namespace",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["object-storage", "namespace", "ownership", "authorization", "stateful"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement an in-memory `ObjectStorageNamespace` for namespace-level ownership. It models object metadata and string content only; it is not a file system, multipart uploader, or durable storage service.\n\n- `create_namespace(namespace, owner)` creates a namespace owned by a non-empty string principal.\n- `put(namespace, key, content, actor)` creates or overwrites a string object. Only the current namespace owner may write.\n- `get(namespace, key, actor) -> str` returns an object only to the current owner.\n- `list_objects(namespace, actor, prefix='') -> list[dict]` returns owner-visible objects whose keys start with `prefix`, ordered lexicographically by key. Every row has `key` and string-character `size`.\n- `delete(namespace, key, actor) -> bool` removes an existing object only for the owner; it returns `False` for a missing key.\n- `transfer_owner(namespace, new_owner, actor)` changes only namespace ownership. Existing objects remain unchanged; the old owner immediately loses access.\n\nNamespaces, principals, and object keys must be non-empty strings. Content and prefixes must be strings. Duplicate namespaces and malformed arguments raise `ValueError`; missing namespaces or objects raise `KeyError`; an authenticated but non-owner actor raises `PermissionError`. Returned lists and rows must be independent copies.",
+  "starter_code": "class ObjectStorageNamespace:\n    def __init__(self):\n        pass\n\n    def create_namespace(self, namespace, owner):\n        pass\n\n    def put(self, namespace, key, content, actor):\n        pass\n\n    def get(self, namespace, key, actor):\n        pass\n\n    def list_objects(self, namespace, actor, prefix=''):\n        pass\n\n    def delete(self, namespace, key, actor):\n        pass\n\n    def transfer_owner(self, namespace, new_owner, actor):\n        pass\n",
+  "example": {
+    "input": "store.create_namespace('team-a', 'ada'); store.put('team-a', 'models/base.txt', 'ready', 'ada')",
+    "output": "store.list_objects('team-a', 'ada') == [{'key': 'models/base.txt', 'size': 5}]",
+    "reasoning": "The namespace owner can write and list metadata, while the content size is measured as string characters."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-19"
+}

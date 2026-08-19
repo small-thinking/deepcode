@@ -1,0 +1,19 @@
+{
+  "id": "329",
+  "slug": "versioned-get-when-database",
+  "title": "Versioned Get-When Database",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["database", "versioning", "historical-query", "binary-search", "stateful"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement an in-memory `VersionedGetWhenDatabase` over atomic record snapshots. It is not a single-value TimeMap: each write stores a full field mapping for one record version, and `get_when` searches snapshots by a field condition.\n\nRecord IDs and field names are non-empty strings. A field mapping is non-empty and maps field names to scalar `None`, strings, booleans, ordinary integers, or finite floats. Versions are non-negative ordinary integers.\n\n- `write(record_id, version, fields)` appends a full snapshot. Versions for the same record must be strictly increasing; different records have independent version streams.\n- `get_at(record_id, version) -> dict | None` returns a copy of the latest snapshot whose version is at most the query, or `None` before the first snapshot. Returned snapshots contain `id`, `version`, and `fields`.\n- `get_when(record_id, field, expected, min_version=0) -> dict | None` returns a copy of the earliest stored snapshot at or after `min_version` where `field` exists and equals `expected`; return `None` if no snapshot qualifies.\n- `history(record_id, start_version=0, end_version=None) -> list[dict]` returns copied snapshots in ascending version order with inclusive bounds.\n\nUnknown record IDs raise `KeyError`; malformed fields, versions, ranges, or writes that do not strictly advance a record raise `ValueError`. Caller mappings and returned snapshots must not share mutable storage with the database.",
+  "starter_code": "class VersionedGetWhenDatabase:\n    def __init__(self):\n        pass\n\n    def write(self, record_id, version, fields):\n        pass\n\n    def get_at(self, record_id, version):\n        pass\n\n    def get_when(self, record_id, field, expected, min_version=0):\n        pass\n\n    def history(self, record_id, start_version=0, end_version=None):\n        pass\n",
+  "example": {
+    "input": "db.write('job-1', 2, {'state': 'draft'}); db.write('job-1', 5, {'state': 'ready'}); db.get_when('job-1', 'state', 'ready')",
+    "output": "{'id': 'job-1', 'version': 5, 'fields': {'state': 'ready'}}",
+    "reasoning": "The earliest stored snapshot whose state is ready is at version 5."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-19"
+}
