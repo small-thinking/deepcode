@@ -1,0 +1,22 @@
+[
+  {
+    "name": "successful updates preserve ordinary per-user balances",
+    "input": "an add then a sufficient subtraction",
+    "test": "accounts = CreditAccounts()\naccounts.add('carol', 14)\nassert accounts.get_balance('carol') == 14\naccounts.add('dave', 12)\naccounts.subtract('dave', 5)\nassert accounts.get_balance('dave') == 7"
+  },
+  {
+    "name": "an insufficient subtraction is sticky until a success for that user",
+    "input": "failed withdrawals followed by add and zero-amount success",
+    "test": "accounts = CreditAccounts()\naccounts.add('erin', 4)\naccounts.subtract('erin', 9)\nassert accounts.get_balance('erin') is None\naccounts.add('erin', 3)\nassert accounts.get_balance('erin') == 7\naccounts.subtract('erin', 0)\nassert accounts.get_balance('erin') == 7"
+  },
+  {
+    "name": "failure and recovery are scoped to each user",
+    "input": "one failed user and one independent successful user",
+    "test": "accounts = CreditAccounts()\naccounts.add('gina', 9)\naccounts.subtract('gina', 4)\naccounts.subtract('gina', 8)\nassert accounts.get_balance('gina') is None\naccounts.add('hank', 2)\nassert accounts.get_balance('hank') == 2\naccounts.add('gina', 3)\nassert accounts.get_balance('gina') == 8\nassert accounts.get_balance('hank') == 2"
+  },
+  {
+    "name": "unseen accounts read as zero and a zero add is a successful update",
+    "input": "a missing account and a zero-credit account",
+    "test": "accounts = CreditAccounts()\nassert accounts.get_balance('missing') == 0\naccounts.add('frank', 0)\nassert accounts.get_balance('frank') == 0\naccounts.subtract('frank', 2)\nassert accounts.get_balance('frank') is None"
+  }
+]

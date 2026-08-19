@@ -1,0 +1,33 @@
+{
+  "id": "260",
+  "slug": "sticky-failure-credit-accounts",
+  "title": "Sticky-Failure Credit Accounts",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "state-machine",
+    "accounts",
+    "error-state",
+    "hash-map"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement a `CreditAccounts` class with `add(user_id, amount)`, `subtract(user_id, amount)`, and `get_balance(user_id)`. Accounts begin with balance 0 and no failure state. Amounts are non-negative integers.\n\nA successful subtraction deducts its amount and clears that user's failure state. If a subtraction requests more than the available balance, leave the balance unchanged and mark that user's most recent subtraction as failed. `get_balance` returns `None` exactly while that user is marked failed; otherwise it returns the current balance. Every `add`, including an add of zero, increments the balance and clears only that user's failure state.\n\nKeep users independent: one user's failed subtraction must not affect another user's reads or updates.",
+  "starter_code": "class CreditAccounts:\n    def __init__(self):\n        pass\n\n    def add(self, user_id, amount):\n        pass\n\n    def subtract(self, user_id, amount):\n        pass\n\n    def get_balance(self, user_id):\n        pass\n",
+  "example": {
+    "input": "accounts.add('gina', 9); accounts.subtract('gina', 4); accounts.subtract('gina', 8); accounts.add('gina', 3); accounts.get_balance('gina')",
+    "output": "8",
+    "reasoning": "The failed second subtraction leaves the five-credit balance unchanged, and the later add clears the failure state."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

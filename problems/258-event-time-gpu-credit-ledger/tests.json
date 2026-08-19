@@ -1,0 +1,27 @@
+[
+  {
+    "name": "closed expiration windows include both endpoints",
+    "input": "one grant queried before at and after its usable interval",
+    "test": "ledger = EventTimeCreditLedger()\nledger.add_credit('atlas', 8, 6, 14)\nassert ledger.get_balance(5) is None\nassert ledger.get_balance(6) == 8\nassert ledger.get_balance(20) == 8\nassert ledger.get_balance(21) is None"
+  },
+  {
+    "name": "debits use earliest expiration before later grants",
+    "input": "two active grants with different expiration times",
+    "test": "ledger = EventTimeCreditLedger()\nledger.add_credit('late', 6, 10, 35)\nledger.add_credit('early', 4, 20, 10)\nledger.debit(3, 20)\nassert ledger.get_balance(20) == 7\nassert ledger.get_balance(30) == 7\nassert ledger.get_balance(31) == 6"
+  },
+  {
+    "name": "replays by event time instead of submission order",
+    "input": "a debit is recorded before an earlier-time grant",
+    "test": "ledger = EventTimeCreditLedger()\nledger.debit(5, 27)\nledger.add_credit('late-arrival', 5, 18, 20)\nassert ledger.get_balance(17) is None\nassert ledger.get_balance(18) == 5\nassert ledger.get_balance(27) == 0"
+  },
+  {
+    "name": "underfunding creates debt and later grants pay it before becoming credit",
+    "input": "an insufficient debit followed by a later grant",
+    "test": "ledger = EventTimeCreditLedger()\nledger.add_credit('first', 7, 4, 16)\nledger.debit(30, 9)\nassert ledger.get_balance(4) == 7\nassert ledger.get_balance(9) is None\nledger.add_credit('settle', 30, 10, 20)\nassert ledger.get_balance(10) == 7"
+  },
+  {
+    "name": "duplicate labels still create distinct expiring pools",
+    "input": "two grants with the same descriptive label",
+    "test": "ledger = EventTimeCreditLedger()\nledger.add_credit('shared', 9, 5, 30)\nledger.add_credit('shared', 9, 17, 30)\nledger.debit(13, 22)\nassert ledger.get_balance(5) == 9\nassert ledger.get_balance(17) == 18\nassert ledger.get_balance(22) == 5\nassert ledger.get_balance(40) == 5"
+  }
+]

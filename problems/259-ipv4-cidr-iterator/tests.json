@@ -1,0 +1,22 @@
+[
+  {
+    "name": "non-CIDR iteration carries forward to the global upper boundary",
+    "input": "an address near the last IPv4 values",
+    "test": "iterator = IPv4Iterator('255.255.255.252')\nassert iter(iterator) is iterator\nassert list(iterator) == ['255.255.255.252', '255.255.255.253', '255.255.255.254', '255.255.255.255']"
+  },
+  {
+    "name": "reverse iteration borrows through the global lower boundary",
+    "input": "a low address without a CIDR suffix",
+    "test": "assert list(IPv4Iterator('0.0.0.4', reverse=True)) == ['0.0.0.4', '0.0.0.3', '0.0.0.2', '0.0.0.1', '0.0.0.0']"
+  },
+  {
+    "name": "CIDR bounds include /32 /31 and complete /29 blocks",
+    "input": "single two-address and eight-address blocks",
+    "test": "assert list(IPv4Iterator('203.0.113.9/32')) == ['203.0.113.9']\nassert list(IPv4Iterator('198.51.100.20/31')) == ['198.51.100.20', '198.51.100.21']\nassert list(IPv4Iterator('192.0.2.16/29')) == ['192.0.2.16', '192.0.2.17', '192.0.2.18', '192.0.2.19', '192.0.2.20', '192.0.2.21', '192.0.2.22', '192.0.2.23']\nassert list(IPv4Iterator('192.0.2.23/29', reverse=True)) == ['192.0.2.23', '192.0.2.22', '192.0.2.21', '192.0.2.20', '192.0.2.19', '192.0.2.18', '192.0.2.17', '192.0.2.16']"
+  },
+  {
+    "name": "a CIDR iterator starts at the supplied address and stops permanently",
+    "input": "a middle address in a /29 block",
+    "test": "iterator = IPv4Iterator('192.0.2.13/29')\nassert next(iterator) == '192.0.2.13'\nassert next(iterator) == '192.0.2.14'\nassert next(iterator) == '192.0.2.15'\ntry:\n    next(iterator)\n    raise AssertionError('expected StopIteration')\nexcept StopIteration:\n    pass"
+  }
+]

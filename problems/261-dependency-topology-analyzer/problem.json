@@ -1,0 +1,33 @@
+{
+  "id": "261",
+  "slug": "dependency-topology-analyzer",
+  "title": "Dependency Topology Analyzer",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "graphs",
+    "topological-sort",
+    "reachability",
+    "failure-propagation"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement `analyze_topology(n, edges, reachability_queries, failure_queries)`. Machines are `0` through `n - 1`; each directed edge `(u, v)` means machine `u` depends on machine `v`. Return a four-tuple:\n\n```python\n(has_cycle, startup_order, reachability_answers, failure_impacts)\n```\n\n`has_cycle` reports whether the dependency graph is cyclic. When it is acyclic, `startup_order` must contain every machine with each prerequisite `v` before its dependent `u`; when cyclic, return `[]` for the order. For each `(source, target)`, report whether following dependency edges from source can reach target. A node is reachable from itself.\n\nFor each list of initially failed machines, return the number of failed machines after cascading. Failure travels from a failed prerequisite to every direct or transitive dependent, so it follows reverse edges. Count an initial machine once even if it appears repeatedly. Parallel edges and self-loops may occur. Use `O(n + m)` preprocessing and linear time per reachability or failure query; a lexicographically smallest topological order is not required.",
+  "starter_code": "def analyze_topology(n, edges, reachability_queries, failure_queries):\n    # Return (has_cycle, startup_order, reachability_answers, failure_impacts).\n    pass\n",
+  "example": {
+    "input": "analyze_topology(4, [(0, 1), (1, 2)], [(0, 2), (2, 0)], [[1]])",
+    "output": "(False, a valid order, [True, False], [2])",
+    "reasoning": "Machine 0 depends transitively on 2, while a failure of prerequisite 1 prevents machine 0 from starting."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

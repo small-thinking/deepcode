@@ -1,0 +1,34 @@
+{
+  "id": "258",
+  "slug": "event-time-gpu-credit-ledger",
+  "title": "Event-Time GPU Credit Ledger",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": [
+    "event-sourcing",
+    "ledger",
+    "heap",
+    "event-time",
+    "expiration"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement an `EventTimeCreditLedger` with these methods:\n\n```python\nadd_credit(label, amount, start, duration)\ndebit(amount, timestamp)\nget_balance(timestamp) -> int | None\n```\n\nEvery `add_credit` call creates a distinct grant, even if `label` repeats. A grant is usable at every integer time in the closed interval `[start, start + duration]`. Calls can arrive in any order, so `get_balance(t)` must replay only the writes received so far in `(event timestamp, receipt order)` order rather than call order.\n\nA debit consumes currently usable grants with the earliest expiration first. An underfunded debit is allowed: retain its unmet amount as debt. A later grant first pays outstanding debt, then any remainder becomes an active grant. Before applying an event at time `t`, discard grants whose expiration is strictly before `t`; a grant expiring at `t` is still usable.\n\nFor a query, return `None` if no grant window created so far contains `timestamp`, or if replay leaves a negative balance. Otherwise return active grant credit minus outstanding debt. A query must not mutate the write log or query results at other timestamps. Inputs use non-negative integer amounts and durations.",
+  "starter_code": "class EventTimeCreditLedger:\n    def __init__(self):\n        pass\n\n    def add_credit(self, label, amount, start, duration):\n        pass\n\n    def debit(self, amount, timestamp):\n        pass\n\n    def get_balance(self, timestamp):\n        pass\n",
+  "example": {
+    "input": "ledger.debit(6, 24); ledger.add_credit('batch', 6, 15, 20); ledger.get_balance(24)",
+    "output": "0",
+    "reasoning": "The late-arriving grant is replayed at event time 15 before the debit at time 24."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
