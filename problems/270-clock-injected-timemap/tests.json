@@ -1,0 +1,5 @@
+[
+  {"name": "uses injected time and finds the rightmost value at or before a query", "input": "out-of-order integer and float timestamps", "test": "clock = FrozenClock(5); table = TimeMap(clock)\nassert table.set('k', 'five') == 5\ntable.set('k', 'one', 1); table.set('k', 'three', 3.5)\nassert table.get('k', 0) == ''\nassert table.get('k', 3.5) == 'three'\nassert table.get('k', 4) == 'three'\nassert table.get('k') == 'five'\nassert table.get('missing', 99) == ''"},
+  {"name": "later duplicate timestamp wins by write sequence not value ordering", "input": "same timestamp written twice", "test": "clock = FrozenClock(); table = TimeMap(clock)\ntable.set('k', 'zebra', 7); table.set('k', 'apple', 7)\nassert table.get('k', 7) == 'apple'"},
+  {"name": "monotonic map remains increasing after backward clock movement", "input": "clock moves backward between implicit writes", "test": "clock = FrozenClock(10); table = MonotonicTimeMap(clock)\nfirst = table.set('k', 'a'); clock.set(2); second = table.set('k', 'b')\nassert first == 10 and second > first\nassert table.get('k', second) == 'b'\nassert table.get('k', first) == 'a'"}
+]

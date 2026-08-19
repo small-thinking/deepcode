@@ -1,0 +1,15 @@
+{
+  "id": "269",
+  "slug": "concurrent-dependency-job-scheduler",
+  "title": "Concurrent Dependency Job Scheduler",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["concurrency", "dag", "scheduling", "retries", "conditions"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `Job(job_id, dependencies=(), priority=0, retries=0)`, `ConcurrencyLimiter(limit)`, and `Scheduler(jobs, limiter, run_attempt)`. `Scheduler.run()` returns terminal statuses keyed by job ID. `run_attempt(job, attempt)` is external work and returns truthy on success or may raise. A job with `retries=N` gets at most `N+1` attempts.\n\nOnly jobs whose dependencies succeeded may run. Ready jobs use higher priority first, then lexical job ID. A failed job causes all dependent work to become `skipped`; cycles and their blocked dependents must terminal-skip rather than hang. The limiter must use a condition-loop acquire/release, never exceed its limit, and wake waiters on release. Claim state atomically, run external work outside the scheduler lock, and avoid repeated whole-DAG scans.",
+  "starter_code": "class Job:\n    pass\n\n\nclass ConcurrencyLimiter:\n    pass\n\n\nclass Scheduler:\n    pass\n",
+  "example": {"input": "A(priority=2), B(depends_on=A)", "output": "A succeeds before B may start", "reasoning": "The scheduler's terminal-state graph, not thread timing, enforces dependency semantics."},
+  "environment": {"language": "python", "timeout_seconds": 5, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

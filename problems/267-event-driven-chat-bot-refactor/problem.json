@@ -1,0 +1,15 @@
+{
+  "id": "267",
+  "slug": "event-driven-chat-bot-refactor",
+  "title": "Event-Driven Chat Bot Refactor",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["events", "observer", "state-machines", "refactoring"],
+  "companies": ["OpenAI"],
+  "prompt": "Refactor a chat room away from global bot callbacks. Implement `EventBus`, `ChatRoom`, `AwayBot`, `MeetingBot`, and `TacoBot`. `EventBus.subscribe(name, callback)` registers callbacks in order; `emit(name, payload)` invokes a snapshot of those callbacks synchronously. `ChatRoom.register(bot)` attaches one bot. `send(sender, text)` appends the original user message to `history`, emits `message_received`, and returns without direct bot-to-bot calls. Bots may append a bot message through their room and emit their own domain event.\n\n`AwayBot(owner)` toggles its private away state when its owner sends `/away`; while away, it adds one bot reply to messages from other users. `MeetingBot` emits `meeting_started` for messages beginning `/meet `. `TacoBot` accepts `/taco recipient`, increments only its own recipient balance, and adds an acknowledgement. Bot-generated messages append after the original message. Invalid taco commands do nothing. Keep every bot's state isolated per instance.",
+  "starter_code": "class EventBus:\n    pass\n\n\nclass ChatRoom:\n    pass\n\n\nclass AwayBot:\n    pass\n\n\nclass MeetingBot:\n    pass\n\n\nclass TacoBot:\n    pass\n",
+  "example": {"input": "room.send('ana', '/away'); room.send('ben', 'hello')", "output": "a user message followed by one away reply", "reasoning": "The room owns message ordering while bot state remains encapsulated."},
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}
