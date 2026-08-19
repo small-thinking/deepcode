@@ -1,0 +1,27 @@
+[
+  {
+    "name": "forced final termination preserves all remaining probability",
+    "input": "four positions with stop probabilities 0.25 0.5 0 0",
+    "test": "from math import isclose\ndistribution, expected = termination_distribution(4, [0.25, 0.5, 0.0, 0.0])\nassert all(isclose(actual, wanted) for actual, wanted in zip(distribution, [0.25, 0.375, 0.0, 0.375]))\nassert isclose(expected, 2.5)"
+  },
+  {
+    "name": "immediate stops and no early stops cover boundary mass cases",
+    "input": "certain first stop plus a run forced to the last position",
+    "test": "from math import isclose\nassert termination_distribution(3, [1.0, 0.0, 0.0]) == ([1.0, 0.0, 0.0], 1.0)\ndistribution, expected = termination_distribution(3, [0.0, 0.0, 1.0])\nassert distribution == [0.0, 0.0, 1.0]\nassert isclose(expected, 3.0)"
+  },
+  {
+    "name": "minimax selection keeps the first decision on an exact tie",
+    "input": "two decisions against one shared and one alternative distribution",
+    "test": "adversaries = [\n    {'probabilities': None, 'reward_table': {1: [8, 0], 2: [0, 10]}},\n    {'probabilities': [0.0, 1.0], 'reward_table': {1: [4, 6], 2: [6, 4]}},\n]\nassert solve(2, [0.5, 0.0], [1, 2], adversaries) == (1, 4.0)"
+  },
+  {
+    "name": "adversary-specific probabilities and negative rewards affect the robust choice",
+    "input": "two actions with an alternative all-final distribution",
+    "test": "from math import isclose\nadversaries = [\n    {'probabilities': [0.0, 0.0, 1.0], 'reward_table': {10: [-1, -2, -3], 20: [-3, -2, -1]}},\n    {'probabilities': None, 'reward_table': {10: [5, 5, 5], 20: [0, 10, 0]}},\n]\ndecision, reward = solve(3, [0.2, 0.2, 0.2], [10, 20], adversaries)\nassert decision == 20\nassert isclose(reward, -1.0)"
+  },
+  {
+    "name": "the final supplied stop probability cannot discard survival mass",
+    "input": "two otherwise identical sequences that differ only at the final position",
+    "test": "first, first_mean = termination_distribution(2, [0.3, 0.0])\nsecond, second_mean = termination_distribution(2, [0.3, 1.0])\nassert first == second == [0.3, 0.7]\nassert first_mean == second_mean == 1.7"
+  }
+]
