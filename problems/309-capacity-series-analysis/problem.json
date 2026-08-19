@@ -1,0 +1,26 @@
+{
+  "id": "309",
+  "slug": "capacity-series-analysis",
+  "title": "Capacity Series Analysis",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "data-analysis", "capacity-planning", "time-series", "metrics"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `analyze_capacity_series(demand, capacity, window)` for two one-dimensional NumPy arrays. Both arrays represent aligned samples, must have the same non-zero length, and contain finite non-negative demand and finite strictly positive capacity. `window` is a positive integer. Never mutate either input.\n\nReturn a mapping with:\n\n- `utilization`: the float array `demand / capacity`;\n- `rolling_peak`: at each index, the maximum utilization in the inclusive trailing window of up to `window` samples;\n- `overload_runs`: a list of inclusive `(start_index, end_index)` tuples for each maximal contiguous run where utilization is strictly greater than one; and\n- `summary`: `{'samples': int, 'mean_utilization': float, 'peak_utilization': float, 'total_shortfall': float}`, where total shortfall is `sum(max(demand - capacity, 0))`.\n\nRaise `ValueError` for invalid ranks, lengths, values, or window size.",
+  "starter_code": "import numpy as np\n\n\ndef analyze_capacity_series(demand, capacity, window):\n    pass\n",
+  "example": {
+    "input": "demand = np.array([5, 12, 11, 6, 15]); capacity = np.full(5, 10); window = 3",
+    "output": "utilization is [0.5, 1.2, 1.1, 0.6, 1.5], overload_runs is [(1, 2), (4, 4)], and total_shortfall is 8.0",
+    "reasoning": "Samples above capacity form two maximal runs, while the rolling maximum retains the largest recent utilization."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

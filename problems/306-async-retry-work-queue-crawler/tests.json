@@ -1,0 +1,17 @@
+[
+  {
+    "name": "schedules shared descendants once in discovery order",
+    "input": "a graph with duplicate seed and child links",
+    "test": "import asyncio\npages = {\n    'root': ['a', 'b', 'a'],\n    'a': ['c'],\n    'b': ['c'],\n    'c': [],\n}\ncalls = []\nasync def fetch(url):\n    calls.append(url)\n    await asyncio.sleep(0)\n    return pages[url]\nresult = asyncio.run(crawl_work_queue(['root', 'root'], fetch, workers=2))\nassert result == {\n    'scheduled': ['root', 'a', 'b', 'c'],\n    'completed': ['root', 'a', 'b', 'c'],\n    'failed': [],\n    'attempts': {'root': 1, 'a': 1, 'b': 1, 'c': 1},\n}\nassert sorted(calls) == ['a', 'b', 'c', 'root']"
+  },
+  {
+    "name": "retries transient failures and records exhausted failures",
+    "input": "one URL succeeds on its second attempt and another never succeeds",
+    "test": "import asyncio\nseen = {}\nasync def fetch(url):\n    seen[url] = seen.get(url, 0) + 1\n    if url == 'fragile' and seen[url] == 1:\n        raise RuntimeError('temporary')\n    if url == 'broken':\n        raise RuntimeError('permanent')\n    return []\nresult = asyncio.run(crawl_work_queue(['fragile', 'broken'], fetch, workers=1, retries=1))\nassert result == {\n    'scheduled': ['fragile', 'broken'],\n    'completed': ['fragile'],\n    'failed': ['broken'],\n    'attempts': {'fragile': 2, 'broken': 2},\n}"
+  },
+  {
+    "name": "bounds concurrent fetches and validates queue settings",
+    "input": "one root with three slow children and two workers",
+    "test": "import asyncio\nactive = 0\npeak = 0\nasync def fetch(url):\n    global active, peak\n    active += 1\n    peak = max(peak, active)\n    await asyncio.sleep(0.01)\n    active -= 1\n    return ['a', 'b', 'c'] if url == 'root' else []\nresult = asyncio.run(crawl_work_queue(['root'], fetch, workers=2))\nassert result['completed'] == ['root', 'a', 'b', 'c'] and peak == 2\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nasync def invalid_workers():\n    await crawl_work_queue(['root'], fetch, workers=0)\nasync def invalid_seed():\n    await crawl_work_queue([''], fetch)\nmust_raise(lambda: asyncio.run(invalid_workers()))\nmust_raise(lambda: asyncio.run(invalid_seed()))"
+  }
+]
