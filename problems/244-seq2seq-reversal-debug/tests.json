@@ -1,0 +1,5 @@
+[
+  {"name": "teacher forcing shifts exactly once", "test": "import torch\ntargets = torch.tensor([[4, 5, 0], [7, 8, 9]])\nassert torch.equal(shift_targets(targets, 1), torch.tensor([[1, 4, 5], [1, 7, 8]]))"},
+  {"name": "padding does not change loss", "test": "import torch\nbase_logits = torch.tensor([[[3., 0., 0.], [0., 3., 0.]]])\nbase_targets = torch.tensor([[0, 1]])\nextra_logits = torch.cat([base_logits, torch.tensor([[[100., -100., 0.]]])], dim=1)\nextra_targets = torch.tensor([[0, 1, 2]])\na = masked_cross_entropy(base_logits, base_targets, 2)\nb = masked_cross_entropy(extra_logits, extra_targets, 2)\nassert torch.allclose(a, b, atol=1e-6)"},
+  {"name": "model and greedy decoding are batched", "test": "import torch\ntorch.manual_seed(13)\nmodel = ReverseModel(12, 6)\nsource = torch.tensor([[2, 3, 4], [5, 6, 0]])\nlogits = model(source, torch.tensor([[1, 4], [1, 6]]))\nassert logits.shape == (2, 2, 12)\nout = greedy_decode(model.eval(), source, 1, None, 3)\nassert out.shape == (2, 4)\nassert torch.equal(out[:, 0], torch.tensor([1, 1]))"}
+]

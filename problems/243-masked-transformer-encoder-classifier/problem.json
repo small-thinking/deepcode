@@ -1,0 +1,15 @@
+{
+  "id": "243",
+  "slug": "masked-transformer-encoder-classifier",
+  "title": "Masked Encoder Classifier",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": ["torch", "transformer", "attention", "masking"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement an encoder block and a sequence classifier for padded batches. `MaskedEncoder(embed_dim, num_heads)` receives `x` with shape `(batch, length, embed_dim)` and a boolean `valid_mask` whose True entries are real tokens. It returns `(encoded, attention_weights)`, where `attention_weights` has shape `(batch, num_heads, length, length)`. Invalid keys must have exactly zero attention weight, and changing invalid token values must not affect encoded valid-token outputs. `MaskedEncoderClassifier(encoder, num_labels, pooling=\"mean\")` pools real tokens only and returns `(batch, num_labels)` logits. Support `mean` and `max` pooling.\n\nValidate dimensions, use scaled dot-product attention, and keep all returned values finite.",
+  "starter_code": "import math\nimport torch\nfrom torch import nn\n\n\nclass MaskedEncoder(nn.Module):\n    def __init__(self, embed_dim, num_heads):\n        super().__init__()\n        pass\n\n    def forward(self, x, valid_mask):\n        # Return encoded states and attention weights.\n        pass\n\n\nclass MaskedEncoderClassifier(nn.Module):\n    def __init__(self, encoder, num_labels, pooling='mean'):\n        super().__init__()\n        pass\n\n    def forward(self, x, valid_mask):\n        pass\n",
+  "example": {"input": "encoder(torch.randn(2, 4, 8), torch.tensor([[True, True, False, False], [True, True, True, False]]))", "output": "encoded states and masked attention weights", "reasoning": "Padding is not information and cannot be read by real tokens."},
+  "environment": {"language": "python", "timeout_seconds": 10, "packages": ["torch"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_torch_modeling"},
+  "created_at": "2026-08-18"
+}
