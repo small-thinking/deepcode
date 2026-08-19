@@ -1,0 +1,34 @@
+{
+  "id": "263",
+  "slug": "async-tree-count-protocol",
+  "title": "Asynchronous Tree Count Protocol",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": [
+    "distributed-systems",
+    "message-passing",
+    "trees",
+    "asynchronous",
+    "state-machine"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement a message-driven subtree-count protocol in `AsyncTreeCounter`. Each instance represents one node in a rooted tree and knows only its own `node_id` and local `child_ids`. It cannot inspect a shared tree representation.\n\n```python\nAsyncTreeCounter(node_id, child_ids, send_async_message)\nreceive_message(from_node_id, message)\n```\n\n`send_async_message(target_id, message)` queues a message for later delivery; it does not synchronously call the target. A coordinator starts a count by calling the root's `receive_message(None, {'type': 'count_request', 'request_id': request_id})`. Nodes must send count requests to local children, aggregate replies, and ultimately send `{'type': 'count_reply', 'request_id': request_id, 'count': total}` to their requester. The coordinator receives the root reply at target `None`.\n\nMessages may be delayed and delivered in any order. Store independent `parent_id`, pending-child, and partial-count state for every active `request_id`, so concurrent count operations cannot mix. A leaf replies with one. A node replies only after one accepted reply from every local child, then clears that request's state. Ignore a duplicate reply from a child already removed from the pending set. The protocol should send one request and one accepted reply per tree edge for each count operation, for `O(n)` messages and aggregate state per active request.",
+  "starter_code": "class AsyncTreeCounter:\n    def __init__(self, node_id, child_ids, send_async_message):\n        self.node_id = node_id\n        self.child_ids = list(child_ids)\n        self.send_async_message = send_async_message\n        self.state = {}\n\n    def receive_message(self, from_node_id, message):\n        pass\n",
+  "example": {
+    "input": "8 -> {11, 14}; 11 -> {17, 19}; 14 -> {23}",
+    "output": "a count reply of 6 for the request at node 8",
+    "reasoning": "Every node contributes one after it has aggregated all direct-child replies."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

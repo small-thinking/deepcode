@@ -1,0 +1,22 @@
+[
+  {
+    "name": "aggregates a branching tree despite reverse delivery order",
+    "input": "8 -> {11, 14}; 11 -> {17, 19}; 14 -> {23}",
+    "test": "def run_count(children, root, request_ids, lifo):\n    pending, answers, nodes = [], [], {}\n    for node_id, child_ids in children.items():\n        def send(target, message, sender=node_id):\n            if target is None:\n                answers.append((message['request_id'], message['count']))\n            else:\n                pending.append((sender, target, dict(message)))\n        nodes[node_id] = AsyncTreeCounter(node_id, child_ids, send)\n    for request_id in request_ids:\n        nodes[root].receive_message(None, {'type': 'count_request', 'request_id': request_id})\n    while pending:\n        sender, target, message = pending.pop(-1 if lifo else 0)\n        nodes[target].receive_message(sender, message)\n    return answers, nodes\nanswers, nodes = run_count({'8': ['11', '14'], '11': ['17', '19'], '14': ['23'], '17': [], '19': [], '23': []}, '8', ['request-a'], lifo=True)\nassert answers == [('request-a', 6)]\nassert all(not node.state for node in nodes.values())"
+  },
+  {
+    "name": "a single-node root returns one without a shared tree walk",
+    "input": "one root with no local children",
+    "test": "pending, answers, nodes = [], [], {}\ndef send(target, message):\n    if target is None:\n        answers.append((message['request_id'], message['count']))\n    else:\n        pending.append((target, dict(message)))\nnodes['root'] = AsyncTreeCounter('root', [], send)\nnodes['root'].receive_message(None, {'type': 'count_request', 'request_id': 'only'})\nassert answers == [('only', 1)]\nassert nodes['root'].state == {}"
+  },
+  {
+    "name": "concurrent request IDs keep partial sums isolated",
+    "input": "two count requests in flight over the same three-node tree",
+    "test": "pending, answers, nodes = [], [], {}\nchildren = {'r': ['a', 'b'], 'a': [], 'b': []}\nfor node_id, child_ids in children.items():\n    def send(target, message, sender=node_id):\n        if target is None:\n            answers.append((message['request_id'], message['count']))\n        else:\n            pending.append((sender, target, dict(message)))\n    nodes[node_id] = AsyncTreeCounter(node_id, child_ids, send)\nfor request_id in ['first', 'second']:\n    nodes['r'].receive_message(None, {'type': 'count_request', 'request_id': request_id})\nwhile pending:\n    sender, target, message = pending.pop()\n    nodes[target].receive_message(sender, message)\nassert sorted(answers) == [('first', 3), ('second', 3)]\nassert all(not node.state for node in nodes.values())"
+  },
+  {
+    "name": "duplicate child replies cannot inflate the aggregate",
+    "input": "a root with two leaves receives one leaf reply twice",
+    "test": "sent = []\nroot = AsyncTreeCounter('root', ['left', 'right'], lambda target, message: sent.append((target, dict(message))))\nroot.receive_message(None, {'type': 'count_request', 'request_id': 'once'})\nroot.receive_message('left', {'type': 'count_reply', 'request_id': 'once', 'count': 1})\nroot.receive_message('left', {'type': 'count_reply', 'request_id': 'once', 'count': 1})\nroot.receive_message('right', {'type': 'count_reply', 'request_id': 'once', 'count': 1})\nassert sent[-1] == (None, {'type': 'count_reply', 'request_id': 'once', 'count': 3})\nassert root.state == {}"
+  }
+]
