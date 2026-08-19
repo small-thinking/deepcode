@@ -12,7 +12,8 @@
     "systems"
   ],
   "companies": [
-    "Anthropic"
+    "Anthropic",
+    "OpenAI"
   ],
   "interview_frequency": {
     "Anthropic": {
