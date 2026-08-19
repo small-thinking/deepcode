@@ -1,0 +1,17 @@
+[
+  {
+    "name": "profiles normalized extensions, byte totals, and largest-file ties",
+    "input": "ordinary names, a dotfile, and a mixed-case archive suffix",
+    "test": "records = [\n    {'path': 'main.py', 'size_bytes': 10},\n    {'path': 'README', 'size_bytes': 3},\n    {'path': '.env', 'size_bytes': 5},\n    {'path': 'archive.tar.GZ', 'size_bytes': 10},\n    {'path': 'src/a.PY', 'size_bytes': 7},\n]\nassert profile_file_inventory(records) == {\n    'file_count': 5,\n    'total_bytes': 35,\n    'extension_totals': [('.py', 2, 17), ('.gz', 1, 10), ('', 2, 8)],\n    'largest_paths': ['archive.tar.GZ', 'main.py'],\n}\nassert records[0] == {'path': 'main.py', 'size_bytes': 10}"
+  },
+  {
+    "name": "breaks equal extension-byte totals lexicographically",
+    "input": "two extensions with four bytes each",
+    "test": "records = [\n    {'path': 'guide.MD', 'size_bytes': 4},\n    {'path': 'a.txt', 'size_bytes': 2},\n    {'path': 'b.txt', 'size_bytes': 2},\n]\nsummary = profile_file_inventory(records)\nassert summary['extension_totals'] == [('.md', 1, 4), ('.txt', 2, 4)]\nassert summary['largest_paths'] == ['guide.MD']"
+  },
+  {
+    "name": "returns an explicit empty profile",
+    "input": "no file records",
+    "test": "assert profile_file_inventory([]) == {'file_count': 0, 'total_bytes': 0, 'extension_totals': [], 'largest_paths': []}"
+  }
+]

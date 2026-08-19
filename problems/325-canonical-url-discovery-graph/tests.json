@@ -1,0 +1,17 @@
+[
+  {
+    "name": "normalizes paths ports fragments and query order before breadth-first discovery",
+    "input": "a seed with variants, cross-host links, and a non-web link",
+    "test": "pages = {\n    'https://example.test/root?a=1&b=2': [\n        'https://Other.test:443/a/../news?z=9&a=1#part',\n        'https://EXAMPLE.test:443/root/../guide?b=2&a=1',\n        'mailto:skip@example.test',\n    ],\n    'https://example.test/guide?a=1&b=2': ['https://other.test/news?a=1&z=9'],\n}\nseed = 'HTTPS://EXAMPLE.test:443/root/./?b=2&a=1#intro'\nassert discover_canonical_urls(seed, pages) == [\n    'https://example.test/root?a=1&b=2',\n    'https://other.test/news?a=1&z=9',\n    'https://example.test/guide?a=1&b=2',\n]"
+  },
+  {
+    "name": "merges page aliases and visits canonical cycles once",
+    "input": "two raw keys for one canonical page and links back to it",
+    "test": "pages = {\n    'http://site.test/a?b=2&a=1': ['http://site.test/b'],\n    'HTTP://SITE.test:80/a?a=1&b=2#x': ['http://site.test/c', 'http://site.test/a?b=2&a=1'],\n    'http://site.test/b': [],\n}\nassert discover_canonical_urls('http://site.test/a?a=1&b=2', pages) == [\n    'http://site.test/a?a=1&b=2',\n    'http://site.test/b',\n    'http://site.test/c',\n]"
+  },
+  {
+    "name": "rejects a non-web seed but retains unmapped web discoveries",
+    "input": "a mailto seed and a discovered URL without a page entry",
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nexpect_value_error(lambda: discover_canonical_urls('mailto:x@example.test', {}))\nassert discover_canonical_urls('https://site.test/', {'https://site.test/': ['https://new.test/path#x']}) == ['https://site.test/', 'https://new.test/path']"
+  }
+]

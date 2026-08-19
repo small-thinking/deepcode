@@ -1,0 +1,17 @@
+[
+  {
+    "name": "chooses priority among ready tasks while respecting dependencies",
+    "input": "two roots, two tasks unlocked by fetch, and a final join",
+    "test": "tasks = {\n    'fetch': {'depends_on': [], 'priority': 1},\n    'lint': {'depends_on': [], 'priority': 3},\n    'build': {'depends_on': ['fetch'], 'priority': 2},\n    'docs': {'depends_on': ['fetch'], 'priority': 5},\n    'package': {'depends_on': ['build', 'lint'], 'priority': 0},\n}\nassert schedule_pending_tasks(tasks) == ['lint', 'fetch', 'docs', 'build', 'package']"
+  },
+  {
+    "name": "treats completed dependencies as already satisfied",
+    "input": "one completed prerequisite and three remaining tasks",
+    "test": "tasks = {\n    'prepare': {'depends_on': [], 'priority': 0},\n    'alpha': {'depends_on': ['prepare'], 'priority': 1},\n    'beta': {'depends_on': ['prepare', 'prepare'], 'priority': 3},\n    'join': {'depends_on': ['alpha', 'beta'], 'priority': 9},\n}\nassert schedule_pending_tasks(tasks, completed=['prepare']) == ['beta', 'alpha', 'join']"
+  },
+  {
+    "name": "rejects missing dependencies, unknown completion, and cycles",
+    "input": "three invalid dependency graphs",
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nexpect_value_error(lambda: schedule_pending_tasks({'a': {'depends_on': ['missing'], 'priority': 0}}))\nexpect_value_error(lambda: schedule_pending_tasks({'a': {'depends_on': [], 'priority': 0}}, completed=['missing']))\nexpect_value_error(lambda: schedule_pending_tasks({'a': {'depends_on': ['b'], 'priority': 0}, 'b': {'depends_on': ['a'], 'priority': 0}}))"
+  }
+]

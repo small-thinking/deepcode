@@ -1,0 +1,26 @@
+{
+  "id": "324",
+  "slug": "threshold-image-components",
+  "title": "Threshold Image Components",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["grids", "bfs", "connected-components", "image-processing"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `label_threshold_components(image, threshold) -> dict` for a nonempty rectangular 2-D grid of numeric pixel values. A pixel is foreground when its value is at least `threshold`. Use 4-neighbor connectivity only: up, down, left, and right.\n\nReturn `{'labels': labels, 'components': components}`. `labels` is a new grid of the same shape, with `0` for background and positive component labels assigned in row-major discovery order. `components` is a matching list of dictionaries in label order; each has `label`, `area`, and `bbox`, where `bbox` is `(min_row, min_col, max_row, max_col)`. Do not mutate `image`.\n\nUse BFS or DFS over foreground pixels. Diagonal contact does not join components. The grid may contain no foreground pixels, in which case labels are all zero and components is empty.",
+  "starter_code": "def label_threshold_components(image, threshold):\n    # Return a row-major labeled grid and per-component area/bounding boxes.\n    pass\n",
+  "example": {
+    "input": "label_threshold_components([[4, 0], [4, 5]], threshold=4)",
+    "output": "one component with area 3 and bbox (0, 0, 1, 1)",
+    "reasoning": "The two 4s and the 5 form one 4-connected region."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

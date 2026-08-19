@@ -1,0 +1,26 @@
+{
+  "id": "325",
+  "slug": "canonical-url-discovery-graph",
+  "title": "Canonical URL Discovery Graph",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["url", "canonicalization", "graphs", "crawler", "bfs"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `discover_canonical_urls(seed_url, pages) -> list[str]`. `pages` is an insertion-ordered mapping from raw absolute URL strings to iterables of raw outgoing-link strings. This is a deterministic graph-discovery exercise: no network calls occur. Canonicalize the seed, every page key, and every outgoing link. Ignore non-HTTP(S) links. Merge links from page keys that canonicalize to the same URL in page-mapping order. Discover pages breadth-first and return canonical URLs once, in first-discovery order; a discovered URL with no page mapping still appears in the result but has no outgoing links.\n\nCanonicalization rules are: lowercase scheme and hostname; remove a default port (`80` for HTTP, `443` for HTTPS); drop the fragment; make an empty path `/`; collapse repeated `/`, `.` and `..` path segments lexically; and parse then sort query `(key, value)` pairs lexicographically, preserving blank values and duplicate pairs before URL-encoding them. Assume valid HTTP(S) URLs have no credentials or IPv6 hosts. Raise `ValueError` if `seed_url` is not absolute HTTP(S).\n\nThis deliberately has no same-host filter, async worker pool, retry policy, or raw-string queue identity. Use a queue plus a visited set over canonical URLs.",
+  "starter_code": "def discover_canonical_urls(seed_url, pages):\n    # Return canonical URLs in breadth-first first-discovery order.\n    pass\n",
+  "example": {
+    "input": "discover_canonical_urls('HTTPS://EXAMPLE.test:443/a/../guide?b=2&a=1#top', {})",
+    "output": "['https://example.test/guide?a=1&b=2']",
+    "reasoning": "The URL is normalized before graph traversal, even when it has no mapped outgoing links."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
