@@ -1,0 +1,17 @@
+[
+  {
+    "name": "transitions only the stack suffix and closes the final stack",
+    "input": "load changes to parse while main remains active",
+    "test": "events = stack_samples_to_trace_events([(1, ['main', 'load']), (3, ['main', 'parse']), (5, ['main'])], 7)\nassert events == [\n    {'name': 'main', 'phase': 'B', 'timestamp': 1},\n    {'name': 'load', 'phase': 'B', 'timestamp': 1},\n    {'name': 'load', 'phase': 'E', 'timestamp': 3},\n    {'name': 'parse', 'phase': 'B', 'timestamp': 3},\n    {'name': 'parse', 'phase': 'E', 'timestamp': 5},\n    {'name': 'main', 'phase': 'E', 'timestamp': 7},\n]"
+  },
+  {
+    "name": "closes nested frames innermost first and supports repeated frame names",
+    "input": "a recursive stack changes beneath its first frame",
+    "test": "events = stack_samples_to_trace_events([(0, ['serve', 'serve', 'decode']), (2, ['serve', 'encode'])], 4)\nassert events == [\n    {'name': 'serve', 'phase': 'B', 'timestamp': 0},\n    {'name': 'serve', 'phase': 'B', 'timestamp': 0},\n    {'name': 'decode', 'phase': 'B', 'timestamp': 0},\n    {'name': 'decode', 'phase': 'E', 'timestamp': 2},\n    {'name': 'serve', 'phase': 'E', 'timestamp': 2},\n    {'name': 'encode', 'phase': 'B', 'timestamp': 2},\n    {'name': 'encode', 'phase': 'E', 'timestamp': 4},\n    {'name': 'serve', 'phase': 'E', 'timestamp': 4},\n]\nassert stack_samples_to_trace_events([], 3) == []"
+  },
+  {
+    "name": "validates timestamps, final boundary, and frame names",
+    "input": "out-of-order samples, an early end, and an empty frame",
+    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except exception_type:\n        return\n    raise AssertionError(f'expected {exception_type.__name__}')\n\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, ['a']), (1, ['a'])], 3))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, ['a'])], 1))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(1, [''])], 1))\nexpect(TypeError, lambda: stack_samples_to_trace_events([(True, ['a'])], 1))"
+  }
+]

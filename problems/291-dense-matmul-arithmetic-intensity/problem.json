@@ -1,0 +1,26 @@
+{
+  "id": "291",
+  "slug": "dense-matmul-arithmetic-intensity",
+  "title": "Dense Matrix Multiplication Arithmetic Intensity",
+  "category": "Algorithms",
+  "difficulty": "easy",
+  "tags": ["linear-algebra", "performance-modeling", "matrix-multiplication", "roofline"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `matmul_arithmetic_intensity(m, n, k, element_bytes=4) -> float` for dense multiplication `C = A @ B`, with `A` shaped `(m, k)`, `B` shaped `(k, n)`, and `C` shaped `(m, n)`. Use the simple one-pass traffic model: read each element of `A` and `B` once and write each element of `C` once. Count one multiply and one add per inner-product term, so the work is `2 * m * n * k` floating-point operations. The moved bytes are `element_bytes * (m * k + k * n + m * n)`. Return FLOPs divided by moved bytes as a `float`.\n\nAll four arguments must be positive `int` values, with `bool` rejected as a type error. Raise `TypeError` for non-integers and `ValueError` for non-positive integers. This is an arithmetic model only: do not assume cache reuse, tiling, fused operations, or a read-modify-write of the output.",
+  "starter_code": "def matmul_arithmetic_intensity(m, n, k, element_bytes=4):\n    # Return modeled FLOPs per transferred byte for C = A @ B.\n    pass\n",
+  "example": {
+    "input": "matmul_arithmetic_intensity(2, 3, 4)",
+    "output": "6 / 13 (approximately 0.4615)",
+    "reasoning": "There are 48 FLOPs and 104 transferred bytes: four-byte values times 8 A, 12 B, and 6 C elements."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

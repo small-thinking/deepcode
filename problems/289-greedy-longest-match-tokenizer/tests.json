@@ -1,0 +1,17 @@
+[
+  {
+    "name": "selects the longest matching token at each cursor",
+    "input": "overlapping word pieces in 'thereafter' and 'ababa'",
+    "test": "assert tokenize_longest_match('thereafter', ['the', 'there', 'after', 'her']) == ['there', 'after']\nassert tokenize_longest_match('ababa', ['a', 'ab', 'aba', 'ba']) == ['aba', 'ba']"
+  },
+  {
+    "name": "emits one unknown marker per unmatched character",
+    "input": "recognized characters separated by punctuation, plus an empty vocabulary",
+    "test": "assert tokenize_longest_match('a?b!', ['a', 'b'], unknown='<U>') == ['a', '<U>', 'b', '<U>']\nassert tokenize_longest_match('hi', [], unknown='?') == ['?', '?']\nassert tokenize_longest_match('', ['a']) == []"
+  },
+  {
+    "name": "validates tokens and the unknown marker",
+    "input": "an empty token, an empty marker, and a non-string input",
+    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except exception_type:\n        return\n    raise AssertionError(f'expected {exception_type.__name__}')\n\nexpect(ValueError, lambda: tokenize_longest_match('x', ['']))\nexpect(ValueError, lambda: tokenize_longest_match('x', ['x'], unknown=''))\nexpect(TypeError, lambda: tokenize_longest_match(['x'], ['x']))\nexpect(TypeError, lambda: tokenize_longest_match('x', 'x'))"
+  }
+]

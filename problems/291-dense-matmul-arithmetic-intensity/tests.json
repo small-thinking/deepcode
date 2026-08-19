@@ -1,0 +1,17 @@
+[
+  {
+    "name": "computes the one-pass traffic ratio for rectangular matrices",
+    "input": "A(2, 4), B(4, 3), and four-byte elements",
+    "test": "import math\nassert math.isclose(matmul_arithmetic_intensity(2, 3, 4), 6 / 13, rel_tol=1e-12)\nassert isinstance(matmul_arithmetic_intensity(2, 3, 4), float)"
+  },
+  {
+    "name": "handles a vector-like multiply and a non-default element width",
+    "input": "A(1, 16), B(16, 1), and eight-byte elements",
+    "test": "import math\nassert math.isclose(matmul_arithmetic_intensity(1, 1, 16, element_bytes=8), 4 / 33, rel_tol=1e-12)\nassert math.isclose(matmul_arithmetic_intensity(8, 8, 8), 4 / 3, rel_tol=1e-12)"
+  },
+  {
+    "name": "rejects booleans, non-integers, and non-positive dimensions",
+    "input": "a boolean dimension, a float dimension, and zero byte width",
+    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except exception_type:\n        return\n    raise AssertionError(f'expected {exception_type.__name__}')\n\nexpect(TypeError, lambda: matmul_arithmetic_intensity(1, True, 2))\nexpect(TypeError, lambda: matmul_arithmetic_intensity(1, 2.0, 2))\nexpect(ValueError, lambda: matmul_arithmetic_intensity(0, 2, 2))\nexpect(ValueError, lambda: matmul_arithmetic_intensity(1, 2, 2, element_bytes=0))"
+  }
+]

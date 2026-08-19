@@ -1,0 +1,17 @@
+[
+  {
+    "name": "combines shard frequencies and uses the smallest tied mode",
+    "input": "three uneven shards with an even global observation count",
+    "test": "result = reduce_shard_statistics([[3, 1, 1], [5, 3], [2]])\nassert result == (1, 2.5)"
+  },
+  {
+    "name": "handles negative values, empty shards, and an odd median",
+    "input": "[[], [-4, 2], [2, 8], []] and a single observation",
+    "test": "assert reduce_shard_statistics([[], [-4, 2], [2, 8], []]) == (2, 2.0)\nassert reduce_shard_statistics([[], [9]]) == (9, 9.0)"
+  },
+  {
+    "name": "rejects an empty global input and non-integer observations",
+    "input": "empty shards, a string observation, and a boolean observation",
+    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except exception_type:\n        return\n    raise AssertionError(f'expected {exception_type.__name__}')\n\nexpect(ValueError, lambda: reduce_shard_statistics([[], []]))\nexpect(TypeError, lambda: reduce_shard_statistics([[1, '2']]))\nexpect(TypeError, lambda: reduce_shard_statistics([[True]]))"
+  }
+]
