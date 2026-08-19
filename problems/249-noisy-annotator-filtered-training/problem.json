@@ -1,0 +1,15 @@
+{
+  "id": "249",
+  "slug": "noisy-annotator-filtered-training",
+  "title": "Noisy Annotator Filtering",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": ["label-noise", "data-quality", "consensus"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement deterministic preprocessing for a label matrix. Each row is an item and each column is an annotator; `None` means missing. `consensus_labels(labels, excluded=())` returns a majority label per row, breaking ties by first occurrence in that row. `agreement_rates(labels, min_labels=1)` returns one rate per annotator, ignoring missing observations and rows without enough non-missing labels. `select_rejected_annotators(...)` selects annotators with agreement strictly below a threshold while respecting `max_removed_fraction` and `min_remaining`. `mask_annotators(labels, rejected)` returns a same-shape copy whose rejected columns are all `None`.\n\nDo not mutate the caller's matrix. A weak-agreement filter is a data-quality baseline, not a promise that every downstream model improves.",
+  "starter_code": "def consensus_labels(labels, excluded=()):\n    pass\n\n\ndef agreement_rates(labels, min_labels=1):\n    pass\n\n\ndef select_rejected_annotators(labels, threshold=0.7, min_labels=1, max_removed_fraction=0.5, min_remaining=1):\n    pass\n\n\ndef mask_annotators(labels, rejected):\n    pass\n",
+  "example": {"input": "[[\"cat\", \"cat\", \"dog\"], [None, \"dog\", \"cat\"]]", "output": "[\"cat\", \"dog\"]", "reasoning": "Each consensus ignores missing reports and keeps a stable rule for ties."},
+  "environment": {"language": "python", "timeout_seconds": 8, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

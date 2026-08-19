@@ -1,0 +1,15 @@
+{
+  "id": "252",
+  "slug": "robust-ab-test-analysis",
+  "title": "Robust A/B Experiment Summary",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["experimentation", "statistics", "data-quality", "numpy"],
+  "companies": ["OpenAI"],
+  "prompt": "Analyze experiment records represented as mappings with `variant`, `exposed`, `metric`, and optional `country`. `ab_summary(rows)` must retain only exposed A/B rows with a non-missing metric, compute B-minus-A relative lift, and return a two-sided Welch-style normal-approximation p-value. Return `NaN` statistics for an underpowered group or a zero A mean. `SegmentLiftReport(rows)` pre-aggregates valid records and exposes `lift(country)`; unknown or one-sided segments return `NaN`.\n\nDo not discard a row merely because the optional segment is missing. Treat this as a numerical reporting helper, not a substitute for experimental-design judgment.",
+  "starter_code": "import math\n\n\ndef ab_summary(rows):\n    pass\n\n\nclass SegmentLiftReport:\n    def __init__(self, rows):\n        pass\n\n    def lift(self, country):\n        pass\n",
+  "example": {"input": "two exposed A and two exposed B records", "output": "a mapping containing lift and p_value", "reasoning": "The summary separates exposure filtering from metric validity."},
+  "environment": {"language": "python", "timeout_seconds": 8, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}
