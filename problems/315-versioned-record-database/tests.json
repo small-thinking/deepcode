@@ -1,0 +1,22 @@
+[
+  {
+    "name": "inserted records have independent copied fields and start at version one",
+    "input": "one draft record followed by caller and view mutations",
+    "test": "db = VersionedRecordDatabase()\nfields = {'state': 'draft', 'priority': 2}\ndb.insert('m1', fields)\nfields['state'] = 'tampered'\nassert db.get('m1') == {'id': 'm1', 'version': 1, 'fields': {'state': 'draft', 'priority': 2}}\nview = db.get('m1')\nview['fields']['priority'] = 99\nassert db.get('m1')['fields']['priority'] == 2"
+  },
+  {
+    "name": "patches update and remove fields atomically with a matching version",
+    "input": "a version-one record with one replacement one addition and one removal",
+    "test": "db = VersionedRecordDatabase()\ndb.insert('m1', {'state': 'draft', 'owner': 'ada', 'priority': 2})\nassert db.patch('m1', 1, {'state': 'ready', 'retries': 0}, remove=['owner']) == 2\nassert db.get('m1') == {'id': 'm1', 'version': 2, 'fields': {'state': 'ready', 'priority': 2, 'retries': 0}}\nassert db.find('state', 'ready') == [{'id': 'm1', 'version': 2, 'fields': {'state': 'ready', 'priority': 2, 'retries': 0}}]"
+  },
+  {
+    "name": "stale and invalid patches leave the record untouched",
+    "input": "a version-two record followed by a stale write and missing-field removal",
+    "test": "db = VersionedRecordDatabase()\ndb.insert('m1', {'state': 'draft', 'priority': 2})\ndb.patch('m1', 1, {'state': 'ready'})\nfor call in (lambda: db.patch('m1', 1, {'priority': 9}), lambda: db.patch('m1', 2, {'state': 'done'}, remove=['missing']), lambda: db.patch('m1', 2, {'state': 'done'}, remove=['state'])):\n    try:\n        call()\n        raise AssertionError('expected VersionConflictError, KeyError, or ValueError')\n    except (VersionConflictError, KeyError, ValueError):\n        pass\nassert db.get('m1') == {'id': 'm1', 'version': 2, 'fields': {'state': 'ready', 'priority': 2}}"
+  },
+  {
+    "name": "find ordering deletion and input validation follow the document contract",
+    "input": "three records with one matching field and a versioned deletion",
+    "test": "db = VersionedRecordDatabase()\ndb.insert('z', {'kind': 'job'})\ndb.insert('a', {'kind': 'job'})\ndb.insert('m', {'kind': 'note'})\nassert [row['id'] for row in db.find('kind', 'job')] == ['a', 'z']\ndb.delete('z', 1)\nassert [row['id'] for row in db.find('kind', 'job')] == ['a']\nfor call in (lambda: db.insert('a', {'x': 1}), lambda: db.insert('', {'x': 1}), lambda: db.insert('bad', {}), lambda: db.insert('bad', {'x': []}), lambda: db.patch('a', 1, {}, remove=[])):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    db.get('missing')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  }
+]

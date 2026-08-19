@@ -1,0 +1,22 @@
+[
+  {
+    "name": "backups retain immutable full-state copies across later mutations",
+    "input": "one nested value backed up before it is changed and restored",
+    "test": "db = BackupDatabase()\nvalue = {'retries': [2, 4]}\ndb.set('config', value)\nassert db.backup('before-change') == 1\nvalue['retries'].append(99)\ndb.set('config', {'retries': [3]})\nassert db.restore('before-change') == 3\nassert db.get('config') == {'retries': [2, 4]}\nassert db.list_backups() == [{'label': 'before-change', 'source_revision': 1, 'key_count': 1}]"
+  },
+  {
+    "name": "backup catalog order and deletion are independent of live revision",
+    "input": "two backups created around a second key then one dropped",
+    "test": "db = BackupDatabase()\ndb.set('a', 1)\ndb.backup('first')\ndb.set('b', 2)\ndb.backup('second')\nassert db.list_backups() == [\n    {'label': 'first', 'source_revision': 1, 'key_count': 1},\n    {'label': 'second', 'source_revision': 2, 'key_count': 2},\n]\ndb.drop_backup('first')\nassert db.list_backups() == [{'label': 'second', 'source_revision': 2, 'key_count': 2}]\nassert db.delete('missing') is False\nassert db.delete('b') is True\nassert db.restore('second') == 4\nassert db.get('b') == 2"
+  },
+  {
+    "name": "reads and defaults do not expose mutable database state",
+    "input": "a nested stored value plus a nested missing-key default",
+    "test": "db = BackupDatabase()\ndb.set('x', {'items': [1]})\nview = db.get('x')\nview['items'].append(2)\nassert db.get('x') == {'items': [1]}\ndefault = {'items': [7]}\nmissing = db.get('missing', default)\nmissing['items'].append(8)\nassert default == {'items': [7]}\nassert db.contains('x') is True\nassert db.contains('missing') is False"
+  },
+  {
+    "name": "invalid values labels and backup operations fail safely",
+    "input": "a live key followed by malformed writes and unknown backup operations",
+    "test": "db = BackupDatabase()\ndb.set('ok', 1)\nfor call in (lambda: db.set('', 1), lambda: db.set('bad', {'': 1}), lambda: db.set('bad', float('inf')), lambda: db.backup('')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ndb.backup('one')\ntry:\n    db.backup('one')\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\nassert db.get('ok') == 1\nfor call in (lambda: db.restore('missing'), lambda: db.drop_backup('missing')):\n    try:\n        call()\n        raise AssertionError('expected KeyError')\n    except KeyError:\n        pass"
+  }
+]

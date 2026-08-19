@@ -1,0 +1,26 @@
+{
+  "id": "316",
+  "slug": "manual-lru-cache",
+  "title": "Manual LRU Cache",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["cache", "lru", "hash-map", "doubly-linked-list", "stateful"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `ManualLRUCache` using a hash map from keys to nodes and a manually maintained doubly linked list. Do not use `OrderedDict`, persistence, memoized functions, or a cache-key serializer.\n\n- `ManualLRUCache(capacity)` requires a positive ordinary integer capacity.\n- `get(key, default=None)` returns the value and promotes an existing key to most-recently-used. A missing key returns `default` and does not change the list.\n- `put(key, value)` inserts or replaces a key and promotes it to most-recently-used. Return `None` when no eviction occurs; otherwise return the evicted `(key, value)` pair. Updating an existing key must not evict another key.\n- `remove(key) -> bool` removes a key when present and reports whether it existed.\n- `keys_mru_to_lru() -> list` returns keys from most to least recently used.\n\nKeys must be hashable. Values may be arbitrary Python objects. A `get`, `put`, or `remove` on an unhashable key raises `TypeError`. Operations should be O(1) average time, excluding the list materialized by `keys_mru_to_lru()`.",
+  "starter_code": "class ManualLRUCache:\n    def __init__(self, capacity):\n        pass\n\n    def get(self, key, default=None):\n        pass\n\n    def put(self, key, value):\n        pass\n\n    def remove(self, key):\n        pass\n\n    def keys_mru_to_lru(self):\n        pass\n",
+  "example": {
+    "input": "cache = ManualLRUCache(2); cache.put('a', 1); cache.put('b', 2); cache.get('a'); cache.put('c', 3)",
+    "output": "cache.keys_mru_to_lru() == ['c', 'a']",
+    "reasoning": "Reading `a` promotes it, so `b` is the least-recently-used key evicted by the next insertion."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

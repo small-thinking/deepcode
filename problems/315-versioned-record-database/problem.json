@@ -1,0 +1,26 @@
+{
+  "id": "315",
+  "slug": "versioned-record-database",
+  "title": "Versioned Record Database",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["database", "records", "optimistic-concurrency", "document-store", "stateful"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement a small schemaless `VersionedRecordDatabase`. Unlike a relational query engine, this API has one collection of independently versioned documents: there are no tables, SQL parsing, joins, or sort clauses.\n\nA record ID and every field name are non-empty strings. Field values are scalar `None`, strings, booleans, ordinary integers, or finite floats.\n\n- `insert(record_id, fields)` creates a record at version `1`. `fields` must be a non-empty mapping.\n- `get(record_id) -> dict` returns `{'id': ..., 'version': ..., 'fields': ...}` as a copy.\n- `patch(record_id, expected_version, changes, remove=()) -> int` atomically applies field replacements/additions and removals only when the current version equals `expected_version`; return the new version. `changes` is a mapping, `remove` is a sequence of existing field names, and the two sets of names must not overlap. At least one requested change or removal is required. A stale expected version raises `VersionConflictError` without changing the record.\n- `find(field, value) -> list[dict]` returns copied records whose current field has exactly that value, ordered lexicographically by record ID.\n- `delete(record_id, expected_version)` removes a record only at its current version.\n\nUnknown record IDs raise `KeyError`; malformed inputs, duplicate IDs, or invalid patches raise `ValueError`. Returned records and caller mappings must not share mutable storage with the database.",
+  "starter_code": "class VersionConflictError(Exception):\n    pass\n\n\nclass VersionedRecordDatabase:\n    def __init__(self):\n        pass\n\n    def insert(self, record_id, fields):\n        pass\n\n    def get(self, record_id):\n        pass\n\n    def patch(self, record_id, expected_version, changes, remove=()):\n        pass\n\n    def find(self, field, value):\n        pass\n\n    def delete(self, record_id, expected_version):\n        pass\n",
+  "example": {
+    "input": "db.insert('m1', {'state': 'draft', 'priority': 2}); db.patch('m1', 1, {'state': 'ready'})",
+    "output": "db.get('m1')['version'] == 2",
+    "reasoning": "The patch is accepted only at version 1, then creates version 2 without changing unrelated fields."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
