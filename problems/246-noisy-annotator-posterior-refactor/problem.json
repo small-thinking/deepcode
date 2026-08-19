@@ -1,0 +1,15 @@
+{
+  "id": "246",
+  "slug": "noisy-annotator-posterior-refactor",
+  "title": "Noisy Annotator Posterior Inference",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": ["torch", "label-noise", "posterior", "vectorization"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement utilities for multiclass training data labeled by imperfect annotators. `posterior_true_labels(prior, confusion, annotations, temperature=1.0)` returns posterior probabilities over true classes. `prior` has shape `(classes,)`; `confusion[a, truth, reported]` is the probability that annotator `a` reports a class. `annotations` has shape `(items, annotators)` and uses `-1` for missing labels; class `0` is a real label. Work in log space and return the prior exactly for an item with no observed labels.\n\n`annotation_nll(logits, confusion, annotations)` returns the mean negative log likelihood of observed reports after marginalizing the true class. It must reject an all-missing batch. `evaluate_in_chunks(fn, inputs, chunk_size)` applies a callable to the leading dimension without a graph and concatenates every chunk, including the final partial chunk. Validate positive temperature and chunk sizes.",
+  "starter_code": "import torch\n\n\ndef posterior_true_labels(prior, confusion, annotations, temperature=1.0):\n    pass\n\n\ndef annotation_nll(logits, confusion, annotations):\n    pass\n\n\ndef evaluate_in_chunks(fn, inputs, chunk_size):\n    pass\n",
+  "example": {"input": "annotations = torch.tensor([[0, -1], [-1, -1]])", "output": "two normalized posteriors; the second equals prior", "reasoning": "Missing annotations provide no likelihood factor, while report 0 is evidence."},
+  "environment": {"language": "python", "timeout_seconds": 12, "packages": ["torch"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_torch_modeling"},
+  "created_at": "2026-08-18"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "248",
+  "slug": "autograd-matmul-chain-scan",
+  "title": "Autograd Matrix Products and Chain Gradients",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": ["torch", "autograd", "matrix-multiplication", "gradients"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `MatMul`, a custom `torch.autograd.Function`, and its `matmul(a, b)` wrapper. Forward must agree with `torch.matmul` for rectangular matrices and broadcast batches; backward must return gradients reduced to the original broadcasted input shapes while preserving dtype and device.\n\n`chain_forward(matrices)` returns the product of a non-empty compatible sequence. `chain_backward(matrices, grad_output)` returns one gradient per matrix for the scalar objective `sum(chain_forward(matrices) * grad_output)`. Support a one-matrix chain and do not mutate caller inputs. Prefer a product-scan style implementation once correctness is established.",
+  "starter_code": "import torch\n\n\nclass MatMul(torch.autograd.Function):\n    @staticmethod\n    def forward(ctx, a, b):\n        pass\n\n    @staticmethod\n    def backward(ctx, grad_output):\n        pass\n\n\ndef matmul(a, b):\n    pass\n\n\ndef chain_forward(matrices):\n    pass\n\n\ndef chain_backward(matrices, grad_output):\n    pass\n",
+  "example": {"input": "matmul(torch.ones(2, 3), torch.ones(3, 4))", "output": "a (2, 4) tensor", "reasoning": "The inner dimensions contract and the outer dimensions remain."},
+  "environment": {"language": "python", "timeout_seconds": 12, "packages": ["torch"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_torch_modeling"},
+  "created_at": "2026-08-18"
+}
