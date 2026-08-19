@@ -1,0 +1,15 @@
+{
+  "id": "265",
+  "slug": "resumable-multidimensional-iterator",
+  "title": "Resumable Multi-Dimensional Iterator",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["iterator", "checkpointing", "serialization", "nested-data"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `ResumableIterator` and `MultiDimensionalIterator(items)`. The constructor snapshots a nested list/tuple containing one-, two-, or three-dimensional data, including ragged and empty containers. Iteration visits leaves in source order and skips empty containers. `next()` and Python's `next(iterator)` raise `StopIteration` only after all leaves are consumed.\n\n`get_state()` returns JSON-compatible state for the next leaf: `{\"version\": 1, \"shape\": ..., \"next_path\": ...}`. The shape must let `set_state(state)` reject a checkpoint from a different source. `next_path` is a coordinate list for the next leaf, or `null` when exhausted. A state may be restored into a fresh iterator over the same logical source. Reject malformed states, unknown paths, wrong versions, or shape mismatches with `ValueError`.",
+  "starter_code": "class ResumableIterator:\n    def __iter__(self):\n        pass\n\n    def __next__(self):\n        pass\n\n    def next(self):\n        pass\n\n    def get_state(self):\n        pass\n\n    def set_state(self, state):\n        pass\n\n\nclass MultiDimensionalIterator(ResumableIterator):\n    def __init__(self, items):\n        pass\n",
+  "example": {"input": "it = MultiDimensionalIterator([[1, []], [2, 3]])", "output": "[it.next(), it.next()] == [1, 2]", "reasoning": "A checkpoint identifies the next leaf rather than the leaf that was just returned."},
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

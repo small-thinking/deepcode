@@ -1,0 +1,15 @@
+{
+  "id": "266",
+  "slug": "modal-and-fair-modal-lock",
+  "title": "Modal and Fair Modal Lock",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["concurrency", "locks", "fairness", "condition-variables"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `ModalLock` and `FairModalLock`, each with `acquire(mode)` and `release(mode)`. A mode is any hashable value. Holders of the same mode may run concurrently; holders of different modes must never overlap. Releasing a mode that has no active holder raises `RuntimeError`.\n\n`ModalLock` only enforces compatibility. `FairModalLock` also prevents barging: once an incompatible request is waiting, later same-mode requests may not join current holders ahead of it. When idle, it should admit the maximal contiguous prefix of queued requests that share the oldest waiting mode. Implement with Python standard-library synchronization primitives; `acquire` blocks until legal.",
+  "starter_code": "class ModalLock:\n    def acquire(self, mode):\n        pass\n\n    def release(self, mode):\n        pass\n\n\nclass FairModalLock:\n    def acquire(self, mode):\n        pass\n\n    def release(self, mode):\n        pass\n",
+  "example": {"input": "lock.acquire('read'); lock.acquire('read'); lock.release('read')", "output": "the remaining read holder may continue", "reasoning": "Compatibility belongs to a mode, while fairness belongs to the waiting boundary."},
+  "environment": {"language": "python", "timeout_seconds": 5, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

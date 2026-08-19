@@ -1,0 +1,19 @@
+{
+  "id": "264",
+  "slug": "nested-toy-type-inference",
+  "title": "Nested Toy Type Inference",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["parsing", "type-inference", "unification", "recursion"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement a small structural type language and generic return-type inference. A type node is either an atomic string or a tuple of nodes. `parse_type(text)` accepts atomic names and nested tuples written with either `()` or `[]`; empty and one-element tuples are meaningful. `format_type(node)` must use canonical parenthesized formatting.\n\nImplement `infer_return_type(actual_params, parameter_patterns, return_pattern)`. Generic variables are atomic names matching an uppercase letter followed by optional digits (for example `T` or `A12`). Recursively unify each actual type with its matching parameter pattern. A generic has one structural binding across the whole call and may bind to a nested tuple. Substitute bindings into the return pattern.\n\nRaise `ValueError` for malformed type text, arity or structure mismatches, incompatible repeated bindings, or an unbound generic in the return pattern. Do not mutate caller-provided nodes.",
+  "starter_code": "def parse_type(text):\n    pass\n\n\ndef format_type(node):\n    pass\n\n\ndef infer_return_type(actual_params, parameter_patterns, return_pattern):\n    pass\n",
+  "example": {
+    "input": "infer_return_type([('int', 'str')], [('T', 'U')], ('U', 'T'))",
+    "output": "('str', 'int')",
+    "reasoning": "Bindings are structural and may be substituted in any return position."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}
