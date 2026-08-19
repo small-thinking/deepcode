@@ -1,0 +1,22 @@
+[
+  {
+    "name": "registry validates and retrieves each supported data-structure kind",
+    "input": "one text count labels and properties resource",
+    "test": "registry = TypedResourceRegistry()\nregistry.register(Resource('title', 'text', 'hello'))\nregistry.register(Resource('retries', 'count', 3))\nregistry.register(Resource('tags', 'labels', ('ml', 'systems')))\nregistry.register(Resource('config', 'properties', {'enabled': True, 'rate': 0.25}))\nassert registry.get('title').payload == 'hello'\nassert registry.get('retries', 'count').payload == 3\nassert registry.get('tags').payload == ['ml', 'systems']\nassert registry.get('config').payload == {'enabled': True, 'rate': 0.25}\nassert registry.names() == ['config', 'retries', 'tags', 'title']\nassert registry.names('labels') == ['tags']"
+  },
+  {
+    "name": "inputs and returned resources cannot mutate stored nested payloads",
+    "input": "one labels input and one properties input mutated after registration",
+    "test": "registry = TypedResourceRegistry()\nlabels = ['one', 'two']\nproperties = {'items': 2}\nregistry.register(Resource('labels', 'labels', labels))\nregistry.register(Resource('props', 'properties', properties))\nlabels.append('tampered')\nproperties['items'] = 99\nview = registry.get('labels')\nview.payload.append('changed')\nproperty_view = registry.get('props')\nproperty_view.payload['items'] = 0\nassert registry.get('labels').payload == ['one', 'two']\nassert registry.get('props').payload == {'items': 2}"
+  },
+  {
+    "name": "kind mismatches removal and missing names follow registry behavior",
+    "input": "a text resource read through a wrong expected kind then removed",
+    "test": "registry = TypedResourceRegistry()\nregistry.register(Resource('name', 'text', 'ada'))\ntry:\n    registry.get('name', 'count')\n    raise AssertionError('expected TypeError')\nexcept TypeError:\n    pass\nassert registry.remove('name') is True\nassert registry.remove('name') is False\ntry:\n    registry.get('name')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  },
+  {
+    "name": "invalid resource shapes kinds and filters are rejected",
+    "input": "malformed payloads duplicate names and invalid kind filters",
+    "test": "registry = TypedResourceRegistry()\nfor resource in (Resource('', 'text', 'x'), Resource('x', 'unknown', 'x'), Resource('x', 'count', True), Resource('x', 'labels', ['same', 'same']), Resource('x', 'properties', {'bad': []})):\n    try:\n        registry.register(resource)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nregistry.register(Resource('x', 'text', 'ok'))\ntry:\n    registry.register(Resource('x', 'text', 'again'))\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\ntry:\n    registry.names('unknown')\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass"
+  }
+]

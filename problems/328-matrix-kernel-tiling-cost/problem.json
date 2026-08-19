@@ -1,0 +1,19 @@
+{
+  "id": "328",
+  "slug": "matrix-kernel-tiling-cost",
+  "title": "Matrix Kernel Tiling Cost Optimizer",
+  "category": "ML Systems",
+  "difficulty": "medium",
+  "tags": ["matrix-multiplication", "tiling", "performance-modeling", "kernel-optimization", "cost-model"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement a deterministic tile-cost model for dense `C = A @ B`, where `A` has shape `(m, k)` and `B` has shape `(k, n)`. This exercise selects a legal kernel tile; it does not implement matrix multiplication, distributed sharding, or the one-pass arithmetic-intensity formula.\n\nA tile is `(tm, tn, tk)`. Each component must be a positive ordinary integer and divide its corresponding full dimension exactly. Its workspace holds one `A` tile, one `B` tile, and one `C` tile:\n\n`workspace_bytes = element_bytes * (tm * tk + tk * tn + tm * tn)`\n\nUse this simplified traffic model for `estimate_tiled_matmul_cost(m, n, k, tile, element_bytes=4) -> dict`:\n\n- There are `(m/tm) * (n/tn)` output tiles and `k/tk` inner blocks per output tile.\n- Read one `A` and one `B` tile for each inner block, then write each output tile once after accumulation.\n- `estimated_bytes = element_bytes * (output_tiles * inner_blocks * (tm * tk + tk * tn) + m * n)`.\n- FLOPs are `2 * m * n * k`; report floating-point `arithmetic_intensity = flops / estimated_bytes`.\n\nReturn a dictionary containing `tile`, `workspace_bytes`, `estimated_bytes`, and `arithmetic_intensity`. Implement `choose_matrix_tiling(m, n, k, tile_candidates, max_workspace_bytes, element_bytes=4) -> dict`: consider only candidates whose workspace fits, choose the one with the smallest `estimated_bytes`, and break exact ties by lexicographically smaller tile. Reject malformed dimensions, candidates, byte sizes, and a candidate set with no feasible tile using `ValueError`.",
+  "starter_code": "def estimate_tiled_matmul_cost(m, n, k, tile, element_bytes=4):\n    pass\n\n\ndef choose_matrix_tiling(m, n, k, tile_candidates, max_workspace_bytes, element_bytes=4):\n    pass\n",
+  "example": {
+    "input": "choose_matrix_tiling(8, 8, 8, [(2, 2, 2), (4, 4, 4)], 256)",
+    "output": "a result whose tile is (4, 4, 4)",
+    "reasoning": "Both tiles fit, but the larger legal tile reuses panels across fewer output and inner blocks in this cost model."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-19"
+}

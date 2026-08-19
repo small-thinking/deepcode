@@ -1,0 +1,22 @@
+[
+  {
+    "name": "owners can put get and list lexicographically ordered object metadata",
+    "input": "one namespace containing three objects and a key prefix filter",
+    "test": "store = ObjectStorageNamespace()\nstore.create_namespace('team-a', 'ada')\nstore.put('team-a', 'models/z.txt', 'z', 'ada')\nstore.put('team-a', 'models/a.txt', 'alpha', 'ada')\nstore.put('team-a', 'notes.txt', 'memo', 'ada')\nassert store.get('team-a', 'models/a.txt', 'ada') == 'alpha'\nassert store.list_objects('team-a', 'ada') == [\n    {'key': 'models/a.txt', 'size': 5},\n    {'key': 'models/z.txt', 'size': 1},\n    {'key': 'notes.txt', 'size': 4},\n]\nassert store.list_objects('team-a', 'ada', 'models/') == [\n    {'key': 'models/a.txt', 'size': 5},\n    {'key': 'models/z.txt', 'size': 1},\n]"
+  },
+  {
+    "name": "overwrites and deletes preserve namespace semantics",
+    "input": "an overwritten object followed by deletion and a missing-key delete",
+    "test": "store = ObjectStorageNamespace()\nstore.create_namespace('n', 'owner')\nstore.put('n', 'same', 'one', 'owner')\nstore.put('n', 'same', 'longer', 'owner')\nassert store.get('n', 'same', 'owner') == 'longer'\nassert store.list_objects('n', 'owner') == [{'key': 'same', 'size': 6}]\nassert store.delete('n', 'same', 'owner') is True\nassert store.delete('n', 'same', 'owner') is False"
+  },
+  {
+    "name": "ownership transfer revokes the old principal immediately",
+    "input": "a namespace with one object transferred from ada to ben",
+    "test": "store = ObjectStorageNamespace()\nstore.create_namespace('n', 'ada')\nstore.put('n', 'x', 'value', 'ada')\nstore.transfer_owner('n', 'ben', 'ada')\nfor call in (lambda: store.get('n', 'x', 'ada'), lambda: store.put('n', 'y', 'new', 'ada'), lambda: store.delete('n', 'x', 'ada')):\n    try:\n        call()\n        raise AssertionError('expected PermissionError')\n    except PermissionError:\n        pass\nassert store.get('n', 'x', 'ben') == 'value'\nstore.put('n', 'y', 'new', 'ben')\nassert [row['key'] for row in store.list_objects('n', 'ben')] == ['x', 'y']"
+  },
+  {
+    "name": "malformed identifiers and missing objects fail without mutation",
+    "input": "a valid namespace followed by invalid creates writes and lookups",
+    "test": "store = ObjectStorageNamespace()\nstore.create_namespace('n', 'owner')\nfor call in (lambda: store.create_namespace('n', 'other'), lambda: store.create_namespace('', 'owner'), lambda: store.put('n', '', 'x', 'owner'), lambda: store.put('n', 'x', 3, 'owner'), lambda: store.list_objects('n', 'owner', None)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    store.get('n', 'missing', 'owner')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass\nassert store.list_objects('n', 'owner') == []"
+  }
+]

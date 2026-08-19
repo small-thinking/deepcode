@@ -1,0 +1,22 @@
+[
+  {
+    "name": "the tile estimator reports the specified workspace traffic and intensity model",
+    "input": "an 8 by 8 by 8 multiplication with a 4 by 4 by 4 tile",
+    "test": "cost = estimate_tiled_matmul_cost(8, 8, 8, (4, 4, 4))\nassert cost['tile'] == (4, 4, 4)\nassert cost['workspace_bytes'] == 192\nassert cost['estimated_bytes'] == 1280\nassert abs(cost['arithmetic_intensity'] - (1024.0 / 1280.0)) < 1e-12"
+  },
+  {
+    "name": "the optimizer chooses the lowest traffic candidate that fits workspace",
+    "input": "three legal tiles where the largest tile exceeds the cache budget",
+    "test": "chosen = choose_matrix_tiling(8, 8, 8, [(2, 2, 2), (4, 4, 4), (8, 8, 8)], 256)\nassert chosen['tile'] == (4, 4, 4)\nassert chosen['workspace_bytes'] == 192\nassert chosen['estimated_bytes'] == 1280"
+  },
+  {
+    "name": "equal traffic candidates use lexicographic tile order",
+    "input": "two transposed tiles with equal modeled bytes",
+    "test": "chosen = choose_matrix_tiling(4, 4, 4, [(4, 1, 4), (1, 4, 4)], 256)\nassert chosen['tile'] == (1, 4, 4)\nassert chosen['estimated_bytes'] == 384"
+  },
+  {
+    "name": "invalid divisibility byte budgets and infeasible candidates are rejected",
+    "input": "malformed tile shapes and a tile that cannot fit the workspace",
+    "test": "for call in (lambda: estimate_tiled_matmul_cost(4, 4, 4, (3, 1, 1)), lambda: estimate_tiled_matmul_cost(4, 4, 4, (1, 1)), lambda: estimate_tiled_matmul_cost(True, 4, 4, (1, 1, 1)), lambda: choose_matrix_tiling(4, 4, 4, [(4, 4, 4)], 10), lambda: choose_matrix_tiling(4, 4, 4, [], 100)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]
