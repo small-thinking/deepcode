@@ -1,0 +1,17 @@
+[
+  {
+    "name": "acquires and returns only supplied connection objects",
+    "input": "a two-connection fixed pool",
+    "test": "class Connection:\n    def __init__(self, name):\n        self.name = name\n\nfirst = Connection('first')\nsecond = Connection('second')\npool = ConnectionPool([first, second])\nheld = {pool.acquire(), pool.acquire()}\nassert held == {first, second}\npool.release(first)\nassert pool.acquire() is first\npool.release(first)\npool.release(second)"
+  },
+  {
+    "name": "blocks an exhausted pool and resumes after a return",
+    "input": "one checked-out connection and one waiting worker",
+    "test": "import threading\nimport time\n\nclass Connection:\n    pass\n\nresource = Connection()\npool = ConnectionPool([resource])\nheld = pool.acquire()\nstarted = threading.Event()\nreceived = []\n\ndef worker():\n    started.set()\n    connection = pool.acquire()\n    received.append(connection)\n    pool.release(connection)\n\nthread = threading.Thread(target=worker, daemon=True)\nthread.start()\nassert started.wait(1)\ntime.sleep(0.05)\nassert thread.is_alive()\npool.release(held)\nthread.join(1)\nassert not thread.is_alive()\nassert received == [resource]"
+  },
+  {
+    "name": "uses object identity and rejects foreign or repeated releases",
+    "input": "two distinct objects that compare equal",
+    "test": "class EqualConnection:\n    def __init__(self, name):\n        self.name = name\n\n    def __eq__(self, other):\n        return isinstance(other, EqualConnection)\n\n    __hash__ = object.__hash__\n\nowned = EqualConnection('owned')\nforeign = EqualConnection('foreign')\npool = ConnectionPool([owned])\nchecked_out = pool.acquire()\nassert checked_out is owned\nfor invalid in (foreign,):\n    try:\n        pool.release(invalid)\n        raise AssertionError('expected ValueError for a foreign connection')\n    except ValueError:\n        pass\npool.release(owned)\ntry:\n    pool.release(owned)\n    raise AssertionError('expected ValueError for a repeated release')\nexcept ValueError:\n    pass\nassert pool.acquire() is owned"
+  }
+]
