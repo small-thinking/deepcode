@@ -1,0 +1,17 @@
+[
+  {
+    "name": "uses the specified stable byte hash independent of server order",
+    "input": "one ASCII prompt and the same server IDs in two orders",
+    "test": "servers = ['gpu-a', 'gpu-b', 'gpu-c']\nassert route_prompt_by_affinity('summarize this note', servers) == 'gpu-b'\nassert route_prompt_by_affinity('summarize this note', list(reversed(servers))) == 'gpu-b'"
+  },
+  {
+    "name": "hashes UTF-8 prompt bytes rather than Python object identity",
+    "input": "a Unicode prompt and three server IDs",
+    "test": "assert route_prompt_by_affinity('分析一下', ['east', 'west', 'north']) == 'north'\nassert route_prompt_by_affinity('', ['one']) == 'one'"
+  },
+  {
+    "name": "validates the prompt and server collection",
+    "input": "empty, duplicate, and non-string server IDs",
+    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except exception_type:\n        return\n    raise AssertionError(f'expected {exception_type.__name__}')\n\nexpect(TypeError, lambda: route_prompt_by_affinity(7, ['a']))\nexpect(ValueError, lambda: route_prompt_by_affinity('x', []))\nexpect(ValueError, lambda: route_prompt_by_affinity('x', ['a', 'a']))\nexpect(ValueError, lambda: route_prompt_by_affinity('x', ['']))\nexpect(TypeError, lambda: route_prompt_by_affinity('x', ['a', 2]))"
+  }
+]

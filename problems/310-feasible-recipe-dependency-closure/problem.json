@@ -1,0 +1,26 @@
+{
+  "id": "310",
+  "slug": "feasible-recipe-dependency-closure",
+  "title": "Feasible Recipe Dependency Closure",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graphs", "topological-sort", "dependencies", "sets"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `find_feasible_recipes(recipes, supplies) -> list[str]`. `recipes` is an insertion-ordered mapping from a recipe name to an iterable of required ingredient names. `supplies` is a collection of available raw ingredient names. Recipe names and supply names are distinct. Requirement names are logical dependencies, so a duplicate requirement within one recipe has no additional effect.\n\nA recipe is feasible when every one of its requirements is either in `supplies` or is another feasible recipe. Preparing a feasible recipe does not consume any ingredient. Requirements that are neither supplied nor named by a recipe block that recipe. Cyclic recipe dependencies are not feasible unless every dependency in the cycle is already a raw supply, which this contract excludes. Return every feasible recipe name in the original `recipes` insertion order. Do not mutate either input.\n\nBuild a reverse dependency graph and propagate newly feasible recipes through it. Avoid repeatedly scanning every unresolved recipe after each discovery.",
+  "starter_code": "def find_feasible_recipes(recipes, supplies):\n    # Return feasible recipe names in recipes' original insertion order.\n    pass\n",
+  "example": {
+    "input": "find_feasible_recipes({'dough': ['flour', 'water'], 'flatbread': ['dough']}, {'flour', 'water'})",
+    "output": "['dough', 'flatbread']",
+    "reasoning": "The supplied flour and water make dough feasible, which in turn unlocks flatbread."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

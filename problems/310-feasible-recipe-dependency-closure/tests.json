@@ -1,0 +1,17 @@
+[
+  {
+    "name": "unlocks multi-step recipes while preserving input order",
+    "input": "raw supplies, a two-step recipe chain, and a zero-requirement recipe",
+    "test": "recipes = {\n    'dough': ['flour', 'water'],\n    'sauce': ['tomato'],\n    'pizza': ['dough', 'sauce'],\n    'salad': ['lettuce'],\n    'free-sample': [],\n}\nassert find_feasible_recipes(recipes, {'flour', 'water', 'tomato', 'lettuce'}) == ['dough', 'sauce', 'pizza', 'salad', 'free-sample']"
+  },
+  {
+    "name": "leaves cycles and missing dependencies unresolved",
+    "input": "one supplied chain, a cycle, and an ingredient that is unavailable",
+    "test": "recipes = {\n    'starter': ['seed'],\n    'finished': ['starter'],\n    'cycle-a': ['cycle-b'],\n    'cycle-b': ['cycle-a'],\n    'blocked': ['missing'],\n}\nassert find_feasible_recipes(recipes, {'seed'}) == ['starter', 'finished']"
+  },
+  {
+    "name": "treats repeated requirements as one logical dependency",
+    "input": "a repeated raw requirement and a downstream recipe",
+    "test": "recipes = {'tea': ['water', 'water'], 'service': ['tea']}\nassert find_feasible_recipes(recipes, {'water'}) == ['tea', 'service']\nassert recipes == {'tea': ['water', 'water'], 'service': ['tea']}"
+  }
+]
