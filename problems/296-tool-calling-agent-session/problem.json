@@ -1,0 +1,26 @@
+{
+  "id": "296",
+  "slug": "tool-calling-agent-session",
+  "title": "Deterministic Tool-Calling Agent Session",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["agents", "tool-use", "state-management", "evaluation", "determinism"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `run_tool_session(initial_state, tools, actions, max_calls)` for a deterministic, tool-using coding agent. `initial_state` is a mapping, `tools` maps tool names to callables, and `actions` is a sequence of action mappings. Never mutate `initial_state` or any action mapping.\n\nEach action has one of these forms:\n\n- `{'type': 'tool', 'name': <tool name>, 'arguments': <mapping>}`\n- `{'type': 'final', 'answer': <any value>}`\n\nFor a tool action, call `tools[name]` with a copy of the current state and a copy of `arguments`. The tool must return a mapping of updates. Merge those updates into the session state and append this transcript entry: `{'name': name, 'arguments': arguments_copy, 'updates': updates_copy}`. Process actions in order and return immediately at the first final action; actions after it must not run.\n\nReturn a mapping with `state`, `transcript`, `status`, and `answer`. A final action produces `status == 'complete'` and its answer. If actions end first, return `status == 'incomplete'` and `answer is None`. `max_calls` is a positive integer and limits executed tool actions; attempting one more tool action raises `RuntimeError`. Raise `ValueError` for malformed actions, unknown tools, or non-positive `max_calls`, and `TypeError` when a tool does not return a mapping.",
+  "starter_code": "def run_tool_session(initial_state, tools, actions, max_calls):\n    pass\n",
+  "example": {
+    "input": "initial_state = {'total': 1}; actions = [{'type': 'tool', 'name': 'add', 'arguments': {'amount': 2}}, {'type': 'final', 'answer': 'done'}]",
+    "output": "{'state': {'total': 3}, 'transcript': [{'name': 'add', 'arguments': {'amount': 2}, 'updates': {'total': 3}}], 'status': 'complete', 'answer': 'done'}",
+    "reasoning": "The tool produces an update, the session records it, and the final action stops the loop."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

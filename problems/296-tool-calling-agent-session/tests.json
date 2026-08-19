@@ -1,0 +1,17 @@
+[
+  {
+    "name": "runs tools in order and records isolated updates",
+    "input": "two additive tool calls followed by a final action",
+    "test": "def add(state, arguments):\n    return {'total': state['total'] + arguments['amount']}\n\nresult = run_tool_session(\n    {'total': 1},\n    {'add': add},\n    [\n        {'type': 'tool', 'name': 'add', 'arguments': {'amount': 2}},\n        {'type': 'tool', 'name': 'add', 'arguments': {'amount': 4}},\n        {'type': 'final', 'answer': 'done'},\n    ],\n    max_calls=3,\n)\nassert result == {\n    'state': {'total': 7},\n    'transcript': [\n        {'name': 'add', 'arguments': {'amount': 2}, 'updates': {'total': 3}},\n        {'name': 'add', 'arguments': {'amount': 4}, 'updates': {'total': 7}},\n    ],\n    'status': 'complete',\n    'answer': 'done',\n}"
+  },
+  {
+    "name": "protects caller state and stops after the first final action",
+    "input": "a tool mutates its received state and a later action must not run",
+    "test": "original = {'items': ['kept']}\ndef mutate_copy(state, arguments):\n    state['items'].append(arguments['value'])\n    return {'observed': list(state['items'])}\ndef must_not_run(state, arguments):\n    raise AssertionError('action after final must not run')\n\nresult = run_tool_session(\n    original,\n    {'mutate': mutate_copy, 'never': must_not_run},\n    [\n        {'type': 'tool', 'name': 'mutate', 'arguments': {'value': 'local'}},\n        {'type': 'final', 'answer': {'ok': True}},\n        {'type': 'tool', 'name': 'never', 'arguments': {}},\n    ],\n    max_calls=2,\n)\nassert original == {'items': ['kept']}\nassert result['state'] == {'items': ['kept'], 'observed': ['kept', 'local']}\nassert result['answer'] == {'ok': True}"
+  },
+  {
+    "name": "reports incomplete sessions and rejects invalid calls",
+    "input": "no final action, an unknown tool, and a max-call overflow",
+    "test": "incomplete = run_tool_session({}, {}, [], max_calls=1)\nassert incomplete == {'state': {}, 'transcript': [], 'status': 'incomplete', 'answer': None}\ndef noop(state, arguments):\n    return {}\ndef must_raise(kind, call):\n    try:\n        call()\n    except kind:\n        return\n    raise AssertionError('expected exception')\nmust_raise(ValueError, lambda: run_tool_session({}, {}, [{'type': 'tool', 'name': 'missing', 'arguments': {}}], 1))\nmust_raise(RuntimeError, lambda: run_tool_session({}, {'noop': noop}, [{'type': 'tool', 'name': 'noop', 'arguments': {}}, {'type': 'tool', 'name': 'noop', 'arguments': {}}], 1))\nmust_raise(ValueError, lambda: run_tool_session({}, {}, [], 0))"
+  }
+]
