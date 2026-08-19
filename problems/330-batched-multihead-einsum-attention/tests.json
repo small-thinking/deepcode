@@ -1,0 +1,22 @@
+[
+  {
+    "name": "returns explicit weights and output for a tiny attention problem",
+    "input": "one batch, one head, two queries, two keys, and a separate value width",
+    "test": "import numpy as np\nquery = np.array([[[[1.0], [0.0]]]])\nkey = np.array([[[[1.0], [0.0]]]])\nvalue = np.array([[[[10.0, 100.0], [20.0, 200.0]]]])\noutput, weights = batched_multihead_attention(query, key, value)\nexpected_weights = np.array([[[[0.7310585786300049, 0.2689414213699951], [0.5, 0.5]]]])\nexpected_output = np.array([[[[12.689414213699951, 126.8941421369995], [15.0, 150.0]]]])\nassert weights.shape == (1, 1, 2, 2)\nassert output.shape == (1, 1, 2, 2)\nassert np.allclose(weights, expected_weights, atol=1e-12)\nassert np.allclose(output, expected_output, atol=1e-12)"
+  },
+  {
+    "name": "matches an independent loop implementation across batches and heads",
+    "input": "two batches, two heads, three queries, four keys, key width two, value width three",
+    "test": "import math\nimport numpy as np\nrng = np.random.default_rng(17)\nquery = rng.normal(size=(2, 2, 3, 2))\nkey = rng.normal(size=(2, 2, 4, 2))\nvalue = rng.normal(size=(2, 2, 4, 3))\nquery_before = query.copy()\nkey_before = key.copy()\nvalue_before = value.copy()\noutput, weights = batched_multihead_attention(query, key, value)\nexpected_weights = np.empty((2, 2, 3, 4))\nexpected_output = np.empty((2, 2, 3, 3))\nfor batch in range(2):\n    for head in range(2):\n        for query_index in range(3):\n            row = []\n            for key_index in range(4):\n                score = float(np.dot(query[batch, head, query_index], key[batch, head, key_index])) / math.sqrt(2)\n                row.append(score)\n            row = np.asarray(row)\n            probabilities = np.exp(row - row.max())\n            probabilities = probabilities / probabilities.sum()\n            expected_weights[batch, head, query_index] = probabilities\n            expected_output[batch, head, query_index] = probabilities @ value[batch, head]\nassert weights.shape == (2, 2, 3, 4)\nassert output.shape == (2, 2, 3, 3)\nassert np.allclose(weights, expected_weights, atol=1e-12)\nassert np.allclose(output, expected_output, atol=1e-12)\nassert np.allclose(weights.sum(axis=-1), np.ones((2, 2, 3)))\nassert np.array_equal(query, query_before)\nassert np.array_equal(key, key_before)\nassert np.array_equal(value, value_before)"
+  },
+  {
+    "name": "stable softmax stays finite for very large scores",
+    "input": "two heads with scores that would overflow under an unstabilized exponentiation",
+    "test": "import numpy as np\nquery = np.array([[[[1000.0, -1000.0]], [[1000.0, 1000.0]]]])\nkey = np.array([[[[1000.0, -1000.0], [-1000.0, 1000.0]], [[1000.0, 1000.0], [-1000.0, -1000.0]]]])\nvalue = np.array([[[[3.0], [9.0]], [[5.0], [11.0]]]])\noutput, weights = batched_multihead_attention(query, key, value)\nassert np.isfinite(weights).all()\nassert np.isfinite(output).all()\nassert np.allclose(weights.sum(axis=-1), 1.0)\nassert np.allclose(weights[:, :, :, 0], 1.0)\nassert np.allclose(weights[:, :, :, 1], 0.0)\nassert np.allclose(output[:, :, :, 0], np.array([[[3.0], [5.0]]]))"
+  },
+  {
+    "name": "rejects incompatible ranks and attention dimensions",
+    "input": "rank, batch/head, feature-width, token-count, and empty-dimension mismatches",
+    "test": "import numpy as np\ndef expect_value_error(query, key, value):\n    try:\n        batched_multihead_attention(query, key, value)\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nbase_query = np.ones((1, 2, 3, 4))\nbase_key = np.ones((1, 2, 5, 4))\nbase_value = np.ones((1, 2, 5, 6))\nexpect_value_error(base_query[0], base_key, base_value)\nexpect_value_error(base_query, np.ones((2, 2, 5, 4)), base_value)\nexpect_value_error(base_query, np.ones((1, 2, 5, 3)), base_value)\nexpect_value_error(base_query, base_key, np.ones((1, 2, 4, 6)))\nexpect_value_error(np.ones((1, 2, 0, 4)), base_key, base_value)"
+  }
+]

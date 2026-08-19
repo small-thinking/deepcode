@@ -1,0 +1,46 @@
+{
+  "id": "330",
+  "slug": "batched-multihead-einsum-attention",
+  "title": "Batched Multi-Head Einsum Attention",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "numpy",
+    "attention",
+    "qkv",
+    "einsum",
+    "tensor-shapes"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `batched_multihead_attention(query, key, value)` with NumPy. The tensors use an explicit multi-head layout:\n\n- `query`: `(batch, heads, query_tokens, key_dim)`\n- `key`: `(batch, heads, key_tokens, key_dim)`\n- `value`: `(batch, heads, key_tokens, value_dim)`\n\nReturn `(output, weights)`, where `weights` has shape `(batch, heads, query_tokens, key_tokens)` and `output` has shape `(batch, heads, query_tokens, value_dim)`. Compute scaled dot-product attention independently for every batch and head:\n\n```text\nscores[b, h, q, k] = dot(query[b, h, q], key[b, h, k]) / sqrt(key_dim)\nweights = softmax(scores, axis=key_tokens)\noutput[b, h, q] = sum_k weights[b, h, q, k] * value[b, h, k]\n```\n\nUse `np.einsum` (or an equivalent vectorized contraction) for the score and output contractions. Make the softmax numerically stable by subtracting the maximum score in each `(batch, head, query)` row before exponentiating. Do not mix tokens or heads: a value from one batch or head must never affect another. `query_tokens` and `key_tokens` may differ, and `value_dim` may differ from `key_dim`.\n\nAccept array-like inputs by converting them with `np.asarray`. Raise `ValueError` when an input is not rank 4, when batch/head dimensions disagree, when query/key feature widths differ, when key and value token counts differ, or when any dimension is zero. Do not mutate the inputs.",
+  "starter_code": "import numpy as np\n\n\ndef batched_multihead_attention(query, key, value):\n    # query: (batch, heads, query_tokens, key_dim)\n    # key:   (batch, heads, key_tokens, key_dim)\n    # value: (batch, heads, key_tokens, value_dim)\n    # Return (output, weights).\n    pass\n",
+  "example": {
+    "input": "query = [[[[1.0], [0.0]]]]; key = [[[[1.0], [0.0]]]]; value = [[[[10.0], [20.0]]]]",
+    "output": "weights[0, 0] is approximately [[0.7311, 0.2689], [0.5, 0.5]] and output[0, 0, :, 0] is approximately [12.6894, 15.0]",
+    "reasoning": "The first query favors the first key, while a zero query gives both keys equal score. The output uses those weights to average the corresponding values."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [
+      "numpy"
+    ],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "NumPy einsum",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.einsum.html"
+    },
+    {
+      "label": "NumPy broadcasting",
+      "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+    }
+  ],
+  "created_at": "2026-08-19"
+}
