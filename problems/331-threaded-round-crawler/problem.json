@@ -1,0 +1,40 @@
+{
+  "id": "331",
+  "slug": "threaded-round-crawler",
+  "title": "Threaded Round Crawler",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": [
+    "threading",
+    "crawler",
+    "breadth-first-search",
+    "deterministic",
+    "concurrency"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `crawl_in_rounds(seed_urls, fetch, workers=1)` using only the Python standard library. `seed_urls` is an ordered iterable of non-empty URL strings. `fetch(url)` is a synchronous, potentially blocking callable that returns an iterable of non-empty URL strings. Treat equal raw strings as the same URL; this exercise has no network I/O, URL canonicalization, host filtering, retries, or failure recovery.\n\nReturn a list of breadth-first discovery levels. The first level contains the unique seed URLs in their first-occurrence order. For each later level, fetch every URL in the current level exactly once, then append previously unseen children in current-level URL order and then each parent's returned-link order. A URL already seen in an earlier level or earlier in the same round is never fetched again. Stop when a round discovers no URLs.\n\n`workers=1` is the baseline: call `fetch` serially in current-level order. For `workers > 1`, fetch URLs from one level concurrently, with no more than `workers` active calls. Do not begin the next level until every fetch in the current level has completed. Even when calls finish in a different order, merge their links using the deterministic current-level order above, so the returned levels are identical to the `workers=1` result.\n\nRaise `ValueError` when `seed_urls` is a string or non-iterable, when any seed URL is empty or not a string, when `fetch` is not callable, when `workers` is not a positive ordinary integer, or when a fetch result is a string, non-iterable, or contains an empty/non-string URL. Let exceptions raised by `fetch` propagate.\n\nDo not mutate the caller's seed iterable or any returned link iterable.",
+  "starter_code": "def crawl_in_rounds(seed_urls, fetch, workers=1):\n    # Return breadth-first URL levels with deterministic discovery order.\n    pass\n",
+  "example": {
+    "input": "crawl_in_rounds(['root'], lambda url: {'root': ['b', 'a'], 'b': ['d'], 'a': ['c'], 'd': [], 'c': []}[url], workers=2)",
+    "output": "[['root'], ['b', 'a'], ['d', 'c']]",
+    "reasoning": "The second round may fetch b and a in parallel, but child links are merged in the parent order from the preceding level."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Python concurrent.futures",
+      "url": "https://docs.python.org/3/library/concurrent.futures.html"
+    }
+  ],
+  "created_at": "2026-08-19"
+}

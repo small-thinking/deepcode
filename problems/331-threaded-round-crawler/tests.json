@@ -1,0 +1,22 @@
+[
+  {
+    "name": "single worker establishes breadth-first discovery order",
+    "input": "one seed with repeated children and a shared descendant",
+    "test": "pages = {\n    'root': ['b', 'a', 'b'],\n    'b': ['d', 'shared'],\n    'a': ['c', 'shared'],\n    'd': [],\n    'shared': [],\n    'c': [],\n}\ncalls = []\ndef fetch(url):\n    calls.append(url)\n    return pages[url]\nlevels = crawl_in_rounds(['root'], fetch)\nassert levels == [['root'], ['b', 'a'], ['d', 'shared', 'c']]\nassert calls == ['root', 'b', 'a', 'd', 'shared', 'c']"
+  },
+  {
+    "name": "multi-worker results remain deterministic despite completion order",
+    "input": "the earlier parent is deliberately slower than the later parent",
+    "test": "import time\npages = {\n    'root': ['b', 'a'],\n    'b': ['d', 'shared'],\n    'a': ['c', 'shared'],\n    'd': [],\n    'shared': [],\n    'c': [],\n}\ndef make_fetch(delays):\n    def fetch(url):\n        time.sleep(delays.get(url, 0.0))\n        return pages[url]\n    return fetch\nexpected = [['root'], ['b', 'a'], ['d', 'shared', 'c']]\nserial = crawl_in_rounds(['root'], make_fetch({'b': 0.03, 'a': 0.0}), workers=1)\nparallel = crawl_in_rounds(['root'], make_fetch({'b': 0.03, 'a': 0.0}), workers=2)\nassert serial == expected\nassert parallel == expected"
+  },
+  {
+    "name": "multi-worker mode respects its concurrency bound and uses available workers",
+    "input": "three independent seed URLs with workers=2",
+    "test": "import threading\nimport time\nlock = threading.Lock()\ntwo_active = threading.Event()\nstate = {'active': 0, 'max_active': 0}\ndef fetch(url):\n    with lock:\n        state['active'] += 1\n        state['max_active'] = max(state['max_active'], state['active'])\n        if state['active'] >= 2:\n            two_active.set()\n    try:\n        two_active.wait(timeout=0.15)\n        time.sleep(0.03)\n        return []\n    finally:\n        with lock:\n            state['active'] -= 1\nlevels = crawl_in_rounds(['first', 'second', 'third'], fetch, workers=2)\nassert levels == [['first', 'second', 'third']]\nassert state['max_active'] == 2"
+  },
+  {
+    "name": "rejects invalid scheduling inputs and malformed link results",
+    "input": "invalid workers, seed iterables, and fetch results",
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nvalid_fetch = lambda url: []\nexpect_value_error(lambda: crawl_in_rounds('root', valid_fetch))\nexpect_value_error(lambda: crawl_in_rounds(['root', ''], valid_fetch))\nexpect_value_error(lambda: crawl_in_rounds(['root'], valid_fetch, workers=True))\nexpect_value_error(lambda: crawl_in_rounds(['root'], valid_fetch, workers=0))\nexpect_value_error(lambda: crawl_in_rounds(['root'], None))\nexpect_value_error(lambda: crawl_in_rounds(['root'], lambda url: 'child'))\nexpect_value_error(lambda: crawl_in_rounds(['root'], lambda url: ['child', 4]))"
+  }
+]
