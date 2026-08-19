@@ -1,0 +1,15 @@
+{
+  "id": "268",
+  "slug": "length-prefixed-chunked-kv-store",
+  "title": "Length-Prefixed Chunked Key-Value Store",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["serialization", "durability", "byte-framing", "snapshots"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `BasicKVStore(files, name='snapshot.bin')` and `ChunkedKVStore(files, prefix='kv', chunk_size=1024)`. Both stores expose `set(key, value)`, `get(key, default=None)`, `snapshot()`, and `restore()`. Keys and values are strings and may contain Unicode, empty strings, newlines, delimiters, and NUL characters. `files` has `write(name, bytes)`, `read(name)`, `list(prefix)`, and `delete(name)`.\n\nEncode map entries as a deterministic length-prefixed byte stream; do not rely on a delimiter, pickle, or JSON for key/value payloads. `BasicKVStore` writes one blob. `ChunkedKVStore` splits the blob into chunks no larger than `chunk_size`, writes a new generation, then commits a manifest naming exactly that generation. Restore reads only the committed manifest so stale chunks are ignored. A malformed or incomplete snapshot raises `ValueError` and leaves existing memory unchanged. `restore()` returns `False` when no committed snapshot exists and `True` after a successful restore.",
+  "starter_code": "class BasicKVStore:\n    pass\n\n\nclass ChunkedKVStore:\n    pass\n",
+  "example": {"input": "store.set('a\\n', '值\\x00'); store.snapshot()", "output": "a later fresh store restores the same mapping", "reasoning": "Byte lengths, not delimiters, define record boundaries."},
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

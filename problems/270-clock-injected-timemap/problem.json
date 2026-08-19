@@ -1,0 +1,15 @@
+{
+  "id": "270",
+  "slug": "clock-injected-timemap",
+  "title": "Clock-Injected Time Map",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["time-series", "binary-search", "dependency-injection", "concurrency"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `FrozenClock(initial=0)`, `TimeMap(clock)`, and `MonotonicTimeMap(clock)`. `FrozenClock.now()` returns its current value and `set(value)` changes it without sleeping. `TimeMap.set(key, value, timestamp=None)` uses the injected clock when timestamp is omitted and returns the assigned timestamp. `get(key, timestamp=None)` returns the value at the greatest stored timestamp less than or equal to the query, or `''` when none exists; an omitted query timestamp uses the injected clock.\n\nAccept out-of-order numeric timestamps. A later write at the same timestamp wins, independent of value ordering. `MonotonicTimeMap.set` without an explicit timestamp assigns a strictly increasing timestamp even if its clock moves backward. Protect state for concurrent readers/writers without calling wall-clock time directly.",
+  "starter_code": "class FrozenClock:\n    pass\n\n\nclass TimeMap:\n    pass\n\n\nclass MonotonicTimeMap(TimeMap):\n    pass\n",
+  "example": {"input": "clock.set(5); table.set('k', 'v'); table.get('k')", "output": "'v'", "reasoning": "Injected time makes temporal behavior deterministic and testable."},
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

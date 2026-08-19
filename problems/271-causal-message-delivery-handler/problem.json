@@ -1,0 +1,15 @@
+{
+  "id": "271",
+  "slug": "causal-message-delivery-handler",
+  "title": "Causal Message Delivery Handler",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["distributed-systems", "delivery-semantics", "causal-ordering", "retransmission"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `Message(content, sender, seq, timestamp, causal_deps)` and `MessageHandler(machine_id, n, topology, mode, request_retransmit=None)`. `receive(message)` decides when to add a message to the local delivered list; `get_delivered()` returns that list in delivery order. A message identity is `(sender, seq)`.\n\nIn `at-most-once` mode, deliver each identity immediately at most once. In `at-least-once` mode, deliver identities in per-sender sequence order, buffer gaps, and request each missing sequence at most once. In `exactly-once` mode, also wait until all listed causal dependency identities have been delivered locally, use a reverse dependency index to release blocked messages, and request missing dependencies at most once. The supplied topology is validated but routing is out of scope. Do not implement retransmission networking itself.",
+  "starter_code": "class Message:\n    pass\n\n\nclass MessageHandler:\n    pass\n",
+  "example": {"input": "receive sender 1 seq 1 before seq 0 in at-least-once mode", "output": "seq 0 then seq 1 after the gap closes", "reasoning": "Local delivery guarantees do not require implementing a network transport."},
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}
