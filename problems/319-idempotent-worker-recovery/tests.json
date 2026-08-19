@@ -1,0 +1,17 @@
+[
+  {
+    "name": "separates effect replays from acknowledgement-only recovery",
+    "input": "claimed, committed, acknowledged, and redelivered jobs",
+    "test": "events = [\n    {'job_id': 'a', 'phase': 'claim'},\n    {'job_id': 'a', 'phase': 'effect_committed'},\n    {'job_id': 'b', 'phase': 'claim'},\n    {'job_id': 'c', 'phase': 'claim'},\n    {'job_id': 'c', 'phase': 'effect_committed'},\n    {'job_id': 'c', 'phase': 'ack'},\n    {'job_id': 'c', 'phase': 'claim'},\n    {'job_id': 'c', 'phase': 'effect_committed'},\n    {'job_id': 'c', 'phase': 'ack'},\n    {'job_id': 'd', 'phase': 'claim'},\n    {'job_id': 'd', 'phase': 'effect_committed'},\n    {'job_id': 'd', 'phase': 'effect_committed'},\n]\nassert recover_idempotent_jobs(events) == {\n    'completed': ['c'],\n    'replay': ['b'],\n    'acknowledge': ['a', 'd'],\n    'effect_committed': ['a', 'c', 'd'],\n}"
+  },
+  {
+    "name": "keeps output deterministic and does not mutate events",
+    "input": "jobs recorded out of lexical order",
+    "test": "events = [\n    {'job_id': 'z', 'phase': 'claim'},\n    {'job_id': 'z', 'phase': 'effect_committed'},\n    {'job_id': 'm', 'phase': 'claim'},\n    {'job_id': 'm', 'phase': 'effect_committed'},\n    {'job_id': 'm', 'phase': 'ack'},\n]\ncopy = [dict(event) for event in events]\nresult = recover_idempotent_jobs(events)\nassert result['completed'] == ['m']\nassert result['acknowledge'] == ['z'] and result['effect_committed'] == ['m', 'z']\nassert events == copy"
+  },
+  {
+    "name": "rejects impossible durable-log transitions",
+    "input": "unknown phases, missing fields, effect-before-claim, and ack-before-effect",
+    "test": "def expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a', 'phase': 'effect_committed'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a', 'phase': 'claim'}, {'job_id': 'a', 'phase': 'ack'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': '', 'phase': 'claim'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a', 'phase': 'unknown'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a'}]))"
+  }
+]

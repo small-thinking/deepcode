@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds per-aspect peaks and classifies double descent",
+    "input": "three aspect-loss columns over four increasing sample counts",
+    "test": "import numpy as np\nsamples = np.array([10, 20, 30, 40])\nlosses = np.array([\n    [0.8, 0.9, 0.6],\n    [1.5, 0.6, 0.8],\n    [0.7, 0.4, 1.1],\n    [0.4, 0.2, 0.9],\n])\nresult = diagnose_sample_aspect_losses(samples, losses, ['syntax', 'facts', 'edge'])\nassert np.allclose(result['mean_loss'], losses.mean(axis=1))\nassert result['aspects'] == [\n    {'name': 'syntax', 'peak_index': 1, 'peak_samples': 20, 'peak_loss': 1.5, 'double_descent': True},\n    {'name': 'facts', 'peak_index': None, 'peak_samples': None, 'peak_loss': None, 'double_descent': False},\n    {'name': 'edge', 'peak_index': 2, 'peak_samples': 30, 'peak_loss': 1.1, 'double_descent': True},\n]\nassert result['double_descent_aspects'] == ['syntax', 'edge']"
+  },
+  {
+    "name": "breaks equal-height peak ties by earlier sample index",
+    "input": "two equal strict local peaks for one unnamed aspect",
+    "test": "import numpy as np\nsamples = np.array([1, 2, 3, 4, 5])\nlosses = np.array([[0.2], [0.9], [0.3], [0.9], [0.1]])\nresult = diagnose_sample_aspect_losses(samples, losses)\nassert result['aspects'] == [{'name': 'aspect_0', 'peak_index': 1, 'peak_samples': 2, 'peak_loss': 0.9, 'double_descent': True}]\nassert result['double_descent_aspects'] == ['aspect_0']"
+  },
+  {
+    "name": "rejects invalid samples, loss matrices, and aspect names",
+    "input": "non-increasing samples, negative loss, mismatched names, and wrong rank",
+    "test": "import numpy as np\ndef expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nvalid_samples = np.array([1, 2, 3])\nvalid_losses = np.array([[1.0], [2.0], [1.0]])\nexpect(lambda: diagnose_sample_aspect_losses(np.array([1, 1, 2]), valid_losses))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, np.array([1.0, 2.0, 1.0])))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, np.array([[-1.0], [1.0], [1.0]])))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, valid_losses, ['x', 'y']))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, valid_losses, ['']))"
+  }
+]

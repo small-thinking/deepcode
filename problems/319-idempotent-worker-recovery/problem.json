@@ -1,0 +1,26 @@
+{
+  "id": "319",
+  "slug": "idempotent-worker-recovery",
+  "title": "Idempotent Worker Recovery",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["idempotency", "workers", "recovery", "event-log", "debugging"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `recover_idempotent_jobs(events)` for a concrete at-least-once worker recovery path. Each event is a mapping with a non-empty string `job_id` and one `phase`: `'claim'`, `'effect_committed'`, or `'ack'`. Events are in durable-log order.\n\nA job begins with `claim`. `effect_committed` means the external effect has been durably recorded and must never be executed again. `ack` is allowed only after an effect is committed. Duplicate claims, duplicate effect records, and redelivery after an acknowledged job are harmless no-ops; they must not produce a second effect.\n\nReturn a mapping with sorted job-ID lists:\n\n- `completed`: jobs with a durable acknowledgement;\n- `replay`: claimed jobs with no committed effect, which need their effect retried;\n- `acknowledge`: jobs with a committed effect but no acknowledgement, which need only an acknowledgement retry; and\n- `effect_committed`: every job whose effect has been committed, including acknowledged jobs.\n\nReject malformed event mappings, unknown phases, an effect before any claim, and an acknowledgement before any committed effect with `ValueError`. Do not mutate event mappings.",
+  "starter_code": "def recover_idempotent_jobs(events):\n    pass\n",
+  "example": {
+    "input": "[{'job_id': 'email-1', 'phase': 'claim'}, {'job_id': 'email-1', 'phase': 'effect_committed'}]",
+    "output": "{'completed': [], 'replay': [], 'acknowledge': ['email-1'], 'effect_committed': ['email-1']}",
+    "reasoning": "The effect is already durable, so recovery must retry only the acknowledgement instead of sending a second email."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
