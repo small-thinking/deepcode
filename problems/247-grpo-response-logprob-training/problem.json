@@ -5,7 +5,7 @@
   "category": "ML Coding",
   "difficulty": "hard",
   "tags": ["torch", "reinforcement-learning", "log-probabilities", "masking"],
-  "companies": ["OpenAI"],
+  "companies": ["OpenAI", "Anthropic"],
   "prompt": "Build small, testable pieces of a grouped policy-optimization objective. `group_relative_advantages(rewards, group_size, eps=1e-6)` normalizes each consecutive group with its population mean and standard deviation, and must not create a gradient through rewards. `gather_response_logprobs(logits, sequences, response_mask)` gathers next-token log probabilities using causal alignment: logits at position `t` score the token at `t + 1`. It returns a tensor shaped like `response_mask`, with position zero and every masked position exactly zero.\n\n`masked_kl(policy_logits, reference_logits, response_mask)` computes the mean forward KL over valid response positions only. `grpo_loss(...)` combines selected policy log probabilities, detached group advantages, and the masked KL penalty. Reference logits and rewards must remain outside the policy gradient path.",
   "starter_code": "import torch\nimport torch.nn.functional as F\n\n\ndef group_relative_advantages(rewards, group_size, eps=1e-6):\n    pass\n\n\ndef gather_response_logprobs(logits, sequences, response_mask):\n    pass\n\n\ndef masked_kl(policy_logits, reference_logits, response_mask):\n    pass\n\n\ndef grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):\n    pass\n",
   "example": {"input": "rewards = torch.tensor([1., 3., 10., 14.]); group_size = 2", "output": "advantages normalized separately for the first and second pair", "reasoning": "Comparisons are meaningful only among responses to the same prompt."},

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "derives visible items and clears a filtered-out selection",
+    "input": "a wide workspace whose selected item no longer matches the query",
+    "test": "state = {\n    'width': 800,\n    'sidebar_open': True,\n    'query': '',\n    'selected_id': 'alpha',\n    'items': [\n        {'id': 'alpha', 'label': 'Alpha notes'},\n        {'id': 'beta', 'label': 'Build docs'},\n        {'id': 'gamma', 'label': 'Gamma'},\n    ],\n}\nresult = reduce_layout_state(state, {'type': 'set_query', 'query': 'DOC'})\nassert result['layout'] == 'wide'\nassert result['visible_ids'] == ['beta']\nassert result['selected_id'] is None\nassert state['query'] == '' and state['selected_id'] == 'alpha'\nassert result['items'] == state['items'] and result['items'] is not state['items']"
+  },
+  {
+    "name": "applies selection, resize, and sidebar actions as pure transitions",
+    "input": "a compact transition after selecting a visible workspace item",
+    "test": "state = {\n    'width': 900,\n    'sidebar_open': True,\n    'query': 'doc',\n    'selected_id': None,\n    'items': [{'id': 'a', 'label': 'Architecture docs'}, {'id': 'b', 'label': 'Roadmap'}],\n}\nselected = reduce_layout_state(state, {'type': 'select', 'id': 'a'})\nresized = reduce_layout_state(selected, {'type': 'resize', 'width': 600})\ntoggled = reduce_layout_state(resized, {'type': 'toggle_sidebar'})\nassert selected['selected_id'] == 'a' and selected['visible_ids'] == ['a']\nassert resized['layout'] == 'compact' and resized['sidebar_open'] is True\nassert toggled['sidebar_open'] is False and toggled['selected_id'] == 'a'"
+  },
+  {
+    "name": "rejects malformed state and invalid selections",
+    "input": "duplicate IDs, an invisible selection, and invalid widths",
+    "test": "def expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nstate = {'width': 720, 'sidebar_open': False, 'query': 'x', 'selected_id': None, 'items': [{'id': 'a', 'label': 'Alpha'}]}\nexpect(lambda: reduce_layout_state(state, {'type': 'select', 'id': 'a'}))\nexpect(lambda: reduce_layout_state(state, {'type': 'resize', 'width': 0}))\nexpect(lambda: reduce_layout_state({**state, 'items': [{'id': 'a', 'label': 'A'}, {'id': 'a', 'label': 'B'}]}, {'type': 'clear_selection'}))\nexpect(lambda: reduce_layout_state(state, {'type': 'toggle_sidebar'}, breakpoint=0))"
+  }
+]

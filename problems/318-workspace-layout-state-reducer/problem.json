@@ -1,0 +1,26 @@
+{
+  "id": "318",
+  "slug": "workspace-layout-state-reducer",
+  "title": "Workspace Layout State Reducer",
+  "category": "Low-Level Design",
+  "difficulty": "medium",
+  "tags": ["ui-state", "layout", "reducer", "responsive", "accessibility"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement the framework-neutral function `reduce_layout_state(state, action, breakpoint=720)`. This is a pure layout/state reducer, not a rendering or React exercise. `state` is a mapping with `width`, `sidebar_open`, `query`, `selected_id`, and `items`. Each item is a mapping with a unique non-empty string `id` and non-empty string `label`. `selected_id` is either `None` or one of those IDs.\n\nReturn a new state mapping with those five fields plus:\n\n- `layout`: `'wide'` when `width >= breakpoint`, otherwise `'compact'`; and\n- `visible_ids`: item IDs whose labels contain `query`, case-insensitively, in item order.\n\nSupport these actions:\n\n- `{'type': 'resize', 'width': positive_integer}` updates the width.\n- `{'type': 'toggle_sidebar'}` flips `sidebar_open`.\n- `{'type': 'set_query', 'query': string}` updates the query and clears `selected_id` when it is no longer visible.\n- `{'type': 'select', 'id': string}` selects an ID only if it is currently visible.\n- `{'type': 'clear_selection'}` clears the selection.\n\nNever mutate `state`, its items, or `action`. Raise `ValueError` for malformed state/action data, invalid breakpoint values, duplicate item IDs, or an attempt to select an invisible/unknown item.",
+  "starter_code": "def reduce_layout_state(state, action, breakpoint=720):\n    pass\n",
+  "example": {
+    "input": "reduce_layout_state(state, {'type': 'set_query', 'query': 'doc'})",
+    "output": "a copied state with only matching item IDs in visible_ids and a cleared selection when the prior item no longer matches",
+    "reasoning": "Selection is durable state, while visible IDs are derived from the current query and item labels."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
