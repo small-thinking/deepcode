@@ -1,0 +1,32 @@
+{
+  "id": "257",
+  "slug": "conway-grid-evolution",
+  "title": "Conway Grid Evolution",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "simulation",
+    "grid",
+    "cellular-automaton"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement `game_of_life(rows, cols, steps, grid) -> list[str]`. `grid` contains `rows` binary strings of length `cols`; `\"1\"` is alive and `\"0\"` is dead. Advance the board through exactly `steps` synchronous generations using all eight surrounding cells as neighbors. Out-of-bounds neighbors are dead.\n\nA live cell survives with two or three live neighbors and otherwise dies. A dead cell becomes live with exactly three live neighbors and otherwise remains dead. Each next generation must be computed from the complete previous generation, so a change made during a generation cannot affect another cell until the next generation. Return the resulting binary strings. `steps` may be zero.",
+  "starter_code": "def game_of_life(rows, cols, steps, grid):\n    # Return the board after `steps` synchronous generations.\n    pass\n",
+  "example": {
+    "input": "game_of_life(3, 3, 1, ['010', '010', '010'])",
+    "output": "['000', '111', '000']",
+    "reasoning": "A vertical three-cell oscillator becomes horizontal after one generation."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "simultaneous waves report the last time and widest new wave",
+    "input": "a connected five-node graph with one source",
+    "test": "edges = [(0, 1), (0, 2), (1, 3), (2, 3), (3, 4)]\nassert infection_metrics(5, edges, [0]) == (3, 2)"
+  },
+  {
+    "name": "disconnected components keep the peak from reachable waves",
+    "input": "one source in one of two disconnected components",
+    "test": "assert infection_metrics(4, [(0, 1), (2, 3)], [0]) == (-1, 1)"
+  },
+  {
+    "name": "multiple sources spread together and sources are not counted as a wave",
+    "input": "a four-node path seeded at both internal nodes",
+    "test": "assert infection_metrics(4, [(0, 1), (1, 2), (2, 3)], [1, 2, 1]) == (1, 2)\nassert infection_metrics(1, [], [0, 0]) == (0, 0)"
+  },
+  {
+    "name": "empty source sets cannot reach nodes",
+    "input": "a graph with no initial infection",
+    "test": "assert infection_metrics(3, [(0, 1)], []) == (-1, 0)"
+  }
+]

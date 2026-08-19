@@ -1,0 +1,22 @@
+[
+  {
+    "name": "shifts a saturated shard then closes the later gap",
+    "input": "four partially overlapping inclusive ranges under limit two",
+    "test": "assert rebalance_shards(2, ['A:5:55', 'B:20:65', 'C:45:120', 'D:130:160']) == ['A:5:55', 'B:20:65', 'C:56:129', 'D:130:160']"
+  },
+  {
+    "name": "limit one shifts later ranges without removing earlier coverage",
+    "input": "two overlapping ranges under a single-cover limit",
+    "test": "assert rebalance_shards(1, ['A:10:50', 'B:40:90']) == ['A:10:50', 'B:51:90']\nassert rebalance_shards(1, ['A:0:5', 'B:3:10', 'C:7:12']) == ['A:0:5', 'B:6:10', 'C:11:12']"
+  },
+  {
+    "name": "same-start ranges move to the first remaining capacity",
+    "input": "four ranges that begin at the same key",
+    "test": "assert rebalance_shards(2, ['A:4:24', 'B:4:25', 'C:4:26', 'D:4:80']) == ['A:4:24', 'B:4:25', 'C:25:26', 'D:26:80']"
+  },
+  {
+    "name": "handles empty singleton sparse and negative-coordinate inputs",
+    "input": "an empty list plus ranges that require gap closing across zero",
+    "test": "assert rebalance_shards(3, []) == []\nassert rebalance_shards(1, ['one:-3:-3']) == ['one:-3:-3']\nassert rebalance_shards(2, ['left:-5:-4', 'right:2:3']) == ['left:-5:1', 'right:2:3']"
+  }
+]

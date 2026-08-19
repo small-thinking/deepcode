@@ -1,0 +1,33 @@
+{
+  "id": "255",
+  "slug": "bounded-overlap-shard-rebalancer",
+  "title": "Bounded-Overlap Shard Rebalancer",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": [
+    "intervals",
+    "sweep-line",
+    "segment-tree",
+    "sharding"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement `rebalance_shards(limit, shards) -> list[str]`. Each shard is an `\"id:start:end\"` string representing the inclusive integer interval `[start, end]`; IDs are distinct and contain no colon. `limit` is positive.\n\nFirst process shards in increasing `(start, end, id)` order. For each shard, move its start to the first key at or after its original start whose current coverage is below `limit`. If no such key is within the shard's original interval, discard that shard. Otherwise keep it with its adjusted start and original end; it contributes one unit of coverage on that adjusted closed interval.\n\nAfter all adjustments, make the kept union gap-free from the smallest original start through the largest original end. Whenever there is a gap, extend the most recently kept shard far enough to close it; if a tail remains after the last kept shard, extend that last shard to the original maximum end. A retained shard can therefore end later than it originally did.\n\nReturn retained strings in their processing order. An empty input returns `[]`. The post-adjustment coverage limit applies before this final gap-closing step. Target `O(n log n)` time and `O(n)` auxiliary space; key coordinates can be as large as one billion in magnitude, so do not iterate individual keys.",
+  "starter_code": "def rebalance_shards(limit, shards):\n    # Return retained id:start:end strings in processing order.\n    pass\n",
+  "example": {
+    "input": "rebalance_shards(2, ['A:5:55', 'B:20:65', 'C:45:120', 'D:130:160'])",
+    "output": "['A:5:55', 'B:20:65', 'C:56:129', 'D:130:160']",
+    "reasoning": "The first free key for C is 56; the retained C range is later extended to bridge the gap before D."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "a three-cell oscillator rotates after one generation",
+    "input": "a vertical blinker on a three-by-three board",
+    "test": "assert game_of_life(3, 3, 1, ['010', '010', '010']) == ['000', '111', '000']"
+  },
+  {
+    "name": "a two-by-two block is stable and zero steps preserves the board",
+    "input": "a stable block plus a zero-generation request",
+    "test": "block = ['0000', '0110', '0110', '0000']\nassert game_of_life(4, 4, 1, block) == block\nassert game_of_life(4, 4, 0, block) == block"
+  },
+  {
+    "name": "the visible five-by-five line evolves synchronously",
+    "input": "a centered horizontal run of three live cells",
+    "test": "assert game_of_life(5, 5, 1, ['00000', '00000', '01110', '00000', '00000']) == ['00000', '00100', '00100', '00100', '00000']"
+  },
+  {
+    "name": "boundaries are dead and an oscillator returns after two generations",
+    "input": "a corner pattern and a two-step blinker",
+    "test": "assert game_of_life(2, 3, 1, ['110', '000']) == ['000', '000']\nassert game_of_life(3, 3, 2, ['010', '010', '010']) == ['010', '010', '010']"
+  }
+]
