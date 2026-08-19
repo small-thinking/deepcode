@@ -5,7 +5,7 @@
   "category": "ML System Design",
   "difficulty": "easy",
   "tags": ["rag", "retrieval", "embeddings", "security", "multitenancy", "evaluation"],
-  "companies": ["xAI"],
+  "companies": ["xAI", "OpenAI"],
   "prompt": "Design a multi-tenant retrieval-augmented generation system for private and changing knowledge. It ingests documents asynchronously, answers questions with citations, supports metadata filters and semantic search, and must prevent content from crossing tenant or permission boundaries.\n\nCover:\n\n- Document ingestion, chunking, embeddings, indexing, updates, and deletion.\n- The query path from authenticated principal to retrieval, reranking, bounded context, generation, and cited answer.\n- Freshness, insufficient-evidence behavior, prompt injection in retrieved content, cache isolation, and failures.\n- Evaluation for retrieval quality, groundedness, latency, cost, and user value.\n\nChoose scale and freshness assumptions explicitly rather than relying on a generic vector database answer.",
   "response": {
     "placeholder": "Start with tenant and freshness guarantees. Then separate asynchronous indexing from the permission-filtered retrieval path, and explain how citations, abstention, and evaluation make grounding testable.",

@@ -12,7 +12,8 @@
     "data-contracts"
   ],
   "companies": [
-    "Airbnb"
+    "Airbnb",
+    "OpenAI"
   ],
   "prompt": "Implement a small programmatic relational query engine; parsing SQL text is out of scope.\n\n- `create_table(table_name, columns)` creates a named table with a nonempty, ordered sequence of unique columns.\n- `insert(table_name, row)` accepts a mapping with exactly that schema and preserves insertion order.\n- `query(table_name, columns, where=None, order_by=None) -> list[dict]` returns a nonempty projection of valid columns. `where` is either a callable over a full row or a list of `(column, operator, value)` conditions joined with AND. Supported operators are `=`, `!=`, `<`, `<=`, `>`, and `>=`. `order_by` is `None`, one column name for ascending order, or `(column_names, ascending)` for a shared multi-column direction.\n\nFilter full rows first, sort the filtered rows second, and project last. Numeric values and numeric-looking strings compare numerically when both sides can be interpreted as numbers; otherwise use their natural comparable order. Equal sort keys keep insertion-relative order. Inserted mappings and returned rows must be copied so callers cannot mutate stored state. Unknown tables raise `KeyError`; invalid schemas, columns, conditions, operators, ordering, or incompatible comparisons raise `ValueError`. Do not add joins, indexes, raw SQL parsing, wildcard projections, or persistence.",
   "starter_code": "class Database:\n    def __init__(self):\n        pass\n\n    def create_table(self, table_name, columns):\n        pass\n\n    def insert(self, table_name, row):\n        pass\n\n    def query(self, table_name, columns, where=None, order_by=None):\n        pass\n",

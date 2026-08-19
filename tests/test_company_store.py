@@ -124,6 +124,16 @@ class CompanyStoreTest(unittest.TestCase):
             }.issubset({problem["slug"] for problem in airbnb["related_problems"]})
         )
 
+        openai = companies.get_company("OpenAI", problems)
+        self.assertTrue(
+            {
+                "file-duplicate-groups",
+                "multi-tenant-rag-system",
+                "in-memory-relational-query-engine",
+                "spreadsheet-formula-engines",
+            }.issubset({problem["slug"] for problem in openai["related_problems"]})
+        )
+
         waymo = companies.get_company("Waymo", problems)
         self.assertEqual(waymo["name"], "Waymo")
         self.assertTrue(
