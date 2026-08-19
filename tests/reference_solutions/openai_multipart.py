@@ -57,12 +57,12 @@ def simulate_basic(grid, infection_threshold=2, directions=DIR4):
     return _static_spread(grid, infection_threshold, directions)
 
 
-def simulate_with_immunity(grid, infection_threshold=1, directions=DIR4):
+def simulate_with_immunity(grid, infection_threshold=2, directions=DIR4):
     return _static_spread(grid, infection_threshold, directions)
 
 
 def simulate_recovery(
-    grid, infectious_days, infection_threshold=1, directions=DIR4
+    grid, infectious_days, infection_threshold=2, directions=DIR4
 ):
     current = _copy_grid(grid)
     rows, cols = len(current), len(current[0])
@@ -96,7 +96,7 @@ def simulate_pending_death(
     grid,
     infectious_days,
     death_threshold,
-    infection_threshold=1,
+    infection_threshold=2,
     directions=DIR4,
 ):
     current = _copy_grid(grid)

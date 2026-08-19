@@ -1,13 +1,18 @@
 [
   {
-    "name": "infection-day pressure marks a new cell doomed",
+    "name": "the default threshold blocks a lone source",
+    "input": "one one-day source next to a healthy cell",
+    "test": "original = [[1, 0]]\nassert simulate_pending_death(original, infectious_days=1, death_threshold=1) == (1, 0, [[2, 0]])\nassert original == [[1, 0]]"
+  },
+  {
+    "name": "two sources meet the default threshold and mark a new cell doomed",
     "input": "a healthy cell between two one-day infections",
     "test": "original = [[1, 0, 1]]\nassert simulate_pending_death(original, infectious_days=1, death_threshold=2) == (2, 1, [[2, 3, 2]])\nassert original == [[1, 0, 1]]"
   },
   {
-    "name": "doom remains sticky after pressure disappears",
+    "name": "doom remains sticky after pressure disappears with an explicit threshold of one",
     "input": "two-day infection where one neighbor dies earlier",
-    "test": "assert simulate_pending_death([[1, 0]], infectious_days=2, death_threshold=1) == (3, 2, [[3, 3]])\nassert simulate_pending_death([[1, 0]], infectious_days=1, death_threshold=2) == (2, 0, [[2, 2]])"
+    "test": "assert simulate_pending_death([[1, 0]], infectious_days=2, death_threshold=1, infection_threshold=1) == (3, 2, [[3, 3]])\nassert simulate_pending_death([[1, 0]], infectious_days=1, death_threshold=2, infection_threshold=1) == (2, 0, [[2, 2]])"
   },
   {
     "name": "initial infections can all die on recovery",

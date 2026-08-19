@@ -1,12 +1,17 @@
 [
   {
-    "name": "one-day infections create a moving wave",
+    "name": "the default threshold leaves a lone source unable to spread",
     "input": "one infected cell followed by two healthy cells",
-    "test": "original = [[1, 0, 0]]\nassert simulate_recovery(original, infectious_days=1) == (3, [[2, 2, 2]])\nassert original == [[1, 0, 0]]"
+    "test": "original = [[1, 0, 0]]\nassert simulate_recovery(original, infectious_days=1) == (1, [[2, 0, 0]])\nassert original == [[1, 0, 0]]"
   },
   {
-    "name": "new infections receive the full timer",
-    "input": "threshold two and a two-day immune barrier scenario",
-    "test": "assert simulate_recovery([[1, 0, 1]], infectious_days=1, infection_threshold=2) == (2, [[2, 2, 2]])\nassert simulate_recovery([[1, 2, 0]], infectious_days=2) == (2, [[2, 2, 0]])"
+    "name": "two neighbors infect a cell that receives the full timer",
+    "input": "two sources around one healthy cell and a two-day immune barrier",
+    "test": "assert simulate_recovery([[1, 0, 1]], infectious_days=1) == (2, [[2, 2, 2]])\nassert simulate_recovery([[1, 2, 0]], infectious_days=2) == (2, [[2, 2, 0]])"
+  },
+  {
+    "name": "a caller can still choose a threshold of one",
+    "input": "one source in a one-by-three grid with an explicit threshold",
+    "test": "assert simulate_recovery([[1, 0, 0]], infectious_days=1, infection_threshold=1) == (3, [[2, 2, 2]])"
   }
 ]
