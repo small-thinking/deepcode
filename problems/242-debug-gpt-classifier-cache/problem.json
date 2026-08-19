@@ -1,0 +1,19 @@
+{
+  "id": "242",
+  "slug": "debug-gpt-classifier-cache",
+  "title": "Causal Decoder, Masked Classifier, and Incremental Generation",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": ["torch", "transformer", "debugging", "generation"],
+  "companies": ["OpenAI"],
+  "prompt": "Build a compact decoder-only language model and use it for two downstream paths. `TinyCausalLM(vocab_size, embed_dim, max_seq_len)` must map integer token ids with shape `(batch, length)` to vocabulary logits `(batch, length, vocab_size)`. It must use causal attention and positions based on `max_seq_len`, not the vocabulary size. `SequenceClassifier(lm, num_labels)` must return one logit vector per sequence and average only positions whose `valid_mask` is True. Finally, `greedy_generate(model, prompt, steps, use_cache=True)` must append `steps` argmax tokens without changing the result when `use_cache` changes. An efficient implementation may retain past keys and values, but correctness comes first.\n\nUse raw logits for training. Your modules should remain finite on short inputs, preserve batch dimensions, and allow gradients to reach the decoder parameters.",
+  "starter_code": "import math\nimport torch\nfrom torch import nn\n\n\nclass TinyCausalLM(nn.Module):\n    def __init__(self, vocab_size, embed_dim, max_seq_len):\n        super().__init__()\n        # Define token embeddings, position embeddings, and a causal attention path.\n        pass\n\n    def forward(self, token_ids):\n        # Return vocabulary logits with shape (batch, length, vocab_size).\n        pass\n\n\nclass SequenceClassifier(nn.Module):\n    def __init__(self, lm, num_labels):\n        super().__init__()\n        pass\n\n    def forward(self, token_ids, valid_mask):\n        # valid_mask is boolean, True for real tokens.\n        pass\n\n\ndef greedy_generate(model, prompt, steps, use_cache=True):\n    # Return prompt followed by `steps` greedy token ids.\n    pass\n",
+  "example": {
+    "input": "TinyCausalLM(17, 8, 6)(torch.tensor([[1, 2, 3]]))",
+    "output": "a float tensor with shape (1, 3, 17)",
+    "reasoning": "A decoder produces a vocabulary distribution at every existing position."
+  },
+  "environment": {"language": "python", "timeout_seconds": 12, "packages": ["torch"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_torch_modeling"},
+  "created_at": "2026-08-18"
+}

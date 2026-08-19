@@ -1,0 +1,15 @@
+{
+  "id": "244",
+  "slug": "seq2seq-reversal-debug",
+  "title": "Batched Reversal Seq2Seq Debugging",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": ["torch", "seq2seq", "training", "decoding"],
+  "companies": ["OpenAI"],
+  "prompt": "Complete a small batched sequence-to-sequence utility set. `shift_targets(targets, bos_id)` prepends BOS and removes the final target token. `masked_cross_entropy(logits, targets, pad_id)` averages cross entropy over non-PAD targets only. `greedy_decode(model, source, bos_id, eos_id, max_steps)` must run batched decoding without tracking gradients, append per-row greedy tokens, and stop once every row has emitted EOS; pass `eos_id=None` to disable early stopping.\n\n`ReverseModel(vocab_size, embed_dim)` is a trainable module whose forward path takes a source batch and decoder input batch and returns logits of shape `(batch, decoder_length, vocab_size)`. Use batch-first tensors throughout.",
+  "starter_code": "import torch\nfrom torch import nn\nimport torch.nn.functional as F\n\n\ndef shift_targets(targets, bos_id):\n    pass\n\n\ndef masked_cross_entropy(logits, targets, pad_id):\n    pass\n\n\nclass ReverseModel(nn.Module):\n    def __init__(self, vocab_size, embed_dim):\n        super().__init__()\n        pass\n\n    def forward(self, source, decoder_input):\n        pass\n\n\ndef greedy_decode(model, source, bos_id, eos_id, max_steps):\n    pass\n",
+  "example": {"input": "shift_targets(torch.tensor([[4, 5, 0]]), bos_id=1)", "output": "torch.tensor([[1, 4, 5]])", "reasoning": "Teacher forcing predicts each target from its preceding decoder token."},
+  "environment": {"language": "python", "timeout_seconds": 12, "packages": ["torch"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_torch_modeling"},
+  "created_at": "2026-08-18"
+}

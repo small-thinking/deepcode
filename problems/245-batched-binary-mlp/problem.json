@@ -1,0 +1,15 @@
+{
+  "id": "245",
+  "slug": "batched-binary-mlp",
+  "title": "Batched Binary MLP Training Loop",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["torch", "mlp", "binary-classification", "training"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement a compact binary classifier and its full-batch training loop. `BinaryMLP(input_dim, hidden_dim)` maps `(N, input_dim)` features to raw logits with shape `(N, 1)`. `binary_accuracy(logits, labels)` accepts labels shaped `(N,)` or `(N, 1)`, applies the sigmoid exactly once, and treats a zero logit as class 0. `train_binary_mlp(features, labels, hidden_dim=8, lr=0.1, epochs=50)` constructs a fresh model, uses `BCEWithLogitsLoss`, clears gradients each step, and returns `(model, final_loss, accuracy)` with scalar Python floats for the last two values.",
+  "starter_code": "import torch\nfrom torch import nn\nimport torch.nn.functional as F\n\n\nclass BinaryMLP(nn.Module):\n    def __init__(self, input_dim, hidden_dim):\n        super().__init__()\n        pass\n\n    def forward(self, x):\n        pass\n\n\ndef binary_accuracy(logits, labels):\n    pass\n\n\ndef train_binary_mlp(features, labels, hidden_dim=8, lr=0.1, epochs=50):\n    pass\n",
+  "example": {"input": "BinaryMLP(3, 6)(torch.randn(5, 3))", "output": "five raw binary logits with shape (5, 1)", "reasoning": "The loss function expects logits, so the sigmoid belongs in the metric rather than the model output."},
+  "environment": {"language": "python", "timeout_seconds": 10, "packages": ["torch"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_torch_modeling"},
+  "created_at": "2026-08-18"
+}
