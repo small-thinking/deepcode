@@ -1,0 +1,26 @@
+{
+  "id": "297",
+  "slug": "dns-cache-resolver",
+  "title": "DNS Cache Resolver with CNAME Chains",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["dns", "cache", "ttl", "cname", "resolution"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `resolve_dns(records, cache, name, record_type, now)`. `records` maps host names to record-type mappings; each record has the form `{'value': <string>, 'ttl': <positive number>}`. Host names are case-insensitive and a trailing dot is insignificant. `cache` is a mutable mapping owned by the caller.\n\nResolve a query for `record_type` as follows:\n\n- Normalize the queried host and record type (record types are uppercase). Check `cache[(normalized_name, normalized_type)]` first. A cached entry is usable only when `expires_at > now`; on a hit, return it with `from_cache == True` and `ttl_remaining == expires_at - now`.\n- If the requested record type exists at the current host, return `{'status': 'ok', 'value': ..., 'chain': ..., 'ttl_remaining': ..., 'from_cache': False}` and cache that successful result.\n- Otherwise follow that host's `CNAME` record. Continue until the requested type is found. The result chain lists normalized hosts in traversal order, and the result expiry uses the smallest TTL encountered along the chain.\n- For a missing name or missing terminal record, return `status == 'not_found'` with `value is None`; do not cache it. For a CNAME loop, return `status == 'loop'` with `value is None`; do not cache it.\n\nSuccessful cache entries must contain `value`, `chain`, and `expires_at`. Reject an empty normalized name, an empty record type, malformed records, or non-positive TTLs with `ValueError`. Do not mutate `records`.",
+  "starter_code": "def resolve_dns(records, cache, name, record_type, now):\n    pass\n",
+  "example": {
+    "input": "records = {'api.example': {'CNAME': {'value': 'origin.example', 'ttl': 10}}, 'origin.example': {'A': {'value': '192.0.2.8', 'ttl': 30}}}",
+    "output": "resolve_dns(records, {}, 'API.EXAMPLE.', 'a', 100) returns an ok result with value '192.0.2.8', chain ['api.example', 'origin.example'], and ttl_remaining 10",
+    "reasoning": "The answer is cached for the shortest lifetime in its CNAME chain."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "298",
+  "slug": "numpy-image-transformation-pipeline",
+  "title": "Composable NumPy Image Transformation Pipeline",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "computer-vision", "image-processing", "pipeline", "debugging"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `transform_image(image, operations)` using NumPy. `image` is either a 2-D grayscale array or a 3-D height-width-channel array. Return a new `float64` NumPy array and never mutate `image`. Apply each operation mapping in order.\n\nSupported operations are:\n\n- `{'op': 'clip', 'low': number, 'high': number}`: clip values inclusively. Require `low <= high`.\n- `{'op': 'affine', 'scale': number, 'bias': number}`: compute `image * scale + bias`.\n- `{'op': 'standardize', 'mean': scalar_or_channel_vector, 'std': scalar_or_channel_vector}`: compute `(image - mean) / std`. `mean` and `std` may be scalars; for a color image they may instead be vectors of exactly one value per final-axis channel. Every standard-deviation value must be positive.\n- `{'op': 'hflip'}`: reverse the width axis.\n- `{'op': 'transpose_hw'}`: swap the height and width axes while preserving any channel axis.\n\nReject unsupported image ranks, malformed operation mappings, unknown operations, invalid clip bounds, and invalid standard deviations with `ValueError`.",
+  "starter_code": "import numpy as np\n\n\ndef transform_image(image, operations):\n    pass\n",
+  "example": {
+    "input": "transform_image(np.array([[-1, 1], [4, 6]]), [{'op': 'clip', 'low': 0, 'high': 4}, {'op': 'affine', 'scale': 0.5, 'bias': 1}])",
+    "output": "array([[1.0, 1.5], [3.0, 3.0]])",
+    "reasoning": "Operations are ordered: clipping happens before the affine transform."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

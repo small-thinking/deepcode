@@ -1,0 +1,17 @@
+[
+  {
+    "name": "applies scalar operations in order without mutating input",
+    "input": "a grayscale image with clip then affine operations",
+    "test": "import numpy as np\nimage = np.array([[-1, 1], [4, 6]], dtype=np.int64)\nresult = transform_image(image, [{'op': 'clip', 'low': 0, 'high': 4}, {'op': 'affine', 'scale': 0.5, 'bias': 1}])\nassert result.dtype == np.float64\nassert np.array_equal(result, np.array([[1.0, 1.5], [3.0, 3.0]]))\nassert np.array_equal(image, np.array([[-1, 1], [4, 6]]))"
+  },
+  {
+    "name": "standardizes color channels and flips horizontally",
+    "input": "one row with two RGB pixels",
+    "test": "import numpy as np\nimage = np.array([[[10, 20, 30], [14, 22, 36]]])\nresult = transform_image(image, [\n    {'op': 'standardize', 'mean': [10, 20, 30], 'std': [2, 2, 3]},\n    {'op': 'hflip'},\n])\nassert np.array_equal(result, np.array([[[2.0, 1.0, 2.0], [0.0, 0.0, 0.0]]]))"
+  },
+  {
+    "name": "transposes spatial axes and rejects invalid contracts",
+    "input": "a two-by-three color image and malformed operations",
+    "test": "import numpy as np\nimage = np.arange(12).reshape(2, 3, 2)\nresult = transform_image(image, [{'op': 'transpose_hw'}])\nassert result.shape == (3, 2, 2)\nassert np.array_equal(result[2, 1], np.array([10.0, 11.0]))\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nmust_raise(lambda: transform_image(np.zeros((1,)), []))\nmust_raise(lambda: transform_image(np.zeros((2, 2)), [{'op': 'clip', 'low': 2, 'high': 1}]))\nmust_raise(lambda: transform_image(np.zeros((2, 2)), [{'op': 'standardize', 'mean': 0, 'std': 0}]))\nmust_raise(lambda: transform_image(np.zeros((2, 2)), [{'op': 'rotate'}]))"
+  }
+]

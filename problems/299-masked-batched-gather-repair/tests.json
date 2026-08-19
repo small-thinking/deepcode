@@ -1,0 +1,17 @@
+[
+  {
+    "name": "gathers each batch independently and fills padding",
+    "input": "two batches, two features, and one padded selection",
+    "test": "import numpy as np\nvalues = np.array([[[10, 11], [20, 21]], [[100, 101], [200, 201]]])\nindices = np.array([[1, 0], [0, -1]])\ngathered, valid = masked_batched_gather(values, indices, fill_value=-5)\nassert np.array_equal(gathered, np.array([[[20, 21], [10, 11]], [[100, 101], [-5, -5]]]))\nassert np.array_equal(valid, np.array([[True, True], [True, False]]))\nassert valid.dtype == np.bool_"
+  },
+  {
+    "name": "uses a compatible output dtype without aliasing input",
+    "input": "integer values and a fractional fill value",
+    "test": "import numpy as np\nvalues = np.array([[[1], [2]]], dtype=np.int64)\nindices = np.array([[-1, 1]], dtype=np.int64)\ngathered, valid = masked_batched_gather(values, indices, fill_value=0.5)\nassert gathered.dtype == np.float64\nassert np.array_equal(gathered, np.array([[[0.5], [2.0]]]))\ngathered[0, 1, 0] = 99\nassert values[0, 1, 0] == 2 and valid.tolist() == [[False, True]]"
+  },
+  {
+    "name": "rejects invalid array shapes and indexes",
+    "input": "wrong ranks, mismatched batches, booleans, and out-of-range values",
+    "test": "import numpy as np\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nvalues = np.zeros((2, 3, 1))\nmust_raise(lambda: masked_batched_gather(np.zeros((2, 3)), np.zeros((2, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.zeros((1, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.array([[True], [False]])))\nmust_raise(lambda: masked_batched_gather(values, np.array([[3], [0]])))\nmust_raise(lambda: masked_batched_gather(values, np.array([[-2], [0]])))"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "id": "299",
+  "slug": "masked-batched-gather-repair",
+  "title": "Repair a Masked Batched Gather",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "batching", "indexing", "padding", "debugging"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `masked_batched_gather(values, indices, fill_value=0)`. `values` is a NumPy array with shape `(batch, items, features)`. `indices` is an integer NumPy array with shape `(batch, selected_items)`. Each non-negative index selects one row from the corresponding batch; `-1` represents padding. Return `(gathered, valid)`, where `gathered` has shape `(batch, selected_items, features)` and `valid` is a boolean array of shape `(batch, selected_items)`.\n\nFor a padded `-1`, fill the corresponding feature row with `fill_value` and set `valid` to `False`. Other rows must be gathered from the same batch only—never from another batch. Preserve valid row values, choose an output dtype that can represent both `values` and `fill_value`, and never mutate either input.\n\nRaise `ValueError` unless `values` has rank three, `indices` has rank two with the same batch size, `indices` has an integer (not boolean) dtype, and every index is either `-1` or in `[0, items)`.",
+  "starter_code": "import numpy as np\n\n\ndef masked_batched_gather(values, indices, fill_value=0):\n    pass\n",
+  "example": {
+    "input": "values.shape == (2, 2, 2), indices = np.array([[1, 0], [0, -1]])",
+    "output": "gathered contains the selected rows for each batch and a fill row for the final padded index; valid is [[True, True], [True, False]]",
+    "reasoning": "The first dimension is a batch coordinate, so row index zero refers to a different source row in each batch."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

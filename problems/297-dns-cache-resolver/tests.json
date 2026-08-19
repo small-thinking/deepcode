@@ -1,0 +1,17 @@
+[
+  {
+    "name": "normalizes names and serves a live cached answer",
+    "input": "an A record with a ten-second TTL",
+    "test": "records = {'Api.Example.': {'A': {'value': '192.0.2.7', 'ttl': 10}}}\ncache = {}\nfirst = resolve_dns(records, cache, 'API.EXAMPLE.', 'a', 100)\nassert first == {'status': 'ok', 'value': '192.0.2.7', 'chain': ['api.example'], 'ttl_remaining': 10, 'from_cache': False}\nassert cache == {('api.example', 'A'): {'value': '192.0.2.7', 'chain': ['api.example'], 'expires_at': 110}}\nsecond = resolve_dns(records, cache, 'api.example', 'A', 107)\nassert second == {'status': 'ok', 'value': '192.0.2.7', 'chain': ['api.example'], 'ttl_remaining': 3, 'from_cache': True}"
+  },
+  {
+    "name": "follows cname chains and uses the shortest TTL",
+    "input": "two aliases ending at an A record",
+    "test": "records = {\n    'api.example': {'CNAME': {'value': 'edge.example.', 'ttl': 8}},\n    'edge.example': {'CNAME': {'value': 'origin.example', 'ttl': 5}},\n    'origin.example': {'A': {'value': '198.51.100.4', 'ttl': 30}, 'TXT': {'value': 'healthy', 'ttl': 12}},\n}\ncache = {}\nresult = resolve_dns(records, cache, 'api.example.', 'A', 10)\nassert result == {'status': 'ok', 'value': '198.51.100.4', 'chain': ['api.example', 'edge.example', 'origin.example'], 'ttl_remaining': 5, 'from_cache': False}\nassert cache[('api.example', 'A')]['expires_at'] == 15\nassert resolve_dns(records, cache, 'api.example', 'A', 15)['from_cache'] is False\nassert resolve_dns(records, {}, 'origin.example', 'txt', 4)['value'] == 'healthy'"
+  },
+  {
+    "name": "does not cache missing names or cname loops",
+    "input": "a missing name and a two-host CNAME cycle",
+    "test": "cache = {}\nmissing = resolve_dns({}, cache, 'missing.example', 'A', 0)\nassert missing == {'status': 'not_found', 'value': None, 'chain': ['missing.example'], 'ttl_remaining': None, 'from_cache': False}\nrecords = {\n    'one.example': {'CNAME': {'value': 'two.example', 'ttl': 3}},\n    'two.example': {'CNAME': {'value': 'one.example', 'ttl': 3}},\n}\nloop = resolve_dns(records, cache, 'one.example', 'A', 0)\nassert loop == {'status': 'loop', 'value': None, 'chain': ['one.example', 'two.example', 'one.example'], 'ttl_remaining': None, 'from_cache': False}\nassert cache == {}"
+  }
+]
