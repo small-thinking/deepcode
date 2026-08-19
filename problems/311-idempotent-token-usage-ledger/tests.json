@@ -1,0 +1,17 @@
+[
+  {
+    "name": "uses only the final event for each request before aggregating by model",
+    "input": "completed, failed, cancelled, and retried request records",
+    "test": "events = [\n    {'request_id': 'r1', 'model': 'sky', 'status': 'completed', 'prompt_tokens': 100, 'cached_prompt_tokens': 25, 'completion_tokens': 20},\n    {'request_id': 'r2', 'model': 'sky', 'status': 'failed', 'prompt_tokens': 9, 'cached_prompt_tokens': 0, 'completion_tokens': 0},\n    {'request_id': 'r2', 'model': 'sky', 'status': 'completed', 'prompt_tokens': 50, 'cached_prompt_tokens': 0, 'completion_tokens': 30},\n    {'request_id': 'r3', 'model': 'moss', 'status': 'completed', 'prompt_tokens': 40, 'cached_prompt_tokens': 40, 'completion_tokens': 5},\n    {'request_id': 'r1', 'model': 'sky', 'status': 'cancelled', 'prompt_tokens': 100, 'cached_prompt_tokens': 25, 'completion_tokens': 20},\n]\nassert summarize_token_usage(events) == [('moss', 1, 40, 40, 5, 5), ('sky', 1, 50, 0, 30, 80)]"
+  },
+  {
+    "name": "sums multiple final completed requests and omits models without one",
+    "input": "two completed requests for one model and a final failure for another",
+    "test": "events = [\n    {'request_id': 'a', 'model': 'alpha', 'status': 'completed', 'prompt_tokens': 4, 'cached_prompt_tokens': 1, 'completion_tokens': 2},\n    {'request_id': 'b', 'model': 'alpha', 'status': 'completed', 'prompt_tokens': 6, 'cached_prompt_tokens': 2, 'completion_tokens': 1},\n    {'request_id': 'c', 'model': 'beta', 'status': 'failed', 'prompt_tokens': 7, 'cached_prompt_tokens': 0, 'completion_tokens': 0},\n]\nassert summarize_token_usage(events) == [('alpha', 2, 10, 3, 3, 10)]"
+  },
+  {
+    "name": "returns an empty report when no final record completed",
+    "input": "an empty event stream and a stream containing only terminal failures",
+    "test": "assert summarize_token_usage([]) == []\nevents = [{'request_id': 'x', 'model': 'm', 'status': 'failed', 'prompt_tokens': 1, 'cached_prompt_tokens': 0, 'completion_tokens': 0}]\nassert summarize_token_usage(events) == []"
+  }
+]

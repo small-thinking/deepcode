@@ -1,0 +1,26 @@
+{
+  "id": "313",
+  "slug": "concurrent-template-registry",
+  "title": "Concurrent Template Registry",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["concurrency", "deduplication", "hash-map", "canonicalization", "thread-safety"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `TemplateRegistry` for thread-safe canonical template deduplication. `register(template) -> int` returns a stable zero-based ID. First convert a template string to its canonical form: normalize `\\r\\n` and `\\r` to `\\n`; for each line remove leading/trailing ASCII spaces and tabs, then collapse each remaining run of ASCII spaces/tabs to one space; finally remove blank lines only from the beginning and end. Internal blank lines remain. A template whose canonical form is empty is invalid.\n\nRegistering an already canonicalized-equivalent template must return its existing ID. A new canonical template receives the next ID in first-unique-registration order. `get(template_id) -> str` returns the canonical template and `snapshot() -> list[str]` returns a copy of canonical templates in ID order. `register` must be safe when multiple threads call it concurrently: one canonical template may appear at most once and every equivalent concurrent registration must observe the same ID.\n\nUse a list for ID-to-template lookup, a hash map for canonical-template-to-ID lookup, and a lock that makes the lookup-or-append transition atomic. Raise `TypeError` for a non-string template or non-integer ID (including `bool`), `ValueError` for an empty canonical template, and `IndexError` for an unknown integer ID.",
+  "starter_code": "class TemplateRegistry:\n    def __init__(self):\n        pass\n\n    def register(self, template):\n        pass\n\n    def get(self, template_id):\n        pass\n\n    def snapshot(self):\n        pass\n",
+  "example": {
+    "input": "registry.register('  Hello   {{name}}\\r\\n\\r\\n ask\\t now  '); registry.register('Hello {{name}}\\n\\nask now')",
+    "output": "both calls return 0",
+    "reasoning": "The two strings normalize to the same canonical template before the registry checks its hash map."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "312",
+  "slug": "stable-prompt-affinity-routing",
+  "title": "Stable Prompt Affinity Routing",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["hashing", "routing", "load-balancing", "determinism"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `route_prompt_by_affinity(prompt, servers) -> str`. Route one prompt to one server with deterministic rendezvous hashing. `prompt` is a string and `servers` is a nonempty iterable of unique, nonempty server-ID strings. For each server, compute the 64-bit FNV-1a hash of the UTF-8 bytes in `server_id + '\\0' + prompt`. Return the server whose unsigned hash is largest; if scores tie, return the lexicographically smallest server ID. The input order of `servers` must not affect the answer.\n\nUse the FNV-1a constants `offset_basis = 14695981039346656037`, `prime = 1099511628211`, and a 64-bit mask. For every byte: XOR the byte into the hash, multiply by `prime`, then apply the mask. Do not use Python's built-in `hash`, which is intentionally process-randomized. Raise `TypeError` when `prompt` is not a string or a server ID is not a string, and `ValueError` for an empty server collection, empty server ID, or duplicate ID.",
+  "starter_code": "def route_prompt_by_affinity(prompt, servers):\n    # Return the deterministic rendezvous-hash winner for one prompt.\n    pass\n",
+  "example": {
+    "input": "route_prompt_by_affinity('summarize this note', ['gpu-a', 'gpu-b', 'gpu-c'])",
+    "output": "one stable server ID",
+    "reasoning": "Every candidate receives an independent stable score; the maximum score wins regardless of input order."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
