@@ -1,0 +1,22 @@
+[
+  {
+    "name": "successful deposits and withdrawals append account-local statements",
+    "input": "one account with an opening balance, one deposit, and one withdrawal",
+    "test": "ledger = BankLedger()\nledger.open_account('maya', 10)\nassert ledger.deposit('maya', 5, 'refund') == 'entry-1'\nassert ledger.withdraw('maya', 4, 'lunch') == 'entry-2'\nassert ledger.balance('maya') == 11\nassert ledger.statement('maya') == [\n    {'id': 'entry-1', 'type': 'deposit', 'amount': 5, 'balance_after': 15, 'memo': 'refund'},\n    {'id': 'entry-2', 'type': 'withdraw', 'amount': 4, 'balance_after': 11, 'memo': 'lunch'},\n]"
+  },
+  {
+    "name": "accounts stay independent while entry identifiers remain global",
+    "input": "two accounts each receive a different mutation",
+    "test": "ledger = BankLedger()\nledger.open_account('a')\nledger.open_account('b', 3)\nassert ledger.deposit('a', 7) == 'entry-1'\nassert ledger.withdraw('b', 1) == 'entry-2'\nassert ledger.balance('a') == 7\nassert ledger.balance('b') == 2\nassert [row['id'] for row in ledger.statement('a')] == ['entry-1']\nassert [row['id'] for row in ledger.statement('b')] == ['entry-2']"
+  },
+  {
+    "name": "overdrafts are atomic and do not consume an entry identifier",
+    "input": "an account with three credits followed by an oversized withdrawal",
+    "test": "ledger = BankLedger()\nledger.open_account('a', 3)\ntry:\n    ledger.withdraw('a', 4, 'too much')\n    raise AssertionError('expected InsufficientFundsError')\nexcept InsufficientFundsError:\n    pass\nassert ledger.balance('a') == 3\nassert ledger.statement('a') == []\nassert ledger.deposit('a', 1) == 'entry-1'"
+  },
+  {
+    "name": "history copies and invalid inputs cannot corrupt state",
+    "input": "a returned statement plus duplicate and malformed mutations",
+    "test": "ledger = BankLedger()\nledger.open_account('a', 1)\nledger.deposit('a', 2)\nrows = ledger.statement('a')\nrows[0]['memo'] = 'tampered'\nassert ledger.statement('a')[0]['memo'] == ''\nfor call in (lambda: ledger.open_account('a'), lambda: ledger.open_account('', 0), lambda: ledger.open_account('b', True), lambda: ledger.deposit('a', 0), lambda: ledger.withdraw('a', True), lambda: ledger.deposit('a', 1, None)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    ledger.balance('missing')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  }
+]

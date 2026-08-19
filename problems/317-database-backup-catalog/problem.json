@@ -1,0 +1,26 @@
+{
+  "id": "317",
+  "slug": "database-backup-catalog",
+  "title": "Database Backup Catalog",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["database", "backups", "restore", "snapshots", "copying"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement an in-memory `BackupDatabase` with named, immutable full-state backups. This exercise deliberately excludes files, clocks, TTLs, and backup-target selection.\n\nKeys and backup labels are non-empty strings. Stored values must be JSON-shaped values: `None`, strings, booleans, ordinary integers, finite floats, lists of valid values, or dictionaries with non-empty string keys and valid values.\n\n- `set(key, value)` stores an independent copy and increments the live revision, even when it replaces an equal value.\n- `get(key, default=None)` returns an independent copy of the stored value or of `default`. `contains(key) -> bool` distinguishes a missing key from a stored `None`.\n- `delete(key) -> bool` removes a present key and increments the live revision; deleting a missing key returns `False` without incrementing it.\n- `backup(label) -> int` records an immutable named copy of current live data and returns the current live revision. Active labels must be unique.\n- `restore(label) -> int` replaces live data with an independent copy of that backup, increments the live revision once, and returns the new revision. Restoring does not discard any backup.\n- `list_backups() -> list[dict]` returns active backups in creation order. Each row has `label`, `source_revision`, and `key_count`.\n- `drop_backup(label)` removes only that backup and does not change the live revision.\n\nUnknown backup labels raise `KeyError`; malformed keys, labels, or values and duplicate active labels raise `ValueError`. Do not implement files, partial snapshots, expiration, or concurrent writes.",
+  "starter_code": "class BackupDatabase:\n    def __init__(self):\n        pass\n\n    def set(self, key, value):\n        pass\n\n    def get(self, key, default=None):\n        pass\n\n    def contains(self, key):\n        pass\n\n    def delete(self, key):\n        pass\n\n    def backup(self, label):\n        pass\n\n    def restore(self, label):\n        pass\n\n    def list_backups(self):\n        pass\n\n    def drop_backup(self, label):\n        pass\n",
+  "example": {
+    "input": "db.set('config', {'retries': 2}); db.backup('before-change'); db.set('config', {'retries': 3}); db.restore('before-change')",
+    "output": "db.get('config') == {'retries': 2}",
+    "reasoning": "Restore copies the named full-state backup back into the live database while retaining the backup itself."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

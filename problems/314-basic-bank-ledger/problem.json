@@ -1,0 +1,26 @@
+{
+  "id": "314",
+  "slug": "basic-bank-ledger",
+  "title": "Basic Bank Ledger",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["banking", "ledger", "stateful-api", "validation"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement an in-memory `BankLedger` for immediate deposits and withdrawals across independent accounts. This is a simple accounting API: it has no transfers, pending operations, timestamps, persistence, or account merging.\n\n- `open_account(account_id, opening_balance=0)` creates a non-empty string account ID with a non-negative ordinary-integer opening balance.\n- `deposit(account_id, amount, memo='') -> str` credits a positive ordinary integer amount, appends an entry, and returns globally ordered IDs `entry-1`, `entry-2`, and so on.\n- `withdraw(account_id, amount, memo='') -> str` debits a positive amount only when enough balance is available; otherwise raise `InsufficientFundsError` and append nothing.\n- `balance(account_id) -> int` returns the current account balance.\n- `statement(account_id) -> list[dict]` returns that account's entries in append order. Each entry contains `id`, `type` (`deposit` or `withdraw`), `amount`, `balance_after`, and `memo`.\n\nAccount IDs must be non-empty strings, memos must be strings, and booleans are not amounts or balances. Duplicate account IDs and malformed inputs raise `ValueError`; unknown account IDs raise `KeyError`. `statement` must return copies so callers cannot alter ledger history.",
+  "starter_code": "class InsufficientFundsError(Exception):\n    pass\n\n\nclass BankLedger:\n    def __init__(self):\n        pass\n\n    def open_account(self, account_id, opening_balance=0):\n        pass\n\n    def deposit(self, account_id, amount, memo=''):\n        pass\n\n    def withdraw(self, account_id, amount, memo=''):\n        pass\n\n    def balance(self, account_id):\n        pass\n\n    def statement(self, account_id):\n        pass\n",
+  "example": {
+    "input": "ledger.open_account('maya', 10); entry = ledger.withdraw('maya', 4, 'lunch')",
+    "output": "entry == 'entry-1' and ledger.statement('maya')[0]['balance_after'] == 6",
+    "reasoning": "A successful withdrawal immediately changes one account and records its resulting balance."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

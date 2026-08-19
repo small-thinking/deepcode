@@ -1,0 +1,22 @@
+[
+  {
+    "name": "get promotes a key and insertion evicts the least recent key",
+    "input": "capacity two with two inserts one read and one new insert",
+    "test": "cache = ManualLRUCache(2)\nassert cache.put('a', 1) is None\nassert cache.put('b', 2) is None\nassert cache.keys_mru_to_lru() == ['b', 'a']\nassert cache.get('a') == 1\nassert cache.put('c', 3) == ('b', 2)\nassert cache.keys_mru_to_lru() == ['c', 'a']\nassert cache.get('b') is None"
+  },
+  {
+    "name": "updating an existing key moves it without eviction",
+    "input": "capacity two with an existing-key replacement",
+    "test": "cache = ManualLRUCache(2)\ncache.put('a', 1)\ncache.put('b', 2)\nassert cache.put('a', 10) is None\nassert cache.keys_mru_to_lru() == ['a', 'b']\nassert cache.get('a') == 10\nassert cache.put('c', 3) == ('b', 2)"
+  },
+  {
+    "name": "remove and missing gets preserve a coherent list",
+    "input": "a missing get, a present removal, and a repeated removal",
+    "test": "cache = ManualLRUCache(3)\ncache.put('a', 1)\ncache.put('b', 2)\nassert cache.get('missing', 'fallback') == 'fallback'\nassert cache.keys_mru_to_lru() == ['b', 'a']\nassert cache.remove('a') is True\nassert cache.remove('a') is False\nassert cache.keys_mru_to_lru() == ['b']"
+  },
+  {
+    "name": "capacity and keys are validated",
+    "input": "bad capacities and an unhashable list key",
+    "test": "for capacity in (0, -1, True):\n    try:\n        ManualLRUCache(capacity)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ncache = ManualLRUCache(1)\nfor call in (lambda: cache.get([]), lambda: cache.put([], 1), lambda: cache.remove([])):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+  }
+]
