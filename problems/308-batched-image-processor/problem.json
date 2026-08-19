@@ -1,0 +1,26 @@
+{
+  "id": "308",
+  "slug": "batched-image-processor",
+  "title": "Batched Image Processor",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "computer-vision", "batching", "data-pipeline", "validation"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `process_image_batches(images, batch_size, process_batch)`. `images` is a sequence of NumPy arrays with an identical, non-empty shape and numeric dtype. `process_batch` is a callable that receives one stacked NumPy batch at a time and returns a NumPy array with exactly the same shape as that batch.\n\nSplit images into consecutive batches of at most `batch_size`, invoke `process_batch` once for each batch, and return a flat list of processed image arrays in the original input order. A final partial batch is still processed once. Stack copies of the input images, so a mutating processor cannot change caller-owned inputs. Also return copies of output slices so later processor reuse cannot alias a returned image.\n\nAn empty image sequence returns an empty list without calling `process_batch`. Reject a non-positive/non-integer batch size, a non-callable processor, non-array or non-numeric images, empty shapes, mismatched shapes, and an invalid processor output with `ValueError`.",
+  "starter_code": "import numpy as np\n\n\ndef process_image_batches(images, batch_size, process_batch):\n    pass\n",
+  "example": {
+    "input": "process_image_batches([np.array([[1]]), np.array([[2]]), np.array([[3]])], 2, lambda batch: batch + 10)",
+    "output": "[array([[11]]), array([[12]]), array([[13]])]",
+    "reasoning": "The processor receives a batch of two images, then a final batch of one image, while output order remains unchanged."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

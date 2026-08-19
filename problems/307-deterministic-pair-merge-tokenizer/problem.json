@@ -1,0 +1,26 @@
+{
+  "id": "307",
+  "slug": "deterministic-pair-merge-tokenizer",
+  "title": "Deterministic Pair-Merge Tokenizer",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["tokenization", "pair-merge", "strings", "determinism", "nlp"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement two functions for a deterministic pair-merge tokenizer.\n\n`fit_pair_tokenizer(corpus, max_merges)` accepts an iterable of non-empty strings. Represent each word initially as its individual Unicode characters. On each merge step, count all adjacent token pairs across the current corpus. Choose the pair with the largest count; break a tie lexicographically by `(left_token, right_token)`. Replace every non-overlapping occurrence of the chosen pair, scanning each word from left to right, with the concatenated token. Stop after `max_merges` steps or when no adjacent pair remains. Return `{'merges': [...], 'vocabulary': [...]}`, where `merges` is the ordered list of chosen two-string tuples and `vocabulary` is the sorted list of unique final tokens.\n\n`encode_pair_tokens(text, merges)` starts from the characters of `text` and applies every merge pair in order with the same non-overlapping left-to-right rule. Return the final token list.\n\nAn empty corpus is valid. `max_merges` must be a non-negative integer. Reject a string used as the corpus/merge iterable, empty or non-string corpus words, malformed merge pairs, and invalid `max_merges` with `TypeError` or `ValueError`.",
+  "starter_code": "def fit_pair_tokenizer(corpus, max_merges):\n    pass\n\n\ndef encode_pair_tokens(text, merges):\n    pass\n",
+  "example": {
+    "input": "fit_pair_tokenizer(['abab', 'abab', 'ab'], 2)",
+    "output": "{'merges': [('a', 'b'), ('ab', 'ab')], 'vocabulary': ['ab', 'abab']}",
+    "reasoning": "The most frequent first pair is ('a', 'b'); after that merge, ('ab', 'ab') wins the next step."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

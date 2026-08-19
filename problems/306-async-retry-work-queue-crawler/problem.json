@@ -1,0 +1,26 @@
+{
+  "id": "306",
+  "slug": "async-retry-work-queue-crawler",
+  "title": "Async Retry Work-Queue Crawler",
+  "category": "Systems Coding",
+  "difficulty": "hard",
+  "tags": ["asyncio", "work-queue", "crawler", "concurrency", "retries"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `async def crawl_work_queue(seed_urls, fetch, workers=4, retries=0)`. `seed_urls` is an ordered iterable of non-empty URL strings. `fetch(url)` is an async callable that returns an iterable of non-empty URL strings. Build a work-queue crawler that schedules every discovered URL at most once. There is no URL canonicalization or host filtering in this exercise: equal strings identify the same work item.\n\nRun at most `workers` fetches concurrently. A raised exception or malformed fetch result consumes one attempt. Retry that URL until it has made at most `retries + 1` attempts; then mark it failed. Links are scheduled only from a successful fetch.\n\nReturn a mapping with:\n\n- `scheduled`: all unique URLs in first-discovery order, including failures;\n- `completed`: scheduled URLs whose fetch eventually succeeded, in scheduled order;\n- `failed`: scheduled URLs whose attempts were exhausted, in scheduled order; and\n- `attempts`: a mapping from each scheduled URL to its total fetch attempts.\n\n`workers` must be a positive integer and `retries` a non-negative integer. Reject invalid seed URLs, a non-callable fetcher, or invalid worker/retry values with `ValueError`. The crawler must finish all queued retries before returning.",
+  "starter_code": "async def crawl_work_queue(seed_urls, fetch, workers=4, retries=0):\n    pass\n",
+  "example": {
+    "input": "await crawl_work_queue(['root'], fetch, workers=2, retries=1)",
+    "output": "{'scheduled': ['root', 'a'], 'completed': ['root', 'a'], 'failed': [], 'attempts': {'root': 1, 'a': 2}}",
+    "reasoning": "The child is scheduled only after root succeeds, and its first failed attempt is retried once."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

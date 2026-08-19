@@ -1,0 +1,17 @@
+[
+  {
+    "name": "learns repeated pair merges and encodes with them in order",
+    "input": "two repeated words plus one short word",
+    "test": "model = fit_pair_tokenizer(['abab', 'abab', 'ab'], 2)\nassert model == {'merges': [('a', 'b'), ('ab', 'ab')], 'vocabulary': ['ab', 'abab']}\nassert encode_pair_tokens('abab', model['merges']) == ['abab']\nassert encode_pair_tokens('ababa', model['merges']) == ['abab', 'a']"
+  },
+  {
+    "name": "uses a lexical tie break and non-overlapping replacements",
+    "input": "equally frequent pairs and a repeated-character word",
+    "test": "assert fit_pair_tokenizer(['ab', 'cd'], 1)['merges'] == [('a', 'b')]\nassert fit_pair_tokenizer(['aaa'], 1) == {'merges': [('a', 'a')], 'vocabulary': ['a', 'aa']}\nassert encode_pair_tokens('aaa', [('a', 'a')]) == ['aa', 'a']\nassert fit_pair_tokenizer([], 5) == {'merges': [], 'vocabulary': []}"
+  },
+  {
+    "name": "validates corpus, merge, and budget inputs",
+    "input": "bad corpus entries, bad merge pairs, and a negative merge count",
+    "test": "def expect(kind, call):\n    try:\n        call()\n    except kind:\n        return\n    raise AssertionError('expected exception')\nexpect(TypeError, lambda: fit_pair_tokenizer('word', 1))\nexpect(ValueError, lambda: fit_pair_tokenizer([''], 1))\nexpect(TypeError, lambda: fit_pair_tokenizer([1], 1))\nexpect(ValueError, lambda: fit_pair_tokenizer(['a'], -1))\nexpect(TypeError, lambda: encode_pair_tokens(['a'], []))\nexpect(ValueError, lambda: encode_pair_tokens('a', [('a', '')]))"
+  }
+]

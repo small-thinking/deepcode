@@ -1,0 +1,17 @@
+[
+  {
+    "name": "reports utilization, trailing peaks, overload runs, and shortfall",
+    "input": "five demand samples, constant capacity, and a three-sample window",
+    "test": "import numpy as np\ndemand = np.array([5, 12, 11, 6, 15])\ncapacity = np.full(5, 10)\nresult = analyze_capacity_series(demand, capacity, 3)\nassert np.allclose(result['utilization'], [0.5, 1.2, 1.1, 0.6, 1.5])\nassert np.allclose(result['rolling_peak'], [0.5, 1.2, 1.2, 1.2, 1.5])\nassert result['overload_runs'] == [(1, 2), (4, 4)]\nassert result['summary']['samples'] == 5\nassert np.isclose(result['summary']['mean_utilization'], 0.98)\nassert result['summary']['peak_utilization'] == 1.5\nassert result['summary']['total_shortfall'] == 8.0"
+  },
+  {
+    "name": "uses short windows and preserves caller arrays",
+    "input": "a one-sample window and exactly-at-capacity values",
+    "test": "import numpy as np\ndemand = np.array([2.0, 4.0, 3.0])\ncapacity = np.array([2.0, 2.0, 3.0])\nresult = analyze_capacity_series(demand, capacity, 1)\nassert np.allclose(result['rolling_peak'], [1.0, 2.0, 1.0])\nassert result['overload_runs'] == [(1, 1)]\nassert demand.tolist() == [2.0, 4.0, 3.0] and capacity.tolist() == [2.0, 2.0, 3.0]"
+  },
+  {
+    "name": "rejects invalid dimensions, values, and window sizes",
+    "input": "wrong ranks, mismatched lengths, non-positive capacity, and invalid windows",
+    "test": "import numpy as np\ndef expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nexpect(lambda: analyze_capacity_series(np.array([[1]]), np.array([1]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([1, 2]), 1))\nexpect(lambda: analyze_capacity_series(np.array([]), np.array([]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([0]), 1))\nexpect(lambda: analyze_capacity_series(np.array([-1]), np.array([1]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([1]), 0))"
+  }
+]

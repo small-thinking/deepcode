@@ -1,0 +1,17 @@
+[
+  {
+    "name": "processes full and final partial batches in input order",
+    "input": "three one-by-one images with a batch size of two",
+    "test": "import numpy as np\nimages = [np.array([[1]]), np.array([[2]]), np.array([[3]])]\nseen_shapes = []\ndef processor(batch):\n    seen_shapes.append(batch.shape)\n    batch[0, 0, 0] = -99\n    return batch + 10\nresult = process_image_batches(images, 2, processor)\nassert seen_shapes == [(2, 1, 1), (1, 1, 1)]\nassert [item.tolist() for item in result] == [[[-89]], [[12]], [[-89]]]\nassert [image.tolist() for image in images] == [[[1]], [[2]], [[3]]]"
+  },
+  {
+    "name": "returns independent output slices and skips an empty sequence",
+    "input": "a two-image batch plus no images",
+    "test": "import numpy as np\nshared = np.array([[[4]], [[5]]])\ndef processor(batch):\n    return shared\nresult = process_image_batches([np.array([[1]]), np.array([[2]])], 2, processor)\nresult[0][0, 0] = 100\nassert shared[0, 0, 0] == 4 and result[1].tolist() == [[5]]\ncalls = []\nassert process_image_batches([], 2, lambda batch: calls.append(batch)) == []\nassert calls == []"
+  },
+  {
+    "name": "rejects incompatible inputs and processor outputs",
+    "input": "bad batch sizes, image shapes, and returned batch shapes",
+    "test": "import numpy as np\ndef expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nimage = np.zeros((2, 2))\nexpect(lambda: process_image_batches([image], 0, lambda batch: batch))\nexpect(lambda: process_image_batches([image], 1, None))\nexpect(lambda: process_image_batches([image, np.zeros((1, 2))], 1, lambda batch: batch))\nexpect(lambda: process_image_batches([np.array([], dtype=float)], 1, lambda batch: batch))\nexpect(lambda: process_image_batches([image], 1, lambda batch: np.zeros((1, 1, 1))))\nexpect(lambda: process_image_batches([[1]], 1, lambda batch: batch))"
+  }
+]
