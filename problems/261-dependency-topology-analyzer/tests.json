@@ -1,0 +1,22 @@
+[
+  {
+    "name": "cycles have no startup order",
+    "input": "a graph with a three-node directed dependency cycle",
+    "test": "has_cycle, order, reachability, impacts = analyze_topology(4, [(0, 1), (1, 2), (2, 3), (3, 1)], [], [])\nassert has_cycle is True\nassert order == []\nassert reachability == []\nassert impacts == []"
+  },
+  {
+    "name": "topological output places prerequisites before every dependent",
+    "input": "an acyclic dependency graph with multiple roots",
+    "test": "edges = [(0, 2), (0, 3), (2, 1), (3, 1), (1, 4), (4, 5)]\nhas_cycle, order, reachability, impacts = analyze_topology(6, edges, [(0, 5), (2, 3), (0, 0)], [[1], [0, 0]])\nassert has_cycle is False\nassert set(order) == set(range(6))\nposition = {node: index for index, node in enumerate(order)}\nassert all(position[dependency] < position[dependent] for dependent, dependency in edges)\nassert reachability == [True, False, True]\nassert impacts == [4, 1]"
+  },
+  {
+    "name": "reverse failures do not travel from a dependent to its prerequisite",
+    "input": "two independent machines that depend on one shared prerequisite",
+    "test": "has_cycle, order, reachability, impacts = analyze_topology(3, [(0, 1), (2, 1)], [(0, 1), (1, 0)], [[0], [1]])\nassert has_cycle is False\nassert set(order) == {0, 1, 2}\nassert reachability == [True, False]\nassert impacts == [1, 3]"
+  },
+  {
+    "name": "single machines and parallel edges retain the stated semantics",
+    "input": "an isolated machine plus repeated dependencies",
+    "test": "assert analyze_topology(1, [], [(0, 0)], [[0]]) == (False, [0], [True], [1])\nhas_cycle, order, reachability, impacts = analyze_topology(2, [(0, 1), (0, 1)], [], [[1]])\nassert has_cycle is False\nassert order == [1, 0]\nassert impacts == [2]"
+  }
+]

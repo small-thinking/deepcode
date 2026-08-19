@@ -1,0 +1,33 @@
+{
+  "id": "259",
+  "slug": "ipv4-cidr-iterator",
+  "title": "IPv4 CIDR Iterator",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "iterator",
+    "networking",
+    "ipv4",
+    "cidr"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement a lazy `IPv4Iterator(ip_or_cidr, reverse=False)` that supports Python iteration. `ip_or_cidr` is either a dotted IPv4 address or an address followed by `/prefix_length`. Each call to `next()` returns a dotted IPv4 string.\n\nWithout a CIDR suffix, forward iteration runs from the supplied address through `255.255.255.255`; reverse iteration runs through `0.0.0.0`. With `/prefix_length`, first determine the network block containing the supplied address. Forward iteration begins at the supplied address and stops at that block's highest address; reverse iteration begins at the supplied address and stops at the block's lowest address. Include both endpoints and raise `StopIteration` after exhaustion.\n\nThe iterator must be lazy: do not precompute or materialize an address range.",
+  "starter_code": "class IPv4Iterator:\n    def __init__(self, ip_or_cidr, reverse=False):\n        pass\n\n    def __iter__(self):\n        pass\n\n    def __next__(self):\n        pass\n",
+  "example": {
+    "input": "list(IPv4Iterator('198.51.100.20/31'))",
+    "output": "['198.51.100.20', '198.51.100.21']",
+    "reasoning": "The supplied address belongs to the two-address block ending at 198.51.100.21."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
