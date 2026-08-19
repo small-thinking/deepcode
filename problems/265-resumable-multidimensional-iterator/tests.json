@@ -1,0 +1,17 @@
+[
+  {
+    "name": "traverses ragged one two and three dimensional sources in source order",
+    "input": "nested containers with empty branches",
+    "test": "def drain(it):\n    values = []\n    while True:\n        try:\n            values.append(next(it))\n        except StopIteration:\n            return values\nassert drain(MultiDimensionalIterator([1, 2])) == [1, 2]\nassert drain(MultiDimensionalIterator([[1, []], [], [2, 3]])) == [1, 2, 3]\nassert drain(MultiDimensionalIterator([[[1], []], [[2, 3]], []])) == [1, 2, 3]"
+  },
+  {
+    "name": "restores next-leaf checkpoints in a fresh equal-shaped iterator",
+    "input": "checkpoint after skipping an empty branch",
+    "test": "data = [[10, []], [20, 30]]\nit = MultiDimensionalIterator(data)\nassert it.next() == 10\nstate = it.get_state()\nassert state['next_path'] == [1, 0]\nassert it.next() == 20\nrestored = MultiDimensionalIterator(data)\nrestored.set_state(state)\nassert restored.next() == 20\nassert restored.next() == 30\nassert restored.get_state()['next_path'] is None"
+  },
+  {
+    "name": "validates checkpoint versions shapes and next paths",
+    "input": "wrong logical source and malformed JSON-like state",
+    "test": "it = MultiDimensionalIterator([[1], [2]])\nvalid = it.get_state()\nfor state in [None, {}, {'version': 2, 'shape': valid['shape'], 'next_path': [0, 0]}, {'version': 1, 'shape': [], 'next_path': [0, 0]}, {'version': 1, 'shape': valid['shape'], 'next_path': [9, 9]}, {'version': 1, 'shape': valid['shape'], 'next_path': '0'}]:\n    try:\n        it.set_state(state)\n        assert False, state\n    except ValueError:\n        pass\nitems = [[1], [2]]\nsnapshot = MultiDimensionalIterator(items)\nitems[0][0] = 99\nassert snapshot.next() == 1"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "modal lock permits matching modes and excludes incompatible modes",
+    "input": "two readers then a writer",
+    "test": "import threading, time\nlock = ModalLock()\nentered = []\nrelease_readers = threading.Event()\ndef reader(i):\n    lock.acquire('read'); entered.append(('read', i)); release_readers.wait(); lock.release('read')\ndef writer():\n    lock.acquire('write'); entered.append(('write', 0)); lock.release('write')\nr1 = threading.Thread(target=reader, args=(1,)); r2 = threading.Thread(target=reader, args=(2,)); w = threading.Thread(target=writer)\nr1.start(); r2.start()\nfor _ in range(100):\n    if len(entered) == 2: break\n    time.sleep(0.005)\nw.start(); time.sleep(0.03)\nassert [mode for mode, _ in entered] == ['read', 'read']\nrelease_readers.set()\nfor thread in [r1, r2, w]: thread.join(1)\nassert [mode for mode, _ in entered] == ['read', 'read', 'write']\ntry:\n    lock.release('missing'); assert False\nexcept RuntimeError: pass"
+  },
+  {
+    "name": "fair lock does not let a late matching request barge ahead of a waiter",
+    "input": "active read then queued write then late read",
+    "test": "import threading, time\nlock = FairModalLock(); order = []; active_read = threading.Event(); release_first = threading.Event(); writer_entered = threading.Event(); release_writer = threading.Event()\ndef first_read():\n    lock.acquire('read'); order.append('r1'); active_read.set(); release_first.wait(); lock.release('read')\ndef writer():\n    lock.acquire('write'); order.append('w'); writer_entered.set(); release_writer.wait(); lock.release('write')\ndef late_read():\n    lock.acquire('read'); order.append('r2'); lock.release('read')\nr1 = threading.Thread(target=first_read); w = threading.Thread(target=writer); r2 = threading.Thread(target=late_read)\nr1.start(); assert active_read.wait(1); w.start(); time.sleep(0.03); r2.start(); time.sleep(0.03)\nassert order == ['r1']\nrelease_first.set(); assert writer_entered.wait(1); time.sleep(0.03); assert order == ['r1', 'w']\nrelease_writer.set()\nfor thread in [r1, w, r2]: thread.join(1)\nassert order == ['r1', 'w', 'r2']"
+  },
+  {
+    "name": "fair lock releases a contiguous oldest-mode batch",
+    "input": "three waiting reads behind a writer",
+    "test": "import threading, time\nlock = FairModalLock(); lock.acquire('write'); entered = []; gate = threading.Event()\ndef read(i):\n    lock.acquire('read'); entered.append(i); gate.wait(); lock.release('read')\nthreads = [threading.Thread(target=read, args=(i,)) for i in range(3)]\nfor thread in threads: thread.start()\ntime.sleep(0.04); assert entered == []\nlock.release('write')\nfor _ in range(100):\n    if len(entered) == 3: break\n    time.sleep(0.005)\nassert sorted(entered) == [0, 1, 2]\ngate.set()\nfor thread in threads: thread.join(1)"
+  }
+]
