@@ -38,6 +38,9 @@ class OpenAIMultipartProblemFixtureTest(unittest.TestCase):
     def test_infection_spread_pending_death_reference_solution_passes(self):
         self._assert_reference_solution_passes("infection-spread-pending-death")
 
+    def test_infection_spread_transition_death_reference_solution_passes(self):
+        self._assert_reference_solution_passes("infection-spread-transition-death")
+
     def test_infection_spread_optimal_burn_reference_solution_passes(self):
         self._assert_reference_solution_passes("infection-spread-optimal-burn")
 

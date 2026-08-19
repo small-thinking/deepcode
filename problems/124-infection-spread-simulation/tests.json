@@ -1,27 +1,27 @@
 [
   {
-    "name": "synchronous two-neighbor waves do not mutate input",
+    "name": "infection threshold is required",
+    "input": "the public function signature",
+    "test": "import inspect\nassert inspect.signature(simulate_basic).parameters['infection_threshold'].default is inspect.Parameter.empty"
+  },
+  {
+    "name": "threshold two spreads in synchronous waves without mutating input",
     "input": "four corner sources in a three-by-three grid",
-    "test": "original = [[1, 0, 1], [0, 0, 0], [1, 0, 1]]\nassert simulate_basic(original) == (2, [[1, 1, 1], [1, 1, 1], [1, 1, 1]])\nassert original == [[1, 0, 1], [0, 0, 0], [1, 0, 1]]"
+    "test": "original = [[1, 0, 1], [0, 0, 0], [1, 0, 1]]\nassert simulate_basic(original, infection_threshold=2) == (2, [[1, 1, 1], [1, 1, 1], [1, 1, 1]])\nassert original == [[1, 0, 1], [0, 0, 0], [1, 0, 1]]"
   },
   {
-    "name": "the default threshold blocks a lone source",
+    "name": "threshold two blocks a lone source",
     "input": "one source in a one-by-three grid",
-    "test": "assert simulate_basic([[1, 0, 0]]) == (0, [[1, 0, 0]])"
+    "test": "assert simulate_basic([[1, 0, 0]], infection_threshold=2) == (0, [[1, 0, 0]])"
   },
   {
-    "name": "source-free grids are already stable",
-    "input": "a two-by-two grid without a source",
-    "test": "assert simulate_basic([[0, 0], [0, 0]]) == (0, [[0, 0], [0, 0]])"
-  },
-  {
-    "name": "two neighboring sources meet the default threshold",
+    "name": "threshold three keeps two neighboring sources below the infection bar",
     "input": "two sources around one healthy cell",
-    "test": "assert simulate_basic([[1, 0, 1]]) == (1, [[1, 1, 1]])"
+    "test": "assert simulate_basic([[1, 0, 1]], infection_threshold=3) == (0, [[1, 0, 1]])"
   },
   {
-    "name": "a caller can still choose a threshold of one",
-    "input": "one source in a one-by-three grid with an explicit threshold",
+    "name": "threshold one permits a one-source chain",
+    "input": "one source in a one-by-three grid",
     "test": "assert simulate_basic([[1, 0, 0]], infection_threshold=1) == (2, [[1, 1, 1]])"
   }
 ]
