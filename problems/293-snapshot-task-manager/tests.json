@@ -1,0 +1,22 @@
+[
+  {
+    "name": "task and lease endpoints use half-open TTL intervals",
+    "input": "a task with an eight-unit lifetime and a three-unit lease",
+    "test": "manager = SnapshotTaskManager()\nmanager.create('email', 'send receipt', 10, 8)\nassert manager.ready(10) == ['email']\nassert manager.claim('email', 'worker-a', 11, 3) is True\nassert manager.ready(13) == []\nassert manager.ready(14) == ['email']\nassert manager.get('email', 17) == {'task_id': 'email', 'payload': 'send receipt', 'status': 'ready', 'worker': None}\nassert manager.get('email', 18) is None\nassert manager.claim('email', 'worker-b', 18, 1) is False"
+  },
+  {
+    "name": "only the current lease holder can finish a live task",
+    "input": "a leased task, wrong worker, expired lease, and new worker",
+    "test": "manager = SnapshotTaskManager()\nmanager.create('cleanup', 'remove temp files', 0, 20)\nassert manager.claim('cleanup', 'a', 2, 3) is True\nassert manager.finish('cleanup', 'b', 3) is False\nassert manager.finish('cleanup', 'a', 5) is False\nassert manager.claim('cleanup', 'b', 5, 4) is True\nassert manager.finish('cleanup', 'b', 8) is True\nassert manager.get('cleanup', 8) is None\nassert manager.ready(8) == []"
+  },
+  {
+    "name": "snapshots preserve remaining task and lease time independently",
+    "input": "two tasks, one leased at snapshot time, then restore at a later time",
+    "test": "manager = SnapshotTaskManager()\nmanager.create('alpha', 'index docs', 5, 10)\nmanager.create('beta', 'send digest', 0, 20)\nassert manager.claim('alpha', 'worker-a', 6, 7) is True\nsnapshot = manager.snapshot(10)\nassert manager.finish('beta', 'nobody', 11) is False\nassert manager.claim('beta', 'worker-b', 11, 4) is True\nassert manager.finish('beta', 'worker-b', 12) is True\nmanager.restore(snapshot, 30)\nassert manager.get('alpha', 32)['status'] == 'leased'\nassert manager.get('alpha', 32)['worker'] == 'worker-a'\nassert manager.ready(33) == ['alpha', 'beta']\nassert manager.get('alpha', 35) is None\nassert manager.get('beta', 39) == {'task_id': 'beta', 'payload': 'send digest', 'status': 'ready', 'worker': None}\nassert manager.get('beta', 40) is None"
+  },
+  {
+    "name": "snapshots and reads do not expose mutable internal state",
+    "input": "a snapshot and read result that callers mutate",
+    "test": "manager = SnapshotTaskManager()\nmanager.create('one', 'payload', 0, 5)\nsnapshot = manager.snapshot(1)\nsnapshot['tasks']['one']['payload'] = 'tampered'\nassert manager.get('one', 1)['payload'] == 'payload'\nview = manager.get('one', 1)\nview['payload'] = 'changed'\nassert manager.get('one', 1)['payload'] == 'payload'\nfor call in (lambda: manager.create('', 'x', 0, 1), lambda: manager.create('x', '', 0, 1), lambda: manager.create('x', 'y', -1, 1), lambda: manager.create('x', 'y', 0, 0), lambda: manager.claim('one', '', 1, 1)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

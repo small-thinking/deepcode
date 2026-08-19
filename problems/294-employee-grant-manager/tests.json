@@ -1,0 +1,22 @@
+[
+  {
+    "name": "employees inherit the strongest direct grant in their manager chain",
+    "input": "a three-level reporting tree with direct and inherited grants",
+    "test": "manager = EmployeeGrantManager()\nmanager.add_employee('lead')\nmanager.add_employee('senior', 'lead')\nmanager.add_employee('dev', 'senior')\nmanager.grant('lead', 'model-registry', 'write')\nassert manager.access_level('dev', 'model-registry') == 'write'\nmanager.grant('dev', 'model-registry', 'read')\nassert manager.access_level('dev', 'model-registry') == 'write'\nmanager.grant('senior', 'model-registry', 'admin')\nassert manager.access_level('dev', 'model-registry') == 'admin'\nassert manager.allowed('dev', 'model-registry', 'write') is True\nassert manager.allowed('lead', 'model-registry', 'admin') is False"
+  },
+  {
+    "name": "revoking and reparenting update effective access immediately",
+    "input": "a report moves from one lead to another after a direct-grant removal",
+    "test": "manager = EmployeeGrantManager()\nmanager.add_employee('a')\nmanager.add_employee('b')\nmanager.add_employee('dev', 'a')\nmanager.grant('a', 'deploy', 'admin')\nmanager.grant('b', 'deploy', 'read')\nmanager.grant('dev', 'deploy', 'write')\nassert manager.revoke('dev', 'deploy') is True\nassert manager.revoke('dev', 'deploy') is False\nassert manager.access_level('dev', 'deploy') == 'admin'\nmanager.set_manager('dev', 'b')\nassert manager.access_level('dev', 'deploy') == 'read'\nassert manager.audit('deploy') == [('a', 'admin'), ('b', 'read'), ('dev', 'read')]"
+  },
+  {
+    "name": "cycle attempts fail atomically",
+    "input": "a root, child, and grandchild followed by invalid reporting changes",
+    "test": "manager = EmployeeGrantManager()\nmanager.add_employee('root')\nmanager.add_employee('child', 'root')\nmanager.add_employee('grandchild', 'child')\nmanager.grant('root', 'data', 'read')\nfor call in (lambda: manager.set_manager('root', 'grandchild'), lambda: manager.set_manager('child', 'child')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nassert manager.access_level('grandchild', 'data') == 'read'\nassert manager.audit('data') == [('child', 'read'), ('grandchild', 'read'), ('root', 'read')]"
+  },
+  {
+    "name": "invalid grants and unknown employees are rejected",
+    "input": "missing managers, malformed levels, and an unknown employee lookup",
+    "test": "manager = EmployeeGrantManager()\nfor call in (lambda: manager.add_employee('', None), lambda: manager.add_employee('x', 'missing')):\n    try:\n        call()\n        raise AssertionError('expected ValueError or KeyError')\n    except (ValueError, KeyError):\n        pass\nmanager.add_employee('x')\nfor call in (lambda: manager.grant('x', '', 'read'), lambda: manager.grant('x', 'r', 'owner'), lambda: manager.allowed('x', 'r', 'owner')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    manager.access_level('missing', 'r')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+  }
+]

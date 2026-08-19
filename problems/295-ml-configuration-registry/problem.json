@@ -1,0 +1,26 @@
+{
+  "id": "295",
+  "slug": "ml-configuration-registry",
+  "title": "ML Configuration Registry",
+  "category": "ML Systems",
+  "difficulty": "medium",
+  "tags": ["configuration", "versioning", "inheritance", "ml-systems", "stateful"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement an in-memory `MLConfigRegistry` for immutable model configuration versions. A model is a non-empty string and each version is a positive ordinary integer. A configuration is a dictionary with non-empty string keys and scalar values: strings, booleans, integers, or finite floats.\n\n- `register(model, version, values, base_version=None)` stores a new immutable version. `base_version`, when supplied, must already exist for the same model. The new version overrides keys from its base but does not mutate it. A model/version pair may only be registered once.\n- `activate(model, version)` selects an existing version as that model's active version.\n- `resolve(model, version=None, overrides=None) -> dict` returns the fully inherited configuration. Without a version it resolves the active version. Request overrides apply only to the returned value; their keys must already be present in the inherited configuration, and their values must be valid scalars.\n- `versions(model) -> list[int]` returns registered versions in ascending numeric order.\n\nCopies are required: later mutation of an input mapping or a returned mapping must not alter stored state. Unknown models, versions, or missing active selections raise `KeyError`; malformed names, versions, mappings, values, duplicate versions, unknown override keys, and invalid base versions raise `ValueError`. Do not add files, environment variables, deployment, or concurrent updates.",
+  "starter_code": "class MLConfigRegistry:\n    def __init__(self):\n        pass\n\n    def register(self, model, version, values, base_version=None):\n        pass\n\n    def activate(self, model, version):\n        pass\n\n    def resolve(self, model, version=None, overrides=None):\n        pass\n\n    def versions(self, model):\n        pass\n",
+  "example": {
+    "input": "registry.register('embedder', 1, {'batch_size': 8, 'precision': 'fp16'}); registry.register('embedder', 2, {'batch_size': 16}, base_version=1)",
+    "output": "registry.resolve('embedder', 2) == {'batch_size': 16, 'precision': 'fp16'}",
+    "reasoning": "Version 2 inherits unspecified settings from version 1 while keeping both stored versions immutable."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}
