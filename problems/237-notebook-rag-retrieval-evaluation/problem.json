@@ -1,0 +1,26 @@
+{
+  "id": "237",
+  "slug": "notebook-rag-retrieval-evaluation",
+  "title": "Notebook Retrieval Evaluation",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["retrieval", "embeddings", "cosine-similarity", "numpy", "pandas", "evaluation"],
+  "companies": ["Harvey"],
+  "prompt": "Complete three notebook-style helpers for a small retrieval pipeline. `documents` is a pandas DataFrame with a unique `doc_id` column and a `text` column; any additional columns must be preserved in returned rows. `embed_texts(texts)` is injected by the caller and returns an `(N, d)` NumPy array for an input list of `N` strings.\n\nImplement:\n\n- `embed_documents(documents, embed_texts)`: call `embed_texts` exactly once with the complete document text column, in row order, and return its `(N, d)` matrix.\n- `retrieve_top_k(query, documents, document_embeddings, embed_texts, k=10)`: embed the one query, compute cosine similarity against every document vector, and return a pandas DataFrame of up to `k` copied document rows in descending score order. Add a numeric `score` column. Use the original row position to break equal scores, with the earlier row first. Keep DataFrame rows and embedding positions paired even when DataFrame labels or identifiers are not consecutive. If a query or document embedding has zero norm, its cosine score must be finite; use `0.0` for an undefined cosine value rather than returning `NaN` or infinity. When `k` exceeds the corpus size, return all documents.\n- `evaluate_retrieval(evaluation_pairs, documents, document_embeddings, embed_texts, k=10)`: `evaluation_pairs` contains `(query, relevant_doc_id)` pairs. Reuse `retrieve_top_k` for each query and return `{\"recall_at_k\": ..., \"mrr\": ...}`. Recall@k is the fraction of queries whose relevant ID appears in the returned rows. MRR is the mean reciprocal rank, with a missing relevant ID contributing `0.0`.\n\nUse NumPy vector operations for the similarity calculation. Do not mutate the input DataFrame or the embedding matrix.",
+  "starter_code": "import numpy as np\nimport pandas as pd\n\n\ndef embed_documents(documents, embed_texts):\n    # Embed the entire text column in one batch.\n    pass\n\n\ndef retrieve_top_k(query, documents, document_embeddings, embed_texts, k=10):\n    # Return copied DataFrame rows with a score, ordered by relevance.\n    pass\n\n\ndef evaluate_retrieval(evaluation_pairs, documents, document_embeddings, embed_texts, k=10):\n    # Return recall_at_k and mrr for the labeled queries.\n    pass\n",
+  "example": {
+    "input": "documents = pd.DataFrame({\"doc_id\": [10, 20], \"text\": [\"alpha\", \"beta\"]}); retrieve_top_k(\"alpha query\", documents, document_embeddings, embed_texts)",
+    "output": "a DataFrame ordered by descending cosine score, with a numeric score column",
+    "reasoning": "Document embeddings are prepared once, while each query is compared against the full matrix and evaluated by its relevant document ID."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy", "pandas"],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

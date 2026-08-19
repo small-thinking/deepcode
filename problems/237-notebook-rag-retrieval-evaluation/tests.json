@@ -1,0 +1,22 @@
+[
+  {
+    "name": "embeds the complete document text column in one batch",
+    "input": "three DataFrame rows with a recording embedding helper",
+    "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": [10, 20, 30], \"text\": [\"alpha\", \"beta\", \"gamma\"]}, index=[50, 8, 91])\ncalls = []\ndef embed_texts(texts):\n    calls.append(list(texts))\n    return np.array([[2.0, 0.0], [0.0, 3.0], [-4.0, 0.0]])\nembeddings = embed_documents(documents, embed_texts)\nassert calls == [[\"alpha\", \"beta\", \"gamma\"]]\nassert embeddings.shape == (3, 2)\nassert np.array_equal(embeddings, [[2.0, 0.0], [0.0, 3.0], [-4.0, 0.0]])"
+  },
+  {
+    "name": "uses cosine scores, preserves positional rows, and returns all rows when k is large",
+    "input": "four nonconsecutively indexed rows with unequal embedding magnitudes and k larger than the corpus",
+    "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame(\n    {\"doc_id\": [41, 7, 99, 12], \"text\": [\"aligned\", \"zero\", \"orthogonal\", \"opposite\"], \"section\": [\"one\", \"two\", \"three\", \"four\"]},\n    index=[50, 8, 91, -1],\n)\noriginal = documents.copy(deep=True)\nembeddings = np.array([[50.0, 0.0], [0.0, 0.0], [0.0, 2.0], [-9.0, 0.0]])\ndef embed_texts(texts):\n    assert texts == [\"query\"]\n    return np.array([[1.0, 0.0]])\nresult = retrieve_top_k(\"query\", documents, embeddings, embed_texts, k=10)\nassert result[\"doc_id\"].tolist() == [41, 7, 99, 12]\nassert result[\"section\"].tolist() == [\"one\", \"two\", \"three\", \"four\"]\nassert result.index.tolist() == [0, 1, 2, 3]\nassert np.allclose(result[\"score\"].to_numpy(), [1.0, 0.0, 0.0, -1.0])\nassert np.isfinite(result[\"score\"].to_numpy()).all()\nassert documents.equals(original)"
+  },
+  {
+    "name": "uses original row order for equal scores and keeps zero-query scores finite",
+    "input": "equal vectors and an all-zero query embedding",
+    "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": [\"first\", \"second\", \"third\"], \"text\": [\"one\", \"two\", \"three\"]}, index=[19, 5, 61])\nembeddings = np.array([[3.0, 0.0], [8.0, 0.0], [0.0, 1.0]])\ndef aligned_query(texts):\n    assert texts == [\"aligned\"]\n    return np.array([[1.0, 0.0]])\ndef zero_query(texts):\n    assert texts == [\"empty query\"]\n    return np.array([[0.0, 0.0]])\naligned = retrieve_top_k(\"aligned\", documents, embeddings, aligned_query)\nassert aligned[\"doc_id\"].tolist() == [\"first\", \"second\", \"third\"]\nzeroed = retrieve_top_k(\"empty query\", documents, embeddings, zero_query)\nassert zeroed[\"doc_id\"].tolist() == [\"first\", \"second\", \"third\"]\nassert zeroed[\"score\"].tolist() == [0.0, 0.0, 0.0]"
+  },
+  {
+    "name": "computes hit-rate recall and reciprocal rank by document ID",
+    "input": "three labeled queries with one absent relevant ID",
+    "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": [41, 7, 99], \"text\": [\"alpha\", \"beta\", \"gamma\"]}, index=[90, -2, 3])\nembeddings = np.array([[1.0, 0.0], [0.0, 1.0], [-1.0, 0.0]])\ndef embed_texts(texts):\n    query_vectors = {\n        \"first\": [1.0, 0.0],\n        \"second\": [1.0, 1.0],\n        \"missing\": [0.0, 1.0],\n    }\n    return np.array([query_vectors[text] for text in texts], dtype=float)\nmetrics = evaluate_retrieval([(\"first\", 41), (\"second\", 7), (\"missing\", 99)], documents, embeddings, embed_texts, k=2)\nassert np.isclose(metrics[\"recall_at_k\"], 2.0 / 3.0)\nassert np.isclose(metrics[\"mrr\"], 0.5)"
+  }
+]
