@@ -1,0 +1,26 @@
+{
+  "id": "305",
+  "slug": "capacity-utilization-rollup",
+  "title": "Capacity Utilization Rollup",
+  "category": "SQL",
+  "difficulty": "medium",
+  "tags": ["sql", "aggregation", "group-by", "filtering", "capacity-planning"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `capacity_utilization_report(rows, region=None, minimum_utilization=0.0) -> list[tuple]`. Each mapping in `rows` represents a capacity record with `service` (string), `region` (string), `status` (`'active'` or `'retired'`), `capacity_units` (nonnegative integer), and `reserved_units` (nonnegative integer). Treat input records as valid and do not mutate them.\n\nProduce the executable equivalent of a capacity-management query:\n\n1. Keep only active rows, and when `region` is not `None`, only rows from that exact region.\n2. Group the remaining rows by `service`, summing capacity and reserved units across all retained rows.\n3. Discard groups whose summed capacity is zero. For every other group compute utilization as `total_reserved / total_capacity`. Keep a group only when its unrounded utilization is at least `minimum_utilization`.\n4. Return `(service, total_capacity, total_reserved, rounded_utilization)` tuples. `rounded_utilization` is rounded to four decimal places. Sort by unrounded utilization descending, then total reserved units descending, then service name ascending.\n\nThis function mirrors the filtering, aggregation, post-aggregation filtering, and ordering stages of a report query. An empty result is valid.",
+  "starter_code": "def capacity_utilization_report(rows, region=None, minimum_utilization=0.0):\n    # Return sorted per-service capacity rollups.\n    pass\n",
+  "example": {
+    "input": "capacity_utilization_report([{'service': 'search', 'region': 'us', 'status': 'active', 'capacity_units': 10, 'reserved_units': 8}, {'service': 'search', 'region': 'us', 'status': 'active', 'capacity_units': 5, 'reserved_units': 4}], region='us')",
+    "output": "[('search', 15, 12, 0.8)]",
+    "reasoning": "Filtering happens before the service-level aggregate, then utilization is computed from the aggregate totals."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-08-19"
+}
