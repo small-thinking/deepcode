@@ -1,0 +1,15 @@
+{
+  "id": "250",
+  "slug": "linear-double-descent-sweep",
+  "title": "Linear Feature-Dimension Sweep",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "linear-regression", "generalization", "experiments"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `double_descent_sweep(n_train, n_test, dimensions, noise_std=0.1, seed=0)`. Generate one Gaussian linear-data realization, then evaluate the requested feature dimensions in their supplied order. For width `p`, use the first `p` columns from that same generated data and fit the minimum-norm least-squares solution. Return a list of `(p, train_mse, test_mse)` tuples. Widths may exceed the number of training examples, so use a stable least-squares or pseudoinverse method.\n\nThe exercise measures a sweep; it must not claim that every finite random seed produces a visually dramatic double-descent curve.",
+  "starter_code": "import numpy as np\n\n\ndef double_descent_sweep(n_train, n_test, dimensions, noise_std=0.1, seed=0):\n    pass\n",
+  "example": {"input": "double_descent_sweep(20, 40, [2, 20, 35], seed=3)", "output": "three finite train/test MSE records in the requested order", "reasoning": "All widths evaluate nested views of one fixed data draw."},
+  "environment": {"language": "python", "timeout_seconds": 8, "packages": ["numpy"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

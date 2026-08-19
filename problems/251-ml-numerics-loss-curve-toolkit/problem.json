@@ -1,0 +1,15 @@
+{
+  "id": "251",
+  "slug": "ml-numerics-loss-curve-toolkit",
+  "title": "ML Numerics and Loss Curves",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "numerical-stability", "ridge-regression", "metrics"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement four numerical utilities. `stable_softmax(logits)` normalizes the final axis without overflow. `standardize_columns(X)` standardizes each feature and rejects a constant column. `ridge_gradient(X, y, weights, bias, l2)` returns gradients for mean squared error plus `l2 * ||weights||²`; regularization applies to weights, not the bias. `LossCurve(values)` supports `moving_average(window)` and `best_window(window)`, returning the earliest start index of the smallest moving average. Reject nonpositive or oversized windows.\n\nUse vectorized NumPy operations; the loss-curve methods should be linear in the number of recorded values.",
+  "starter_code": "import numpy as np\n\n\ndef stable_softmax(logits):\n    pass\n\n\ndef standardize_columns(X):\n    pass\n\n\ndef ridge_gradient(X, y, weights, bias, l2):\n    pass\n\n\nclass LossCurve:\n    def __init__(self, values):\n        pass\n\n    def moving_average(self, window):\n        pass\n\n    def best_window(self, window):\n        pass\n",
+  "example": {"input": "LossCurve([4.0, 2.0, 2.0, 5.0]).best_window(2)", "output": "1", "reasoning": "The windows at indices 1 and 2 tie, so the earlier one wins."},
+  "environment": {"language": "python", "timeout_seconds": 8, "packages": ["numpy"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

@@ -1,0 +1,4 @@
+[
+  {"name": "summary filters exposure and missing metrics only", "test": "import math\nrows = [{'variant':'A','exposed':True,'metric':10.0}, {'variant':'A','exposed':True,'metric':10.0}, {'variant':'B','exposed':True,'metric':15.0}, {'variant':'B','exposed':True,'metric':15.0}, {'variant':'B','exposed':False,'metric':1000.0}, {'variant':'A','exposed':True,'metric':None,'country':'US'}]\nsummary = ab_summary(rows)\nassert math.isclose(summary['lift'], 0.5)\nassert 0.0 <= summary['p_value'] <= 1.0"},
+  {"name": "segment reports are pre-aggregated and safe for missing groups", "test": "import math\nrows = [{'variant':'A','exposed':True,'metric':2.,'country':'US'}, {'variant':'A','exposed':True,'metric':4.,'country':'US'}, {'variant':'B','exposed':True,'metric':6.,'country':'US'}, {'variant':'B','exposed':True,'metric':6.,'country':'US'}]\nreport = SegmentLiftReport(rows)\nassert math.isclose(report.lift('US'), 1.0)\nassert math.isnan(report.lift('CA'))"}
+]

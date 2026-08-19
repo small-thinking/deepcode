@@ -1,0 +1,15 @@
+{
+  "id": "253",
+  "slug": "image-data-quality-denoising",
+  "title": "Image Data Quality and Finite-Value Repair",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "computer-vision", "data-quality", "denoising"],
+  "companies": ["OpenAI"],
+  "prompt": "Implement `analyze_image_dataset(images)` for a sequence of NumPy image arrays. Classify a 2-D image or a one-channel final axis as `gray`, a final axis of length three as `color`, and all other shapes as `unknown`. A noisy image has any NaN or infinite value. Return a mapping with per-image types, noisy indices, noisy rate, a cleaned copy of every image, and a short quality summary. Replace invalid values with that image's finite-value mean; if an image has no finite values, replace them with zero.\n\nHandle an empty dataset and never mutate the supplied arrays.",
+  "starter_code": "import numpy as np\n\n\ndef analyze_image_dataset(images):\n    pass\n",
+  "example": {"input": "[np.array([[1.0, np.nan], [3.0, 5.0]])]", "output": "one gray image with finite cleaned pixels", "reasoning": "Per-image repair avoids using values from unrelated images."},
+  "environment": {"language": "python", "timeout_seconds": 8, "packages": ["numpy"], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-18"
+}

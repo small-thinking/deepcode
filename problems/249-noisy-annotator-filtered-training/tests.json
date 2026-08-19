@@ -1,0 +1,5 @@
+[
+  {"name": "consensus handles missing values and stable ties", "test": "labels = [[None, 'b', 'a'], ['x', 'y', 'x']]\nassert consensus_labels(labels) == ['b', 'x']\nassert consensus_labels([['b', 'a']]) == ['b']"},
+  {"name": "rates and rejection use strict thresholds and evidence", "test": "labels = [['a','a','b'], ['a','a','b'], ['b','b','a'], [None,None,'a']]\nrates = agreement_rates(labels, min_labels=2)\nassert rates[0] == rates[1] == 1.0 and rates[2] == 0.0\nassert select_rejected_annotators(labels, threshold=0.1, min_labels=2, max_removed_fraction=0.5, min_remaining=1) == [2]"},
+  {"name": "masking copies instead of mutating", "test": "labels = [['a', 'b'], ['c', None]]\nmasked = mask_annotators(labels, [1])\nassert masked == [['a', None], ['c', None]]\nassert labels == [['a', 'b'], ['c', None]]"}
+]
