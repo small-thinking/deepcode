@@ -1,0 +1,26 @@
+{
+  "id": "322",
+  "slug": "crawl-frontier-budget-planner",
+  "title": "Crawl Frontier Budget Planner",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["priority-queue", "url", "budgeting", "deduplication", "scheduling"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `plan_crawl_frontier(candidates, per_host_limit, global_limit) -> list[str]`. Each candidate is a valid mapping with a raw absolute HTTP(S) `url` and an integer `priority`. Treat the raw URL string as the work identity; this exercise does not canonicalize URLs or fetch pages. If a URL occurs more than once, keep only its first candidate record.\n\nSort unique candidates by descending priority and then first-discovery order. Walk that ordering, selecting a URL only while fewer than `global_limit` URLs have been selected and its URL hostname has fewer than `per_host_limit` selected URLs. Return selected raw URL strings in that selection order. Hostname comparison is case-insensitive.\n\nBoth limits must be nonnegative ordinary integers, not booleans. Raise `ValueError` for an invalid limit, malformed candidate, non-HTTP(S) URL, or URL without a hostname. Do not mutate `candidates`. This is frontier admission planning only: do not implement network fetching, retries, or URL normalization.",
+  "starter_code": "def plan_crawl_frontier(candidates, per_host_limit, global_limit):\n    # Return budget-admitted raw URLs in deterministic priority order.\n    pass\n",
+  "example": {
+    "input": "plan_crawl_frontier([{'url': 'https://a.test/x', 'priority': 3}, {'url': 'https://b.test/y', 'priority': 2}], 1, 2)",
+    "output": "['https://a.test/x', 'https://b.test/y']",
+    "reasoning": "Both URLs fit the global budget and each host remains within its one-URL allocation."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

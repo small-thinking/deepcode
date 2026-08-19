@@ -1,0 +1,26 @@
+{
+  "id": "323",
+  "slug": "file-inventory-profiler",
+  "title": "File Inventory Profiler",
+  "category": "Systems Coding",
+  "difficulty": "easy",
+  "tags": ["files", "aggregation", "sorting", "inventory"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `profile_file_inventory(records) -> dict`. Each valid record mapping has a POSIX-style file `path` string and a nonnegative integer `size_bytes`. Return a deterministic summary with four fields:\n\n- `file_count`: the number of records;\n- `total_bytes`: the sum of every size;\n- `extension_totals`: `(extension, file_count, total_bytes)` tuples, sorted by total bytes descending and extension ascending; and\n- `largest_paths`: every path tied for the largest byte size, sorted lexicographically, or `[]` for an empty inventory.\n\nThe extension is the lowercased suffix from the final dot in the basename, including the dot. A basename with no dot or with only a leading dot (for example `README` or `.env`) has extension `''`; `archive.tar.GZ` has extension `'.gz'`. Treat input records as valid and do not mutate them. This profiles supplied metadata only: do not read file contents or search the filesystem.",
+  "starter_code": "def profile_file_inventory(records):\n    # Return deterministic aggregate metadata for the supplied file records.\n    pass\n",
+  "example": {
+    "input": "profile_file_inventory([{'path': 'src/app.PY', 'size_bytes': 12}, {'path': 'README', 'size_bytes': 3}])",
+    "output": "a two-file summary with .py and empty-extension totals",
+    "reasoning": "Only the final basename suffix determines the extension, and it is normalized to lowercase."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "321",
+  "slug": "prioritized-task-dependency-schedule",
+  "title": "Prioritized Task Dependency Schedule",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graphs", "topological-sort", "scheduling", "priority-queue"],
+  "companies": ["Anthropic"],
+  "prompt": "Implement `schedule_pending_tasks(tasks, completed=()) -> list[str]`. `tasks` is an insertion-ordered mapping from a nonempty task ID to `{'depends_on': iterable_of_task_ids, 'priority': integer}`. A task may run only after all listed dependencies have completed. `completed` contains task IDs already completed before scheduling; they are omitted from the returned plan. A repeated dependency is one logical dependency.\n\nReturn every remaining task in the order a single worker should start it. At each step, choose from currently runnable tasks by higher `priority` first, then lexicographically smaller task ID. Dependencies must name tasks in `tasks`, and all task IDs in `completed` must exist. Raise `ValueError` for an unknown dependency, unknown completed ID, or any dependency cycle. Do not mutate the input mapping or its nested collections.\n\nUse an indegree/reverse-edge traversal plus a priority queue. This is a dependency planning exercise only: do not add task payloads, leases, expiration, snapshots, retries, or concurrency.",
+  "starter_code": "def schedule_pending_tasks(tasks, completed=()):\n    # Return the priority-respecting topological order of unfinished tasks.\n    pass\n",
+  "example": {
+    "input": "schedule_pending_tasks({'fetch': {'depends_on': [], 'priority': 1}, 'build': {'depends_on': ['fetch'], 'priority': 2}})",
+    "output": "['fetch', 'build']",
+    "reasoning": "Build has the higher priority but cannot become runnable until fetch has completed."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-19"
+}

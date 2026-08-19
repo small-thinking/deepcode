@@ -1,0 +1,17 @@
+[
+  {
+    "name": "deduplicates raw URLs before priority admission and enforces host caps",
+    "input": "five candidates over three hosts plus a later duplicate with higher priority",
+    "test": "candidates = [\n    {'url': 'https://a.test/one', 'priority': 5},\n    {'url': 'https://a.test/two', 'priority': 4},\n    {'url': 'https://b.test/one', 'priority': 5},\n    {'url': 'https://b.test/two', 'priority': 3},\n    {'url': 'https://c.test/one', 'priority': 4},\n    {'url': 'https://a.test/one', 'priority': 99},\n]\nassert plan_crawl_frontier(candidates, per_host_limit=1, global_limit=3) == ['https://a.test/one', 'https://b.test/one', 'https://c.test/one']"
+  },
+  {
+    "name": "uses first discovery as the priority tie breaker and permits more per host when budget allows",
+    "input": "two equal-priority URLs from one case-variant host and one other host",
+    "test": "candidates = [\n    {'url': 'https://A.test/first', 'priority': 2},\n    {'url': 'https://b.test/only', 'priority': 2},\n    {'url': 'https://a.test/second', 'priority': 2},\n]\nassert plan_crawl_frontier(candidates, per_host_limit=2, global_limit=5) == ['https://A.test/first', 'https://b.test/only', 'https://a.test/second']\nassert plan_crawl_frontier(candidates, per_host_limit=2, global_limit=0) == []"
+  },
+  {
+    "name": "rejects invalid budgets and invalid URL records",
+    "input": "a boolean limit, a missing priority, and a non-web URL",
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nexpect_value_error(lambda: plan_crawl_frontier([], True, 1))\nexpect_value_error(lambda: plan_crawl_frontier([{'url': 'https://a.test/'}], 1, 1))\nexpect_value_error(lambda: plan_crawl_frontier([{'url': 'mailto:x@example.test', 'priority': 1}], 1, 1))"
+  }
+]
