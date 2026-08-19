@@ -1,0 +1,34 @@
+{
+  "id": "262",
+  "slug": "adversarial-decoding-cutoff-policy",
+  "title": "Adversarial Decoding Cutoff Policy",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": [
+    "llm",
+    "decoding",
+    "probability",
+    "expected-value",
+    "minimax"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement two functions for a bounded text-generation process.\n\n```python\ntermination_distribution(n, p) -> tuple[list[float], float]\nsolve(n, p, decisions, adversaries) -> tuple[object, float]\n```\n\nFor `n` one-based decoding positions, `p[t - 1]` is the probability of emitting a stop token at position `t` if generation reaches that position. Before the final position, the probability of terminating at `t` is the probability of surviving all earlier positions multiplied by `p[t - 1]`. At position `n`, all remaining probability mass terminates there regardless of `p[n - 1]`. `termination_distribution` returns the `n` probabilities followed by the expected one-based termination time.\n\nFor `solve`, `decisions` is a non-empty ordered list. Each adversary is a dictionary with:\n\n```python\n{\n  'probabilities': None or a length-n list,\n  'reward_table': {decision: [reward_at_t1, ..., reward_at_tn]}\n}\n```\n\nAn adversary with `probabilities=None` uses the shared `p`; otherwise it uses its own sequence. For every decision, compute its expected reward against each adversary, then take that decision's minimum expected reward. Return the decision whose minimum is greatest, breaking an exact tie by the earlier entry in `decisions`, together with its worst expected reward. The total reward-table input is `Theta(len(decisions) * len(adversaries) * n)`, so an `O(D*M*n)` evaluation is appropriate.",
+  "starter_code": "def termination_distribution(n, p):\n    # Return (probabilities_for_t1_through_tn, expected_time).\n    pass\n\n\ndef solve(n, p, decisions, adversaries):\n    # Return (best_decision, worst_expected_reward).\n    pass\n",
+  "example": {
+    "input": "termination_distribution(4, [0.25, 0.5, 0.0, 0.0])",
+    "output": "([0.25, 0.375, 0.0, 0.375], 2.5)",
+    "reasoning": "The final position receives all probability that survived the first three positions."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
