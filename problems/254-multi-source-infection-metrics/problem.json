@@ -1,0 +1,33 @@
+{
+  "id": "254",
+  "slug": "multi-source-infection-metrics",
+  "title": "Multi-Source Infection Metrics",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "graphs",
+    "breadth-first-search",
+    "multi-source",
+    "simulation"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement `infection_metrics(n, edges, sources) -> tuple[int, int]` for an undirected, unweighted graph whose nodes are `0` through `n - 1`. An infection begins at every distinct node in `sources` at time 0, then spreads simultaneously across one edge per time step.\n\nReturn `(time_to_reach_every_node, largest_newly_infected_wave)`. The first value is the greatest infection time when every node is reached; return `-1` when any node is unreachable from every source. The second value is the largest number of nodes first infected in one positive-time wave. Initial sources are not a wave, and the second value is `0` when no node is newly infected.\n\nTreat repeated source IDs and repeated edges as one source or connection for infection purposes. Use a multi-source breadth-first search. The graph may be disconnected, and `sources` may be empty.",
+  "starter_code": "def infection_metrics(n, edges, sources):\n    # Return (time_to_reach_every_node, largest_newly_infected_wave).\n    pass\n",
+  "example": {
+    "input": "infection_metrics(5, [(0, 1), (0, 2), (1, 3), (2, 3), (3, 4)], [0])",
+    "output": "(3, 2)",
+    "reasoning": "Nodes 1 and 2 form the first new wave, while node 4 is first reached at time 3."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}

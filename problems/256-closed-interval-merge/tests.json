@@ -1,0 +1,17 @@
+[
+  {
+    "name": "merges overlapping intervals after sorting",
+    "input": "three intervals with one overlap",
+    "test": "assert merge_intervals([[2, 4], [3, 6], [8, 9]]) == [[2, 6], [8, 9]]"
+  },
+  {
+    "name": "shared closed endpoints merge but adjacent non-overlap does not",
+    "input": "one pair sharing endpoint five and one pair separated by one",
+    "test": "assert merge_intervals([[4, 5], [5, 8]]) == [[4, 8]]\nassert merge_intervals([[2, 4], [5, 7]]) == [[2, 4], [5, 7]]"
+  },
+  {
+    "name": "handles unsorted nesting repetition and an empty input",
+    "input": "a nested collection and no intervals",
+    "test": "assert merge_intervals([[7, 9], [1, 4], [3, 8], [1, 4]]) == [[1, 9]]\nassert merge_intervals([]) == []"
+  }
+]

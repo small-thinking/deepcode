@@ -1,0 +1,32 @@
+{
+  "id": "256",
+  "slug": "closed-interval-merge",
+  "title": "Closed Interval Merge",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "intervals",
+    "sorting",
+    "arrays"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Implement `merge_intervals(intervals) -> list[list[int]]` for closed integer intervals `[start, end]`. Sort the intervals by start, then merge an interval into the preceding result exactly when its start is at most the preceding end. In particular, `[4, 5]` and `[5, 8]` share the closed endpoint 5 and merge, whereas `[2, 4]` and `[5, 7]` remain separate.\n\nReturn merged intervals in increasing start order. An empty input returns an empty list. The input may be unsorted and may contain nested or repeated intervals.",
+  "starter_code": "def merge_intervals(intervals):\n    # Return merged closed intervals in increasing start order.\n    pass\n",
+  "example": {
+    "input": "merge_intervals([[2, 4], [3, 6], [8, 9]])",
+    "output": "[[2, 6], [8, 9]]",
+    "reasoning": "The first two closed intervals overlap, while the last interval is disjoint."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-08-18"
+}
