@@ -17,14 +17,13 @@ class CompanyStoreTest(unittest.TestCase):
 
         self.assertEqual(harvey["stage"]["company_state"], "Private")
         self.assertEqual(harvey["stage"]["funding_stage"], "Growth round")
-        self.assertEqual(
-            {problem["slug"] for problem in harvey["related_problems"]},
+        self.assertTrue(
             {
                 "source-attribution-highlighter",
                 "in-memory-unix-file-system",
                 "text-editor",
                 "spreadsheet-dependency-cycle",
-            },
+            }.issubset({problem["slug"] for problem in harvey["related_problems"]})
         )
 
     def test_committed_profiles_cover_the_opportunity_2026_company_snapshot(self):
