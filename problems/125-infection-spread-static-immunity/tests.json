@@ -1,17 +1,27 @@
 [
   {
-    "name": "the default threshold blocks a lone source and preserves immunity",
+    "name": "infection threshold is required",
+    "input": "the public function signature",
+    "test": "import inspect\nassert inspect.signature(simulate_with_immunity).parameters['infection_threshold'].default is inspect.Parameter.empty"
+  },
+  {
+    "name": "threshold two blocks a lone source and preserves immunity",
     "input": "one source separated from healthy cells by immunity",
-    "test": "assert simulate_with_immunity([[1, 2, 0], [0, 2, 0]]) == (0, [[1, 2, 0], [0, 2, 0]])\nassert simulate_with_immunity([[2]]) == (0, [[2]])"
+    "test": "assert simulate_with_immunity([[1, 2, 0], [0, 2, 0]], infection_threshold=2) == (0, [[1, 2, 0], [0, 2, 0]])\nassert simulate_with_immunity([[2]], infection_threshold=3) == (0, [[2]])"
   },
   {
-    "name": "two sources meet the default threshold without mutating input",
+    "name": "threshold two infects between two sources without mutating input",
     "input": "two sources around one healthy cell above an immune barrier",
-    "test": "original = [[1, 0, 1], [2, 2, 2]]\nassert simulate_with_immunity(original) == (1, [[1, 1, 1], [2, 2, 2]])\nassert original == [[1, 0, 1], [2, 2, 2]]"
+    "test": "original = [[1, 0, 1], [2, 2, 2]]\nassert simulate_with_immunity(original, infection_threshold=2) == (1, [[1, 1, 1], [2, 2, 2]])\nassert original == [[1, 0, 1], [2, 2, 2]]"
   },
   {
-    "name": "a caller can still choose a threshold of one",
-    "input": "one source in a one-by-three grid with an explicit threshold",
+    "name": "threshold three blocks the same two-source pattern",
+    "input": "two sources around one healthy cell above an immune barrier",
+    "test": "assert simulate_with_immunity([[1, 0, 1], [2, 2, 2]], infection_threshold=3) == (0, [[1, 0, 1], [2, 2, 2]])"
+  },
+  {
+    "name": "threshold one permits a one-source chain",
+    "input": "one source in a one-by-three grid",
     "test": "assert simulate_with_immunity([[1, 0, 0]], infection_threshold=1) == (2, [[1, 1, 1]])"
   }
 ]

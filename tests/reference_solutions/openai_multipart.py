@@ -53,17 +53,15 @@ def _static_spread(grid, infection_threshold, directions):
         days += 1
 
 
-def simulate_basic(grid, infection_threshold=2, directions=DIR4):
+def simulate_basic(grid, infection_threshold, directions=DIR4):
     return _static_spread(grid, infection_threshold, directions)
 
 
-def simulate_with_immunity(grid, infection_threshold=2, directions=DIR4):
+def simulate_with_immunity(grid, infection_threshold, directions=DIR4):
     return _static_spread(grid, infection_threshold, directions)
 
 
-def simulate_recovery(
-    grid, infectious_days, infection_threshold=2, directions=DIR4
-):
+def simulate_recovery(grid, infectious_days, infection_threshold, directions=DIR4):
     current = _copy_grid(grid)
     rows, cols = len(current), len(current[0])
     remaining = [
@@ -96,7 +94,7 @@ def simulate_pending_death(
     grid,
     infectious_days,
     death_threshold,
-    infection_threshold=2,
+    infection_threshold,
     directions=DIR4,
 ):
     current = _copy_grid(grid)
@@ -131,6 +129,43 @@ def simulate_pending_death(
         days += 1
     dead_count = sum(cell == DEAD for row in current for cell in row)
     return days, dead_count, current
+
+
+def simulate_transition_death(
+    grid,
+    infectious_days,
+    death_threshold,
+    infection_threshold,
+    directions=DIR4,
+):
+    current = _copy_grid(grid)
+    rows, cols = len(current), len(current[0])
+    remaining = [
+        [infectious_days if current[r][c] == INFECTED else 0 for c in range(cols)]
+        for r in range(rows)
+    ]
+    days = 0
+    while any(INFECTED in row for row in current):
+        counts = [
+            [_infected_neighbors(current, r, c, directions) for c in range(cols)]
+            for r in range(rows)
+        ]
+        following = [row[:] for row in current]
+        next_remaining = [row[:] for row in remaining]
+        for r in range(rows):
+            for c in range(cols):
+                if current[r][c] == HEALTHY and counts[r][c] >= infection_threshold:
+                    following[r][c] = INFECTED
+                    next_remaining[r][c] = infectious_days
+                elif current[r][c] == INFECTED:
+                    next_remaining[r][c] -= 1
+                    if next_remaining[r][c] == 0:
+                        following[r][c] = (
+                            DEAD if counts[r][c] >= death_threshold else IMMUNE
+                        )
+        current, remaining = following, next_remaining
+        days += 1
+    return days, current
 
 
 def best_initial_burn(grid, simulate):
