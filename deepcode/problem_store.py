@@ -18,6 +18,7 @@ SUMMARY_FIELDS = (
     "tags",
     "companies",
     "interview_frequency",
+    "interview_frequency_total",
     "example",
     "evaluation",
     "environment",
@@ -149,7 +150,12 @@ class ProblemStore:
 
     @staticmethod
     def _frequency_sort_value(problem: dict[str, Any]) -> int:
-        """Use the highest company-specific tier for the catalog Stars column."""
+        """Use the combined cross-company tier for the catalog Stars column."""
+        total = problem.get("interview_frequency_total")
+        if isinstance(total, dict) and isinstance(total.get("stars"), int):
+            return total["stars"]
+
+        # Compatibility for problems not yet refreshed from the canonical bank.
         frequencies = problem.get("interview_frequency")
         if not isinstance(frequencies, dict):
             return 0
@@ -202,6 +208,7 @@ class ProblemStore:
         self._validate_relative_path(problem, problem_dir, "artifacts", "results_path")
         self._validate_companies(problem, problem_dir)
         self._validate_interview_frequency(problem, problem_dir)
+        self._validate_interview_frequency_total(problem, problem_dir)
         self._validate_references(problem, problem_dir)
         self._validate_assets(problem, problem_dir)
 
@@ -368,6 +375,25 @@ class ProblemStore:
                 date.fromisoformat(synced_at)
             except ValueError as error:
                 raise ValueError(f"{problem_dir}/problem.json field `interview_frequency.{company}.synced_at` must be an ISO date") from error
+
+    def _validate_interview_frequency_total(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        total = problem.get("interview_frequency_total")
+        if total is None:
+            return
+        if not isinstance(total, dict) or set(total) != {"stars", "synced_at"}:
+            raise ValueError(f"{problem_dir}/problem.json field `interview_frequency_total` has an invalid shape")
+
+        stars = total["stars"]
+        if isinstance(stars, bool) or not isinstance(stars, int) or not 0 <= stars <= 5:
+            raise ValueError(f"{problem_dir}/problem.json field `interview_frequency_total.stars` must be an integer from 0 to 5")
+
+        synced_at = total["synced_at"]
+        if not isinstance(synced_at, str):
+            raise ValueError(f"{problem_dir}/problem.json field `interview_frequency_total.synced_at` must be an ISO date")
+        try:
+            date.fromisoformat(synced_at)
+        except ValueError as error:
+            raise ValueError(f"{problem_dir}/problem.json field `interview_frequency_total.synced_at` must be an ISO date") from error
 
     def _id_sort_value(self, value: Any):
         text = str(value)

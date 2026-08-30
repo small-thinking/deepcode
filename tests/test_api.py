@@ -107,15 +107,24 @@ class ApiTest(unittest.TestCase):
             frequency = {
                 "OpenAI": {"stars": 3, "source_record_ids": ["canonical-row-1"], "synced_at": "2026-08-16"}
             }
-            self._write_problem(root, "toy", "1", {"companies": ["OpenAI"], "interview_frequency": frequency})
+            total = {"stars": 3, "synced_at": "2026-08-16"}
+            self._write_problem(
+                root,
+                "toy",
+                "1",
+                {"companies": ["OpenAI"], "interview_frequency": frequency, "interview_frequency_total": total},
+            )
             context = ApiContext(store=store)
 
             _, list_payload = handle_api_request(context, "GET", "/api/problems", {}, None)
             _, detail_payload = handle_api_request(context, "GET", "/api/problems/toy", {}, None)
 
             self.assertEqual(list_payload["problems"][0]["interview_frequency"], frequency)
+            self.assertEqual(list_payload["problems"][0]["interview_frequency_total"], total)
             self.assertEqual(detail_payload["problem"]["interview_frequency"], frequency)
+            self.assertEqual(detail_payload["problem"]["interview_frequency_total"], total)
             self.assertNotIn("seen_count", json.dumps(detail_payload["problem"]["interview_frequency"]))
+            self.assertNotIn("seen_count", json.dumps(detail_payload["problem"]["interview_frequency_total"]))
 
     def test_lists_and_fetches_company_profiles_with_related_problems(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -20,8 +20,12 @@
       "source_record_ids": [
         "37c6ce51456d813ba932cdfb887cbeb0"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Implement `chunk_markdown(markdown, max_chars)`.\n\nSplit a Markdown document into chunks whose Python `len()` is at most `max_chars`. Normalize CRLF and CR newlines to LF before processing.\n\nUse ATX headings (`#` through `######`) to maintain a level-aware active header stack. Ignore heading-looking lines inside fenced code blocks delimited by lines starting with triple backticks. When a new chunk starts inside a section, prefix the active headers in order, followed by a blank line, so the chunk keeps section context. This synthetic header context counts toward `max_chars`.\n\nPrefer splitting on blank-line paragraph boundaries. If a paragraph or line is too large, split it by character budget and repeat the active header context for every continuation chunk. If the required header context alone cannot fit in `max_chars`, raise a `ValueError`. If `max_chars <= 0`, raise a `ValueError`.",
   "starter_code": "def chunk_markdown(markdown, max_chars):\n    # Return size-bounded Markdown chunks with active header context repeated.\n    pass\n",

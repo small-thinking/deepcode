@@ -20,8 +20,12 @@
       "source_record_ids": [
         "35e6ce51456d81d79d44d2012cb8ae73"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Implement `TwoLayerNet`, a tiny classifier using only NumPy.\n\nRequired behavior:\n- `__init__(input_dim, hidden_dim, output_dim, seed=0, weight_scale=0.1)` initializes `W1`, `b1`, `W2`, and `b2` with deterministic random weights and zero biases.\n- `forward(X)` applies an affine layer, ReLU, a second affine layer, and a numerically stable softmax. Return probabilities with shape `(n_samples, output_dim)`.\n- `loss(X, y)` returns mean cross-entropy for integer class labels.\n- `train_step(X, y, learning_rate=0.1)` performs one full-batch gradient descent step for softmax cross-entropy and returns the new loss.\n\nKeep the implementation clear and interview-writable; no deep-learning framework is allowed.",
   "starter_code": "import numpy as np\n\n\nclass TwoLayerNet:\n    def __init__(self, input_dim, hidden_dim, output_dim, seed=0, weight_scale=0.1):\n        pass\n\n    def forward(self, X):\n        pass\n\n    def loss(self, X, y):\n        pass\n\n    def train_step(self, X, y, learning_rate=0.1):\n        pass\n",

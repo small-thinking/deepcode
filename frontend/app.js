@@ -44,8 +44,8 @@ const state = {
     category: "all",
     difficulty: "all",
     company: "all",
-    sort: "id",
-    order: "asc",
+    sort: "frequency",
+    order: "desc",
   },
   companies: [],
   selected: null,
@@ -1508,6 +1508,9 @@ function companyFrequencyBadge(frequency) {
 }
 
 function problemFrequencyStars(problem) {
+  const combinedStars = problem?.interview_frequency_total?.stars;
+  if (Number.isInteger(combinedStars) && combinedStars >= 0 && combinedStars <= 5) return combinedStars;
+
   return Math.max(
     0,
     ...Object.values(problem?.interview_frequency || {}).map((frequency) => {
@@ -1520,7 +1523,7 @@ function problemFrequencyStars(problem) {
 function problemFrequencyBadge(problem) {
   const stars = problemFrequencyStars(problem);
   if (!stars) return `<span class="muted-cell" aria-label="No interview-signal frequency tier">-</span>`;
-  return `<span class="problem-frequency" aria-label="Highest interview-signal frequency tier ${stars}" title="Highest company-specific interview-signal tier">${"★".repeat(stars)}</span>`;
+  return `<span class="problem-frequency" aria-label="Combined interview-signal frequency tier ${stars}" title="Combined company interview-signal tier">${"★".repeat(stars)}</span>`;
 }
 
 function companyFrequencyFor(frequencies, companyName) {
@@ -2076,7 +2079,7 @@ function problemTable() {
         <td class="title-cell">${escapeHtml(problem.title)}</td>
         <td>${difficultyPill(problem.difficulty)}</td>
         <td class="category-cell">${escapeHtml(problem.category)}</td>
-        <td>${companyLabelList(problem.companies) || `<span class="muted-cell">-</span>`}</td>
+        <td>${companyLabelList(problem.companies, "company-list", problem.interview_frequency) || `<span class="muted-cell">-</span>`}</td>
         <td class="frequency-cell">${problemFrequencyBadge(problem)}</td>
         <td>${labelList(problem.tags)}</td>
       </tr>

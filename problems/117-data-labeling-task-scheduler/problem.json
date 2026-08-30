@@ -20,8 +20,12 @@
       "source_record_ids": [
         "35c6ce51456d81818b77d25586466882"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 4,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Implement `build_schedule(tasks, models, humans, k)`.\n\nYou are scheduling human review of model outputs. A returned row `(task, model, human)` means that `human` reviews `model`'s output on `task`.\n\nHard constraints:\n- Return exactly `k * len(humans)` rows for the batch version.\n- Every human must appear exactly `k` times.\n- The same `(task, human)` pair may appear at most once.\n- Every task, model, and human in the output must come from the corresponding input list.\n\nBalance goals:\n- Within each task, model assignments should stay as evenly distributed as possible.\n- Within each task, human assignments should stay as evenly distributed as possible.\n- Across the schedule prefix, total human workload should stay balanced.\n\nIf `k == 0`, return an empty list. If the constraints are impossible, raise `ValueError`. A deterministic greedy solution that scores all legal candidates is sufficient; the tests validate constraints and balance properties rather than one exact schedule.",
   "starter_code": "def build_schedule(tasks, models, humans, k):\n    # Return an ordered list of (task, model, human) review assignments.\n    pass\n",

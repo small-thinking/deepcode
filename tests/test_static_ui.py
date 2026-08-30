@@ -110,10 +110,12 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('<th scope="col">Companies</th>', app_js)
         self.assertIn("problem.companies", app_js)
         self.assertIn("problem.interview_frequency", app_js)
+        self.assertIn("interview_frequency_total", app_js)
         self.assertIn("function renderProblemMetadata", app_js)
         self.assertIn("function companyFrequencyBadge(frequency)", app_js)
         self.assertIn("Interview-signal frequency tier", app_js)
         self.assertIn('"★".repeat(stars)', app_js)
+        self.assertIn("Combined interview-signal frequency tier", app_js)
         self.assertIn('metadata: "problem-section problem-metadata-section"', app_js)
         self.assertIn(".company-list", styles_css)
         self.assertIn(".company-frequency", styles_css)
@@ -436,7 +438,9 @@ class StaticUiTest(unittest.TestCase):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('order: "asc"', app_js)
+        initial_filters = app_js.split("filters: {", maxsplit=1)[1].split("},", maxsplit=1)[0]
+        self.assertIn('sort: "frequency"', initial_filters)
+        self.assertIn('order: "desc"', initial_filters)
         self.assertIn("function setProblemSort(sortKey)", app_js)
         self.assertIn("function defaultProblemSortOrder(sortKey)", app_js)
         self.assertIn('return sortKey === "frequency" ? "desc" : "asc"', app_js)

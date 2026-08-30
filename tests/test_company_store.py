@@ -72,7 +72,7 @@ class CompanyStoreTest(unittest.TestCase):
             {"founded", "team_size", "arr_or_revenue", "valuation", "latest_financing", "sources"},
         )
 
-    def test_every_employer_label_with_problems_has_a_company_profile(self):
+    def test_every_employer_label_with_problems_has_a_company_profile_or_explicit_unprofiled_source(self):
         root = Path(__file__).resolve().parents[1]
         companies = CompanyStore(root / "companies")
         problems = ProblemStore(root / "problems").list_problems()
@@ -84,7 +84,9 @@ class CompanyStoreTest(unittest.TestCase):
         }
         company_labels = {company.casefold() for problem in problems for company in problem.get("companies", [])}
 
-        self.assertEqual(company_labels - profile_identifiers - {"general"}, set())
+        # Canonical interview-bank links can establish a problem/company association
+        # before a separately sourced Company Hub profile is curated.
+        self.assertEqual(company_labels - profile_identifiers - {"general", "microsoftai"}, set())
 
         reddit = companies.get_company("reddit", problems)
         self.assertEqual(reddit["stage"]["company_state"], "Public")
