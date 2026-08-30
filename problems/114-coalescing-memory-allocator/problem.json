@@ -20,8 +20,12 @@
       "source_record_ids": [
         "3786ce51456d812fa2d5dba21793dce9"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 3,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Implement `Allocator`, a tiny first-fit memory allocator.\n\nThe allocator manages a contiguous address range `[0, capacity)`. `malloc(size)` should find the first free block with at least `size` units, split it if needed, mark the allocated block as used, and return its start address. Return `-1` when no block can fit the request or when `size <= 0`.\n\n`free(address)` should release the allocated block that starts at `address`, return `True` on success, and return `False` for unknown or already-freed addresses. After freeing, coalesce adjacent free blocks so fragmentation does not prevent a later large allocation.\n\n`snapshot()` should return the current block list as `(start, size, free)` tuples from low address to high address. The snapshot is for tests and debugging.",
   "starter_code": "class Allocator:\n    def __init__(self, capacity):\n        pass\n\n    def malloc(self, size):\n        pass\n\n    def free(self, address):\n        pass\n\n    def snapshot(self):\n        pass\n",

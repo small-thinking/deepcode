@@ -79,6 +79,10 @@ Recommended fields:
   do not store raw source counts. A nonzero tier renders as stars beside that
   company label: `1 → ★`, `2–5 → ★★`, `6–10 → ★★★`, `11–15 → ★★★★`, and
   `16+ → ★★★★★`. The key must match an entry in `companies`.
+- `interview_frequency_total`: Optional combined tier for the whole prompt.
+  Sum its current company signals before assigning this same 0–5 tier, and
+  store only `{ "stars", "synced_at" }`. The catalog Stars column uses this
+  value, while company badges continue to show their individual tiers.
 - `evaluation.type`: Evaluator backend. Omit it or use `ml_coding` for current problems.
 - `environment.timeout_seconds`: Per-test timeout. Keep ML coding tasks short.
 - `environment.comparator`: `exact` or `numeric`.

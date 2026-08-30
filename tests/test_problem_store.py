@@ -245,6 +245,7 @@ class ProblemStoreTest(unittest.TestCase):
                             "synced_at": "2026-08-16",
                         }
                     },
+                    "interview_frequency_total": {"stars": 3, "synced_at": "2026-08-16"},
                     "prompt": "Return one.",
                     "starter_code": "def one():\n    pass\n",
                     "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
@@ -261,6 +262,7 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertEqual(store.list_problems(company="openai")[0]["slug"], "company-problem")
             self.assertEqual(store.companies(), ["Anthropic", "OpenAI"])
             self.assertEqual(store.list_problems()[0]["interview_frequency"]["Anthropic"]["stars"], 3)
+            self.assertEqual(store.list_problems()[0]["interview_frequency_total"]["stars"], 3)
             self.assertEqual(store.get_problem("company-problem")["interview_frequency"]["Anthropic"]["synced_at"], "2026-08-16")
 
     def test_committed_frequency_tiers_are_per_company_and_source_neutral(self):
@@ -274,23 +276,25 @@ class ProblemStoreTest(unittest.TestCase):
         self.assertEqual(store.get_problem("linux-cd-path-resolution")["interview_frequency"]["OpenAI"]["stars"], 0)
         self.assertNotIn("seen_count", json.dumps(spreadsheet["interview_frequency"]))
 
-    def test_sorts_by_highest_company_frequency_tier(self):
+    def test_sorts_by_combined_company_frequency_tier(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            for folder, problem_id, frequency in (
-                ("no-signal", "1", {}),
+            for folder, problem_id, frequency, total in (
+                ("no-signal", "1", {}, None),
                 (
                     "multi-company-signal",
                     "2",
                     {
-                        "Harvey": {"stars": 2, "source_record_ids": ["row-1"], "synced_at": "2026-08-16"},
-                        "Sierra": {"stars": 4, "source_record_ids": ["row-2"], "synced_at": "2026-08-16"},
+                        "Harvey": {"stars": 1, "source_record_ids": ["row-1"], "synced_at": "2026-08-16"},
+                        "Sierra": {"stars": 1, "source_record_ids": ["row-2"], "synced_at": "2026-08-16"},
                     },
+                    {"stars": 2, "synced_at": "2026-08-16"},
                 ),
                 (
                     "strong-signal",
                     "3",
-                    {"OpenAI": {"stars": 5, "source_record_ids": ["row-3"], "synced_at": "2026-08-16"}},
+                    {"OpenAI": {"stars": 2, "source_record_ids": ["row-3"], "synced_at": "2026-08-16"}},
+                    {"stars": 3, "synced_at": "2026-08-16"},
                 ),
             ):
                 problem = {
@@ -311,6 +315,8 @@ class ProblemStoreTest(unittest.TestCase):
                 }
                 if frequency:
                     problem["interview_frequency"] = frequency
+                if total:
+                    problem["interview_frequency_total"] = total
                 self._write_problem(
                     root,
                     folder,
@@ -328,6 +334,40 @@ class ProblemStoreTest(unittest.TestCase):
                 [problem["slug"] for problem in store.list_problems(sort="frequency", order="desc")],
                 ["strong-signal", "multi-company-signal", "no-signal"],
             )
+
+    def test_rejects_invalid_combined_frequency_metadata(self):
+        invalid_values = [
+            {},
+            {"stars": 6, "synced_at": "2026-08-16"},
+            {"stars": 1, "synced_at": "today"},
+            {"stars": 1, "synced_at": "2026-08-16", "source_record_ids": ["row-1"]},
+        ]
+
+        for total in invalid_values:
+            with self.subTest(total=total), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                self._write_problem(
+                    root,
+                    "bad-total-frequency",
+                    {
+                        "id": "1",
+                        "slug": "bad-total-frequency",
+                        "title": "Bad Total Frequency",
+                        "category": "Machine Learning",
+                        "difficulty": "easy",
+                        "tags": ["metadata"],
+                        "companies": ["Anthropic"],
+                        "interview_frequency_total": total,
+                        "prompt": "Return one.",
+                        "starter_code": "def one():\n    pass\n",
+                        "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                        "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                    },
+                    [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+                )
+
+                with self.assertRaisesRegex(ValueError, "interview_frequency_total"):
+                    ProblemStore(root).get_problem("bad-total-frequency")
 
     def test_rejects_invalid_reference_links(self):
         invalid_values = [

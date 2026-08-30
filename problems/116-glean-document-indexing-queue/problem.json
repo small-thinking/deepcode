@@ -20,8 +20,12 @@
       "source_record_ids": [
         "37c6ce51456d8196aeb6c6929333ee03"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Implement `document_indexing_queue(m, queue_time, processing_time, k)`.\n\nThere are `m` parallel document indexers numbered `0` through `m - 1`. Document `i` arrives at `queue_time[i]` and takes `processing_time[i]` time units to index. Its preferred indexer is `i % m`.\n\nBefore assigning each arriving document, release every busy indexer whose finish time is less than or equal to the document's arrival time. Assign the document to the first available indexer at or after its preferred indexer, wrapping to indexer `0` if needed. If no indexer is available, drop the document.\n\nReturn `(processed_count, busiest_indexer, top_k_indexers, percentage)`, where `processed_count` is the number of indexed documents, `busiest_indexer` is the lowest-numbered indexer with the highest processed count or `None` if no document was processed, `top_k_indexers` is the list of up to `k` indexers sorted by processed count descending and indexer id ascending, and `percentage` is the percentage of processed documents handled by those top-k indexers.\n\nIf `m <= 0`, return `(0, None, [], 0.0)`. If the two input arrays have different lengths, raise `ValueError`.",
   "starter_code": "def document_indexing_queue(m, queue_time, processing_time, k):\n    # Simulate assignment to indexers and return queue summary metrics.\n    pass\n",

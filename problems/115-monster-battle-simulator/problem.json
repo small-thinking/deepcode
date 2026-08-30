@@ -20,8 +20,12 @@
       "source_record_ids": [
         "3766ce51456d8197a8dffc1fa9c02806"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 3,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Implement `simulate_battle(team_a, team_b, type_rules)`.\n\nEach team is a list of monster dictionaries. A monster has `name`, `hp`, `type`, and `attacks`. Each attack is a dictionary with `name`, `damage`, and `type`. `type_rules` maps `(attack_type, defender_type)` tuples to a numeric multiplier; missing pairs use `1.0`.\n\nBattle rules:\n- Do not mutate the caller's input teams.\n- Team A attacks first, then turns alternate between teams.\n- On each turn, the attacker is that team's first alive monster and the defender is the other team's first alive monster.\n- Choose the attack with the highest effective damage against the defender. Break ties by the attack's original order.\n- Effective damage is `int(base_damage * multiplier)`. Defender HP cannot go below zero.\n- Return `(winner_index, log)`, where `winner_index` is `0` for team A or `1` for team B. `log` is a list of `(attacker_name, attack_name, defender_name, damage, defender_hp_after)` tuples.\n\nAssume every monster has at least one attack and at least one team has a living monster.",
   "starter_code": "def simulate_battle(team_a, team_b, type_rules):\n    # Return (winner_index, log) without mutating caller inputs.\n    pass\n",

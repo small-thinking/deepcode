@@ -20,8 +20,12 @@
       "source_record_ids": [
         "35c6ce51456d8108ae6fc360fae0be86"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 3,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Implement `MemoLRUCache`, a memoization cache with stable JSON keys, LRU eviction, and optional append-only persistence.\n\nRequired behavior:\n- `__init__(capacity, file_path=\"\")` creates an empty cache. Raise `ValueError` for non-positive capacity. If `file_path` is non-empty, replay the file if it exists.\n- `_cache_key(func_name, args=None, kwargs=None)` returns a stable tuple key. Equivalent keyword arguments in different orders must produce the same key. All args, kwargs, and return values are JSON-serializable.\n- `get_or_compute(func, args=None, kwargs=None)` returns the cached value on hit, or computes and caches `func(*args, **kwargs)` on miss. Hits and misses both update recency. Evict the least-recently-used item when capacity is exceeded.\n- When persistence is enabled, append one JSON line per access with enough information to restore both values and LRU order. Replaying the log should tolerate a malformed or truncated line by skipping it.\n\nUse only the Python standard library.",
   "starter_code": "class MemoLRUCache:\n    def __init__(self, capacity, file_path=\"\"):\n        pass\n\n    def _cache_key(self, func_name, args=None, kwargs=None):\n        pass\n\n    def get_or_compute(self, func, args=None, kwargs=None):\n        pass\n",

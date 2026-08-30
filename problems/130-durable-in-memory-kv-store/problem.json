@@ -21,8 +21,12 @@
       "source_record_ids": [
         "3ab6ce51456d81c0965afc615840d30a"
       ],
-      "synced_at": "2026-08-16"
+      "synced_at": "2026-08-30"
     }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-08-30"
   },
   "prompt": "Build a durable, single-process key-value store. Keys are strings and values may be any JSON-serializable value. Use UTF-8 JSON Lines so each record occupies one newline-terminated line.\n\n### Part 1 — Log-backed recovery\n\nImplement `LogBackedKVStore(path)` with `set(key, value)`, `get(key, default=None)`, and `delete(key)`. Every mutation must append one record, flush it, and call `os.fsync` before changing the visible in-memory state. Reconstruct state by replaying the log in constructor order. A delete of a missing key is still a durable no-op record. Accept a malformed final fragment only when the file does not end in a newline, modeling a torn last write; malformed complete records must raise `ValueError`. Reject non-string keys and values that cannot be serialized as JSON.\n\n### Part 2 — Multi-file snapshots\n\nImplement `MultiFileSnapshotKVStore(root, max_file_bytes=1024)` with the same in-memory `set`, `get`, and `delete` behavior plus `save_snapshot()` and `load_snapshot()`. `save_snapshot()` writes sorted key/value records into a new generation directory, never splits a record across files, calls `fsync` for every data file, and atomically publishes the generation name through a `CURRENT` manifest. Return that generation name. Every non-empty data file must be at most `max_file_bytes`; if one encoded record is too large, raise `ValueError` without replacing the previously published snapshot. `load_snapshot()` replaces memory with the generation named by `CURRENT`, or with an empty mapping when no manifest exists. Ignore unpublished generation directories.",
   "starter_code": "class LogBackedKVStore:\n    def __init__(self, path):\n        pass\n\n    def set(self, key, value):\n        pass\n\n    def get(self, key, default=None):\n        pass\n\n    def delete(self, key):\n        pass\n\n\nclass MultiFileSnapshotKVStore:\n    def __init__(self, root, max_file_bytes=1024):\n        pass\n\n    def set(self, key, value):\n        pass\n\n    def get(self, key, default=None):\n        pass\n\n    def delete(self, key):\n        pass\n\n    def save_snapshot(self):\n        pass\n\n    def load_snapshot(self):\n        pass\n",
