@@ -1,0 +1,12 @@
+[
+  {
+    "name": "leases reclaim and stale acknowledgements cannot complete work",
+    "input": "reserve a task, let its lease expire, then reserve it again",
+    "test": "queue = LeasedWorkQueue(2)\nqueue.enqueue('a', {'value': 1})\nfirst = queue.reserve(10, 5)\nassert first['task_id'] == 'a' and first['attempt'] == 1\nassert queue.complete('a', 'wrong') is False\nassert queue.reclaim(14) == []\nassert queue.reclaim(15) == ['a']\nsecond = queue.reserve(15, 3)\nassert second['task_id'] == 'a' and second['attempt'] == 2\nassert queue.complete('a', first['lease_token']) is False\nassert queue.complete('a', second['lease_token']) is True\nassert queue.reserve(20, 1) is None"
+  },
+  {
+    "name": "failure respects the retry limit and exposes independent dead letters",
+    "input": "fail a two-attempt task twice",
+    "test": "queue = LeasedWorkQueue(2)\nqueue.enqueue('a', 'payload')\nfirst = queue.reserve(0, 5)\nassert queue.fail('a', first['lease_token'], 1) == 'pending'\nsecond = queue.reserve(1, 5)\nassert queue.fail('a', second['lease_token'], 2) == 'dead'\ndead = queue.dead_letters()\nassert dead == [{'task_id': 'a', 'payload': 'payload', 'attempts': 2}]\ndead[0]['payload'] = 'changed'\nassert queue.dead_letters()[0]['payload'] == 'payload'\nfor call in (lambda: LeasedWorkQueue(0), lambda: queue.enqueue('a', 'again'), lambda: queue.reserve(True, 1)):\n    try:\n        call()\n        assert False\n    except (TypeError, ValueError):\n        pass"
+  }
+]

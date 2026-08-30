@@ -1,0 +1,32 @@
+{
+  "id": "338",
+  "slug": "rocket-engine-flight-time-ledger",
+  "title": "Rocket Engine Flight-Time Ledger",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["event-sourcing", "intervals", "idempotency", "aggregation"],
+  "companies": ["SpaceX"],
+  "interview_frequency": {
+    "SpaceX": {
+      "source_record_ids": [
+        "3bd6ce51456d81d4b8b6c096565bec22"
+      ],
+      "stars": 1,
+      "synced_at": "2026-08-30"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-08-30"
+  },
+  "prompt": "Implement `EngineFlightLedger` for recording rocket-engine flight intervals.\n\n- `record(event_id, engine_id, mission_id, start, end) -> bool` stores a closed-open interval `[start, end)`. Repeating an existing `event_id` is an idempotent no-op that returns `False`; a new record returns `True`.\n- `engine_flight_time(engine_id, start=None, end=None) -> int` returns the total overlap with the optional query window.\n- `mission_flight_time(mission_id) -> int` returns the total recorded duration for that mission.\n\nIDs are non-empty strings; times are ordinary integers (not `bool`) with `end >= start`. A newly recorded interval for one engine may touch, but may not overlap, another interval for that engine; reject an overlap with `ValueError`. A query window uses `[start, end)` and must have valid ordered integer bounds. Raise `KeyError` for an unknown engine or mission. This is a practice reconstruction of a reported live-coding theme.",
+  "starter_code": "class EngineFlightLedger:\n    def __init__(self):\n        pass\n\n    def record(self, event_id, engine_id, mission_id, start, end):\n        pass\n\n    def engine_flight_time(self, engine_id, start=None, end=None):\n        pass\n\n    def mission_flight_time(self, mission_id):\n        pass\n",
+  "example": {
+    "input": "ledger.record('e1', 'engine-a', 'mission-1', 10, 16)",
+    "output": "ledger.engine_flight_time('engine-a') == 6",
+    "reasoning": "The ledger records a validated event interval once and aggregates its duration."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-08-30"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "336",
+  "slug": "ml-serving-metrics-review",
+  "title": "Design an ML Serving Metrics and Performance Review",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": ["observability", "ml-serving", "asyncio", "slo"],
+  "companies": ["Anthropic"],
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "3ba6ce51456d81ec9b31f0418e8088b4"
+      ],
+      "stars": 1,
+      "synced_at": "2026-08-30"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-08-30"
+  },
+  "prompt": "An existing ML-powered service has rising tail latency and occasional quality regressions. Model architecture is out of scope. Design the metrics, tracing, load experiments, and operating changes you would use to identify and improve the bottleneck.\n\nSeparate request health, queueing and resource health, model-quality and data-health signals, and business or user outcomes. Cover asynchronous Python work, batching, GPU or CPU saturation, cancellation, partial failures, backpressure, and a safe rollout of any optimization. State assumptions rather than treating a generic dashboard as an answer.",
+  "evaluation": {"type": "system_design"},
+  "response": {
+    "placeholder": "Begin with the request and quality SLOs, then explain how instrumentation identifies the failing stage.",
+    "reference_answer": "## Metrics contract\n\nDefine availability, p50/p95/p99 end-to-end latency, error budget, and a quality guardrail for each request class. A trace carries a request ID through admission, queueing, preprocessing, model execution, postprocessing, and response. Metrics include queue age, queue depth, cancellation rate, batch size, worker concurrency, utilization, memory pressure, cache behavior, timeout rate, and per-stage latency.\n\n## Diagnosis\n\nA latency increase is sliced by model version, region, input shape, cache state, and worker. Traces distinguish event-loop blocking from time spent awaiting I/O or GPU execution. Quality is measured separately with delayed labels, slice metrics, drift checks, feature age, and calibration; a healthy server cannot justify a quality regression. Load tests replay realistic burstiness and payload distributions rather than only a steady average.\n\n## Safe improvements\n\nBound in-flight work, propagate cancellation, use deadlines, and shed or defer work before queues grow without limit. Batch only compatible requests and measure its effect on tail latency, utilization, and quality. Autoscaling uses queue age and saturation alongside request rate. A candidate optimization first runs in shadow or a small guarded experiment with rollback thresholds for both service and quality metrics.\n\n## Operations\n\nAlert on symptoms with an owner: sustained queue age, event-loop lag, GPU memory exhaustion, cache collapse, drift, or a rising unsupported-answer rate. Preserve enough version and sampling metadata to compare runs without collecting unnecessary payloads."
+  },
+  "created_at": "2026-08-30"
+}

@@ -21,6 +21,7 @@ from typing import Any
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 REQUIRED_KEYS = {"record_id", "company", "seen_count", "slug"}
 LEGACY_COMPANY_LABELS = {
+    "gdm": "Google DeepMind",
     "mistraai": "Mistral AI",
 }
 

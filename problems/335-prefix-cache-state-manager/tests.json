@@ -1,0 +1,12 @@
+[
+  {
+    "name": "returns the longest matching stored prefix",
+    "input": "overlapping token prefixes",
+    "test": "cache = PrefixCache()\nshort = [1, 2]\ncache.store(short, 'short')\ncache.store([1, 2, 3], 'long')\nshort.append(99)\nassert cache.lookup([1, 2, 3, 4]) == (3, 'long')\nassert cache.lookup([1, 2, 8]) == (2, 'short')\nassert cache.lookup([9]) is None"
+  },
+  {
+    "name": "replacement removal and validation are explicit",
+    "input": "replace then remove one exact prefix",
+    "test": "cache = PrefixCache()\ncache.store((4,), 'old')\ncache.store([4], 'new')\nassert cache.lookup([4, 5]) == (1, 'new')\nassert cache.remove([4]) is True\nassert cache.remove([4]) is False\nfor invalid in ('12', [1, True], [-1]):\n    try:\n        cache.lookup(invalid)\n        assert False\n    except TypeError:\n        pass\nfor tokens, value in (([], 'x'), ([1], '')):\n    try:\n        cache.store(tokens, value)\n        assert False\n    except ValueError:\n        pass"
+  }
+]

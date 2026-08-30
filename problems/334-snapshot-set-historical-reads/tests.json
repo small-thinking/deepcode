@@ -1,0 +1,12 @@
+[
+  {
+    "name": "snapshots remain isolated from later mutations",
+    "input": "add, snapshot, mutate, and read both versions",
+    "test": "items = SnapshotSet()\nassert items.snapshot() == 0\nassert items.add('a') is True\nfirst = items.snapshot()\nassert items.add('b') is True\nassert items.remove('a') is True\nlatest = items.snapshot()\nassert items.values_at(first) == {'a'}\nassert items.values_at(latest) == {'b'}\ncopy = items.values_at(first); copy.add('mutated')\nassert items.values_at(first) == {'a'}"
+  },
+  {
+    "name": "no-op mutations still preserve a distinct current version",
+    "input": "duplicate add and absent remove",
+    "test": "items = SnapshotSet()\nassert items.add('x') is True\nfirst = items.snapshot()\nassert items.add('x') is False\nsecond = items.snapshot()\nassert second > first\nassert items.remove('missing') is False\nassert items.values_at(second) == {'x'}\nfor invalid in (True, -1, 99):\n    try:\n        items.values_at(invalid)\n        assert False\n    except IndexError:\n        pass\ntry:\n    items.add([])\n    assert False\nexcept TypeError:\n    pass"
+  }
+]
