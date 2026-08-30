@@ -1,0 +1,29 @@
+{
+  "id": "343",
+  "slug": "internal-document-search-agent",
+  "title": "Design an Internal Document Search Agent",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": ["rag", "agents", "retrieval", "cost", "access-control"],
+  "companies": ["Google DeepMind"],
+  "interview_frequency": {
+    "Google DeepMind": {
+      "source_record_ids": [
+        "3cc6ce51456d817aa927cad04694aa29"
+      ],
+      "stars": 1,
+      "synced_at": "2026-08-30"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-08-30"
+  },
+  "prompt": "Design an agent for internal document search using retrieval-augmented generation. It must preserve document permissions, optimize cost and latency, scale to 100,000 users, and explain why its chosen agent framework is needed.\n\nCover ingestion and indexing, hybrid retrieval and reranking, bounded tool use, permission enforcement, caching, model routing, concurrency budgets, quality evaluation, and graceful degradation. Keep ranking and access policy in deterministic services even when an LLM orchestrates a query. This is a practice reconstruction of a reported AI/ML SWE interview theme.",
+  "evaluation": {"type": "system_design"},
+  "response": {
+    "placeholder": "Define the answer, permission, latency, and cost contracts before selecting an agent framework.",
+    "reference_answer": "## Contract and architecture\n\nAuthenticated server-side identity determines the authorized corpus before any cache, retrieval, reranking, or prompt assembly. The answer returns citations and an insufficient-evidence state. Ingestion asynchronously versions documents, extracts structure, chunks, embeds, and publishes lexical and vector indexes with ACL metadata.\n\n## Agent boundary\n\nA compact orchestrator chooses bounded tools such as search, fetch authorized passages, clarify, and cite. It does not have direct access to arbitrary documents or write privileges. Deterministic services enforce ACL filters, candidate limits, catalog eligibility, and cost budgets. The framework is justified only if it provides observable tool traces, cancellation, and bounded state; a single retrieval pass should bypass needless multi-step planning.\n\n## Scale and cost\n\nUse hybrid retrieval, bounded reranking, cached embeddings, tenant- and permission-scoped query caches, and model routing for simple versus complex questions. Stateless query replicas scale horizontally while indexes partition by corpus and ACL domain. Queue or reject expensive work under explicit per-user and global budgets rather than letting agent loops expand unboundedly.\n\n## Evaluation\n\nMeasure authorization isolation, retrieval recall, citation support, abstention quality, answer latency, token and reranker cost, cache behavior, tool-loop length, and user success. Evaluate prompt-injection resistance using adversarial retrieved documents and retain only redacted, policy-compliant traces for debugging."
+  },
+  "created_at": "2026-08-30"
+}

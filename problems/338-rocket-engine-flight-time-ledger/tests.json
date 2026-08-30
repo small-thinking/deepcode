@@ -1,0 +1,12 @@
+[
+  {
+    "name": "idempotent records aggregate by engine and mission",
+    "input": "two touching intervals and a duplicate event",
+    "test": "ledger = EngineFlightLedger()\nassert ledger.record('a', 'eng-1', 'm-1', 0, 5) is True\nassert ledger.record('a', 'eng-1', 'm-1', 0, 5) is False\nassert ledger.record('b', 'eng-1', 'm-1', 5, 9) is True\nassert ledger.record('c', 'eng-2', 'm-1', 2, 6) is True\nassert ledger.engine_flight_time('eng-1') == 9\nassert ledger.engine_flight_time('eng-1', 3, 7) == 4\nassert ledger.mission_flight_time('m-1') == 13"
+  },
+  {
+    "name": "rejects overlapping intervals and invalid queries",
+    "input": "overlap on one engine and malformed window",
+    "test": "ledger = EngineFlightLedger()\nledger.record('a', 'eng', 'm', 10, 20)\ntry:\n    ledger.record('b', 'eng', 'm2', 15, 22)\n    assert False\nexcept ValueError:\n    pass\nassert ledger.record('c', 'eng', 'm2', 20, 23) is True\nfor args in (('eng', 8, 7), ('eng', True, 7)):\n    try:\n        ledger.engine_flight_time(*args)\n        assert False\n    except (TypeError, ValueError):\n        pass\nfor call in (lambda: ledger.engine_flight_time('missing'), lambda: ledger.mission_flight_time('missing')):\n    try:\n        call()\n        assert False\n    except KeyError:\n        pass"
+  }
+]
