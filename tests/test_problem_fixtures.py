@@ -1083,10 +1083,6 @@ def _imbalance(counter, keys):
     return max(values) - min(values) if values else 0
 
 
-def _worst_group_imbalance(counter, groups):
-    return max((_imbalance(counter, group) for group in groups), default=0)
-
-
 def build_schedule(tasks, models, humans, k):
     tasks = list(tasks)
     models = list(models)
@@ -1103,10 +1099,10 @@ def build_schedule(tasks, models, humans, k):
     if needed > len(tasks) * len(humans):
         raise ValueError("not enough unique task-human pairs")
 
-    task_model_groups = [[(task, model) for model in models] for task in tasks]
-    task_human_groups = [[(task, human) for human in humans] for task in tasks]
-    task_model_counts = Counter()
-    task_human_counts = Counter()
+    model_human_pairs = [(model, human) for model in models for human in humans]
+    model_task_pairs = [(model, task) for model in models for task in tasks]
+    model_human_counts = Counter()
+    model_task_counts = Counter()
     human_counts = Counter()
     used_task_human = set()
     schedule = []
@@ -1119,20 +1115,19 @@ def build_schedule(tasks, models, humans, k):
                 if (task, human) in used_task_human:
                     continue
                 for model in models:
-                    task_model_counts[(task, model)] += 1
-                    task_human_counts[(task, human)] += 1
+                    model_human_counts[(model, human)] += 1
+                    model_task_counts[(model, task)] += 1
                     human_counts[human] += 1
                     score = (
-                        max(human_counts[h] for h in humans),
-                        _worst_group_imbalance(task_model_counts, task_model_groups),
-                        _worst_group_imbalance(task_human_counts, task_human_groups),
+                        _imbalance(model_human_counts, model_human_pairs),
+                        _imbalance(model_task_counts, model_task_pairs),
                         max(human_counts[h] for h in humans) - min(human_counts[h] for h in humans),
                         task,
                         model,
                         human,
                     )
-                    task_model_counts[(task, model)] -= 1
-                    task_human_counts[(task, human)] -= 1
+                    model_human_counts[(model, human)] -= 1
+                    model_task_counts[(model, task)] -= 1
                     human_counts[human] -= 1
                     if best_score is None or score < best_score:
                         best_score = score
@@ -1141,8 +1136,8 @@ def build_schedule(tasks, models, humans, k):
             raise ValueError("no legal assignment remains")
         task, model, human = best
         schedule.append(best)
-        task_model_counts[(task, model)] += 1
-        task_human_counts[(task, human)] += 1
+        model_human_counts[(model, human)] += 1
+        model_task_counts[(model, task)] += 1
         human_counts[human] += 1
         used_task_human.add((task, human))
     return schedule
