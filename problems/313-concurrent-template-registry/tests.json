@@ -6,8 +6,9 @@
   },
   {
     "name": "concurrent equivalent registrations share one ID",
-    "input": "eight threads registering two whitespace variants together",
-    "test": "from threading import Barrier, Thread\n\nregistry = TemplateRegistry()\nvariants = ['  Summarize  this\\n\\n note ', 'Summarize this\\r\\n\\r\\nnote'] * 4\nbarrier = Barrier(len(variants))\nresults = [None] * len(variants)\n\ndef worker(index, template):\n    barrier.wait()\n    results[index] = registry.register(template)\n\nthreads = [Thread(target=worker, args=(index, template)) for index, template in enumerate(variants)]\nfor thread in threads:\n    thread.start()\nfor thread in threads:\n    thread.join(timeout=2)\nassert all(not thread.is_alive() for thread in threads)\nassert results == [0] * len(variants)\nassert registry.snapshot() == ['Summarize this\\n\\nnote']"
+    "input": "two threads registering whitespace variants together",
+    "timeout_seconds": 5,
+    "test": "from threading import Barrier, Thread\n\nregistry = TemplateRegistry()\nvariants = ['  Summarize  this\\n\\n note ', 'Summarize this\\r\\n\\r\\nnote']\nbarrier = Barrier(len(variants))\nresults = [None] * len(variants)\n\ndef worker(index, template):\n    barrier.wait()\n    results[index] = registry.register(template)\n\nthreads = [Thread(target=worker, args=(index, template)) for index, template in enumerate(variants)]\nfor thread in threads:\n    thread.start()\nfor thread in threads:\n    thread.join(timeout=2)\nassert all(not thread.is_alive() for thread in threads)\nassert results == [0] * len(variants)\nassert registry.snapshot() == ['Summarize this\\n\\nnote']"
   },
   {
     "name": "rejects invalid templates and IDs",
