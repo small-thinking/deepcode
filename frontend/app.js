@@ -1420,12 +1420,24 @@ function problemCompleted(problem) {
   return problem?.personal_status?.completed === true;
 }
 
+function problemInProgress(problem) {
+  return problem?.personal_status?.last_submission?.status === "in_progress";
+}
+
 function completedProblemCount() {
   return state.problems.filter(problemCompleted).length;
 }
 
 function syncProblemStatus(slug, status) {
-  const personalStatus = { completed: status?.completed === true, completed_at: status?.completed_at || null };
+  const lastSubmission = status?.last_submission;
+  const personalStatus = {
+    completed: status?.completed === true,
+    completed_at: status?.completed_at || null,
+    last_submission:
+      lastSubmission?.status === "passed" || lastSubmission?.status === "in_progress"
+        ? { status: lastSubmission.status, at: lastSubmission.at || null }
+        : null,
+  };
   state.problems = state.problems.map((problem) =>
     problem.slug === slug ? { ...problem, personal_status: personalStatus } : problem
   );
@@ -2129,13 +2141,35 @@ function problemSortHeader(sortKey, label, accessibleLabel = label) {
 
 function problemStatusBadge(problem) {
   const completed = problemCompleted(problem);
+  const inProgress = problemInProgress(problem);
+  const statusLabel = inProgress ? "In progress" : completed ? "Completed" : "Not started";
+  const eventTime = inProgress ? problem?.personal_status?.last_submission?.at : problem?.personal_status?.completed_at;
+  const timestamp = eventTime ? ` · ${formatProgressTime(eventTime)}` : "";
   return `
     <span
-      class="completion-badge ${completed ? "completed" : "incomplete"}"
-      aria-label="${completed ? "Completed" : "Not completed"}"
-      title="${completed ? "Completed" : "Not completed"}"
-    >${completed ? "✓" : ""}</span>
+      class="completion-badge ${inProgress ? "in-progress" : completed ? "completed" : "incomplete"}"
+      aria-label="${escapeHtml(`${statusLabel}${timestamp}`)}"
+      title="${escapeHtml(`${statusLabel}${timestamp}`)}"
+    >${inProgress ? "◔" : completed ? "✓" : ""}</span>
   `;
+}
+
+function formatProgressTime(value) {
+  const timestamp = new Date(value);
+  return Number.isNaN(timestamp.getTime()) ? String(value) : timestamp.toLocaleString();
+}
+
+function renderProblemProgress(problem) {
+  const completed = problemCompleted(problem);
+  const inProgress = problemInProgress(problem);
+  const eventTime = inProgress ? problem?.personal_status?.last_submission?.at : problem?.personal_status?.completed_at;
+  const label = inProgress ? "In progress" : completed ? "Completed" : "Not started";
+  const detail = eventTime ? ` · ${formatProgressTime(eventTime)}` : "";
+  const icon = inProgress ? "◔" : completed ? "✓" : "○";
+  return `<p class="problem-progress ${inProgress ? "in-progress" : completed ? "completed" : "not-started"}">
+    <span aria-hidden="true">${icon}</span>
+    <span>${escapeHtml(`${label}${detail}`)}</span>
+  </p>`;
 }
 
 function renderDetail() {
@@ -2166,6 +2200,7 @@ function renderDetail() {
             <div class="panel-title">
               <h2>${escapeHtml(problem.title)}</h2>
               <p>#${escapeHtml(displayId)} / ${escapeHtml(problem.category)} / ${escapeHtml(problem.difficulty)}</p>
+              ${renderProblemProgress(problem)}
             </div>
             <div class="tabs">
               ${tabButton("description", "Problem")}

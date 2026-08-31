@@ -458,6 +458,30 @@ tbody tr:hover {
   color: var(--green);
 }
 
+.completion-badge.in-progress {
+  border-color: var(--amber);
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.problem-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.problem-progress.completed {
+  color: var(--green);
+}
+
+.problem-progress.in-progress {
+  color: var(--amber);
+}
+
 .title-cell {
   font-weight: 700;
 }

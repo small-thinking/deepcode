@@ -425,13 +425,17 @@ class StaticUiTest(unittest.TestCase):
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
         self.assertIn("function problemCompleted", app_js)
+        self.assertIn("function problemInProgress", app_js)
         self.assertIn("function problemStatusBadge", app_js)
+        self.assertIn("function renderProblemProgress", app_js)
         self.assertIn("personal_status", app_js)
         self.assertIn('problemSortHeader("completed", "Complete")', app_js)
         self.assertIn('class="status-cell"', app_js)
         self.assertIn("✓", app_js)
+        self.assertIn("In progress", app_js)
         self.assertIn(".completion-badge", styles_css)
         self.assertIn(".completion-badge.completed", styles_css)
+        self.assertIn(".completion-badge.in-progress", styles_css)
         self.assertIn(".status-cell", styles_css)
 
     def test_problem_table_headers_control_sort_direction(self):
