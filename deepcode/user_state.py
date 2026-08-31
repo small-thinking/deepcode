@@ -26,14 +26,37 @@ class UserStateStore:
     def status_for(self, slug: str) -> dict[str, Any]:
         data = self._read()
         status = data.get("problems", {}).get(slug, {})
-        return {"completed": bool(status.get("completed")), "completed_at": status.get("completed_at")}
+        last_submission = status.get("last_submission")
+        if not isinstance(last_submission, dict):
+            last_submission = None
+        elif last_submission.get("status") not in {"passed", "in_progress"}:
+            last_submission = None
+        else:
+            last_submission = {
+                "status": last_submission["status"],
+                "at": last_submission.get("at"),
+            }
+        return {
+            "completed": bool(status.get("completed")),
+            "completed_at": status.get("completed_at"),
+            "last_submission": last_submission,
+        }
 
     def mark_completed(self, slug: str) -> dict[str, Any]:
+        return self.record_submission(slug, passed=True)
+
+    def record_submission(self, slug: str, *, passed: bool) -> dict[str, Any]:
         data = self._read()
         problems = data.setdefault("problems", {})
         status = problems.setdefault(slug, {})
-        status["completed"] = True
-        status["completed_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+        submitted_at = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+        status["last_submission"] = {
+            "status": "passed" if passed else "in_progress",
+            "at": submitted_at,
+        }
+        if passed:
+            status["completed"] = True
+            status["completed_at"] = submitted_at
         self._write(data)
         return self.status_for(slug)
 

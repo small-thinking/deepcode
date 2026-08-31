@@ -159,15 +159,14 @@ def _handle_api_request(
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "run" and method == "POST":
         problem, request, completion_eligible = _evaluation_request_from_body(context, parts[2], body)
         result = evaluate_submission(request)
-        if context.user_state and completion_eligible and result.get("status") == "passed":
-            result["problem_status"] = context.user_state.mark_completed(str(problem.get("slug", parts[2])))
+        _record_submission_status(context, problem, parts[2], completion_eligible, result)
         return 200, result
 
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "reset" and method == "POST":
         problem = context.store.get_problem(parts[2])
         if context.user_state:
             return 200, {"problem_status": context.user_state.reset_problem(str(problem.get("slug", parts[2])))}
-        return 200, {"problem_status": {"completed": False, "completed_at": None}}
+        return 200, {"problem_status": _empty_problem_status()}
 
     if parts[:2] == ["api", "problems"]:
         return 405, {"error": "Method not allowed"}
@@ -195,8 +194,7 @@ def _stream_api_events(
     for event in stream_evaluation_events(request):
         if event.get("type") == "run_finished":
             final_result = dict(event.get("result") or {})
-            if context.user_state and completion_eligible and final_result.get("status") == "passed":
-                final_result["problem_status"] = context.user_state.mark_completed(str(problem.get("slug", parts[2])))
+            _record_submission_status(context, problem, parts[2], completion_eligible, final_result)
             event = {**event, "result": final_result}
         yield event
 
@@ -286,6 +284,26 @@ def _with_personal_status(context: ApiContext, problems: list[dict[str, Any]]) -
     if not context.user_state:
         return problems
     return [context.user_state.annotate(problem) for problem in problems]
+
+
+def _record_submission_status(
+    context: ApiContext,
+    problem: dict[str, Any],
+    fallback_slug: str,
+    completion_eligible: bool,
+    result: dict[str, Any],
+) -> None:
+    """Persist one full-suite submission event without counting partial runs as progress."""
+    if context.user_state is None or not completion_eligible:
+        return
+    result["problem_status"] = context.user_state.record_submission(
+        str(problem.get("slug", fallback_slug)),
+        passed=result.get("status") == "passed",
+    )
+
+
+def _empty_problem_status() -> dict[str, Any]:
+    return {"completed": False, "completed_at": None, "last_submission": None}
 
 
 def _custom_tests_from_payload(problem: dict[str, Any], payload: dict[str, Any]) -> list[dict[str, str]]:

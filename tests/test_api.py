@@ -238,7 +238,28 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(payload["status"], "passed")
             self.assertEqual(payload["problem_status"]["completed"], True)
+            self.assertEqual(payload["problem_status"]["last_submission"]["status"], "passed")
             self.assertEqual(user_state.status_for("toy")["completed"], True)
+
+    def test_failed_full_submission_marks_problem_in_progress(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+
+            status, payload = handle_api_request(
+                ApiContext(store=store, user_state=user_state),
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return 0\n"}).encode("utf-8"),
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "failed")
+            self.assertEqual(payload["problem_status"]["completed"], False)
+            self.assertEqual(payload["problem_status"]["last_submission"]["status"], "in_progress")
+            self.assertIsNotNone(payload["problem_status"]["last_submission"]["at"])
 
     def test_passing_selected_test_does_not_mark_problem_complete(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -266,6 +287,27 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["status"], "passed")
             self.assertNotIn("problem_status", payload)
             self.assertEqual(user_state.status_for("toy")["completed"], False)
+
+    def test_failed_streaming_full_submission_marks_problem_in_progress(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ProblemStore(Path(tmp) / "problems")
+            user_state = UserStateStore(Path(tmp) / ".deepcode" / "user-state.json")
+            self._write_problem(Path(tmp) / "problems", "toy", "1")
+
+            events = list(
+                stream_api_events(
+                    ApiContext(store=store, user_state=user_state),
+                    "POST",
+                    "/api/problems/toy/run/stream",
+                    {},
+                    json.dumps({"code": "def identity(x):\n    return 0\n"}).encode("utf-8"),
+                )
+            )
+
+            result = events[-1]["result"]
+            self.assertEqual(result["status"], "failed")
+            self.assertEqual(result["problem_status"]["last_submission"]["status"], "in_progress")
+            self.assertFalse(user_state.status_for("toy")["completed"])
 
     def test_saves_and_fetches_local_custom_tests_for_problem(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -482,7 +524,10 @@ class ApiTest(unittest.TestCase):
             )
 
             self.assertEqual(status, 200)
-            self.assertEqual(payload["problem_status"], {"completed": False, "completed_at": None})
+            self.assertEqual(
+                payload["problem_status"],
+                {"completed": False, "completed_at": None, "last_submission": None},
+            )
             self.assertEqual(user_state.status_for("toy")["completed"], False)
 
     def test_returns_501_for_unregistered_evaluator(self):
