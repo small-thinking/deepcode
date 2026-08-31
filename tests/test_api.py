@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from deepcode.activity_log import ActivityLogStore
 from deepcode.api import ApiContext, handle_api_request, stream_api_events
 from deepcode.company_store import CompanyStore
 from deepcode.custom_tests import CustomTestStore
@@ -260,6 +261,76 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["problem_status"]["completed"], False)
             self.assertEqual(payload["problem_status"]["last_submission"]["status"], "in_progress")
             self.assertIsNotNone(payload["problem_status"]["last_submission"]["at"])
+
+    def test_progress_records_every_scope_but_status_only_records_full_suite(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root / "problems")
+            user_state = UserStateStore(root / ".deepcode" / "user-state.json")
+            activity_log = ActivityLogStore(root / ".deepcode" / "activity-log.json")
+            self._write_problem(
+                root / "problems",
+                "toy",
+                "1",
+                problem_overrides={"companies": ["OpenAI"]},
+                tests=[
+                    {"name": "basic", "input": "x = 4", "test": "print(identity(4))", "expected_output": "4"},
+                    {"name": "harder", "input": "x = 5", "test": "print(identity(5))", "expected_output": "5"},
+                ],
+            )
+            context = ApiContext(store=store, user_state=user_state, activity_log=activity_log)
+
+            _, failed = handle_api_request(
+                context,
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return 0\n"}).encode("utf-8"),
+            )
+            _, selected = handle_api_request(
+                context,
+                "POST",
+                "/api/problems/toy/run",
+                {},
+                json.dumps({"code": "def identity(x):\n    return 4\n", "test_index": 0}).encode("utf-8"),
+            )
+
+            self.assertEqual(failed["status"], "failed")
+            self.assertEqual(selected["status"], "passed")
+            self.assertNotIn("problem_status", selected)
+            events = activity_log.list_events()
+            self.assertEqual(len(events), 2)
+            self.assertEqual({event["scope"] for event in events}, {"full", "selected"})
+            self.assertEqual({event["outcome"] for event in events}, {"passed", "not_passed"})
+            self.assertEqual(user_state.status_for("toy")["last_submission"]["status"], "in_progress")
+            _, progress = handle_api_request(context, "GET", "/api/progress", {}, None)
+            self.assertEqual(len(progress["events"]), 2)
+
+    def test_progress_endpoint_backfills_existing_statuses_and_returns_catalog_metadata(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            user_state = UserStateStore(root / ".deepcode" / "user-state.json")
+            activity_log = ActivityLogStore(root / ".deepcode" / "activity-log.json")
+            self._write_problem(
+                root / "problems",
+                "toy",
+                "1",
+                problem_overrides={"companies": ["OpenAI"]},
+            )
+            user_state.mark_completed("toy")
+            context = ApiContext(
+                store=ProblemStore(root / "problems"), user_state=user_state, activity_log=activity_log
+            )
+
+            status, payload = handle_api_request(context, "GET", "/api/progress", {}, None)
+            _, repeated_payload = handle_api_request(context, "GET", "/api/progress", {}, None)
+
+            self.assertEqual(status, 200)
+            self.assertEqual(len(payload["events"]), 1)
+            self.assertEqual(payload["events"][0]["source"], "status_backfill")
+            self.assertEqual(len(repeated_payload["events"]), 1)
+            self.assertEqual(payload["problems"][0]["companies"], ["OpenAI"])
+            self.assertEqual(payload["problems"][0]["personal_status"]["completed"], True)
 
     def test_passing_selected_test_does_not_mark_problem_complete(self):
         with tempfile.TemporaryDirectory() as tmp:

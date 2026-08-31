@@ -50,7 +50,16 @@ From the browser you can:
 
 Submissions and Playground scripts execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. Playground runs are capped at 30 seconds and their captured output is limited. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 
-DeepCode creates `.deepcode/user-state.json` on local startup and records personal progress there for full-suite submissions. A passing submission stores a completion event time; a submission that does not pass all tests stores an in-progress event time. The local state is separate from the committed problem definitions and is ignored by git by default. Resetting a problem clears both the editor code and that problem's progress record.
+DeepCode creates `.deepcode/user-state.json` on local startup and records personal progress there for full-suite submissions. A passing submission stores a completion event time; a submission that does not pass all tests stores an in-progress event time. The local state is separate from the committed problem definitions and is ignored by git by default. Resetting a problem clears both the editor code and that problem's current completion/in-progress record; it does not erase the historical activity ledger.
+
+The **Progress** page uses a separate append-only local activity ledger at
+`.deepcode/activity-log.json`. Every completed evaluator run is recorded there,
+including repeat attempts and selected/custom test runs, so day and week
+activity is not reduced to one completed/not-completed snapshot. Only full-suite
+runs affect the completion and in-progress status. On first use, the dashboard
+also transparently backfills each known completion/latest-status timestamp from
+the existing user-state file; it does not invent older attempt counts or test
+results.
 
 DeepCode also stores user-authored ML coding checks in `.deepcode/custom-tests.json`.
 These custom tests are local practice aids: they do not modify committed

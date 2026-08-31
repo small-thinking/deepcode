@@ -438,6 +438,19 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".completion-badge.in-progress", styles_css)
         self.assertIn(".status-cell", styles_css)
 
+    def test_progress_dashboard_has_activity_and_breakdown_views(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+
+        self.assertIn("#/progress", app_js)
+        self.assertIn("function loadProgress", app_js)
+        self.assertIn("function renderProgress", app_js)
+        self.assertIn("function renderProgressBreakdown", app_js)
+        self.assertIn("function renderProgressHeatmap", app_js)
+        self.assertIn("data-progress-range", app_js)
+        self.assertIn(".progress-page", styles_css)
+        self.assertIn(".progress-heatmap", styles_css)
+
     def test_problem_table_headers_control_sort_direction(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import unquote
 
+from deepcode.activity_log import ActivityLogStore
 from deepcode.custom_tests import CustomTestStore, validate_custom_tests
 from deepcode.company_store import CompanyStore
 from deepcode.data_links import data_link_status, remove_data_link, set_data_link
@@ -26,6 +27,7 @@ class ApiContext:
     company_store: CompanyStore | None = None
     user_state: UserStateStore | None = None
     custom_tests: CustomTestStore | None = None
+    activity_log: ActivityLogStore | None = None
 
 
 def handle_api_request(
@@ -84,6 +86,11 @@ def _handle_api_request(
         if not isinstance(payload, dict):
             raise ValueError("Request body must be a JSON object")
         return 200, run_playground(payload.get("code"))
+
+    if parts == ["api", "progress"]:
+        if method != "GET":
+            return 405, {"error": "Method not allowed"}
+        return 200, _progress_payload(context)
 
     if parts == ["api", "companies"] and method == "GET":
         company_store = _company_store(context)
@@ -157,9 +164,10 @@ def _handle_api_request(
         return 405, {"error": "Method not allowed"}
 
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "run" and method == "POST":
-        problem, request, completion_eligible = _evaluation_request_from_body(context, parts[2], body)
+        problem, request, completion_eligible, activity_scope = _evaluation_request_from_body(context, parts[2], body)
         result = evaluate_submission(request)
         _record_submission_status(context, problem, parts[2], completion_eligible, result)
+        _record_activity_event(context, problem, activity_scope, result)
         return 200, result
 
     if len(parts) == 4 and parts[:2] == ["api", "problems"] and parts[3] == "reset" and method == "POST":
@@ -188,13 +196,14 @@ def _stream_api_events(
         yield {"type": "error", "status": 405, "error": "Method not allowed"}
         return
 
-    problem, request, completion_eligible = _evaluation_request_from_body(context, parts[2], body)
+    problem, request, completion_eligible, activity_scope = _evaluation_request_from_body(context, parts[2], body)
     yield {"type": "run_started", "total": len(request.tests)}
     final_result: dict[str, Any] | None = None
     for event in stream_evaluation_events(request):
         if event.get("type") == "run_finished":
             final_result = dict(event.get("result") or {})
             _record_submission_status(context, problem, parts[2], completion_eligible, final_result)
+            _record_activity_event(context, problem, activity_scope, final_result)
             event = {**event, "result": final_result}
         yield event
 
@@ -203,7 +212,7 @@ def _evaluation_request_from_body(
     context: ApiContext,
     slug: str,
     body: bytes | None,
-) -> tuple[dict[str, Any], EvaluationRequest, bool]:
+) -> tuple[dict[str, Any], EvaluationRequest, bool, str]:
     problem = context.store.get_problem(slug)
     payload = json.loads((body or b"{}").decode("utf-8"))
     code = payload.get("code")
@@ -235,7 +244,8 @@ def _evaluation_request_from_body(
     if test_index is not None:
         runtime["skip_hidden_harness"] = True
 
-    completion_eligible = test_index is None and not custom_only and not custom_tests
+    activity_scope = "selected" if test_index is not None else "custom" if custom_only or custom_tests else "full"
+    completion_eligible = activity_scope == "full"
     return (
         problem,
         EvaluationRequest(
@@ -246,6 +256,7 @@ def _evaluation_request_from_body(
             runtime=runtime,
         ),
         completion_eligible,
+        activity_scope,
     )
 
 
@@ -284,6 +295,44 @@ def _with_personal_status(context: ApiContext, problems: list[dict[str, Any]]) -
     if not context.user_state:
         return problems
     return [context.user_state.annotate(problem) for problem in problems]
+
+
+def _progress_payload(context: ApiContext) -> dict[str, Any]:
+    """Return activity and the small catalog projection needed for dashboard metrics."""
+    problems = _with_personal_status(context, context.store.list_problems())
+    events: list[dict[str, Any]] = []
+    if context.activity_log is not None:
+        context.activity_log.backfill_problem_statuses(problems)
+        events = context.activity_log.list_events()
+    return {
+        "events": events,
+        "problems": [_progress_problem_summary(problem) for problem in problems],
+    }
+
+
+def _progress_problem_summary(problem: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "slug": problem.get("slug"),
+        "title": problem.get("title"),
+        "category": problem.get("category"),
+        "difficulty": problem.get("difficulty"),
+        "companies": list(problem.get("companies", [])),
+        "personal_status": problem.get("personal_status", _empty_problem_status()),
+    }
+
+
+def _record_activity_event(
+    context: ApiContext,
+    problem: dict[str, Any],
+    activity_scope: str,
+    result: dict[str, Any],
+) -> None:
+    """Log every completed run; status changes remain limited to full suites."""
+    if context.activity_log is not None:
+        status = result.get("problem_status") if activity_scope == "full" else None
+        last_submission = status.get("last_submission") if isinstance(status, dict) else None
+        timestamp = last_submission.get("at") if isinstance(last_submission, dict) else None
+        context.activity_log.record_submission(problem, scope=activity_scope, result=result, at=timestamp)
 
 
 def _record_submission_status(

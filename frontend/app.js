@@ -48,6 +48,13 @@ const state = {
     order: "desc",
   },
   companies: [],
+  progress: {
+    events: [],
+    problems: [],
+    range: "30",
+    company: "all",
+    category: "all",
+  },
   selected: null,
   selectedCompany: null,
   customTests: [],
@@ -232,6 +239,7 @@ function mainNavigation() {
     <nav class="main-nav" aria-label="Main navigation">
       <button class="nav-tab ${state.view === "problems" ? "active" : ""}" data-app-view="problems">Problems</button>
       <button class="nav-tab ${state.view === "companies" ? "active" : ""}" data-app-view="companies">Companies</button>
+      <button class="nav-tab ${state.view === "progress" ? "active" : ""}" data-app-view="progress">Progress</button>
       <button class="nav-tab ${state.view === "playground" ? "active" : ""}" data-app-view="playground">Playground</button>
     </nav>
   `;
@@ -506,6 +514,27 @@ async function loadCompanies() {
     const payload = await api("/api/companies");
     state.companies = payload.companies || [];
     location.hash = "#/companies";
+  } catch (error) {
+    state.error = error.message;
+  } finally {
+    state.loading = false;
+    render();
+  }
+}
+
+async function loadProgress() {
+  if (codeEditor) saveCode(editorCode());
+  state.view = "progress";
+  state.selected = null;
+  state.selectedCompany = null;
+  state.error = null;
+  state.loading = true;
+  render();
+  try {
+    const payload = await api("/api/progress");
+    state.progress.events = Array.isArray(payload.events) ? payload.events : [];
+    state.progress.problems = Array.isArray(payload.problems) ? payload.problems : [];
+    if (location.hash !== "#/progress") location.hash = "#/progress";
   } catch (error) {
     state.error = error.message;
   } finally {
@@ -1495,6 +1524,14 @@ function openPlayground() {
   render();
 }
 
+function openProgress() {
+  if (location.hash !== "#/progress") {
+    location.hash = "#/progress";
+    return;
+  }
+  loadProgress();
+}
+
 function difficultyPill(difficulty) {
   return `<span class="pill ${escapeHtml(difficulty)}">${escapeHtml(difficulty)}</span>`;
 }
@@ -1565,6 +1602,8 @@ function render() {
   teardownEditor();
   if (state.view === "playground") {
     renderPlayground();
+  } else if (state.view === "progress") {
+    renderProgress();
   } else if (state.view === "companies") {
     if (state.selectedCompany) {
       renderCompanyDetail();
@@ -1792,6 +1831,304 @@ function scrollPendingCustomTestIntoView() {
   const scrollerRect = scroller.getBoundingClientRect();
   const centeredOffset = targetRect.top - scrollerRect.top - (scrollerRect.height - targetRect.height) / 2;
   scroller.scrollTop += centeredOffset;
+}
+
+function progressEventDate(event) {
+  const value = new Date(event?.at);
+  return Number.isNaN(value.getTime()) ? null : value;
+}
+
+function progressDayKey(value) {
+  const date = value instanceof Date ? value : progressEventDate(value);
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function progressDayDate(dayKey) {
+  return new Date(`${dayKey}T12:00:00`);
+}
+
+function progressRangeStart() {
+  if (state.progress.range === "all") return null;
+  const days = Number(state.progress.range);
+  if (!Number.isFinite(days) || days < 1) return null;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - days + 1);
+  return start;
+}
+
+function progressEventMatchesFilters(event) {
+  const timestamp = progressEventDate(event);
+  if (!timestamp) return false;
+  const start = progressRangeStart();
+  if (start && timestamp < start) return false;
+  if (state.progress.category !== "all" && event.category !== state.progress.category) return false;
+  return (
+    state.progress.company === "all" ||
+    (event.companies || []).some((company) => company === state.progress.company)
+  );
+}
+
+function progressProblemMatchesFilters(problem) {
+  if (state.progress.category !== "all" && problem.category !== state.progress.category) return false;
+  return (
+    state.progress.company === "all" ||
+    (problem.companies || []).some((company) => company === state.progress.company)
+  );
+}
+
+function progressData() {
+  const events = state.progress.events.filter(progressEventMatchesFilters);
+  const problems = state.progress.problems.filter(progressProblemMatchesFilters);
+  const daily = new Map();
+  events.forEach((event) => {
+    const day = progressDayKey(event);
+    if (day) daily.set(day, (daily.get(day) || 0) + 1);
+  });
+  return {
+    events,
+    problems,
+    daily,
+    submissions: events.length,
+    uniqueProblems: new Set(events.map((event) => event.problem_slug).filter(Boolean)).size,
+    fullPasses: events.filter((event) => event.scope === "full" && event.outcome === "passed").length,
+    activeDays: daily.size,
+  };
+}
+
+function progressRangeLabel() {
+  const labels = { "7": "Last 7 days", "30": "Last 30 days", "90": "Last 90 days", all: "All time" };
+  return labels[state.progress.range] || "Last 30 days";
+}
+
+function formatProgressDay(dayKey, options = { month: "short", day: "numeric" }) {
+  const date = progressDayDate(dayKey);
+  return Number.isNaN(date.getTime()) ? dayKey : date.toLocaleDateString(undefined, options);
+}
+
+function progressCompanies() {
+  return [...new Set(state.progress.problems.flatMap((problem) => problem.companies || []))].sort((left, right) =>
+    left.localeCompare(right)
+  );
+}
+
+function progressCategories() {
+  return [...new Set(state.progress.problems.map((problem) => problem.category).filter(Boolean))].sort((left, right) =>
+    left.localeCompare(right)
+  );
+}
+
+function progressWeeklySubmissionCount(events) {
+  const start = new Date();
+  const day = start.getDay();
+  const daysSinceMonday = day === 0 ? 6 : day - 1;
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - daysSinceMonday);
+  return events.filter((event) => {
+    const timestamp = progressEventDate(event);
+    return timestamp && timestamp >= start;
+  }).length;
+}
+
+function renderProgressTrend(data) {
+  const rangeDays = state.progress.range === "all" ? 30 : Math.min(Number(state.progress.range) || 30, 30);
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - rangeDays + 1);
+  const days = Array.from({ length: rangeDays }, (_, index) => {
+    const current = new Date(start);
+    current.setDate(start.getDate() + index);
+    const key = progressDayKey(current);
+    return { key, count: data.daily.get(key) || 0 };
+  });
+  const maxCount = Math.max(1, ...days.map((item) => item.count));
+  return `
+    <section class="progress-panel progress-trend-panel">
+      <div class="progress-panel-heading">
+        <div><h2>Daily activity</h2><p>Every evaluator run counts, including repeated attempts.</p></div>
+        <strong>${progressWeeklySubmissionCount(data.events)} this week</strong>
+      </div>
+      <div class="progress-bar-chart" role="img" aria-label="Daily submission activity">
+        ${days
+          .map(
+            ({ key, count }) => `
+              <div class="progress-bar-column" title="${escapeHtml(`${formatProgressDay(key)}: ${count} submission${count === 1 ? "" : "s"}`)}">
+                <span class="progress-bar-count">${count || ""}</span>
+                <span class="progress-bar ${count ? "has-activity" : ""}" style="height: ${count ? Math.max(8, (count / maxCount) * 100) : 3}%"></span>
+                <span class="progress-bar-label">${escapeHtml(formatProgressDay(key, { month: "numeric", day: "numeric" }))}</span>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderProgressHeatmap(data) {
+  const end = new Date();
+  end.setHours(0, 0, 0, 0);
+  const day = end.getDay();
+  end.setDate(end.getDate() - (day === 0 ? 6 : day - 1));
+  const weeks = Array.from({ length: 12 }, (_, weekIndex) => {
+    return Array.from({ length: 7 }, (_, dayIndex) => {
+      const current = new Date(end);
+      current.setDate(end.getDate() - (11 - weekIndex) * 7 + dayIndex);
+      const key = progressDayKey(current);
+      const count = data.daily.get(key) || 0;
+      const level = count === 0 ? 0 : Math.min(4, count);
+      return `<span class="progress-heatmap-cell level-${level}" title="${escapeHtml(
+        `${formatProgressDay(key, { weekday: "short", month: "short", day: "numeric" })}: ${count} submission${count === 1 ? "" : "s"}`
+      )}" aria-label="${escapeHtml(`${formatProgressDay(key)}: ${count} submissions`)}"></span>`;
+    }).join("");
+  });
+  return `
+    <section class="progress-panel progress-heatmap-panel">
+      <div class="progress-panel-heading"><div><h2>12-week consistency</h2><p>Local calendar days, using the selected filters.</p></div></div>
+      <div class="progress-heatmap" role="img" aria-label="Twelve-week submission heatmap">${weeks
+        .map((week) => `<div class="progress-heatmap-week">${week}</div>`)
+        .join("")}</div>
+      <div class="progress-heatmap-legend"><span>Less</span><i class="level-0"></i><i class="level-1"></i><i class="level-2"></i><i class="level-3"></i><i class="level-4"></i><span>More</span></div>
+    </section>
+  `;
+}
+
+function progressBreakdown(problems, events, field) {
+  const entries = new Map();
+  const valuesFor = (item) => (field === "companies" ? item.companies || [] : item[field] ? [item[field]] : []);
+  const ensure = (name) => {
+    if (!entries.has(name)) entries.set(name, { name, total: 0, completed: 0, practiced: new Set(), submissions: 0 });
+    return entries.get(name);
+  };
+  problems.forEach((problem) => {
+    valuesFor(problem).forEach((name) => {
+      const entry = ensure(name);
+      entry.total += 1;
+      if (problemCompleted(problem)) entry.completed += 1;
+    });
+  });
+  events.forEach((event) => {
+    valuesFor(event).forEach((name) => {
+      const entry = ensure(name);
+      entry.submissions += 1;
+      if (event.problem_slug) entry.practiced.add(event.problem_slug);
+    });
+  });
+  return [...entries.values()]
+    .map((entry) => ({ ...entry, practiced: entry.practiced.size }))
+    .sort((left, right) => right.submissions - left.submissions || right.practiced - left.practiced || left.name.localeCompare(right.name));
+}
+
+function renderProgressBreakdown(title, entries) {
+  const rows = entries.length
+    ? entries
+        .map(
+          (entry) => `
+            <tr>
+              <td>${escapeHtml(entry.name)}</td>
+              <td>${entry.practiced} / ${entry.total}</td>
+              <td>${entry.completed} / ${entry.total}</td>
+              <td>${entry.submissions}</td>
+            </tr>
+          `
+        )
+        .join("")
+    : `<tr><td colspan="4" class="muted-cell">No problems match these filters.</td></tr>`;
+  return `
+    <section class="progress-panel progress-breakdown-panel">
+      <div class="progress-panel-heading"><div><h2>${escapeHtml(title)}</h2><p>Coverage is unique questions; submissions retain repeat attempts.</p></div></div>
+      <div class="progress-table-scroll"><table class="progress-table"><thead><tr><th>${escapeHtml(title)}</th><th>Practiced</th><th>Completed</th><th>Submissions</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </section>
+  `;
+}
+
+function progressScopeLabel(scope) {
+  return { full: "Full suite", selected: "Selected test", custom: "Custom tests" }[scope] || "Run";
+}
+
+function renderProgressRecentActivity(events) {
+  const rows = events
+    .slice(0, 12)
+    .map((event) => {
+      const result = event.total === null || event.total === undefined ? "Historical status" : `${event.passed} / ${event.total} passed`;
+      const context = [event.category, ...(event.companies || []).slice(0, 2)].filter(Boolean).join(" · ") || "Uncategorized";
+      return `
+        <tr>
+          <td>${escapeHtml(formatProgressTime(event.at))}</td>
+          <td><button class="progress-problem-link" data-progress-problem="${escapeHtml(event.problem_slug)}">${escapeHtml(event.title || event.problem_slug || "Unknown problem")}</button><small>${escapeHtml(context)}</small></td>
+          <td>${escapeHtml(progressScopeLabel(event.scope))}${event.source === "status_backfill" ? `<small>Historical</small>` : ""}</td>
+          <td><span class="progress-outcome ${event.outcome === "passed" ? "passed" : "not-passed"}">${event.outcome === "passed" ? "Passed" : "Not passed"}</span><small>${escapeHtml(result)}</small></td>
+        </tr>
+      `;
+    })
+    .join("");
+  return `
+    <section class="progress-panel progress-recent-panel">
+      <div class="progress-panel-heading"><div><h2>Recent activity</h2><p>Historical rows come from existing completion/status timestamps; they are not reconstructed attempts.</p></div></div>
+      <div class="progress-table-scroll"><table class="progress-table"><thead><tr><th>When</th><th>Question</th><th>Run</th><th>Outcome</th></tr></thead><tbody>${rows || `<tr><td colspan="4" class="muted-cell">No activity in this range yet.</td></tr>`}</tbody></table></div>
+    </section>
+  `;
+}
+
+function renderProgress() {
+  const data = progressData();
+  const companies = progressCompanies();
+  const categories = progressCategories();
+  const inProgress = data.problems.filter(problemInProgress);
+  const companyOptions = [`<option value="all">All companies</option>`, ...companies.map((company) => `<option value="${escapeHtml(company)}" ${state.progress.company === company ? "selected" : ""}>${escapeHtml(company)}</option>`)].join("");
+  const categoryOptions = [`<option value="all">All categories</option>`, ...categories.map((category) => `<option value="${escapeHtml(category)}" ${state.progress.category === category ? "selected" : ""}>${escapeHtml(category)}</option>`)].join("");
+  const rangeOptions = [
+    ["7", "7 days"],
+    ["30", "30 days"],
+    ["90", "90 days"],
+    ["all", "All time"],
+  ];
+
+  app.innerHTML = `
+    <main class="page progress-page">
+      <header class="topbar">
+        <div class="brand"><div class="mark">DC</div><div><h1>Practice Progress</h1><p>Activity, coverage, and review signals from your local runs.</p></div></div>
+        <div class="topbar-actions">${mainNavigation()}${themeToggleButton()}</div>
+      </header>
+      ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
+      <section class="progress-controls" aria-label="Progress filters">
+        <div class="progress-range-control" role="group" aria-label="Time range">
+          ${rangeOptions
+            .map(([value, label]) => `<button class="progress-range-button ${state.progress.range === value ? "active" : ""}" type="button" data-progress-range="${value}" aria-pressed="${state.progress.range === value}">${label}</button>`)
+            .join("")}
+        </div>
+        <div class="progress-filter-control"><select class="field" id="progress-company">${companyOptions}</select><select class="field" id="progress-category">${categoryOptions}</select><button class="ghost-button" id="refresh-progress">Refresh</button></div>
+      </section>
+      <p class="progress-method-note">Showing ${escapeHtml(progressRangeLabel())}. One run equals one activity event, so retrying the same question is visible. Only full-suite runs change completed or in-progress status.</p>
+      ${
+        state.loading
+          ? `<div class="loading-screen">Loading practice activity...</div>`
+          : `
+            <section class="stat-grid progress-stat-grid" aria-label="Practice statistics">
+              <div class="stat-card"><strong>${data.submissions}</strong><span>Submissions</span></div>
+              <div class="stat-card"><strong>${data.uniqueProblems}</strong><span>Unique questions</span></div>
+              <div class="stat-card"><strong>${data.fullPasses}</strong><span>Full-suite passes</span></div>
+              <div class="stat-card"><strong>${data.activeDays}</strong><span>Active days</span></div>
+            </section>
+            ${
+              inProgress.length
+                ? `<section class="progress-continue"><div><strong>Continue where you left off</strong><span>${inProgress.length} question${inProgress.length === 1 ? "" : "s"} currently marked in progress.</span></div><div>${inProgress
+                    .slice(0, 4)
+                    .map((problem) => `<button class="ghost-button" data-progress-problem="${escapeHtml(problem.slug)}">${escapeHtml(problem.title)}</button>`)
+                    .join("")}</div></section>`
+                : ""
+            }
+            <div class="progress-dashboard-grid">${renderProgressTrend(data)}${renderProgressHeatmap(data)}</div>
+            <div class="progress-dashboard-grid">${renderProgressBreakdown("By category", progressBreakdown(data.problems, data.events, "category"))}${renderProgressBreakdown("By company", progressBreakdown(data.problems, data.events, "companies"))}</div>
+            ${renderProgressRecentActivity(data.events)}
+          `
+      }
+    </main>
+  `;
 }
 
 function renderList() {
@@ -2803,6 +3140,8 @@ function bindEvents() {
         openPlayground();
       } else if (button.dataset.appView === "companies") {
         loadCompanies();
+      } else if (button.dataset.appView === "progress") {
+        openProgress();
       } else {
         backToList();
       }
@@ -2842,6 +3181,24 @@ function bindEvents() {
     if (state.filters.sort !== selectedSort) state.filters.order = defaultProblemSortOrder(selectedSort);
     state.filters.sort = selectedSort;
     loadProblems();
+  });
+  document.querySelectorAll("[data-progress-range]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.progress.range = button.dataset.progressRange;
+      render();
+    });
+  });
+  document.querySelector("#progress-company")?.addEventListener("change", (event) => {
+    state.progress.company = event.target.value;
+    render();
+  });
+  document.querySelector("#progress-category")?.addEventListener("change", (event) => {
+    state.progress.category = event.target.value;
+    render();
+  });
+  document.querySelector("#refresh-progress")?.addEventListener("click", loadProgress);
+  document.querySelectorAll("[data-progress-problem]").forEach((button) => {
+    button.addEventListener("click", () => loadProblem(button.dataset.progressProblem));
   });
   document.querySelectorAll("[data-problem-sort]").forEach((button) => {
     button.addEventListener("click", () => setProblemSort(button.dataset.problemSort));
@@ -2921,6 +3278,10 @@ function bootFromHash() {
     render();
     return;
   }
+  if (location.hash === "#/progress") {
+    loadProgress();
+    return;
+  }
   const match = location.hash.match(/^#\/problems\/(.+)$/);
   if (match) {
     loadProblem(decodeURIComponent(match[1]));
@@ -2944,6 +3305,10 @@ window.addEventListener("hashchange", () => {
     if (state.view !== "playground" || state.selected) openPlayground();
     return;
   }
+  if (location.hash === "#/progress") {
+    if (state.view !== "progress") loadProgress();
+    return;
+  }
   const match = location.hash.match(/^#\/problems\/(.+)$/);
   if (match) {
     const slug = decodeURIComponent(match[1]);
@@ -2964,7 +3329,7 @@ window.addEventListener("hashchange", () => {
     if (!state.selectedCompany || state.selectedCompany.slug !== slug) {
       loadCompany(slug);
     }
-  } else if (!location.hash && (state.selected || state.selectedCompany || state.view === "playground")) {
+  } else if (!location.hash && (state.selected || state.selectedCompany || state.view === "playground" || state.view === "progress")) {
     backToList();
   }
 });
