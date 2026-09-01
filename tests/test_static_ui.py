@@ -91,7 +91,8 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("--panel: #f7f8fb;", styles_css)
         self.assertIn("--code-bg: #f1f3f7;", styles_css)
         self.assertNotIn("--bg: #050505;", styles_css)
-        self.assertNotIn("--panel: #ffffff;", styles_css)
+        self.assertIn('body[data-theme="light"] .progress-page {', styles_css)
+        self.assertIn("--panel: #ffffff;", styles_css)
 
     def test_problem_references_render_as_background_links(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
@@ -448,8 +449,14 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("function renderProgressBreakdown", app_js)
         self.assertIn("function renderProgressHeatmap", app_js)
         self.assertIn("data-progress-range", app_js)
+        self.assertIn("data-progress-category", app_js)
+        self.assertIn("data-progress-company", app_js)
+        self.assertIn("function openProblemsForCategory", app_js)
+        self.assertIn("company_profiles", app_js)
         self.assertIn(".progress-page", styles_css)
         self.assertIn(".progress-heatmap", styles_css)
+        self.assertIn(".progress-contribution-panel", styles_css)
+        self.assertIn("--contribution-4", styles_css)
 
     def test_problem_table_headers_control_sort_direction(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")

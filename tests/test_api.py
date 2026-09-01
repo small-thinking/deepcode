@@ -317,9 +317,17 @@ class ApiTest(unittest.TestCase):
                 "1",
                 problem_overrides={"companies": ["OpenAI"]},
             )
+            companies_root = root / "companies"
+            companies_root.mkdir()
+            company = self._company_payload()
+            company.update({"slug": "openai", "name": "OpenAI"})
+            self._write_company(companies_root, "openai", company)
             user_state.mark_completed("toy")
             context = ApiContext(
-                store=ProblemStore(root / "problems"), user_state=user_state, activity_log=activity_log
+                store=ProblemStore(root / "problems"),
+                company_store=CompanyStore(companies_root),
+                user_state=user_state,
+                activity_log=activity_log,
             )
 
             status, payload = handle_api_request(context, "GET", "/api/progress", {}, None)
@@ -331,6 +339,7 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(len(repeated_payload["events"]), 1)
             self.assertEqual(payload["problems"][0]["companies"], ["OpenAI"])
             self.assertEqual(payload["problems"][0]["personal_status"]["completed"], True)
+            self.assertEqual(payload["company_profiles"], [{"slug": "openai", "name": "OpenAI", "aliases": []}])
 
     def test_passing_selected_test_does_not_mark_problem_complete(self):
         with tempfile.TemporaryDirectory() as tmp:

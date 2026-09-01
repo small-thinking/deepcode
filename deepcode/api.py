@@ -307,6 +307,7 @@ def _progress_payload(context: ApiContext) -> dict[str, Any]:
     return {
         "events": events,
         "problems": [_progress_problem_summary(problem) for problem in problems],
+        "company_profiles": _company_profile_summaries(context),
     }
 
 
