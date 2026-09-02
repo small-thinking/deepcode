@@ -6,8 +6,8 @@
   },
   {
     "name": "returns the smallest bounded permutation",
-    "input": "an exact bound, the source example, and a shorter bound",
-    "test": "assert smallest_number([6, 2, 9], 629) == '629'\nassert smallest_number([7, 1, 8], 719) == '781'\nassert smallest_number([1, 2, 3, 3, 4], 332) == '12334'"
+    "input": "an exact bound plus the corrected and shorter source examples",
+    "test": "assert smallest_number([6, 2, 9], 629) == '629'\nassert smallest_number([7, 1, 8], 719) == '781'\nassert smallest_number([1, 7, 8], 7) == '178'\nassert smallest_number([1, 2, 3, 3, 4], 332) == '12334'"
   },
   {
     "name": "uses zeros in the follow-up and rejects impossible bounds",

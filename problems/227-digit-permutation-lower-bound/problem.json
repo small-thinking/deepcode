@@ -1,9 +1,9 @@
 {
   "id": "227",
   "slug": "digit-permutation-lower-bound",
-  "title": "Digit Permutation Lower Bound",
+  "title": "Smallest List-Digit Permutation at a Lower Bound",
   "category": "Algorithms",
-  "difficulty": "hard",
+  "difficulty": "medium",
   "tags": ["backtracking", "digits", "permutation", "greedy"],
   "companies": ["Airbnb"],
   "interview_frequency": {
@@ -20,7 +20,7 @@
     "stars": 2,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `smallest_number(digits, lower_bound=None) -> str`. `digits` is an array of digits from 0 through 9 and may contain duplicates.\n\n**Warm-up:** When `lower_bound` is omitted, ignore every `0` and return the smallest integer that can be formed from the remaining digits. Assume this case has at least one nonzero digit. For example, `[0, 1, 2]` returns `\"12\"`.\n\n**Follow-up:** When `lower_bound` is supplied, use every input digit exactly once to form the smallest valid integer that is greater than or equal to the nonnegative bound. In this part, zeros are used, but the result may not start with `0`. Return `\"-1\"` if no such integer exists. Return all results as strings.",
+  "prompt": "Implement `smallest_number(digits, lower_bound=None) -> str`. `digits` is a list of digits from 0 through 9 and may contain duplicates.\n\n## Warm-up\n\nWhen `lower_bound` is omitted, omit every `0` and return the smallest integer formed from all remaining digits. Assume this case has at least one nonzero digit. For example, `[0, 1, 2]` returns `\"12\"`.\n\n## Follow-up\n\nWhen `lower_bound` is supplied, use every input digit exactly once to return the smallest valid integer that is greater than or equal to the nonnegative bound. Include zeros in this part, but the result may not start with `0`. The bound itself does not need to use the input digits. Return `\"-1\"` if no valid integer exists. Return all results as strings.",
   "starter_code": "def smallest_number(digits, lower_bound=None):\n    pass\n",
   "example": {
     "input": "smallest_number([7, 1, 8], 719)",
