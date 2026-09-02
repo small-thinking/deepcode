@@ -11,13 +11,13 @@
       "source_record_ids": [
         "3cc6ce51456d817aa927cad04694aa29"
       ],
-      "stars": 1,
-      "synced_at": "2026-08-30"
+      "stars": 2,
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
-    "synced_at": "2026-08-30"
+    "stars": 2,
+    "synced_at": "2026-09-02"
   },
   "prompt": "Design an agent for internal document search using retrieval-augmented generation. It must preserve document permissions, optimize cost and latency, scale to 100,000 users, and explain why its chosen agent framework is needed.\n\nCover ingestion and indexing, hybrid retrieval and reranking, bounded tool use, permission enforcement, caching, model routing, concurrency budgets, quality evaluation, and graceful degradation. Keep ranking and access policy in deterministic services even when an LLM orchestrates a query. This is a practice reconstruction of a reported AI/ML SWE interview theme.",
   "evaluation": {"type": "system_design"},

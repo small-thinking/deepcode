@@ -17,16 +17,16 @@
   ],
   "interview_frequency": {
     "OpenAI": {
-      "stars": 5,
       "source_record_ids": [
         "35c6ce51456d817dba83f6489a96c48d"
       ],
-      "synced_at": "2026-08-30"
+      "stars": 5,
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 5,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "This is the first problem in the Infection Spread Simulation series. Use `HEALTHY = 0` and `INFECTED = 1`.\n\nImplement `simulate_basic(grid, infection_threshold, directions=DIR4)`. `infection_threshold` is required for every call. On each day, a healthy cell becomes infected when it has at least `infection_threshold` infected neighbors in `directions`. Every transition must read the same start-of-day grid, so a cell infected today cannot transmit until tomorrow. Infection is permanent.\n\nReturn `(days_to_stability, final_grid)`. Count a day only when at least one cell changes, and stop when another update would make no changes. You may assume the grid is non-empty and rectangular, every cell is `HEALTHY` or `INFECTED`, and `infection_threshold` is a positive integer; you do not need to validate these inputs. Do not mutate the input grid.",
   "starter_code": "HEALTHY, INFECTED = range(2)\nDIR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n\ndef simulate_basic(grid, infection_threshold, directions=DIR4):\n    pass\n",

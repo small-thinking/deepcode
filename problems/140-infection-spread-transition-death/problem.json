@@ -15,15 +15,6 @@
     "OpenAI",
     "Anthropic"
   ],
-  "interview_frequency": {
-    "OpenAI": {
-      "stars": 5,
-      "source_record_ids": [
-        "35c6ce51456d817dba83f6489a96c48d"
-      ],
-      "synced_at": "2026-08-16"
-    }
-  },
   "prompt": "This is the fourth level of a staged grid-infection exercise. Use `HEALTHY = 0`, `INFECTED = 1`, `IMMUNE = 2`, and `DEAD = 3`.\n\nImplement `simulate_transition_death(grid, infectious_days, death_threshold, infection_threshold, directions=DIR4)`. `infection_threshold` is required for every call. An infected cell transmits for exactly `infectious_days` daily updates. Each day is synchronous and uses the start-of-day grid and active-infection ages:\n- A healthy cell becomes infected when it has at least `infection_threshold` active infected neighbors. A newly infected cell gets the full timer and cannot decrement or transmit until a later day.\n- An initially immune cell and any cell that becomes immune never changes or transmits.\n- When an existing infected cell finishes its final infectious day, examine its number of active infected neighbors in the start-of-day snapshot. It becomes `DEAD` when that number is at least `death_threshold`; otherwise it becomes `IMMUNE`. Dead cells never change or transmit.\n\nReturn `(days_to_no_active_infections, final_grid)`. The day on which an infected cell transitions still counts as an infectious day. Do not mutate the input grid. You may assume a non-empty rectangular grid, valid state values, and positive thresholds/timers.",
   "starter_code": "HEALTHY, INFECTED, IMMUNE, DEAD = range(4)\nDIR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n\ndef simulate_transition_death(\n    grid,\n    infectious_days,\n    death_threshold,\n    infection_threshold,\n    directions=DIR4,\n):\n    pass\n",
   "example": {

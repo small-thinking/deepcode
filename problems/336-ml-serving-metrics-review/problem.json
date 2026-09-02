@@ -12,12 +12,12 @@
         "3ba6ce51456d81ec9b31f0418e8088b4"
       ],
       "stars": 1,
-      "synced_at": "2026-08-30"
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "An existing ML-powered service has rising tail latency and occasional quality regressions. Model architecture is out of scope. Design the metrics, tracing, load experiments, and operating changes you would use to identify and improve the bottleneck.\n\nSeparate request health, queueing and resource health, model-quality and data-health signals, and business or user outcomes. Cover asynchronous Python work, batching, GPU or CPU saturation, cancellation, partial failures, backpressure, and a safe rollout of any optimization. State assumptions rather than treating a generic dashboard as an answer.",
   "evaluation": {"type": "system_design"},

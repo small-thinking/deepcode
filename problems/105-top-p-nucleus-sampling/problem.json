@@ -17,23 +17,23 @@
   ],
   "interview_frequency": {
     "MicrosoftAI": {
-      "stars": 1,
       "source_record_ids": [
         "35c6ce51456d810dbe68ca96d2720334"
       ],
-      "synced_at": "2026-08-30"
+      "stars": 1,
+      "synced_at": "2026-09-02"
     },
     "Mistral AI": {
-      "stars": 1,
       "source_record_ids": [
         "35c6ce51456d814f94a3dc188e7c6089"
       ],
-      "synced_at": "2026-08-30"
+      "stars": 1,
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Implement `top_p_sample(logits, p, u, temperature=1.0)` for one LLM decoding step.\n\nInputs:\n- `logits`: a non-empty 1D list or NumPy array of token logits.\n- `p`: the nucleus threshold, with `0 < p <= 1`.\n- `u`: a deterministic draw in `[0, 1)` used instead of calling randomness.\n- `temperature`: a positive scalar. Apply it by dividing logits by temperature before softmax.\n\nCompute a stable softmax, sort tokens by descending probability, and break ties by lower original token index. Keep the smallest sorted prefix whose cumulative probability is at least `p`. Renormalize implicitly by sampling inside that kept probability mass: if the kept mass is `M`, choose the first kept token whose cumulative kept probability is at least `u * M`. Return the selected original token index as an `int`.\n\nRaise `ValueError` for invalid `p`, `u`, `temperature`, or empty logits.",
   "starter_code": "import numpy as np\n\n\ndef top_p_sample(logits, p, u, temperature=1.0):\n    # Return the selected original token index after top-p filtering.\n    pass\n",
