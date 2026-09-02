@@ -1,17 +1,17 @@
 [
   {
-    "name": "uses every digit in the no-bound minimum",
-    "input": "digits containing zeros with and without nonzero digits",
-    "test": "assert smallest_number([4, 1, 4, 2, 3]) == '12344'\nassert smallest_number([0, 2, 5]) == '205'\nassert smallest_number([0, 0]) == '0'"
+    "name": "warm-up ignores zero digits",
+    "input": "digits with duplicate and zero values",
+    "test": "assert smallest_number([4, 1, 4, 2, 3]) == '12344'\nassert smallest_number([0, 1, 2]) == '12'\nassert smallest_number([0, 2, 5]) == '25'"
   },
   {
-    "name": "returns the mathematically smallest valid bounded permutation",
-    "input": "an exact bound, a former contradictory example, and a shorter bound",
-    "test": "assert smallest_number([6, 2, 9], 629) == '629'\nassert smallest_number([1, 6, 4], 300) == '416'\nassert smallest_number([1, 2, 3, 3, 4], 332) == '12334'"
+    "name": "returns the smallest bounded permutation",
+    "input": "an exact bound, the source example, and a shorter bound",
+    "test": "assert smallest_number([6, 2, 9], 629) == '629'\nassert smallest_number([7, 1, 8], 719) == '781'\nassert smallest_number([1, 2, 3, 3, 4], 332) == '12334'"
   },
   {
-    "name": "handles leading zeros, duplicates, and bound length boundaries",
-    "input": "shorter and longer bounds plus all-zero inputs",
-    "test": "assert smallest_number([0, 0, 4], 20) == '400'\nassert smallest_number([1, 2], 30) == '-1'\nassert smallest_number([0, 0], 0) == '0'\nassert smallest_number([0, 0], 1) == '-1'"
+    "name": "uses zeros in the follow-up and rejects impossible bounds",
+    "input": "leading-zero candidates and an overlong bound",
+    "test": "assert smallest_number([7, 3, 0, 1], 1) == '1037'\nassert smallest_number([0, 0, 4], 20) == '400'\nassert smallest_number([1, 2], 30) == '-1'"
   }
 ]
