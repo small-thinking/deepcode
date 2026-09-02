@@ -6,7 +6,21 @@
   "difficulty": "hard",
   "tags": ["backtracking", "digits", "permutation", "greedy"],
   "companies": ["Airbnb"],
-  "prompt": "Implement `smallest_number(digits, lower_bound=None) -> str`. `digits` contains integer values from 0 through 9, including duplicates.\n\nWhen `lower_bound` is supplied, use every supplied digit exactly once to build the smallest canonical decimal integer that is at least that nonnegative bound. The first digit cannot be zero unless every supplied digit is zero; in that all-zero case, return `\"0\"` only for a bound of zero. Return `\"-1\"` if no valid arrangement exists. If the bound has fewer digits than the input, return the smallest valid full-length arrangement; if it has more, return `\"-1\"`.\n\nWhen `lower_bound` is omitted, the primary behavior is different: discard zero digits, sort every remaining digit increasingly, and return that string, or `\"-1\"` when no nonzero digit remains. This deliberate rule keeps the no-bound mode distinct from the bounded permutation mode.\n\nUse digit counts rather than generating duplicate permutations. For an equal-length bound, preserve an equal prefix only while it can still succeed; once a chosen digit exceeds the matching bound digit, append the remaining digits in increasing order.",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3cf6ce51456d812db279c2bfa83931e7",
+        "3cf6ce51456d81e79e47e9a1a01b07ea"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-02"
+  },
+  "prompt": "Implement `smallest_number(digits, lower_bound=None) -> str`. `digits` contains integer values from 0 through 9, including duplicates.\n\nWhen `lower_bound` is supplied, use every supplied digit exactly once to build the smallest canonical decimal integer that is at least that nonnegative bound. The first digit cannot be zero unless every supplied digit is zero; in that all-zero case, return `\"0\"` only for a bound of zero. Return `\"-1\"` if no valid arrangement exists. If the bound has fewer digits than the input, return the smallest valid full-length arrangement; if it has more, return `\"-1\"`.\n\nWhen `lower_bound` is omitted, still use every supplied digit exactly once and return the smallest canonical decimal integer. Put the smallest available nonzero digit first, then append every remaining digit in ascending order; if every digit is zero, return `\"0\"`.\n\nUse digit counts rather than generating duplicate permutations. For an equal-length bound, preserve an equal prefix only while it can still succeed; once a chosen digit exceeds the matching bound digit, append the remaining digits in increasing order.",
   "starter_code": "def smallest_number(digits, lower_bound=None):\n    # Return the documented smallest digit construction, or '-1'.\n    pass\n",
   "example": {
     "input": "smallest_number([1, 6, 4], 300)",

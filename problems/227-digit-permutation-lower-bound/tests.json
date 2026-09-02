@@ -1,8 +1,8 @@
 [
   {
-    "name": "keeps the distinct no-bound rule for zeros",
+    "name": "uses every digit in the no-bound minimum",
     "input": "digits containing zeros with and without nonzero digits",
-    "test": "assert smallest_number([4, 1, 4, 2, 3]) == '12344'\nassert smallest_number([0, 2, 5]) == '25'\nassert smallest_number([0, 0]) == '-1'"
+    "test": "assert smallest_number([4, 1, 4, 2, 3]) == '12344'\nassert smallest_number([0, 2, 5]) == '205'\nassert smallest_number([0, 0]) == '0'"
   },
   {
     "name": "returns the mathematically smallest valid bounded permutation",

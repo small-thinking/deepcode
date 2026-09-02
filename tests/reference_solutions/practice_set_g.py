@@ -42,10 +42,13 @@ def smallest_number(digits, lower_bound=None):
         counts[digit] += 1
 
     if lower_bound is None:
-        result = []
-        for digit in range(1, 10):
-            result.extend(str(digit) for _ in range(counts[digit]))
-        return "".join(result) if result else "-1"
+        for first in range(1, 10):
+            if counts[first]:
+                counts[first] -= 1
+                result = str(first) + "".join(str(digit) * counts[digit] for digit in range(10))
+                counts[first] += 1
+                return result
+        return "0"
 
     if isinstance(lower_bound, bool) or not isinstance(lower_bound, int) or lower_bound < 0:
         raise ValueError("lower_bound must be a nonnegative integer")
