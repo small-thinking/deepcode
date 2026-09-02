@@ -11,12 +11,12 @@
       "source_record_ids": [
         "39f6ce51456d81f8ab08dbf456b3e19c"
       ],
-      "stars": 1,
+      "stars": 3,
       "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
+    "stars": 3,
     "synced_at": "2026-09-02"
   },
   "prompt": "Airbnb reports call this recurring family “Minimum Menu Order Cost II.” The exact interface and tie policy below are this exercise's practice reconstruction.\n\nImplement `minimum_cover(menu, wanted) -> tuple[int, list[tuple[int, int]]]`. Each menu entry is `(items, nonnegative_price)`. Return the minimum total price of a 0/1 selection that covers every distinct item in `wanted`, together with increasing-index `(bundle_index, 1)` pairs for the selected bundles. Contents absent from `wanted` have no effect.\n\nReturn `(-1, [])` when no selection covers all wanted items, and `(0, [])` when `wanted` is empty. If multiple selections have the same minimum cost, prefer the selection with fewer bundles; if still tied, choose the lexicographically smallest tuple of selected bundle indices.",

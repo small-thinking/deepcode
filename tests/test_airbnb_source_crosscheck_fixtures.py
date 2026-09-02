@@ -79,6 +79,19 @@ class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
                 references = store.get_problem(slug)["references"]
                 self.assertEqual({reference["url"] for reference in references}, urls)
 
+    def test_consolidated_airbnb_questions_expose_synced_frequency_tiers(self):
+        expected_tiers = {
+            "minimum-cost-bundle-cover": 3,
+            "reactive-sum-key-store": 2,
+        }
+
+        store = ProblemStore(ROOT / "problems")
+        for slug, stars in expected_tiers.items():
+            with self.subTest(slug=slug):
+                problem = store.get_problem(slug)
+                self.assertEqual(problem["interview_frequency"]["Airbnb"]["stars"], stars)
+                self.assertEqual(problem["interview_frequency_total"]["stars"], stars)
+
     def test_minimum_number_all_digits_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("minimum-number-all-digits")
         result = evaluate_submission(
