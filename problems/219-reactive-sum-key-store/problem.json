@@ -16,15 +16,15 @@
   "interview_frequency": {
     "Airbnb": {
       "source_record_ids": ["3cf6ce51456d81a8b61ef4a266807ece"],
-      "stars": 1,
+      "stars": 2,
       "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
+    "stars": 2,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `KeyStore`, an integer key store with eager sum formulas.\n\n- `set_value(key, value)` stores an integer base value. It may create a key or replace an existing formula.\n- `set_sum(key, refs)` defines `key` as the sum of the current values of every key in `refs`. References must already exist. Repeated references count repeatedly, and an empty formula evaluates to zero. Defining a sum replaces any prior formula on `key`.\n- `get_value(key) -> int` returns the current value.\n\nWhen a base value or formula value changes, all downstream formula values must update eagerly. `set_value` detaches an old formula even when its cached numeric value is unchanged; it should not otherwise propagate a no-op update. Reject a direct or indirect formula cycle with `ValueError` and leave the entire store unchanged. Reject unknown references or unknown `get_value` keys with `KeyError`; use `TypeError` for invalid keys, values, or reference collections. Do not implement deletion, persistence, or concurrency.",
+  "prompt": "Two Airbnb tech-phone reports specify an integer key store with dependency updates.\n\n- `set_value(key, value)` stores an integer value for `key`.\n- `set_sum(key, refs)` defines `key` as the sum of the values of every key in `refs`.\n- `get_value(key) -> int` returns the current value.\n\nA change must propagate through downstream sums, and repeated references count repeatedly. The reported follow-up asks how to reduce `set_value` work when reads are rare and writes are frequent.\n\nFor a deterministic practice contract, references must already exist; an empty formula is zero; `set_value` or `set_sum` replaces a prior formula; cycles raise `ValueError` atomically; unknown keys raise `KeyError`; and invalid keys, values, or reference collections raise `TypeError`. Use eager propagation. Do not implement deletion, persistence, or concurrency.",
   "starter_code": "class KeyStore:\n    def __init__(self):\n        pass\n\n    def set_value(self, key, value):\n        pass\n\n    def set_sum(self, key, refs):\n        pass\n\n    def get_value(self, key):\n        pass\n",
   "example": {
     "input": "store = KeyStore(); store.set_value('a', 2); store.set_value('b', 3); store.set_sum('total', ['a', 'a', 'b']); store.get_value('total')",
@@ -39,8 +39,12 @@
   },
   "references": [
     {
-      "label": "1Point3Acres: Airbnb tech-phone report",
+      "label": "1Point3Acres: Airbnb tech-phone report with the direct prompt",
       "url": "https://www.1point3acres.com/interview/thread/1173125"
+    },
+    {
+      "label": "1Point3Acres: separate Airbnb Key Store tech-phone report",
+      "url": "https://www.1point3acres.com/bbs/thread-1131849-1-1.html"
     }
   ],
   "evaluation": {
