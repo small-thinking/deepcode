@@ -20,12 +20,12 @@
     "stars": 2,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `smallest_number(digits, lower_bound=None) -> str`. `digits` contains integer values from 0 through 9, including duplicates.\n\nWhen `lower_bound` is supplied, use every supplied digit exactly once to build the smallest canonical decimal integer that is at least that nonnegative bound. The first digit cannot be zero unless every supplied digit is zero; in that all-zero case, return `\"0\"` only for a bound of zero. Return `\"-1\"` if no valid arrangement exists. If the bound has fewer digits than the input, return the smallest valid full-length arrangement; if it has more, return `\"-1\"`.\n\nWhen `lower_bound` is omitted, still use every supplied digit exactly once and return the smallest canonical decimal integer. Put the smallest available nonzero digit first, then append every remaining digit in ascending order; if every digit is zero, return `\"0\"`.\n\nUse digit counts rather than generating duplicate permutations. For an equal-length bound, preserve an equal prefix only while it can still succeed; once a chosen digit exceeds the matching bound digit, append the remaining digits in increasing order.",
-  "starter_code": "def smallest_number(digits, lower_bound=None):\n    # Return the documented smallest digit construction, or '-1'.\n    pass\n",
+  "prompt": "Implement `smallest_number(digits, lower_bound=None) -> str`. `digits` is an array of digits from 0 through 9 and may contain duplicates.\n\n**Warm-up:** When `lower_bound` is omitted, ignore every `0` and return the smallest integer that can be formed from the remaining digits. Assume this case has at least one nonzero digit. For example, `[0, 1, 2]` returns `\"12\"`.\n\n**Follow-up:** When `lower_bound` is supplied, use every input digit exactly once to form the smallest valid integer that is greater than or equal to the nonnegative bound. In this part, zeros are used, but the result may not start with `0`. Return `\"-1\"` if no such integer exists. Return all results as strings.",
+  "starter_code": "def smallest_number(digits, lower_bound=None):\n    pass\n",
   "example": {
-    "input": "smallest_number([1, 6, 4], 300)",
-    "output": "'416'",
-    "reasoning": "416 is the least permutation of the available digits that is not below 300."
+    "input": "smallest_number([7, 1, 8], 719)",
+    "output": "'781'",
+    "reasoning": "781 is the smallest number that uses all three digits and is at least 719."
   },
   "environment": {
     "language": "python",
