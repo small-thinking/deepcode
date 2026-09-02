@@ -1,0 +1,37 @@
+{
+  "id": "346",
+  "slug": "account-contact-components",
+  "title": "Merge Accounts by Shared Email or Phone",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["union-find", "connected-components", "accounts", "deduplication"],
+  "companies": ["Airbnb"],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": ["3cf6ce51456d8171b760d7fcb80d8622"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
+  "prompt": "Implement `merge_contact_accounts(accounts) -> list[dict]`. Each input account is a dictionary with a string `name`, a list of string `emails`, and a list of string `phones`. Merge any accounts that share an equal email or an equal phone. Overlap is transitive: if A shares with B and B shares with C, return one group for A, B, and C. Emails and phones are separate contact namespaces, so an email string does not match an identical phone string.\n\nReturn one dictionary per connected component with exactly `names`, `emails`, and `phones` keys. Each value is a deduplicated ascending list. Return component dictionaries in ascending lexicographic order by `(names, emails, phones)`. Treat supplied contact strings as already normalized; do not lowercase emails or rewrite phone numbers. Do not mutate `accounts`.\n\nAn account with no contacts forms a singleton component. Aim for near-linear time in the number of accounts and contacts using union-find or an equivalent connected-components approach.",
+  "starter_code": "def merge_contact_accounts(accounts):\n    pass\n",
+  "example": {
+    "input": "merge_contact_accounts([{'name': 'Ada', 'emails': ['ada@example.com'], 'phones': []}, {'name': 'A. Lovelace', 'emails': ['ada@example.com'], 'phones': ['555']}])",
+    "output": "[{'names': ['A. Lovelace', 'Ada'], 'emails': ['ada@example.com'], 'phones': ['555']}]",
+    "reasoning": "The repeated email puts both source accounts in one connected component."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-02"
+}

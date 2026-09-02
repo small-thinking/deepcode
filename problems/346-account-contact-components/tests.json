@@ -1,0 +1,17 @@
+[
+  {
+    "name": "merges a transitive email and phone chain",
+    "input": "three connected accounts plus one independent account",
+    "test": "accounts = [\n    {'name': 'Ada', 'emails': ['ada@example.com'], 'phones': ['111']},\n    {'name': 'A. Lovelace', 'emails': ['ada@example.com'], 'phones': []},\n    {'name': 'Grace', 'emails': [], 'phones': ['111']},\n    {'name': 'Linus', 'emails': ['linus@example.com'], 'phones': ['222']},\n]\nassert merge_contact_accounts(accounts) == [\n    {'names': ['A. Lovelace', 'Ada', 'Grace'], 'emails': ['ada@example.com'], 'phones': ['111']},\n    {'names': ['Linus'], 'emails': ['linus@example.com'], 'phones': ['222']},\n]"
+  },
+  {
+    "name": "deduplicates contacts and retains accounts with no contacts",
+    "input": "duplicates within and across accounts and one empty-contact account",
+    "test": "accounts = [\n    {'name': 'Zoe', 'emails': ['z@example.com', 'z@example.com'], 'phones': ['9']},\n    {'name': 'Zo', 'emails': ['z@example.com'], 'phones': ['9', '9']},\n    {'name': 'No Contact', 'emails': [], 'phones': []},\n]\nassert merge_contact_accounts(accounts) == [\n    {'names': ['No Contact'], 'emails': [], 'phones': []},\n    {'names': ['Zo', 'Zoe'], 'emails': ['z@example.com'], 'phones': ['9']},\n]\nassert accounts[0]['emails'] == ['z@example.com', 'z@example.com']"
+  },
+  {
+    "name": "does not merge email and phone namespaces or rely on input order",
+    "input": "same text stored once as an email and once as a phone",
+    "test": "accounts = [\n    {'name': 'Phone', 'emails': [], 'phones': ['same']},\n    {'name': 'Email', 'emails': ['same'], 'phones': []},\n]\nassert merge_contact_accounts(accounts) == [\n    {'names': ['Email'], 'emails': ['same'], 'phones': []},\n    {'names': ['Phone'], 'emails': [], 'phones': ['same']},\n]"
+  }
+]

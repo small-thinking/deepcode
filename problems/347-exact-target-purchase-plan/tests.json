@@ -1,0 +1,17 @@
+[
+  {
+    "name": "finds an exact plan with the fewest purchases and reconstructs it",
+    "input": "prices [1, 5, 7] and target 11",
+    "test": "result = min_exact_purchase_plan([1, 5, 7], 11)\nassert result == {'minimum_count': 3, 'items': [1, 5, 5]}"
+  },
+  {
+    "name": "returns a valid minimum plan without imposing an unspecified tie break",
+    "input": "two possible ways to fill target 12",
+    "test": "result = min_exact_purchase_plan([2, 4, 6, 10], 12)\nassert result['minimum_count'] == 2\nassert result['items'] == sorted(result['items'])\nassert len(result['items']) == result['minimum_count']\nassert sum(result['items']) == 12\nassert all(item in {2, 4, 6, 10} for item in result['items'])"
+  },
+  {
+    "name": "handles a zero target and reports impossible exact targets",
+    "input": "target zero and a target outside the price semigroup",
+    "test": "assert min_exact_purchase_plan([4, 6], 0) == {'minimum_count': 0, 'items': []}\nassert min_exact_purchase_plan([4, 6], 5) == -1\nassert min_exact_purchase_plan([2, 3, 11], 11) == {'minimum_count': 1, 'items': [11]}"
+  }
+]

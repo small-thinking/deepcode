@@ -1,0 +1,37 @@
+{
+  "id": "352",
+  "slug": "minimum-number-all-digits",
+  "title": "Minimum Number from All Digits",
+  "category": "Algorithms",
+  "difficulty": "easy",
+  "tags": ["digits", "counting-sort", "strings"],
+  "companies": ["Airbnb"],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": ["3cf6ce51456d8102bae9c6263f064d5e"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
+  "prompt": "Implement `minimum_number(digits) -> str`. `digits` is a list of decimal digits from 0 through 9 and contains at least one nonzero digit. Use every input digit exactly once to form the smallest possible decimal integer string. The result may not start with `0`, but zero digits must otherwise be retained.\n\nFor example, `[7, 3, 0, 1]` returns `\"1037\"`: place the smallest nonzero digit first, then every zero, then the remaining digits in increasing order. Return a string because the result may not fit in a built-in integer type.\n\nAim for linear time in `len(digits)` plus the fixed ten-digit alphabet; do not generate permutations.",
+  "starter_code": "def minimum_number(digits):\n    # Return the smallest decimal string using every input digit.\n    pass\n",
+  "example": {
+    "input": "minimum_number([7, 3, 0, 1])",
+    "output": "'1037'",
+    "reasoning": "The first digit must be nonzero, so 1 comes first; the zero and remaining digits then follow in sorted order."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-02"
+}
