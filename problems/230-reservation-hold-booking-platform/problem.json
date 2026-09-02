@@ -15,6 +15,17 @@
   "companies": [
     "Airbnb"
   ],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": ["3cf6ce51456d815a8b6cf92056014e6c"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
   "prompt": "Design a reservation platform for inventory that is reserved by a resource, a date range, and a party size. People discover candidate resources through location and availability search, place a short-lived hold during checkout, pay, receive one confirmed reservation, and may later cancel. Search results may be stale, but conflicting date ranges must never both become confirmed.\n\nCover:\n\n- The discovery path, cursor pagination, and why it is separate from authoritative availability.\n- An idempotent multi-day hold that acquires every requested date, with a clear transaction or fencing boundary that prevents double booking.\n- Payment, confirmation, expiry, cancellation, and refund state transitions, including races among a late callback, an expiring hold, and a cancellation.\n- Durable records, ownership, recovery, and an outbox or equivalent mechanism that updates the search projection.\n- The consistency, latency, availability, and operational trade-offs.\n\nBegin by defining the reservation and payment state machines. Do not rely on cached search availability as permission to charge or confirm a reservation.",
   "response": {
     "placeholder": "Define the resource-date ownership and hold/payment state machines first. Then trace a conditional multi-date hold, a fenced confirmation, projection updates, and recovery of every external-payment race.",

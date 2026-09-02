@@ -1,7 +1,7 @@
 {
   "id": "233",
   "slug": "weighted-dag-ski-score",
-  "title": "Weighted DAG Route Score",
+  "title": "Maximum-Score Terminal Path in a Weighted DAG",
   "category": "Algorithms",
   "difficulty": "medium",
   "tags": ["graphs", "dag", "dynamic-programming", "topological-sort"],
@@ -19,12 +19,12 @@
     "stars": 1,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `max_net_score(travel, points) -> int`. `travel` is an iterable of `(from_node, cost, to_node)` triples, and `points` is an iterable of `(node, reward)` pairs. Costs and rewards may be integers or decimal integer strings. The graph is a DAG with a unique start node named `start` and at least one reachable terminal whose label begins with `END`.\n\nA route begins at `start` and ends at any terminal. Its score is the sum of rewards for nodes entered on the route minus the sum of its edge costs. The start node contributes no reward. A node omitted from `points` has reward zero, while a terminal's reward is included when it is entered. Return the largest route score.\n\nUse a topological dynamic program. Keep one best score per reached node and relax each edge with the destination reward exactly once; do not count intermediate rewards both when entering and when expanding a node.",
-  "starter_code": "def max_net_score(travel, points):\n    # Return the best reward-minus-cost score from start to any END-prefixed node.\n    pass\n",
+  "prompt": "Implement `best_terminal_path(start, node_scores, edges) -> tuple[score | None, list]`. `node_scores` is either a mapping from node to reward or an iterable of `(node, reward)` pairs. `edges` is an iterable of directed `(from_node, to_node, cost)` triples. Every edge endpoint must have a score, and the graph must be acyclic.\n\nStarting at the caller-supplied `start` node, find a reachable terminal whose node name begins with `_`. A path's score is the sum of every visited node's reward, including `start`, minus the costs of its traversed edges. Return `(best_score, path)`, where `path` lists the nodes from `start` through the chosen terminal.\n\nReturn `(None, [])` when no `_`-prefixed terminal is reachable. Raise `ValueError` for a missing start score, an edge with an unknown endpoint, or a cycle. A `start` node that itself begins with `_` is a valid terminal path of length one.",
+  "starter_code": "def best_terminal_path(start, node_scores, edges):\n    # Return (best_score, path) from start to a reachable '_' terminal.\n    pass\n",
   "example": {
-    "input": "max_net_score([('start', '5', 'A'), ('A', '3', 'END1')], [('A', '10'), ('END1', '4')])",
-    "output": "6",
-    "reasoning": "Entering A and END1 earns 14 total points, while the two edges cost 8."
+    "input": "best_terminal_path('ski', {'ski': 5, 'ridge': 4, '_finish': 7}, [('ski', 'ridge', 3), ('ridge', '_finish', 2)])",
+    "output": "(11, ['ski', 'ridge', '_finish'])",
+    "reasoning": "The score includes all three node rewards (16) and subtracts both edge costs (5)."
   },
   "environment": {
     "language": "python",

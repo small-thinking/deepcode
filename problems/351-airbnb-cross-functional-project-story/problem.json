@@ -1,0 +1,27 @@
+{
+  "id": "351",
+  "slug": "airbnb-cross-functional-project-story",
+  "title": "Tell a Cross-Functional, High-Impact Project Story",
+  "category": "Behavioral",
+  "difficulty": "medium",
+  "tags": ["project-story", "cross-functional", "impact", "communication"],
+  "companies": ["Airbnb"],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": ["3cf6ce51456d810987e5f2d5bfcb1a89"],
+      "stars": 2,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-02"
+  },
+  "prompt": "Prepare a project deep dive about a high-impact project with cross-functional or cross-organizational collaboration. Cover the challenge, your role, success metrics, execution plan, outcome, and why you are proud of it.\n\nUse only your own truthful project facts. The reports do not specify a required role, project, metric, or storytelling rubric, so mark any general preparation guidance as an assumption. This is a writing exercise.",
+  "evaluation": {"type": "system_design"},
+  "response": {
+    "placeholder": "Lead with the decision-worthy problem and your accountable role, then make the collaboration, evidence, trade-offs, and result easy to follow.",
+    "reference_answer": "## Assumptions and setup\n\nAssume the interviewer wants a two-to-three-minute narrative followed by probing questions. Replace every placeholder with truthful project evidence; no particular project, scale, or success metric is implied by the report.\n\n## Story structure\n\nOpen with: \"At [organization], [users or business] faced [specific problem]. I owned [your scope], while [partner functions] owned [their scopes]. We defined success as [leading metric] and [outcome or guardrail], because [reason].\" Establish the baseline and the decision that made the work difficult before describing the implementation.\n\n## Execution and collaboration\n\nExplain the plan in milestones: how you aligned on the problem, handled a disagreement or constraint, instrumented evidence, and adjusted when a risk materialized. Attribute decisions accurately: distinguish what you led, what partners decided, and how you unblocked the shared work. Include the important trade-off, such as speed versus validation, scope versus reliability, or local optimization versus user impact.\n\n## Outcome and reflection\n\nReport only measured results, their comparison point, and limitations: \"After [intervention], [metric] changed from [baseline] to [result] over [window], while [guardrail] [held or changed].\" Close with why you are proud of the collaboration and what you would change next time. Be ready to defend the metric, explain an unexpected result, and name one lesson that transfers to a new team."
+  },
+  "created_at": "2026-09-02"
+}

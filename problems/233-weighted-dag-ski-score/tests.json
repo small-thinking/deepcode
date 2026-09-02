@@ -1,17 +1,27 @@
 [
   {
-    "name": "counts rewards on entered intermediate and endpoint nodes once",
-    "input": "a single route with one intermediate node",
-    "test": "travel = [('start', '5', 'A'), ('A', '3', 'END1')]\npoints = [('A', '10'), ('END1', '4')]\nassert max_net_score(travel, points) == 6"
+    "name": "uses the caller-provided start reward and reconstructs the best underscore terminal path",
+    "input": "a mapping of node rewards and two terminal routes from a non-default start",
+    "test": "node_scores = {'ski': 5, 'ridge': 4, '_finish': 7, '_shortcut': 2}\nedges = [('ski', 'ridge', 3), ('ridge', '_finish', 2), ('ski', '_shortcut', 1)]\nassert best_terminal_path('ski', node_scores, edges) == (11, ['ski', 'ridge', '_finish'])"
   },
   {
-    "name": "chooses the best endpoint through a merged DAG suffix",
-    "input": "two start branches, two END-prefixed terminals, and an intermediate merge",
-    "test": "travel = [('start', '2', 'A'), ('start', '1', 'B'), ('A', '1', 'C'), ('B', '2', 'C'), ('A', '3', 'END1'), ('C', '1', 'END2')]\npoints = [('A', '5'), ('B', '2'), ('C', '3'), ('END1', '1'), ('END2', '4')]\nassert max_net_score(travel, points) == 8"
+    "name": "accepts score pairs and ignores unreachable underscore terminals",
+    "input": "an iterable of score pairs with a disconnected terminal",
+    "test": "node_scores = [('trailhead', 6), ('_lodge', 10), ('detached', 1), ('_closed', 50)]\nedges = [('trailhead', '_lodge', 3), ('detached', '_closed', 0)]\nassert best_terminal_path('trailhead', node_scores, edges) == (13, ['trailhead', '_lodge'])"
   },
   {
-    "name": "includes a direct terminal reward and defaults absent rewards to zero",
-    "input": "a zero-cost direct route and a route through an unlisted node",
-    "test": "assert max_net_score([('start', '0', 'END')], [('END', '10')]) == 10\nassert max_net_score([('start', 1, 'middle'), ('middle', 1, 'END2')], [('END2', 5)]) == 3"
+    "name": "returns no path when no terminal is reachable",
+    "input": "a DAG whose only underscore terminal is disconnected",
+    "test": "node_scores = {'start': -2, 'ridge': 5, '_other': 9}\nedges = [('start', 'ridge', 1)]\nassert best_terminal_path('start', node_scores, edges) == (None, [])"
+  },
+  {
+    "name": "treats an underscore-prefixed start as a one-node terminal path",
+    "input": "a terminal start with a negative reward",
+    "test": "assert best_terminal_path('_summit', {'_summit': -3, 'ridge': 4}, []) == (-3, ['_summit'])"
+  },
+  {
+    "name": "rejects cyclic and malformed graphs",
+    "input": "a cycle and an edge endpoint without a node score",
+    "test": "try:\n    best_terminal_path('start', {'start': 1, 'A': 2}, [('start', 'A', 1), ('A', 'start', 1)])\n    raise AssertionError('expected cycle to be rejected')\nexcept ValueError:\n    pass\n\ntry:\n    best_terminal_path('start', {'start': 1}, [('start', '_missing', 1)])\n    raise AssertionError('expected unknown endpoint to be rejected')\nexcept ValueError:\n    pass\n\ntry:\n    best_terminal_path('start', {'start': 1, '_end': 2}, [('start', '_end')])\n    raise AssertionError('expected malformed edge to be rejected')\nexcept ValueError:\n    pass"
   }
 ]

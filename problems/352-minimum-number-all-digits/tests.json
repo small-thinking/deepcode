@@ -1,0 +1,17 @@
+[
+  {
+    "name": "retains zero after the leading nonzero digit",
+    "input": "the source example",
+    "test": "assert minimum_number([7, 3, 0, 1]) == '1037'"
+  },
+  {
+    "name": "retains duplicate zeros and repeated nonzero digits",
+    "input": "a digit multiset with duplicate values",
+    "test": "assert minimum_number([0, 4, 0, 4, 2]) == '20044'"
+  },
+  {
+    "name": "sorts an already nonzero-only input",
+    "input": "an unsorted list without zero",
+    "test": "assert minimum_number([9, 2, 2, 5]) == '2259'"
+  }
+]

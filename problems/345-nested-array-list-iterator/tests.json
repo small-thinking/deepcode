@@ -1,0 +1,17 @@
+[
+  {
+    "name": "iterates in row order while skipping empty inner lists",
+    "input": "empty rows before between and after nonempty rows",
+    "test": "rows = [[], [1, 2], [], [3], []]\nit = NestedArrayListIterator(rows)\nassert it.hasNext() is True\nassert it.hasNext() is True\nassert [it.next(), it.next(), it.next()] == [1, 2, 3]\nassert it.hasNext() is False\ntry:\n    it.next()\n    raise AssertionError('expected StopIteration')\nexcept StopIteration:\n    pass"
+  },
+  {
+    "name": "removes the exact last returned value without skipping the successor",
+    "input": "removals that shift an inner row and then empty it",
+    "test": "rows = [[10, 11], [12]]\nit = NestedArrayListIterator(rows)\nassert it.next() == 10\nit.remove()\nassert rows == [[11], [12]]\nassert it.next() == 11\nit.remove()\nassert rows == [[], [12]]\nassert it.next() == 12\nit.remove()\nassert rows == [[], []]\nassert it.hasNext() is False"
+  },
+  {
+    "name": "allows one remove per successful next only",
+    "input": "remove before next twice after next and after the final removal",
+    "test": "it = NestedArrayListIterator([[7]])\nfor action in (it.remove,):\n    try:\n        action()\n        raise AssertionError('expected RuntimeError')\n    except RuntimeError:\n        pass\nassert it.next() == 7\nit.remove()\nfor action in (it.remove,):\n    try:\n        action()\n        raise AssertionError('expected RuntimeError')\n    except RuntimeError:\n        pass\ntry:\n    it.next()\n    raise AssertionError('expected StopIteration')\nexcept StopIteration:\n    pass\ntry:\n    it.remove()\n    raise AssertionError('expected RuntimeError')\nexcept RuntimeError:\n    pass"
+  }
+]

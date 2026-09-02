@@ -6,6 +6,33 @@ from scripts.build_frequency_tiers import build_plan
 
 
 class BuildFrequencyTiersTest(unittest.TestCase):
+    def test_normalizes_uuid_record_ids_to_the_catalog_form(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            problems_root = Path(tmp) / "problems"
+            problem_dir = problems_root / "101-toy"
+            problem_dir.mkdir(parents=True)
+            (problem_dir / "problem.json").write_text(
+                '{"slug": "toy", "companies": ["Airbnb"]}', encoding="utf-8"
+            )
+
+            plan = build_plan(
+                [
+                    {
+                        "record_id": "3cf6ce51-456d-8102-bae9-c6263f064d5e",
+                        "company": "Airbnb",
+                        "seen_count": 1,
+                        "slug": "toy",
+                    }
+                ],
+                problems_root,
+                "2026-09-02",
+            )
+
+        self.assertEqual(
+            plan["problems"]["toy"]["interview_frequency"]["Airbnb"]["source_record_ids"],
+            ["3cf6ce51456d8102bae9c6263f064d5e"],
+        )
+
     def test_combines_company_signals_without_retaining_raw_counts(self):
         with tempfile.TemporaryDirectory() as tmp:
             problems_root = Path(tmp) / "problems"

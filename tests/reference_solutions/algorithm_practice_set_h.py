@@ -1,40 +1,69 @@
 from bisect import bisect_right
-from collections import defaultdict, deque
+from collections import deque
 
 
-def max_net_score(travel, points):
-    rewards = {node: int(reward) for node, reward in points}
-    graph = defaultdict(list)
-    nodes = set(rewards)
-    indegree = defaultdict(int)
+def best_terminal_path(start, node_scores, edges):
+    if hasattr(node_scores, "items"):
+        scores = dict(node_scores.items())
+    else:
+        scores = dict(node_scores)
 
-    for source, cost, destination in travel:
-        nodes.add(source)
-        nodes.add(destination)
-        graph[source].append((destination, int(cost)))
+    if start not in scores:
+        raise ValueError("start must have a node score")
+
+    graph = {node: [] for node in scores}
+    indegree = {node: 0 for node in scores}
+    for edge in edges:
+        try:
+            source, destination, cost = edge
+        except (TypeError, ValueError) as error:
+            raise ValueError("each edge must be a (from_node, to_node, cost) triple") from error
+        if source not in scores or destination not in scores:
+            raise ValueError("every edge endpoint must have a node score")
+        graph[source].append((destination, cost))
         indegree[destination] += 1
-        indegree.setdefault(source, 0)
 
-    ready = deque(node for node in nodes if indegree[node] == 0)
+    ready = deque(node for node, degree in indegree.items() if degree == 0)
     order = []
     while ready:
-        node = ready.popleft()
-        order.append(node)
-        for destination, _ in graph[node]:
+        source = ready.popleft()
+        order.append(source)
+        for destination, _ in graph[source]:
             indegree[destination] -= 1
             if indegree[destination] == 0:
                 ready.append(destination)
 
-    scores = {"start": 0}
+    if len(order) != len(scores):
+        raise ValueError("graph must be a DAG")
+
+    best_scores = {node: None for node in scores}
+    parents = {start: None}
+    best_scores[start] = scores[start]
     for source in order:
-        if source not in scores:
+        if best_scores[source] is None:
             continue
         for destination, cost in graph[source]:
-            candidate = scores[source] + rewards.get(destination, 0) - cost
-            if destination not in scores or candidate > scores[destination]:
-                scores[destination] = candidate
+            candidate = best_scores[source] + scores[destination] - cost
+            if best_scores[destination] is None or candidate > best_scores[destination]:
+                best_scores[destination] = candidate
+                parents[destination] = source
 
-    return max(score for node, score in scores.items() if node.startswith("END"))
+    terminals = [
+        node
+        for node, score in best_scores.items()
+        if str(node).startswith("_") and score is not None
+    ]
+    if not terminals:
+        return None, []
+
+    end = max(terminals, key=best_scores.__getitem__)
+    path = []
+    current = end
+    while current is not None:
+        path.append(current)
+        current = parents[current]
+    path.reverse()
+    return best_scores[end], path
 
 
 def job_scheduling(start_times, end_times, profits):

@@ -6,6 +6,17 @@
   "difficulty": "medium",
   "tags": ["graphs", "grid", "flood-fill", "connected-components"],
   "companies": ["Airbnb"],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": ["3cf6ce51456d81ee85cbede07d3e464a"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
   "prompt": "Implement `board_score(grid) -> int`. `grid` is a rectangular two-dimensional grid whose cells contain one terrain letter followed by one crown digit, such as `F2` or `R0`. A region is a maximal 4-connected component of cells with the same terrain letter.\n\nFor every region, compute `number_of_cells * sum_of_crowns_in_that_region`, then return the sum across all regions. Diagonal cells are not connected. A zero-crown cell still belongs to and enlarges its region. Return `0` for an empty grid.\n\nUse BFS or DFS with visited state so every cell is processed once.",
   "starter_code": "def board_score(grid):\n    # Sum size times crowns for every 4-connected terrain region.\n    pass\n",
   "example": {

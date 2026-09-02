@@ -13,6 +13,17 @@
   "companies": [
     "Airbnb"
   ],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": ["3cf6ce51456d81a8b61ef4a266807ece"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
   "prompt": "Implement `KeyStore`, an integer key store with eager sum formulas.\n\n- `set_value(key, value)` stores an integer base value. It may create a key or replace an existing formula.\n- `set_sum(key, refs)` defines `key` as the sum of the current values of every key in `refs`. References must already exist. Repeated references count repeatedly, and an empty formula evaluates to zero. Defining a sum replaces any prior formula on `key`.\n- `get_value(key) -> int` returns the current value.\n\nWhen a base value or formula value changes, all downstream formula values must update eagerly. `set_value` detaches an old formula even when its cached numeric value is unchanged; it should not otherwise propagate a no-op update. Reject a direct or indirect formula cycle with `ValueError` and leave the entire store unchanged. Reject unknown references or unknown `get_value` keys with `KeyError`; use `TypeError` for invalid keys, values, or reference collections. Do not implement deletion, persistence, or concurrency.",
   "starter_code": "class KeyStore:\n    def __init__(self):\n        pass\n\n    def set_value(self, key, value):\n        pass\n\n    def set_sum(self, key, refs):\n        pass\n\n    def get_value(self, key):\n        pass\n",
   "example": {

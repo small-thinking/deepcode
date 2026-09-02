@@ -19,6 +19,7 @@ from typing import Any
 
 
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+UUID_RE = re.compile(r"^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$")
 REQUIRED_KEYS = {"record_id", "company", "seen_count", "slug"}
 LEGACY_COMPANY_LABELS = {
     "gdm": "Google DeepMind",
@@ -50,6 +51,11 @@ def normalized_seen_count(value: Any, record_id: str) -> int:
     return int(value)
 
 
+def canonical_record_id(value: str) -> str:
+    normalized = value.strip().casefold()
+    return normalized.replace("-", "") if UUID_RE.fullmatch(normalized) else normalized
+
+
 def read_snapshot(path: Path) -> list[dict[str, Any]]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -75,7 +81,7 @@ def read_snapshot(path: Path) -> list[dict[str, Any]]:
         if not isinstance(slug, str) or not SLUG_RE.fullmatch(slug):
             fail(f"record {record_id}: slug is invalid")
 
-        record_id = record_id.strip().casefold()
+        record_id = canonical_record_id(record_id)
         if record_id in record_ids:
             fail(f"record {record_id}: duplicated stable source record id")
         record_ids.add(record_id)
@@ -141,11 +147,12 @@ def build_plan(rows: list[dict[str, Any]], problems_root: Path, synced_at: str) 
     slug_entries: dict[str, list[dict[str, Any]]] = defaultdict(list)
     problems = load_problems(problems_root)
     for row in rows:
-        slug = row["slug"]
+        normalized_row = {**row, "record_id": canonical_record_id(row["record_id"])}
+        slug = normalized_row["slug"]
         if slug not in problems:
             fail(f"{slug}: no matching problem.json")
-        company = canonical_company(problems[slug]["companies"], row["company"])
-        normalized_row = {**row, "company": company}
+        company = canonical_company(problems[slug]["companies"], normalized_row["company"])
+        normalized_row["company"] = company
         grouped[(slug, company)].append(normalized_row)
         slug_entries[slug].append(normalized_row)
 
