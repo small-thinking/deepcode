@@ -12,12 +12,12 @@
         "3b16ce51456d8184a89deb80125a5743"
       ],
       "stars": 2,
-      "synced_at": "2026-08-30"
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Design a Terraform-like control plane that provisions an application into two regions. The prompt is intentionally underspecified: define the resource model, plan/apply contract, state ownership, dependency semantics, and operator workflow before proposing implementation details.\n\nCover immutable desired-state revisions, idempotent apply, provider failures, partial completion, concurrent applies, drift detection, rollback or compensation, and auditability. Distinguish a deployment pipeline from infrastructure reconciliation. This is a practice reconstruction of a reported interview theme whose exact interface was not published.",
   "evaluation": {"type": "system_design"},

@@ -96,6 +96,10 @@ def minimum_cover(menu, wanted):
         if mask:
             useful.append((index, mask, price))
 
+    def rank(cost, counts):
+        selected = tuple(index for index, count in enumerate(counts) if count)
+        return cost, len(selected), selected
+
     zero_counts = (0,) * len(bundles)
     states = {0: (0, zero_counts)}
     for covered in range(full_mask + 1):
@@ -111,7 +115,7 @@ def minimum_cover(menu, wanted):
             next_counts[index] = 1
             candidate = (cost + price, tuple(next_counts))
             existing = states.get(next_covered)
-            if existing is None or candidate < existing:
+            if existing is None or rank(*candidate) < rank(*existing):
                 states[next_covered] = candidate
 
     result = states.get(full_mask)

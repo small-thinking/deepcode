@@ -16,16 +16,16 @@
   ],
   "interview_frequency": {
     "OpenAI": {
-      "stars": 2,
       "source_record_ids": [
         "3656ce51456d81bca27ce926fa74c9bc"
       ],
-      "synced_at": "2026-08-30"
+      "stars": 2,
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Implement prefix products over a sequence of square matrices, plus a manual backward pass.\n\n`prefix_matrix_products(W)` receives a Torch tensor `W` with shape `(N, D, D)` and returns `P` with the same shape, where `P[i] = W[0] @ W[1] @ ... @ W[i]`.\n\n`prefix_matrix_products_backward(W, grad_P)` receives the original matrices and an upstream gradient tensor `grad_P` with the same shape as `P`. Return `grad_W`, the gradient of `sum_i <grad_P[i], P[i]>` with respect to each `W[i]`.\n\nUse the product rule directly. If `P[i] = W[0] ... W[i]`, then output `i` contributes to matrix `k <= i` as `left.T @ grad_P[i] @ right.T`, where `left = W[0] ... W[k-1]` and `right = W[k+1] ... W[i]`. Keep the implementation small and correct before thinking about scan optimizations.",
   "starter_code": "import torch\n\n\ndef prefix_matrix_products(W):\n    # Return P where P[i] = W[0] @ ... @ W[i].\n    pass\n\n\ndef prefix_matrix_products_backward(W, grad_P):\n    # Return dL/dW for upstream gradients grad_P.\n    pass\n",

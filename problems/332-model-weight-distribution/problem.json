@@ -12,12 +12,12 @@
         "3ae6ce51456d815f8eb3d7eebd88ced2"
       ],
       "stars": 3,
-      "synced_at": "2026-08-30"
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 3,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Design a service that distributes a versioned model artifact to 1,000 GPU workers. All workers share a constrained aggregate network link, and a worker may serve traffic only after it has fully verified the requested version. A worker can disappear mid-download, report stale capacity, or finish loading after a rollout has been superseded.\n\nState the availability and rollout assumptions before choosing a topology. Cover artifact identity and integrity, control-plane versus data-plane responsibilities, bandwidth-aware fanout, cache placement, admission, cancellation, rollback, recovery, and the evidence required before routing requests to a worker. This is a practice reconstruction of a reported model-distribution interview theme, not a verbatim interviewer contract.",
   "evaluation": {"type": "system_design"},

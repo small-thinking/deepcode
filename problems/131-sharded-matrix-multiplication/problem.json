@@ -16,16 +16,16 @@
   ],
   "interview_frequency": {
     "OpenAI": {
-      "stars": 3,
       "source_record_ids": [
         "39d6ce51456d8137a296e088ad066d19"
       ],
-      "synced_at": "2026-08-30"
+      "stars": 3,
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 3,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Implement column-sharded matrix multiplication and its backward pass with NumPy. Let `a` have shape `(batch, in_features)`. `b_shards` is a non-empty list where shard `i` has shape `(in_features, out_i)`; concatenating the shards along axis 1 gives the logical weight matrix `B`. Inputs must be two-dimensional numeric arrays with consistent dimensions. Do not mutate them.\n\n### Part 1 — Distributed forward pass\n\nImplement `column_sharded_matmul(a, b_shards)`. Compute `a @ shard` independently for every shard and concatenate the partial outputs along axis 1. Return a NumPy array equal to `a @ np.concatenate(b_shards, axis=1)`.\n\n### Part 2 — Backpropagation across shards\n\nImplement `column_sharded_matmul_with_grads(a, b_shards, dy)`, where `dy` has the same shape as the logical output. Return `(y, da, db_shards)`. Split `dy` by shard output width. Each shard computes its local output, input-gradient contribution, and weight gradient. `da` is the sum of all input-gradient contributions, modeling an all-reduce; `db_shards[i]` remains local to shard `i`. Preserve floating-point precision and validate malformed shapes with `ValueError`.",
   "starter_code": "import numpy as np\n\n\ndef column_sharded_matmul(a, b_shards):\n    pass\n\n\ndef column_sharded_matmul_with_grads(a, b_shards, dy):\n    pass\n",

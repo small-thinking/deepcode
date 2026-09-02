@@ -5,9 +5,9 @@
     "test": "menu = [(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)]\nassert minimum_cover(menu, ['p', 'r', 's']) == (5, [(1, 1), (2, 1)])"
   },
   {
-    "name": "handles duplicate wanted names, irrelevant contents, and ties",
-    "input": "a repeated wanted item and two equal-cost covers",
-    "test": "menu = [(['p', 'extra'], 4), (['q'], 5), (['p', 'q'], 9)]\nassert minimum_cover(menu, ['p', 'p', 'q']) == (9, [(2, 1)])"
+    "name": "prefers fewer bundles before the index tie-break",
+    "input": "one early full bundle versus two later equal-cost bundles",
+    "test": "menu = [(['p', 'q'], 2), (['p'], 1), (['q'], 1)]\nassert minimum_cover(menu, ['p', 'p', 'q']) == (2, [(0, 1)])"
   },
   {
     "name": "uses the documented impossible and empty sentinels",

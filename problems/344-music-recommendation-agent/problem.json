@@ -11,13 +11,13 @@
       "source_record_ids": [
         "3cc6ce51456d81bab4e6ecba1d88799c"
       ],
-      "stars": 1,
-      "synced_at": "2026-08-30"
+      "stars": 2,
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
-    "synced_at": "2026-08-30"
+    "stars": 2,
+    "synced_at": "2026-09-02"
   },
   "prompt": "Design a music recommendation system, then explain how the design changes when an LLM powers a recommendation agent. Cover candidate generation, ranking, feedback, cold start, diversity, freshness, and online evaluation.\n\nThe LLM may interpret natural-language intent and call approved catalog and retrieval tools, but it must not bypass catalog eligibility, ranking policy, or safety constraints. Discuss latency, cost, hallucination, experimentation, and what remains deterministic. This is a practice reconstruction of a reported AI/ML SWE interview theme.",
   "evaluation": {"type": "system_design"},

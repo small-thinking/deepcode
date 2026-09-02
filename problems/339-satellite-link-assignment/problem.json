@@ -12,12 +12,12 @@
         "3bd6ce51456d81f38241f1d9871ae3de"
       ],
       "stars": 1,
-      "synced_at": "2026-08-30"
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Design an algorithmic service that assigns users to visible satellites and one of four radio frequencies. A satellite has a finite user capacity, a user may have no visible satellite, and nearby links attached to the same satellite may not reuse a frequency. The objective is high coverage under a fixed runtime budget.\n\nExplain how you turn spherical geometry into feasible edges and per-satellite conflicts, choose an optimization or approximation strategy, prove every returned assignment is feasible, and handle ties, incremental changes, and overload. Do not assume that one globally optimal algorithm is required when the input scale and latency budget are unspecified. This is a practice reconstruction of a reported satellite-network OA theme.",
   "evaluation": {"type": "system_design"},

@@ -6,6 +6,19 @@
   "difficulty": "medium",
   "tags": ["graphs", "dag", "dynamic-programming", "topological-sort"],
   "companies": ["Airbnb"],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "39f6ce51456d814abea5f1be844fd7a1"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
   "prompt": "Implement `max_net_score(travel, points) -> int`. `travel` is an iterable of `(from_node, cost, to_node)` triples, and `points` is an iterable of `(node, reward)` pairs. Costs and rewards may be integers or decimal integer strings. The graph is a DAG with a unique start node named `start` and at least one reachable terminal whose label begins with `END`.\n\nA route begins at `start` and ends at any terminal. Its score is the sum of rewards for nodes entered on the route minus the sum of its edge costs. The start node contributes no reward. A node omitted from `points` has reward zero, while a terminal's reward is included when it is entered. Return the largest route score.\n\nUse a topological dynamic program. Keep one best score per reached node and relax each edge with the destination reward exactly once; do not count intermediate rewards both when entering and when expanding a node.",
   "starter_code": "def max_net_score(travel, points):\n    # Return the best reward-minus-cost score from start to any END-prefixed node.\n    pass\n",
   "example": {

@@ -12,12 +12,12 @@
         "3c36ce51456d815a9bd8c1072fcbb740"
       ],
       "stars": 2,
-      "synced_at": "2026-08-30"
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Design a control center that sends an energy-reduction command to many smart devices. A device may miss a command, reject it, accept it without executing it, or execute it while telemetry arrives late, duplicated, or out of order. The controller must reconcile observed state before issuing unsafe follow-up commands.\n\nDefine command identity and lifecycle, telemetry ingestion, event-time handling, idempotent reconciliation, retry and expiry policy, group-level safety limits, recovery, and user-visible uncertainty. Separate delivery acknowledgement from actual execution. This is a practice reconstruction of a reported unreliable-device dispatch interview theme.",
   "evaluation": {"type": "system_design"},

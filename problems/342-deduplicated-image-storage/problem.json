@@ -12,12 +12,12 @@
         "3c56ce51456d81e6821edf0d024e3c76"
       ],
       "stars": 1,
-      "synced_at": "2026-08-30"
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Design an image service with upload, view, and delete. Uploads can be large and retried; the service must compute a full-file SHA-256, deduplicate identical blobs, preserve separate user-visible image records, and safely garbage-collect an unreferenced blob.\n\nCover resumable multipart upload, integrity verification, idempotency, metadata/blob consistency, concurrent finalization, authorization, delete races, failure recovery, and observability. Do not assume a multipart ETag is a full-file SHA-256. This is a practice reconstruction of a reported image-storage interview theme.",
   "evaluation": {"type": "system_design"},

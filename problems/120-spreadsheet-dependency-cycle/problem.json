@@ -17,23 +17,23 @@
   ],
   "interview_frequency": {
     "Harvey": {
-      "stars": 1,
       "source_record_ids": [
         "37c6ce51456d814880edc215e23779c0"
       ],
-      "synced_at": "2026-08-30"
+      "stars": 1,
+      "synced_at": "2026-09-02"
     },
     "Sierra": {
-      "stars": 2,
       "source_record_ids": [
         "37c6ce51456d8110902dc0612ab26f2c"
       ],
-      "synced_at": "2026-08-30"
+      "stars": 2,
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "Implement `find_circular_dependency(dependencies)`.\n\nA spreadsheet cell can depend on other cells. `dependencies` is a dictionary mapping a cell name to the list of cells it references. Return the first circular dependency path you find, including the starting cell again at the end. For example, a cycle `A1 -> B1 -> C1 -> A1` should return `['A1', 'B1', 'C1', 'A1']`.\n\nIf there is no cycle, return an empty list. References to cells that do not appear as keys in `dependencies` should be treated as leaf input cells, not as errors.\n\nFor deterministic behavior, visit cells in dictionary insertion order and visit each cell's dependency list in list order. Self-cycles should return `[cell, cell]`.",
   "starter_code": "def find_circular_dependency(dependencies):\n    # Return the first cycle path, including the repeated starting cell, or [] if acyclic.\n    pass\n",

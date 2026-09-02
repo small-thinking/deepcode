@@ -12,12 +12,12 @@
         "3bd6ce51456d814d8c2fc46ac304fee6"
       ],
       "stars": 1,
-      "synced_at": "2026-08-30"
+      "synced_at": "2026-09-02"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-08-30"
+    "synced_at": "2026-09-02"
   },
   "prompt": "A production classifier's headline accuracy improved after a release, but a costly rare failure mode is appearing more often. Design the evaluation and diagnosis loop before deciding whether to tune, roll back, or collect more data.\n\nDiscuss metric selection under class imbalance, offline versus online validation, slice analysis, data and feature checks, experiment design, release gates, and monitoring. Explain how you would tell a model regression from a pipeline, labeling, or serving change. This is a practice reconstruction of a reported MLE technical-screen theme.",
   "evaluation": {"type": "system_design"},
