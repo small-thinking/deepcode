@@ -17,7 +17,7 @@
     "stars": 1,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `minimum_number(digits) -> str`. `digits` is a list of decimal digits from 0 through 9 and contains at least one nonzero digit. Use every input digit exactly once to form the smallest possible decimal integer string. The result may not start with `0`, but zero digits must otherwise be retained.\n\nFor example, `[7, 3, 0, 1]` returns `\"1037\"`: place the smallest nonzero digit first, then every zero, then the remaining digits in increasing order. Return a string because the result may not fit in a built-in integer type.\n\nAim for linear time in `len(digits)` plus the fixed ten-digit alphabet; do not generate permutations.",
+  "prompt": "Implement `minimum_number(digits) -> str`. `digits` is a list of decimal digits from 0 through 9 and contains at least one nonzero digit. Use every input digit exactly once to form the smallest possible decimal integer string. The result may not start with `0`, but zero digits must otherwise be retained.\n\nFor example, `[7, 3, 0, 1]` returns `\"1037\"`. Return a string because the result may not fit in a built-in integer type.",
   "starter_code": "def minimum_number(digits):\n    # Return the smallest decimal string using every input digit.\n    pass\n",
   "example": {
     "input": "minimum_number([7, 3, 0, 1])",
@@ -30,6 +30,12 @@
     "packages": [],
     "comparator": "assertions"
   },
+  "references": [
+    {
+      "label": "1Point3Acres: Airbnb interview report",
+      "url": "https://www.1point3acres.com/home/thread/604924"
+    }
+  ],
   "evaluation": {
     "type": "ml_modeling"
   },

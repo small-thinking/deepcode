@@ -6,7 +6,7 @@
   "difficulty": "medium",
   "tags": ["graphs", "topological-sort", "dependencies", "cycle-detection"],
   "companies": ["Airbnb"],
-  "prompt": "Implement `find_installation_order(n, dependencies) -> list[int]`. Tasks are numbered from `0` through `n - 1`. Each `(task, prerequisite)` entry means that `prerequisite` must appear before `task`.\n\nReturn any ordering that contains every task exactly once and satisfies every prerequisite relation. If the dependencies contain a cycle, return `[]`. With no dependencies, any permutation of all task IDs is valid.\n\nUse a function API only: represent an impossible schedule with `[]`, not a special output string. Target O(n + m) time and space for `m` dependency pairs.",
+  "prompt": "Implement `find_installation_order(n, dependencies) -> list[int]`. Tasks are numbered from `0` through `n - 1`. Each `(task, prerequisite)` entry means that `prerequisite` must appear before `task`.\n\nReturn any ordering that contains every task exactly once and satisfies every prerequisite relation. If the dependencies contain a cycle, return `[]`. With no dependencies, any permutation of all task IDs is valid.\n\nUse a function API only: represent an impossible schedule with `[]`, not a special output string.",
   "starter_code": "def find_installation_order(n, dependencies):\n    # Return one valid prerequisite-respecting order, or [] when a cycle exists.\n    pass\n",
   "example": {
     "input": "find_installation_order(4, [(1, 0), (2, 1), (3, 0)])",

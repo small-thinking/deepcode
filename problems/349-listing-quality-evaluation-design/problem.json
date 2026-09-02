@@ -18,6 +18,16 @@
     "synced_at": "2026-09-02"
   },
   "prompt": "An Airbnb MLE interview report asks how to define and detect high-quality listings. It names retention, bad reviews, cancellations, disputes, refunds, and NPS as possible signals. Design a reliable quality measure and the evaluation loop around it.\n\nExplain the quality definition, label horizon and leakage controls, data and modeling choices, validation, intervention, and monitoring. The report does not provide one canonical formula, horizon, or model: state any general preparation assumptions explicitly. This is a writing exercise.",
+  "references": [
+    {
+      "label": "1Point3Acres: Airbnb ML coding report",
+      "url": "https://www.1point3acres.com/interview/thread/1162688"
+    },
+    {
+      "label": "1Point3Acres: Airbnb MLE interview report",
+      "url": "https://www.1point3acres.com/interview/thread/1171020"
+    }
+  ],
   "evaluation": {"type": "system_design"},
   "response": {
     "placeholder": "Begin with a time-bound, multi-objective definition of quality; do not collapse every reported outcome into an unexamined label.",

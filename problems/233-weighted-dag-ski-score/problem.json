@@ -32,6 +32,12 @@
     "packages": [],
     "comparator": "assertions"
   },
+  "references": [
+    {
+      "label": "1Point3Acres: Airbnb interview report",
+      "url": "https://www.1point3acres.com/bbs/thread-1139472-1-1.html"
+    }
+  ],
   "evaluation": {
     "type": "ml_modeling"
   },

@@ -6,7 +6,7 @@
   "difficulty": "hard",
   "tags": ["dynamic-programming", "unbounded-knapsack", "integer-scaling"],
   "companies": ["Airbnb"],
-  "prompt": "Implement `min_exact_items(durations, target) -> int`. Each duration and the target has at most one decimal place. Select durations with unlimited reuse and return the fewest selections whose sum is exactly `target`. Return `0` when no exact selection exists; `target == 0` also returns `0`.\n\nDo not use binary floating-point equality for this task. Convert every value to integer tenths before computing the result. Duplicate duration values do not change what totals are reachable, and one duration may be selected more than once. Assume every duration is positive and the target is nonnegative.\n\nUse dynamic programming where the state for each scaled total stores its best known item count. Aim for O(target_in_tenths * len(durations)) time and O(target_in_tenths) space.",
+  "prompt": "Implement `min_exact_items(durations, target) -> int`. Each duration and the target has at most one decimal place. Select durations with unlimited reuse and return the fewest selections whose sum is exactly `target`. Return `0` when no exact selection exists; `target == 0` also returns `0`.\n\nTreat values exactly at their stated one-decimal precision. Duplicate duration values do not change what totals are reachable, and one duration may be selected more than once. Assume every duration is positive and the target is nonnegative.",
   "starter_code": "def min_exact_items(durations, target):\n    # Return the fewest reusable durations that sum to target exactly, or 0.\n    pass\n",
   "example": {
     "input": "min_exact_items([2.5, 1.5], 6.5)",
