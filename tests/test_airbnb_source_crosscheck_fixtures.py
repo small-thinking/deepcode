@@ -12,13 +12,21 @@ REFERENCE_SOLUTION = (
 
 
 class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
-    def test_source_backed_airbnb_questions_expose_original_reports(self):
+    def test_source_backed_airbnb_questions_expose_reports(self):
         expected_urls = {
+            "minimum-cost-bundle-cover": {
+                "https://www.1point3acres.com/interview/thread/1137550",
+                "https://www.1point3acres.com/bbs/thread-1146074-1-1.html",
+                "https://www.1point3acres.com/interview/thread/1150336",
+                "https://www.1point3acres.com/interview/thread/1151255",
+                "https://www.1point3acres.com/interview/thread/1150756",
+            },
             "query-parameter-decoder": {
                 "https://www.1point3acres.com/interview/thread/1170012",
             },
             "reactive-sum-key-store": {
                 "https://www.1point3acres.com/interview/thread/1173125",
+                "https://www.1point3acres.com/bbs/thread-1131849-1-1.html",
             },
             "crown-region-board-score": {
                 "https://www.1point3acres.com/interview/thread/1163600",

@@ -19,7 +19,7 @@
     "stars": 1,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `minimum_cover(menu, wanted) -> tuple[int, list[tuple[int, int]]]`. Each menu entry is `(items, nonnegative_price)`. Return the minimum total price of a 0/1 selection that covers every distinct item in `wanted`, together with increasing-index `(bundle_index, 1)` pairs for the selected bundles. Contents absent from `wanted` have no effect.\n\nReturn `(-1, [])` when no selection covers all wanted items, and `(0, [])` when `wanted` is empty. If multiple selections have the same minimum cost, prefer the selection with fewer bundles; if still tied, choose the lexicographically smallest tuple of selected bundle indices.",
+  "prompt": "Airbnb reports call this recurring family “Minimum Menu Order Cost II.” The exact interface and tie policy below are this exercise's practice reconstruction.\n\nImplement `minimum_cover(menu, wanted) -> tuple[int, list[tuple[int, int]]]`. Each menu entry is `(items, nonnegative_price)`. Return the minimum total price of a 0/1 selection that covers every distinct item in `wanted`, together with increasing-index `(bundle_index, 1)` pairs for the selected bundles. Contents absent from `wanted` have no effect.\n\nReturn `(-1, [])` when no selection covers all wanted items, and `(0, [])` when `wanted` is empty. If multiple selections have the same minimum cost, prefer the selection with fewer bundles; if still tied, choose the lexicographically smallest tuple of selected bundle indices.",
   "starter_code": "def minimum_cover(menu, wanted):\n    # Return (minimum_cost, [(bundle_index, 1), ...]) or the documented sentinel.\n    pass\n",
   "example": {
     "input": "minimum_cover([(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)], ['p', 'r', 's'])",
@@ -32,6 +32,28 @@
     "packages": [],
     "comparator": "assertions"
   },
+  "references": [
+    {
+      "label": "1Point3Acres: Airbnb onsite report — Minimum Menu Order Cost II",
+      "url": "https://www.1point3acres.com/bbs/thread-1146074-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Airbnb phone-screen menu-DP report",
+      "url": "https://www.1point3acres.com/interview/thread/1137550"
+    },
+    {
+      "label": "1Point3Acres: Airbnb tech-screen menu follow-up report",
+      "url": "https://www.1point3acres.com/interview/thread/1150336"
+    },
+    {
+      "label": "1Point3Acres: Airbnb onsite minimum-price menu report",
+      "url": "https://www.1point3acres.com/interview/thread/1151255"
+    },
+    {
+      "label": "1Point3Acres: Airbnb onsite menu-combination report",
+      "url": "https://www.1point3acres.com/interview/thread/1150756"
+    }
+  ],
   "evaluation": {
     "type": "ml_modeling"
   },
