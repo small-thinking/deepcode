@@ -1,17 +1,62 @@
 [
   {
-    "name": "returns a minimum-cost 0/1 cover in index order",
-    "input": "three bundles with a cheaper two-bundle cover",
-    "test": "menu = [(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)]\nassert minimum_cover(menu, ['p', 'r', 's']) == (5, [1, 2])"
+    "name": "keeps the existing cheaper two-entry cover case",
+    "input": "menu = [[\"0\", \"8.00\", \"p,q,r\"], [\"1\", \"3.00\", \"s,t\"], [\"2\", \"2.00\", \"p,r\"]], userWants = [\"p\", \"r\", \"s\"]",
+    "test": "import json\nmenu = [['0', '8.00', 'p,q,r'], ['1', '3.00', 's,t'], ['2', '2.00', 'p,r']]\nresult = minimum_menu_order_cost(menu, ['p', 'r', 's'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"1\", \"2\"]]"
   },
   {
-    "name": "prefers fewer bundles before the index tie-break",
-    "input": "one early full bundle versus two later equal-cost bundles",
-    "test": "menu = [(['p', 'q'], 2), (['p'], 1), (['q'], 1)]\nassert minimum_cover(menu, ['p', 'p', 'q']) == (2, [0])"
+    "name": "keeps every equal-cost cover from the existing tie case",
+    "input": "menu = [[\"0\", \"2.00\", \"p,q\"], [\"1\", \"1.00\", \"p\"], [\"2\", \"1.00\", \"q\"]], userWants = [\"p\", \"q\"]",
+    "test": "import json\nmenu = [['0', '2.00', 'p,q'], ['1', '1.00', 'p'], ['2', '1.00', 'q']]\nresult = minimum_menu_order_cost(menu, ['p', 'q'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"0\"], [\"1\", \"2\"]]"
   },
   {
-    "name": "uses the documented impossible and empty sentinels",
-    "input": "an uncovered requested item and an empty requirement list",
-    "test": "assert minimum_cover([(['p'], 2)], ['p', 'q']) == (-1, [])\nassert minimum_cover([(['p'], 2)], []) == (0, [])"
+    "name": "keeps the existing impossible and empty-request edge cases",
+    "input": "menu = [[\"1\", \"2.00\", \"p\"]], userWants = [\"p\", \"q\"] and []",
+    "test": "import json\nmenu = [['1', '2.00', 'p']]\nassert minimum_menu_order_cost(menu, ['p', 'q']) == []\nprint(json.dumps(minimum_menu_order_cost(menu, [])))",
+    "expected_output": "[[]]"
+  },
+  {
+    "name": "returns both minimum menu orders for sandwich pasta and coke",
+    "input": "menu = [[\"1\", \"5.00\", \"pizza\"], [\"2\", \"8.00\", \"sandwich,coke\"], [\"3\", \"4.00\", \"pasta\"], [\"4\", \"2.00\", \"coke\"], [\"5\", \"6.00\", \"pasta,coke,pizza\"], [\"6\", \"8.00\", \"burger,coke,pizza\"], [\"7\", \"5.00\", \"sandwich\"]], userWants = [\"sandwich\", \"pasta\", \"coke\"]",
+    "test": "import json\nmenu = [['1', '5.00', 'pizza'], ['2', '8.00', 'sandwich,coke'], ['3', '4.00', 'pasta'], ['4', '2.00', 'coke'], ['5', '6.00', 'pasta,coke,pizza'], ['6', '8.00', 'burger,coke,pizza'], ['7', '5.00', 'sandwich']]\nresult = minimum_menu_order_cost(menu, ['sandwich', 'pasta', 'coke'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"3\", \"4\", \"7\"], [\"5\", \"7\"]]"
+  },
+  {
+    "name": "covers burger and pasta with the one optimal pair",
+    "input": "menu = [[\"1\", \"5.00\", \"pizza\"], [\"2\", \"8.00\", \"sandwich,coke\"], [\"3\", \"4.00\", \"pasta\"], [\"4\", \"2.00\", \"coke\"], [\"5\", \"6.00\", \"pasta,coke,pizza\"], [\"6\", \"8.00\", \"burger,coke,pizza\"], [\"7\", \"5.00\", \"sandwich\"]], userWants = [\"burger\", \"pasta\"]",
+    "test": "import json\nmenu = [['1', '5.00', 'pizza'], ['2', '8.00', 'sandwich,coke'], ['3', '4.00', 'pasta'], ['4', '2.00', 'coke'], ['5', '6.00', 'pasta,coke,pizza'], ['6', '8.00', 'burger,coke,pizza'], ['7', '5.00', 'sandwich']]\nresult = minimum_menu_order_cost(menu, ['burger', 'pasta'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"3\", \"6\"]]"
+  },
+  {
+    "name": "returns no menu order when a wanted item does not exist",
+    "input": "menu = [[\"1\", \"5.00\", \"specialItem\"], [\"2\", \"10.00\", \"specialItem,extra1\"], [\"3\", \"8.00\", \"specialItem,extra2\"], [\"4\", \"15.00\", \"specialItem,extra1,extra2\"]], userWants = [\"specialItem\", \"nonExistingItem\"]",
+    "test": "import json\nmenu = [['1', '5.00', 'specialItem'], ['2', '10.00', 'specialItem,extra1'], ['3', '8.00', 'specialItem,extra2'], ['4', '15.00', 'specialItem,extra1,extra2']]\nprint(json.dumps(minimum_menu_order_cost(menu, ['specialItem', 'nonExistingItem'])))",
+    "expected_output": "[]"
+  },
+  {
+    "name": "chooses a combo over its more expensive single-item parts",
+    "input": "menu = [[\"1\", \"5.00\", \"burger\"], [\"2\", \"4.00\", \"fries\"], [\"3\", \"8.00\", \"burger,fries\"]], userWants = [\"burger\", \"fries\"]",
+    "test": "import json\nmenu = [['1', '5.00', 'burger'], ['2', '4.00', 'fries'], ['3', '8.00', 'burger,fries']]\nresult = minimum_menu_order_cost(menu, ['burger', 'fries'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"3\"]]"
+  },
+  {
+    "name": "returns both ways to cover four dishes at cost fourteen",
+    "input": "menu = [[\"1\", \"2.00\", \"soup\"], [\"2\", \"3.00\", \"salad\"], [\"3\", \"8.00\", \"steak\"], [\"4\", \"1.00\", \"bread\"], [\"5\", \"5.00\", \"soup,salad\"], [\"6\", \"10.00\", \"steak,bread\"], [\"7\", \"6.00\", \"soup,bread\"], [\"8\", \"12.00\", \"steak,salad\"], [\"9\", \"15.00\", \"soup,salad,steak,bread\"]], userWants = [\"soup\", \"salad\", \"steak\", \"bread\"]",
+    "test": "import json\nmenu = [['1', '2.00', 'soup'], ['2', '3.00', 'salad'], ['3', '8.00', 'steak'], ['4', '1.00', 'bread'], ['5', '5.00', 'soup,salad'], ['6', '10.00', 'steak,bread'], ['7', '6.00', 'soup,bread'], ['8', '12.00', 'steak,salad'], ['9', '15.00', 'soup,salad,steak,bread']]\nresult = minimum_menu_order_cost(menu, ['soup', 'salad', 'steak', 'bread'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"1\", \"2\", \"3\", \"4\"], [\"3\", \"4\", \"5\"]]"
+  },
+  {
+    "name": "returns every fifteen tied combination for three items",
+    "input": "menu = [[\"1\", \"2.00\", \"A\"], [\"2\", \"3.00\", \"B\"], [\"3\", \"3.00\", \"C\"], [\"4\", \"5.00\", \"A,B\"], [\"5\", \"5.00\", \"A,C\"], [\"6\", \"6.00\", \"B,C\"], [\"7\", \"2.00\", \"A\"], [\"8\", \"3.00\", \"B\"], [\"9\", \"3.00\", \"C\"], [\"10\", \"8.00\", \"A,B,C\"]], userWants = [\"A\", \"B\", \"C\"]",
+    "test": "import json\nmenu = [['1', '2.00', 'A'], ['2', '3.00', 'B'], ['3', '3.00', 'C'], ['4', '5.00', 'A,B'], ['5', '5.00', 'A,C'], ['6', '6.00', 'B,C'], ['7', '2.00', 'A'], ['8', '3.00', 'B'], ['9', '3.00', 'C'], ['10', '8.00', 'A,B,C']]\nresult = minimum_menu_order_cost(menu, ['A', 'B', 'C'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"1\", \"2\", \"3\"], [\"1\", \"2\", \"9\"], [\"1\", \"3\", \"8\"], [\"1\", \"6\"], [\"1\", \"8\", \"9\"], [\"10\"], [\"2\", \"3\", \"7\"], [\"2\", \"5\"], [\"2\", \"7\", \"9\"], [\"3\", \"4\"], [\"3\", \"7\", \"8\"], [\"4\", \"9\"], [\"5\", \"8\"], [\"6\", \"7\"], [\"7\", \"8\", \"9\"]]"
+  },
+  {
+    "name": "treats decimal totals equal within the documented epsilon",
+    "input": "menu = [[\"1\", \"0.10\", \"p\"], [\"2\", \"0.20\", \"q\"], [\"3\", \"0.30\", \"p,q\"]], userWants = [\"p\", \"q\"]",
+    "test": "import json\nmenu = [['1', '0.10', 'p'], ['2', '0.20', 'q'], ['3', '0.30', 'p,q']]\nresult = minimum_menu_order_cost(menu, ['p', 'q'])\nprint(json.dumps(sorted(sorted(combo) for combo in result)))",
+    "expected_output": "[[\"1\", \"2\"], [\"3\"]]"
   }
 ]

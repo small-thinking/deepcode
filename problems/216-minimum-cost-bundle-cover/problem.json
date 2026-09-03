@@ -1,7 +1,7 @@
 {
   "id": "216",
   "slug": "minimum-cost-bundle-cover",
-  "title": "Minimum-Cost Bundle Cover",
+  "title": "Minimum Menu Order Cost II",
   "category": "Algorithms",
   "difficulty": "hard",
   "tags": ["dynamic-programming", "bitmask", "set-cover", "optimization"],
@@ -19,18 +19,18 @@
     "stars": 3,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `minimum_cover(menu, wanted) -> tuple[int, list[int]]`. `menu` is a list of `(items, price)` tuples, where `items` is a list of item names and `price` is a nonnegative integer. `wanted` is a list of item names; duplicate names do not change the request. You may choose each bundle at most once.\n\nReturn `(minimum_cost, selected_indices)`. `selected_indices` must contain the chosen 0-based bundle indices in ascending order. The selected bundles must cover every distinct item in `wanted`; items not in `wanted` have no effect.\n\nReturn `(-1, [])` when no selection covers all wanted items, and `(0, [])` when `wanted` is empty. If multiple selections have the same minimum cost, prefer the selection with fewer bundles; if still tied, choose the lexicographically smallest tuple of selected bundle indices.",
-  "starter_code": "def minimum_cover(menu, wanted):\n    # Return (minimum_cost, [bundle_index, ...]) or the documented sentinel.\n    pass\n",
+  "prompt": "Implement minimum_menu_order_cost(menu, userWants) -> list[list[str]]. Each menu entry is [id, price, items], where id is a unique string, price is a positive decimal string, and items is a comma-separated string of unique item names. userWants contains unique item names. You may select each menu entry at most once.\n\nReturn every unique combination of menu IDs whose entries together cover every item in userWants and whose total price is minimal. A combo may include items that are not wanted. The order of IDs in each returned combination and the order of the returned combinations do not matter. Return [] if no combination can cover userWants. For an empty request, return [[]].\n\nConstraints: 1 <= len(menu) <= 100 and 1 <= len(userWants) <= 20. Treat two total prices as equal when they differ by at most 1e-6.",
+  "starter_code": "def minimum_menu_order_cost(menu, userWants):\n    # Return every minimum-price combination as a list of menu-ID lists.\n    pass\n",
   "example": {
-    "input": "minimum_cover([(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)], ['p', 'r', 's'])",
-    "output": "(5, [1, 2])",
-    "reasoning": "The second and third bundles cover all requested items for a total cost of five."
+    "input": "minimum_menu_order_cost([['1', '5.00', 'pizza'], ['2', '8.00', 'sandwich,coke'], ['3', '4.00', 'pasta'], ['4', '2.00', 'coke'], ['5', '6.00', 'pasta,coke,pizza'], ['6', '8.00', 'burger,coke,pizza'], ['7', '5.00', 'sandwich']], ['sandwich', 'pasta', 'coke'])",
+    "output": "[[\"3\", \"4\", \"7\"], [\"5\", \"7\"]]",
+    "reasoning": "IDs 3, 4, and 7 cost 11.00. IDs 5 and 7 also cost 11.00 and cover the request even though ID 5 includes pizza."
   },
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
     "packages": [],
-    "comparator": "assertions"
+    "comparator": "exact"
   },
   "references": [
     {
@@ -55,7 +55,7 @@
     }
   ],
   "evaluation": {
-    "type": "ml_modeling"
+    "type": "ml_coding"
   },
   "created_at": "2026-08-18"
 }
