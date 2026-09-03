@@ -6,6 +6,17 @@
   "difficulty": "hard",
   "tags": ["numpy", "distributed-training", "data-parallelism", "fsdp", "all-gather", "matrix-multiplication"],
   "companies": ["xAI"],
+  "interview_frequency": {
+    "xAI": {
+      "source_record_ids": ["3cf6ce51456d81e59be5d870979a439f"],
+      "stars": 2,
+      "synced_at": "2026-09-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Implement two educational simulations of distributed matrix multiplication using NumPy. `A` has shape `(M, K)`, `B` has shape `(K, N)`, and `num_devices` is a positive divisor of both `M` and `N`. Both functions must return the same numerical result as `A @ B`. Reject invalid ranks, mismatched inner dimensions, non-positive device counts, or non-divisible row/column partitions with `ValueError`.\n\n- `dp_mat_mul(a, b, num_devices)`: split `A` by rows. Each rank computes its local rows against the full `B` and sends its result to rank 0, which reassembles row chunks in rank order.\n- `fsdp_mat_mul(a, b, num_devices)`: split `A` by rows and `B` by columns. Simulate an all-gather of every `B` column shard through the supplied `Communicator`; each rank then computes all output-column blocks for its assigned rows and sends the assembled row chunk to rank 0.\n\nAll simulated inter-device transfers must use `Communicator.send` and `Communicator.recv`. This is a compact exercise about the data flow, not a claim that a Python queue implementation models NCCL performance or production FSDP memory behavior.",
   "starter_code": "from queue import Queue\nimport numpy as np\n\n\n+class Communicator:\n+    def __init__(self, num_devices):\n+        self.num_devices = num_devices\n+        self.inboxes = [Queue() for _ in range(num_devices)]\n\n+    def send(self, src, dst, data):\n+        self.inboxes[dst].put((src, data))\n\n+    def recv(self, dst):\n+        return self.inboxes[dst].get()\n\n\n+def dp_mat_mul(a, b, num_devices):\n+    # Split A by rows and gather result rows at rank 0.\n+    pass\n\n\n+def fsdp_mat_mul(a, b, num_devices):\n+    # Split A by rows and B by columns; all-gather B shards via Communicator.\n+    pass\n",
   "example": {
