@@ -20,7 +20,7 @@
     "synced_at": "2026-09-02"
   },
   "prompt": "Implement minimum_menu_order_cost(menu, userWants) -> list[list[str]]. Each menu entry is [id, price, items], where id is a unique string, price is a positive decimal string, and items is a comma-separated string of unique item names. userWants contains unique item names. You may select each menu entry at most once.\n\nReturn every unique combination of menu IDs whose entries together cover every item in userWants and whose total price is minimal. A combo may include items that are not wanted. The order of IDs in each returned combination and the order of the returned combinations do not matter. Return [] if no combination can cover userWants. For an empty request, return [[]].\n\nConstraints: 1 <= len(menu) <= 100 and 1 <= len(userWants) <= 20. Treat two total prices as equal when they differ by at most 1e-6.",
-  "starter_code": "def minimum_menu_order_cost(menu, userWants):\n    # Return every minimum-price combination as a list of menu-ID lists.\n    pass\n",
+  "starter_code": "def minimum_menu_order_cost(menu, userWants):\n    # menu entries are [menu_id, decimal_price, comma_separated_items].\n    # Return every minimum-price cover as a list of menu-ID lists, not input indices.\n    pass\n",
   "example": {
     "input": "minimum_menu_order_cost([['1', '5.00', 'pizza'], ['2', '8.00', 'sandwich,coke'], ['3', '4.00', 'pasta'], ['4', '2.00', 'coke'], ['5', '6.00', 'pasta,coke,pizza'], ['6', '8.00', 'burger,coke,pizza'], ['7', '5.00', 'sandwich']], ['sandwich', 'pasta', 'coke'])",
     "output": "[[\"3\", \"4\", \"7\"], [\"5\", \"7\"]]",
