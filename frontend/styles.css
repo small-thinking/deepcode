@@ -2153,6 +2153,42 @@ pre {
   white-space: nowrap;
 }
 
+.progress-trend-summary {
+  display: grid;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.progress-trend-summary strong {
+  color: var(--green);
+  font-size: 13px;
+}
+
+.progress-trend-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 9px 16px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.progress-trend-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.progress-bar-key {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
 .progress-bar-chart {
   display: grid;
   grid-template-columns: repeat(30, minmax(0, 1fr));
@@ -2176,6 +2212,22 @@ pre {
 .progress-bar-count {
   color: var(--blue);
   font-weight: 800;
+}
+
+.progress-bar-counts,
+.progress-bar-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.progress-bar-counts {
+  align-items: end;
+}
+
+.progress-bar-pair {
+  align-items: end;
+  height: 100%;
 }
 
 .progress-bar {
@@ -2465,6 +2517,20 @@ pre {
   font-size: 12px;
 }
 
+.progress-trend-summary strong {
+  font-size: 12px;
+}
+
+.progress-bar-key.distinct,
+.progress-bar.distinct.has-activity {
+  background: var(--contribution-3);
+}
+
+.progress-bar-key.passed,
+.progress-bar.passed.has-activity {
+  background: var(--contribution-4);
+}
+
 .progress-contribution-section {
   margin-bottom: 12px;
 }
@@ -2594,6 +2660,7 @@ pre {
 }
 
 .progress-bar-chart {
+  grid-template-columns: repeat(30, minmax(20px, 1fr));
   gap: 2px;
   min-height: 184px;
   padding: 12px 14px 8px;
@@ -2606,6 +2673,14 @@ pre {
 
 .progress-bar-count {
   color: var(--green);
+}
+
+.progress-bar-count.distinct {
+  color: var(--contribution-3);
+}
+
+.progress-bar-count.passed {
+  color: var(--contribution-4);
 }
 
 .progress-bar {
