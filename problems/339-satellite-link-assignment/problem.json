@@ -4,23 +4,32 @@
   "title": "Design a Satellite Link Assignment Under Frequency Constraints",
   "category": "System Design",
   "difficulty": "hard",
-  "tags": ["optimization", "resource-allocation", "graph-coloring", "geometry"],
-  "companies": ["SpaceX"],
+  "tags": [
+    "optimization",
+    "resource-allocation",
+    "graph-coloring",
+    "geometry"
+  ],
+  "companies": [
+    "SpaceX"
+  ],
   "interview_frequency": {
     "SpaceX": {
       "source_record_ids": [
         "3bd6ce51456d81f38241f1d9871ae3de"
       ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design an algorithmic service that assigns users to visible satellites and one of four radio frequencies. A satellite has a finite user capacity, a user may have no visible satellite, and nearby links attached to the same satellite may not reuse a frequency. The objective is high coverage under a fixed runtime budget.\n\nExplain how you turn spherical geometry into feasible edges and per-satellite conflicts, choose an optimization or approximation strategy, prove every returned assignment is feasible, and handle ties, incremental changes, and overload. Do not assume that one globally optimal algorithm is required when the input scale and latency budget are unspecified. This is a practice reconstruction of a reported satellite-network OA theme.",
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Define the visibility and interference predicates before selecting an assignment algorithm.",
     "reference_answer": "## Normalize constraints\n\nPrecompute a bipartite visibility graph using the stated Earth and elevation geometry; edge generation is separate from assignment. For each satellite, build a conflict graph over candidate users whose beam directions violate the angular separation rule. Validate capacity, frequency count, and numeric tolerances before optimization.\n\n## Assignment strategy\n\nFor small instances, a mixed-integer or constraint-programming formulation maximizes covered users subject to one satellite per user, capacity, and per-satellite graph coloring constraints. For large or time-bounded instances, use a deterministic heuristic: prioritize scarce users, choose a satellite by residual capacity and conflict degree, then assign the lowest feasible frequency. Local swaps or augmenting moves can recover coverage after the initial pass.\n\n## Correctness and operations\n\nA validator independently checks visibility, one assignment per user, capacity, and frequency conflicts before returning a plan. The response includes uncovered users with a reason such as no visibility, capacity exhaustion, or frequency conflict. Cache geometry by position version, recompute only affected neighborhoods on movement, and use stable tie-breakers for reproducible plans. Track coverage, constraint rejection reasons, solve time, approximation quality on sampled optimal baselines, and topology churn."

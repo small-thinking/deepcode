@@ -4,16 +4,30 @@
   "title": "Image Prediction Service with Retry and LRU Caching",
   "category": "Systems Coding",
   "difficulty": "hard",
-  "tags": ["retry", "lru-cache", "dependency-injection", "ml-serving", "error-handling"],
-  "companies": ["Canva"],
+  "tags": [
+    "retry",
+    "lru-cache",
+    "dependency-injection",
+    "ml-serving",
+    "error-handling"
+  ],
+  "companies": [
+    "Canva",
+    "General"
+  ],
   "interview_frequency": {
-    "Canva": {
-      "source_record_ids": ["3cf6ce51456d8124bf56d9afaad3a5d8"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d8124bf56d9afaad3a5d8"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Practice reconstruction: an interview report described the pipeline but did not preserve its exact exception classes or service API.\n\nImplement `ImagePredictionService(downloader, sanitizer, models, capacity, max_retries=0)` and its `predict(image_id, model_key)` method. `downloader(image_id)` returns raw image data, `sanitizer(raw)` returns sanitized data, and `models[model_key]` is an object with `predict(sanitized)`. Define `TransientDownloadError` for retryable download failures.\n\nCache successful predictions in an LRU cache keyed by `(model_key, image_id)`. A cache hit must bypass downloading, sanitizing, and inference. Retry only `TransientDownloadError`, making at most `max_retries + 1` download attempts total. Propagate all other download exceptions and every sanitizer/model exception immediately; failed requests must never create a cache entry. Require a positive integer `capacity`, a non-negative integer `max_retries`, and an existing model key.",
   "starter_code": "class TransientDownloadError(Exception):\n    pass\n\n\nclass ImagePredictionService:\n    def __init__(self, downloader, sanitizer, models, capacity, max_retries=0):\n        pass\n\n    def predict(self, image_id, model_key):\n        pass\n",
   "example": {
@@ -21,8 +35,20 @@
     "output": "the selected model prediction, cached under ('safety-model', 'img-7')",
     "reasoning": "A later request with the same image and model key should return the cached value without invoking any dependency."
   },
-  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
-  "references": [{"label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen", "url": "https://www.1point3acres.com/interview/thread/1064047"}],
-  "evaluation": {"type": "ml_modeling"},
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen",
+      "url": "https://www.1point3acres.com/interview/thread/1064047"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "created_at": "2026-09-02"
 }

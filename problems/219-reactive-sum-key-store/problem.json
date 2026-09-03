@@ -15,14 +15,16 @@
   ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d81a8b61ef4a266807ece"],
+      "source_record_ids": [
+        "3cf6ce51456d81a8b61ef4a266807ece"
+      ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement a `KeyStore` that starts empty and maintains integer constants and reactive sum formulas.\n\n## Methods\n\n- `set_value(key, value)` stores an integer constant under a nonempty string `key`. It replaces any previous constant or formula for that key.\n- `set_sum(key, refs)` defines `key` as the sum of the current values of the existing keys in iterable `refs`. It replaces any previous constant or formula for that key. Repeated references count repeatedly.\n- `get_value(key) -> int` returns the current constant or computed formula value.\n\nWhen a constant or formula changes, every transitive dependent must reflect the new value. A reference to an unknown key, or `get_value` on an unknown key, raises `KeyError`. Invalid key, value, or `refs` types raise `TypeError`. A formula that would create a direct or indirect cycle raises `ValueError` and must leave the store unchanged.\n\nA successful `set_value` removes the key's old formula dependencies. A successful `set_sum` may depend on formulas as well as constants.",
   "starter_code": "class KeyStore:\n    def __init__(self):\n        pass\n\n    def set_value(self, key, value):\n        pass\n\n    def set_sum(self, key, refs):\n        pass\n\n    def get_value(self, key):\n        pass\n",

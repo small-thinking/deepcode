@@ -21,12 +21,12 @@
         "36c6ce51456d8134a919c8c742f87e25"
       ],
       "stars": 3,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 3,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `find_duplicate_files(files, read_file)`.\n\n`files` is an iterable of `(path, size)` pairs. `read_file(path)` is a slow helper that returns that file's bytes. Return groups of duplicate paths: two files are duplicates only when their contents are identical.\n\nUse cheap metadata before expensive reads: group by `size`, skip size groups with only one path, and only call `read_file` for paths that share a size with at least one other path. Hash file contents inside each same-size group. Return only groups with at least two paths.\n\nFor deterministic testing, sort each duplicate group lexicographically and sort the list of groups by each group's first path. You may assume `read_file` returns bytes and that SHA-256 from Python's standard library is available.",
   "starter_code": "def find_duplicate_files(files, read_file):\n    # Return sorted groups of duplicate paths while avoiding unnecessary reads.\n    pass\n",

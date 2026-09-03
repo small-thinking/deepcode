@@ -4,22 +4,43 @@
   "title": "Design an Image Copyright Detection System",
   "category": "ML System Design",
   "difficulty": "hard",
-  "tags": ["computer-vision", "copyright", "evaluation", "model-rollout", "video"],
-  "companies": ["Canva"],
+  "tags": [
+    "computer-vision",
+    "copyright",
+    "evaluation",
+    "model-rollout",
+    "video"
+  ],
+  "companies": [
+    "Canva",
+    "General"
+  ],
   "interview_frequency": {
-    "Canva": {
-      "source_record_ids": ["3cf6ce51456d81d99f7ff7a649522083"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d81d99f7ff7a649522083"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Design a system that detects likely copyright infringement in user-uploaded images. Explain the label taxonomy, train/evaluation sampling, operating metrics and threshold selection, rollout decision for a candidate model, human-review workflow, and how to communicate business impact.\n\nThen extend the design to videos, where sampling roughly one keyframe every ten seconds increases image volume by about 50 times. Address correlated frames, storage and compute budgets, aggregation from frame evidence to a video decision, policy changes, and safe rollback. State assumptions rather than assuming a universal definition of infringement.",
   "response": {
     "placeholder": "Start by separating evidence retrieval, a model score, and the policy action. Then make threshold decisions measurable against the costs of false positives and false negatives.",
     "reference_answer": "## Decision contract and labels\n\nI would first distinguish three decisions that are often conflated: finding a possible reference work, estimating visual similarity or infringement likelihood, and applying a product policy. The result should retain model version, evidence identifiers, score, threshold revision, and review outcome. A label taxonomy would separate licensed reuse, exact or near-duplicate reuse, likely derivative work, uncertain matches, and clearly unrelated content. It should also record the policy action, such as allow, warn, hold for review, or remove, because a model score alone is not a policy.\n\nThe initial operating point depends on harm. An automatic removal path needs extremely high precision and an appeal/review route; a candidate-discovery queue can optimize much more strongly for recall. This separation avoids using one threshold for incompatible product decisions.\n\n## Data and offline evaluation\n\nConstruct labels from review decisions, rights-holder reports, trusted reference catalogs, appeals, and deliberately mined hard negatives. Sample by upload source, geography, content type, language/context, age, known reference family, and score bucket, not only by the naturally common negative class. Keep near-duplicates and creator/reference families together in a time-based held-out split so an easy duplicate leak cannot inflate evaluation. Track label age, reviewer agreement, uncertain cases, and policy revision; otherwise an old label can become an apparently mysterious model error.\n\nReport precision-recall curves, PR-AUC, calibration, recall at reviewer capacity, precision at each enforcement threshold, false-positive appeal rate, and policy-weighted expected cost. Slice every measure by content type, popularity, source, geography where legally appropriate, and known-vs-novel reference family. Confidence intervals and enough recent manually reviewed examples are required before claiming a gain.\n\n## Serving, review, and rollout\n\nAn upload path performs bounded feature extraction and retrieval against an immutable reference-index generation. The classifier or ranker returns a compact evidence bundle; a policy service applies the current threshold and user/account context. Expensive secondary comparison can run asynchronously for low-confidence or high-impact cases. Human reviewers receive the model evidence, not untrusted uploader instructions, and their action feeds a versioned feedback dataset after quality control. Appeals create a separate protected evaluation slice rather than silently overwriting history.\n\nA candidate model first shadows the incumbent and is compared on the same replayed and newly sampled traffic. A canary changes only a small, logged fraction of policy decisions, with guards for false-positive reports, review load, latency, and enforcement reversal rate. Rollback changes routing and threshold configuration, not historical evidence. Monitor feature/index freshness, score distributions, calibration drift, queue age, reviewer disagreement, appeal outcomes, and costs per reviewed or prevented case.\n\n## Video extension and trade-offs\n\nFor video, fixed ten-second sampling is a baseline, not a truth source. Deduplicate near-identical frames, add scene-change or motion-aware sampling, and retain a bounded evidence set instead of storing every frame indefinitely. Frame scores are aggregated with a documented policy, such as a calibrated top-k evidence rule plus duration and diversity requirements; one noisy frame should not automatically imply a video-level violation. Video workload needs separate queues, GPU quotas, reference-cache locality, and retention controls because its 50x volume can starve image uploads.\n\nThe main trade-off is recall versus review and user harm. More frames and a lower discovery threshold find more candidates but increase storage, compute, and false-positive burden. The design should expose that curve, preserve evidence for appeals, and keep the final enforcement policy reviewable.\n\n## Progressive Hints\n\n1. A similarity score is not itself an enforcement policy.\n2. Keep reference families together when splitting train and evaluation data.\n3. Choose different operating points for discovery and automatic action.\n4. Measure calibration and appeal outcomes, not only offline accuracy.\n5. Treat video aggregation as a separate policy from a per-frame score.\n6. Roll back routing or thresholds without rewriting historical decisions."
   },
-  "references": [{"label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen", "url": "https://www.1point3acres.com/interview/thread/1064047"}],
-  "evaluation": {"type": "system_design"},
+  "references": [
+    {
+      "label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen",
+      "url": "https://www.1point3acres.com/interview/thread/1064047"
+    }
+  ],
+  "evaluation": {
+    "type": "system_design"
+  },
   "created_at": "2026-09-02"
 }

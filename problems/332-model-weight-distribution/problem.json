@@ -4,23 +4,32 @@
   "title": "Design a Model Weight Distribution Service",
   "category": "ML System Design",
   "difficulty": "hard",
-  "tags": ["model-serving", "artifact-distribution", "bandwidth", "rollout"],
-  "companies": ["Anthropic"],
+  "tags": [
+    "model-serving",
+    "artifact-distribution",
+    "bandwidth",
+    "rollout"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
   "interview_frequency": {
     "Anthropic": {
       "source_record_ids": [
         "3ae6ce51456d815f8eb3d7eebd88ced2"
       ],
       "stars": 3,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 3,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design a service that distributes a versioned model artifact to 1,000 GPU workers. All workers share a constrained aggregate network link, and a worker may serve traffic only after it has fully verified the requested version. A worker can disappear mid-download, report stale capacity, or finish loading after a rollout has been superseded.\n\nState the availability and rollout assumptions before choosing a topology. Cover artifact identity and integrity, control-plane versus data-plane responsibilities, bandwidth-aware fanout, cache placement, admission, cancellation, rollback, recovery, and the evidence required before routing requests to a worker. This is a practice reconstruction of a reported model-distribution interview theme, not a verbatim interviewer contract.",
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Start with the artifact and ready-to-serve invariants, then derive a bandwidth-aware distribution plan.",
     "reference_answer": "## Contract and ownership\n\nAn immutable artifact ID includes model bytes, tokenizer, runtime compatibility, and a manifest of chunk hashes. The control plane owns desired-version intent and rollout policy; the data plane transfers, verifies, and reports local readiness. A worker is not eligible merely because a download started or a process is alive.\n\n## Distribution path\n\nStore each artifact durably in object storage, split it into independently verifiable chunks, and publish a signed manifest. A rollout planner chooses a bounded seed set in each topology domain, then uses tree or peer-assisted fanout with per-link quotas so the shared link is not saturated by uncontrolled retries. Workers resume verified chunks from local disk or peer caches and use jittered retry budgets. The planner continually compares expected transfer time with observed throughput and can reduce fanout or add seeds when a domain is slow.\n\n## Readiness, rollback, and recovery\n\nAfter all chunks verify, a worker loads the artifact, runs a bounded health check, and publishes a readiness lease for that exact artifact and serving-build version. The router accepts only unexpired readiness leases. A newer rollout revokes pending work for an older version but lets already healthy workers serve the last approved version until policy retires it. Rollback changes desired state; it does not depend on deleting bytes first. Stuck workers and opaque capacity are surfaced as explicit states rather than inferred from missing heartbeats.\n\n## Operations\n\nTrack bytes transferred by source and domain, useful bandwidth, chunk retry rate, verification failures, time to ready, rollout convergence, stale-ready rejections, cache hit rate, and serving capacity by artifact version. Capacity admission keeps the rollout from consuming the network or disk budget required by the currently serving fleet."

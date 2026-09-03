@@ -4,20 +4,27 @@
   "title": "Minimum Menu Order Cost II",
   "category": "Algorithms",
   "difficulty": "hard",
-  "tags": ["dynamic-programming", "bitmask", "set-cover", "optimization"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "dynamic-programming",
+    "bitmask",
+    "set-cover",
+    "optimization"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "interview_frequency": {
     "Airbnb": {
       "source_record_ids": [
         "39f6ce51456d81f8ab08dbf456b3e19c"
       ],
       "stars": 3,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 3,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement minimum_menu_order_cost(menu, userWants) -> list[list[str]]. Each menu entry is [id, price, items], where id is a unique string, price is a positive decimal string, and items is a comma-separated string of unique item names. userWants contains unique item names. You may select each menu entry at most once.\n\nReturn every unique combination of menu IDs whose entries together cover every item in userWants and whose total price is minimal. A combo may include items that are not wanted. The order of IDs in each returned combination and the order of the returned combinations do not matter. Return [] if no combination can cover userWants. For an empty request, return [[]].\n\nConstraints: 1 <= len(menu) <= 100 and 1 <= len(userWants) <= 20. Treat two total prices as equal when they differ by at most 1e-6.",
   "starter_code": "def minimum_menu_order_cost(menu, userWants):\n    # menu entries are [menu_id, decimal_price, comma_separated_items].\n    # Return every minimum-price cover as a list of menu-ID lists, not input indices.\n    pass\n",

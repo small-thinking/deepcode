@@ -1,0 +1,17 @@
+[
+  {
+    "name": "maximizes reward under inclusive one-day deadlines",
+    "input": "five tasks with a collision on day one",
+    "test": "tasks = [\n    {'id': 'a', 'deadline': 4, 'reward': 70},\n    {'id': 'b', 'deadline': 1, 'reward': 80},\n    {'id': 'c', 'deadline': 1, 'reward': 30},\n    {'id': 'd', 'deadline': 2, 'reward': 100},\n    {'id': 'e', 'deadline': 3, 'reward': 40},\n]\nassert deadline_reward_schedule(tasks) == (['b', 'd', 'e', 'a'], 290)"
+  },
+  {
+    "name": "places a task on its deadline and breaks equal rewards by task ID",
+    "input": "two equal-reward tasks for a single day plus a later task",
+    "test": "tasks = [\n    {'id': 'b', 'deadline': 1, 'reward': 5},\n    {'id': 'a', 'deadline': 1, 'reward': 5},\n    {'id': 'later', 'deadline': 2, 'reward': 1},\n]\nassert deadline_reward_schedule(tasks) == (['a', 'later'], 6)"
+  },
+  {
+    "name": "does not mutate the input task records",
+    "input": "a single valid task",
+    "test": "tasks = [{'id': 'keep', 'deadline': 1, 'reward': 2}]\nsnapshot = [task.copy() for task in tasks]\nassert deadline_reward_schedule(tasks) == (['keep'], 2)\nassert tasks == snapshot"
+  }
+]

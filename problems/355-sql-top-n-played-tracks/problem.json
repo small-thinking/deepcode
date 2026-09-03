@@ -4,18 +4,29 @@
   "title": "SQL: Top-N Played Tracks",
   "category": "SQL",
   "difficulty": "medium",
-  "tags": ["sql", "aggregation", "top-n", "window-functions", "ranking"],
-  "companies": ["Spotify"],
+  "tags": [
+    "sql",
+    "aggregation",
+    "top-n",
+    "window-functions",
+    "ranking"
+  ],
+  "companies": [
+    "Spotify",
+    "General"
+  ],
   "interview_frequency": {
-    "Spotify": {
-      "source_record_ids": ["3cf6ce51456d81e6a053de84c73fde27"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d81e6a053de84c73fde27"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `top_played_tracks(events, n)`. Each item in `events` is a mapping with a non-empty string `track_id` and a non-empty string `country`; any other fields, such as `user_id` and `timestamp`, are ignored. Each event counts as one play, including duplicate events.\n\nReturn a dictionary with two entries:\n\n- `global`: the top `n` `(track_id, play_count)` tuples across all events;\n- `by_country`: a dictionary from every country present in the input to that country's top `n` `(track_id, play_count)` tuples. Insert country keys in ascending lexicographic order.\n\nWithin every top-N list, sort by play count descending and then `track_id` ascending. The global ranking and every country ranking are independent. If `n` exceeds the number of distinct tracks, return all available tracks. If `n` is zero, return an empty list for `global` and for every present country. An empty input returns `{'global': [], 'by_country': {}}`. Do not mutate `events`.\n\nRaise `ValueError` when `n` is not a non-negative integer, an event is not a mapping, or its `track_id` or `country` is not a non-empty string.",
   "starter_code": "def top_played_tracks(events, n):\n    # Return global and per-country top played tracks.\n    pass\n",

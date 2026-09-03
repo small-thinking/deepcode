@@ -4,18 +4,26 @@
   "title": "Minimum Number from All Digits",
   "category": "Algorithms",
   "difficulty": "easy",
-  "tags": ["digits", "counting-sort", "strings"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "digits",
+    "counting-sort",
+    "strings"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d8102bae9c6263f064d5e"],
+      "source_record_ids": [
+        "3cf6ce51456d8102bae9c6263f064d5e"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `minimum_number(digits) -> str`. `digits` is a list of decimal digits from 0 through 9 and contains at least one nonzero digit. Use every input digit exactly once to form the smallest possible decimal integer string. The result may not start with `0`, but zero digits must otherwise be retained.\n\nFor example, `[7, 3, 0, 1]` returns `\"1037\"`. Return a string because the result may not fit in a built-in integer type.",
   "starter_code": "def minimum_number(digits):\n    # Return the smallest decimal string using every input digit.\n    pass\n",

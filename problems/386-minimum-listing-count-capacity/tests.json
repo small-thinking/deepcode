@@ -1,0 +1,17 @@
+[
+  {
+    "name": "prioritizes listing count before total capacity",
+    "input": "an exact-fill pair and a higher-capacity singleton in one neighborhood",
+    "test": "listings = [\n    {'id': 'north-six', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'north-four', 'neighborhood': 'north', 'capacity': 4},\n    {'id': 'north-eleven', 'neighborhood': 'north', 'capacity': 11},\n    {'id': 'south-ten', 'neighborhood': 'south', 'capacity': 10},\n]\nassert select_group_listings(listings, 10, 'north') == ['north-eleven']"
+  },
+  {
+    "name": "uses capacity and then input position within the minimum-count tier",
+    "input": "several feasible singleton listings and equal-capacity ties",
+    "test": "listings = [\n    {'id': 'first-eleven', 'neighborhood': 'north', 'capacity': 11},\n    {'id': 'ten', 'neighborhood': 'north', 'capacity': 10},\n    {'id': 'second-ten', 'neighborhood': 'north', 'capacity': 10},\n]\nassert select_group_listings(listings, 10, 'north') == ['ten']"
+  },
+  {
+    "name": "returns no solution when local capacity is insufficient",
+    "input": "only one undersized listing in the requested neighborhood",
+    "test": "listings = [{'id': 'a', 'neighborhood': 'north', 'capacity': 3}]\nsnapshot = [listing.copy() for listing in listings]\nassert select_group_listings(listings, 4, 'north') == []\nassert listings == snapshot"
+  }
+]

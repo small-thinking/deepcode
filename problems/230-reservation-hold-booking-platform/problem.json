@@ -17,14 +17,16 @@
   ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d815a8b6cf92056014e6c"],
+      "source_record_ids": [
+        "3cf6ce51456d815a8b6cf92056014e6c"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "An Airbnb interview report only names a booking-system design question. For this practice reconstruction, design a platform where guests search for a resource, place a short-lived hold for a date range and party size, pay, receive a confirmed reservation, and may later cancel. Search may be stale, but conflicting stays must never both become confirmed.\n\nDefine the discovery and authoritative-availability paths; idempotent multi-day holds; payment, confirmation, expiry, cancellation, and refund states; durable recovery; and the consistency, latency, and availability trade-offs. Do not treat cached search availability as permission to charge or confirm a reservation. This is a writing exercise.",
   "response": {

@@ -4,18 +4,29 @@
   "title": "Multi-Item Music Description with Limited Annotations",
   "category": "ML System Design",
   "difficulty": "hard",
-  "tags": ["multimodal", "music", "weak-supervision", "generation", "evaluation"],
-  "companies": ["Spotify"],
+  "tags": [
+    "multimodal",
+    "music",
+    "weak-supervision",
+    "generation",
+    "evaluation"
+  ],
+  "companies": [
+    "Spotify",
+    "General"
+  ],
   "interview_frequency": {
-    "Spotify": {
-      "source_record_ids": ["3cf6ce51456d81e9b368e0121daeeae6"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d81e9b368e0121daeeae6"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design a system that receives multiple music items and produces one useful description of the collection when only a limited, potentially noisy set of human descriptions is available. Explain how you would represent the items, learn from scarce annotations, combine information across the collection, generate or retrieve a description, and evaluate quality.\n\nDiscuss factual grounding, cold-start items, disagreement in the annotation taxonomy, and the trade-off between direct generation and retrieval. The reported prompt does not specify modalities, dataset scale, or output length. State such assumptions clearly instead of treating them as source facts. This is a writing exercise.",
   "references": [
@@ -24,7 +35,9 @@
       "url": "https://www.1point3acres.com/interview/thread/1096762"
     }
   ],
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Start by defining what every item is allowed to contribute to a collection-level claim, then separate representation learning, limited-label adaptation, aggregation, and grounded generation.",
     "reference_answer": "## Assumptions and output contract\n\nAssume the product needs a short collection-level description that is helpful, fluent, and supported by available music evidence. The input modalities and annotation taxonomy are not given, so I would first inventory what is available: audio, existing text, metadata, editorial tags, and usage-safe interaction signals. A description should be able to identify its supporting items or attributes; it should not invent an artist, genre, mood, or relationship that has no support.\n\n## Representations and scarce supervision\n\nStart from pretrained modality encoders and align audio, text, and metadata in a common item representation using self-supervised or contrastive objectives. Limited human descriptions are reserved for calibration and supervised adaptation, not treated as an exhaustive vocabulary. Use annotator agreement, confidence, and provenance to down-weight noisy labels. Pseudo-labels can expand coverage only when they pass a confidence threshold and are kept separate from gold evaluation data.\n\nFor cold-start items, fall back to content and metadata embeddings, and surface uncertainty rather than copying a description from a superficially similar popular item. If the taxonomy is inconsistent, keep fine-grained attributes and broader semantic concepts distinct instead of forcing every label into one brittle class.\n\n## From items to a collection description\n\nEncode each item with modality availability and confidence metadata. A set encoder can pool common signals while an ordered encoder is appropriate only when sequence order carries meaning. Preserve per-item evidence so the generator can distinguish a shared property from an outlier. Build a compact collection representation plus an evidence bundle containing supported attributes, representative items, and conflicting signals.\n\nA retrieval-first path can select a grounded template or comparable editorial description when coverage is strong. A generator may then rewrite the evidence bundle into natural language, constrained to cited attributes and with an abstention or conservative fallback when the collection is heterogeneous. Long collections need sampling or hierarchical aggregation so one repeated or recently added item does not dominate the description.\n\n## Evaluation and operations\n\nEvaluate factual precision and attribute coverage against held-out human annotations, along with fluency, usefulness, and collection-level consistency. Review slices for sparse metadata, new artists, uncommon languages, mixed genres, and disagreement-heavy examples. Human evaluation should test whether readers can trace major claims to items and whether the description remains useful when evidence is incomplete. Online evaluation can measure engagement or saves only with guardrails for complaint rate, correction rate, diversity of surfaced content, latency, and cost.\n\n## Progressive Hints\n\n1. Treat every generated claim as requiring item-level evidence.\n2. Pretraining can provide representations even when collection descriptions are scarce.\n3. Pool common signals, but retain outliers and uncertainty for the generator.\n4. Retrieval is often a safer baseline than unconstrained generation.\n5. Measure factuality and coverage separately from fluency.\n6. Keep noisy or pseudo-labelled data out of the final held-out evaluation set."

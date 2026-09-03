@@ -4,23 +4,32 @@
   "title": "Design a Multi-Region Infrastructure Provisioning Control Plane",
   "category": "System Design",
   "difficulty": "hard",
-  "tags": ["infrastructure", "provisioning", "reconciliation", "multi-region"],
-  "companies": ["OpenAI"],
+  "tags": [
+    "infrastructure",
+    "provisioning",
+    "reconciliation",
+    "multi-region"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
   "interview_frequency": {
     "OpenAI": {
       "source_record_ids": [
         "3b16ce51456d8184a89deb80125a5743"
       ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design a Terraform-like control plane that provisions an application into two regions. The prompt is intentionally underspecified: define the resource model, plan/apply contract, state ownership, dependency semantics, and operator workflow before proposing implementation details.\n\nCover immutable desired-state revisions, idempotent apply, provider failures, partial completion, concurrent applies, drift detection, rollback or compensation, and auditability. Distinguish a deployment pipeline from infrastructure reconciliation. This is a practice reconstruction of a reported interview theme whose exact interface was not published.",
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "First establish desired state, resource identity, and the concurrency boundary for an apply.",
     "reference_answer": "## Core contract\n\nA desired-state revision is immutable and names resources, providers, dependencies, and regions. A plan compares that revision with an observed-state snapshot and reports create, update, delete, replace, and unknown actions. An apply records an operation ID and locks the smallest safe scope, such as a workspace plus resource ownership keys.\n\n## Reconciliation\n\nA durable executor walks a dependency DAG. Each provider operation receives an idempotency key derived from the revision, resource, and action. The executor persists intent before calling a provider and persists the observed result afterward, so a retry can distinguish an unknown outcome from a safe no-op. Independent resources may run concurrently, but an operation never starts until its prerequisites have reached their required observed state.\n\n## Failure handling\n\nPartial success is a first-class terminal state with an action-by-action journal. The system does not claim rollback is always possible: it uses provider-specific compensation where safe and otherwise leaves an explicit repair plan. A later apply or a periodic refresh reconciles drift against the chosen revision. Concurrent applies are serialized or rejected at the ownership boundary, while read-only plans may proceed against a versioned state snapshot.\n\n## Multi-region and operations\n\nRegion is part of resource identity, while shared resources have a separate ownership rule to prevent two regional applies from racing. Monitor plan/apply latency, provider error classes, drift age, lock contention, unknown outcomes, compensation rate, and revision-to-observed convergence. Every decision records the desired revision, observed snapshot, operator, and provider request IDs for audit."

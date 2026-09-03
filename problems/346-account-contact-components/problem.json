@@ -4,18 +4,27 @@
   "title": "Merge Accounts by Shared Email or Phone",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["union-find", "connected-components", "accounts", "deduplication"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "union-find",
+    "connected-components",
+    "accounts",
+    "deduplication"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d8171b760d7fcb80d8622"],
+      "source_record_ids": [
+        "3cf6ce51456d8171b760d7fcb80d8622"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `merge_contact_accounts(accounts) -> list[dict]`. Each input account is a dictionary with a string `name`, a list of string `emails`, and a list of string `phones`. Merge any accounts that share an equal email or an equal phone. Emails and phones are separate contact namespaces, so an email string does not match an identical phone string.\n\nReturn one dictionary per connected component with exactly `names`, `emails`, and `phones` keys. Each value is a deduplicated ascending list. Return component dictionaries in ascending lexicographic order by `(names, emails, phones)`. Treat supplied contact strings as already normalized; do not lowercase emails or rewrite phone numbers. Do not mutate `accounts`. An account with no contacts forms a singleton component.",
   "starter_code": "def merge_contact_accounts(accounts):\n    pass\n",

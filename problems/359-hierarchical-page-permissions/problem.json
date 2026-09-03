@@ -4,16 +4,29 @@
   "title": "Hierarchical Page Permissions",
   "category": "Data Structures",
   "difficulty": "medium",
-  "tags": ["trees", "permissions", "groups", "hash-map"],
-  "companies": ["Notion"],
+  "tags": [
+    "trees",
+    "permissions",
+    "groups",
+    "hash-map"
+  ],
+  "companies": [
+    "Notion",
+    "General"
+  ],
   "interview_frequency": {
-    "Notion": {
-      "source_record_ids": ["3cf6ce51456d81bca09ffbde79d99e70"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d81bca09ffbde79d99e70"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Implement `PagePermissions` for a tree of pages. Roles are ordered `none < view < comment < edit`. Provide `add_page(page, parent=None)`, `add_user_to_group(user, group)`, `grant_user(page, user, role)`, `grant_group(page, group, role)`, `getUserPermissionForPage(page, user)`, and `getAllUsersWithPermissionForPage(page, min_role='view')`.\n\nA user's effective permission is the strongest applicable direct-user or direct-group grant on the requested page or any ancestor. `getUserPermissionForPage` returns a role string. `getAllUsersWithPermissionForPage` returns sorted user IDs whose effective role meets `min_role`; users with no applicable grant are excluded. Page IDs, user IDs, and group IDs are nonempty strings; unknown pages and invalid values raise `ValueError`. `add_page` may only name an existing parent, so the structure remains a tree.\n\nThis is a practice reconstruction because the report did not publish precise revocation semantics; this version models grants as monotonic along the ancestor chain.",
   "starter_code": "class PagePermissions:\n    def __init__(self):\n        pass\n\n    def add_page(self, page, parent=None):\n        pass\n\n    def add_user_to_group(self, user, group):\n        pass\n\n    def grant_user(self, page, user, role):\n        pass\n\n    def grant_group(self, page, group, role):\n        pass\n\n    def getUserPermissionForPage(self, page, user):\n        pass\n\n    def getAllUsersWithPermissionForPage(self, page, min_role='view'):\n        pass\n",
   "example": {
@@ -21,8 +34,20 @@
     "output": "permissions.getUserPermissionForPage('doc', 'ada') == 'view'",
     "reasoning": "The root grant is inherited by the child page."
   },
-  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
-  "references": [{"label": "1Point3Acres: Notion permissions interview report", "url": "https://www.1point3acres.com/interview/thread/1157560"}],
-  "evaluation": {"type": "ml_modeling"},
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "1Point3Acres: Notion permissions interview report",
+      "url": "https://www.1point3acres.com/interview/thread/1157560"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "created_at": "2026-09-02"
 }

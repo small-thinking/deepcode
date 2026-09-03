@@ -20,12 +20,12 @@
         "35c6ce51456d81818b77d25586466882"
       ],
       "stars": 4,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 4,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `build_schedule(tasks, models, humans, k)`.\n\nYou are scheduling human review of model outputs. A returned row `(task, model, human)` means that `human` reviews `model`'s output on `task`. Treat all input lists as lists of unique identifiers.\n\nReturn an ordered, minimal batch of exactly `k * len(humans)` rows. The order matters: every prefix of the schedule is checked.\n\nHard constraints:\n- `k` must be non-negative. If `k == 0`, return `[]`.\n- Every human appears exactly `k` times.\n- The same `(task, human)` pair may appear at most once.\n- Every task, model, and human in the output must come from the corresponding input list.\n- If `k > len(tasks)`, or if `k > 0` and `tasks` or `models` is empty, raise `ValueError`. An empty `humans` list returns `[]`.\n\nPrefix-balance constraints:\nFor each prefix, include zero-count pairs when computing the following ranges.\n- Across every `(model, human)` pair, `max_count - min_count <= 1`.\n- Across every `(model, task)` pair, `max_count - min_count <= 1`.\n- Across total human workloads, `max_count - min_count <= 1`.\n\nThis is a batch coding problem. It does not require task coverage, daily capacity, streaming arrivals, or an optimization objective beyond satisfying these constraints. A deterministic greedy solution that scores all legal candidates is sufficient; the tests validate constraints and balance properties rather than one exact schedule.",
   "starter_code": "def build_schedule(tasks, models, humans, k):\n    # Return an ordered list of (task, model, human) review assignments.\n    pass\n",

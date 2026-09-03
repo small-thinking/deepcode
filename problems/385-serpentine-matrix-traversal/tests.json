@@ -1,0 +1,17 @@
+[
+  {
+    "name": "alternates direction for a rectangular matrix",
+    "input": "a three-by-three matrix",
+    "test": "matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\nassert zigzag_matrix_rows(matrix) == [1, 2, 3, 6, 5, 4, 7, 8, 9]"
+  },
+  {
+    "name": "handles one row and one column without mutation",
+    "input": "narrow rectangular matrices",
+    "test": "matrix = [[1], [2], [3]]\nsnapshot = [row[:] for row in matrix]\nassert zigzag_matrix_rows(matrix) == [1, 2, 3]\nassert matrix == snapshot\nassert zigzag_matrix_rows([[4, 5, 6]]) == [4, 5, 6]"
+  },
+  {
+    "name": "reverses the complete second row",
+    "input": "a two-row rectangular matrix",
+    "test": "assert zigzag_matrix_rows([['a', 'b', 'c', 'd'], ['e', 'f', 'g', 'h']]) == ['a', 'b', 'c', 'd', 'h', 'g', 'f', 'e']"
+  }
+]

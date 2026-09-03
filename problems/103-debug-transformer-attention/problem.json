@@ -19,12 +19,12 @@
         "37a6ce51456d81b8b0c5f9f9f8850820"
       ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "You are given a compact PyTorch implementation of causal multi-head self-attention. The public API is intended to be `MultiHeadSelfAttention(embed_dim, num_heads, dropout_p=0.0)` with `forward(x, padding_mask=None)`, where `x` has shape `[batch, seq_len, embed_dim]` and `padding_mask` is an optional boolean tensor of shape `[batch, seq_len]` whose `True` entries mark real tokens.\n\nThe starter implementation is intentionally buggy. Directly running it on the visible checks should fail. Fix the implementation in place while preserving the class name, constructor arguments, module attributes, and return type.\n\nA correct implementation should return one output vector per input token, apply causal self-attention, respect the optional padding mask, remain numerically finite on small edge cases, and follow normal train/eval dropout behavior. In an interview, be ready to explain what failure modes you found and how you verified the fix.",
   "starter_code": "import math\nimport torch\nfrom torch import nn\nimport torch.nn.functional as F\n\n\nclass MultiHeadSelfAttention(nn.Module):\n    def __init__(self, embed_dim, num_heads, dropout_p=0.0):\n        super().__init__()\n        if embed_dim % num_heads != 0:\n            raise ValueError(\"embed_dim must be divisible by num_heads\")\n        self.embed_dim = embed_dim\n        self.num_heads = num_heads\n        self.head_dim = embed_dim // num_heads\n        self.dropout_p = dropout_p\n        self.qkv = nn.Linear(embed_dim, 3 * embed_dim)\n        self.proj = nn.Linear(embed_dim, embed_dim)\n\n    def forward(self, x, padding_mask=None):\n        B, T, C = x.shape\n        qkv = self.qkv(x)\n        qkv = qkv.view(B, T, 3, self.num_heads, self.head_dim)\n        q, k, v = qkv.unbind(dim=2)\n\n        scores = q @ k.transpose(-2, -1)\n        scores = scores / math.sqrt(C)\n\n        causal_mask = torch.tril(torch.ones(T, T, device=x.device, dtype=torch.bool))\n        scores = scores.masked_fill(causal_mask, float(\"-inf\"))\n\n        if padding_mask is not None:\n            scores = scores.masked_fill(padding_mask[:, None, None, :], float(\"-inf\"))\n\n        weights = torch.softmax(scores, dim=-2)\n        weights = F.dropout(weights, p=self.dropout_p)\n        out = weights @ v\n        out = out.transpose(1, 2).contiguous().view(B, T, C)\n        return self.proj(out)\n",

@@ -4,20 +4,27 @@
   "title": "Leased Work Queue with Retries and Dead Letters",
   "category": "Systems Coding",
   "difficulty": "hard",
-  "tags": ["queue", "leases", "retries", "dead-letter-queue"],
-  "companies": ["OpenAI"],
+  "tags": [
+    "queue",
+    "leases",
+    "retries",
+    "dead-letter-queue"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
   "interview_frequency": {
     "OpenAI": {
       "source_record_ids": [
         "3c06ce51456d813185b0f089881a10c8"
       ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement an in-memory `LeasedWorkQueue` with explicit task lifecycle.\n\n- `LeasedWorkQueue(max_attempts)` requires a positive ordinary integer.\n- `enqueue(task_id, payload)` adds a unique non-empty string task ID.\n- `reserve(now, lease_seconds) -> dict | None` first reclaims expired leases, then returns the next pending task in FIFO order with `task_id`, `payload`, `lease_token`, and `attempt`.\n- `complete(task_id, lease_token) -> bool` completes only the current lease.\n- `fail(task_id, lease_token, now) -> str | None` validates the current lease, then either returns the task to pending (`'pending'`) or moves it to the dead-letter queue (`'dead'`) after its final allowed attempt.\n- `reclaim(now) -> list[str]` returns IDs reclaimed from expired leases in FIFO lease-expiry order; `dead_letters() -> list[dict]` returns independent copies in dead-letter order.\n\nTimes are ordinary integers, lease durations are positive ordinary integers, and stale lease operations return `False` or `None` without changing state. This is a practice reconstruction of a reported reserve/complete/fail queue theme.",
   "starter_code": "class LeasedWorkQueue:\n    def __init__(self, max_attempts):\n        pass\n\n    def enqueue(self, task_id, payload):\n        pass\n\n    def reserve(self, now, lease_seconds):\n        pass\n\n    def complete(self, task_id, lease_token):\n        pass\n\n    def fail(self, task_id, lease_token, now):\n        pass\n\n    def reclaim(self, now):\n        pass\n\n    def dead_letters(self):\n        pass\n",
@@ -26,7 +33,14 @@
     "output": "task['attempt'] == 1 and task['task_id'] == 'a'",
     "reasoning": "A reservation creates one current lease; acknowledgement must present its token."
   },
-  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
-  "evaluation": {"type": "ml_modeling"},
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "created_at": "2026-08-30"
 }

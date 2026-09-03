@@ -4,18 +4,29 @@
   "title": "Predict User Activity Over the Next 7 Days",
   "category": "ML System Design",
   "difficulty": "medium",
-  "tags": ["prediction", "temporal-data", "feature-engineering", "calibration", "retention"],
-  "companies": ["Spotify"],
+  "tags": [
+    "prediction",
+    "temporal-data",
+    "feature-engineering",
+    "calibration",
+    "retention"
+  ],
+  "companies": [
+    "Spotify",
+    "General"
+  ],
   "interview_frequency": {
-    "Spotify": {
-      "source_record_ids": ["3cf6ce51456d817a9f36d84f92a4ec3c"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d817a9f36d84f92a4ec3c"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design a model that predicts whether a user will be active during the next seven days. Define a defensible activity label and prediction timestamp, then explain how you would use listening, stream, share, save, artist, and tenure signals without temporal or self-referential leakage.\n\nDiscuss sparse high-cardinality features, changing behavior, very large event volume, baseline and sequence models, offline metrics, and online validation. The reported question leaves the final label open, so state and defend your choice. This is a writing exercise.",
   "references": [
@@ -24,7 +35,9 @@
       "url": "https://www.1point3acres.com/interview/thread/1185806"
     }
   ],
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Choose the prediction cutoff and next-seven-day outcome before proposing features; every feature must be available at that cutoff.",
     "reference_answer": "## Target and decision context\n\nAt a prediction timestamp T, define active as at least one qualified listening session in `(T, T + 7 days]`. This is a concrete binary target, but I would ask whether product decisions instead need expected listening hours, reactivation probability, or a tiered engagement outcome. The target is computed only after the full outcome window closes; no post-T event or aggregate that includes it may enter a feature.\n\nThe prediction should have a consumer: for example, eligibility for a re-engagement experiment or capacity planning. That consumer determines the action threshold, acceptable false positives, and whether calibrated probability is more valuable than rank order.\n\n## Point-in-time data and features\n\nBuild a feature snapshot at T from several fixed lookback windows. Useful aggregates include recency, frequency, active days, session duration, completion, skip, save, and share rates, plus tenure and recent trend. Artist and content features need sparse encodings or learned embeddings with explicit unknown values; popularity statistics must be computed only from data available by T.\n\nUse event-time joins and feature timestamps to prevent accidental future leakage. Do not use features such as a future-window total, a label-derived cohort flag, or an outcome that becomes known only after T. New users and users with incomplete logging receive a distinct missingness-aware representation rather than being silently assigned the population average.\n\n## Modeling and evaluation\n\nStart with a calibrated GBDT or regularized tabular baseline on the time-window aggregates. It is fast to train, easy to slice, and establishes whether a sequence model has measurable incremental value. A sequential model may consume recent events when ordering, long-term preference shifts, or representation learning meaningfully improve time-based holdouts.\n\nSplit training, validation, and test by prediction time, preserving the seven-day label gap. Report PR-AUC or lift for a rare target, ROC-AUC as a secondary ranking metric, calibration, and decision-specific precision or recall. Slice by tenure, baseline activity, region, device, artist-feature availability, and event completeness. Compare predictions with a simple recency baseline so complexity has a clear justification.\n\n## Launch and monitoring\n\nValidate an intervention with randomized or carefully held-out traffic; prediction quality alone does not show that sending a notification or changing a recommendation improves retention. Monitor calibration drift, feature freshness, score coverage, delayed-label completeness, action rate, opt-out or complaint guardrails, and uplift by important cohorts. Version the model, feature definitions, label window, and threshold so a drift investigation can reproduce the prediction made at T.\n\n## Progressive Hints\n\n1. Define activity and the prediction cutoff before calculating aggregates.\n2. Every feature must have an event time no later than the cutoff.\n3. Start with multiple recency and frequency windows.\n4. A strong tabular baseline is the comparison point for a sequence model.\n5. Use time-based splits with the future label window intact.\n6. A calibrated prediction still needs a causal test before it drives a user intervention."

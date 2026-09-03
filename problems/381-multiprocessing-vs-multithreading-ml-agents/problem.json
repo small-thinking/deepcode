@@ -4,18 +4,29 @@
   "title": "Multiprocessing vs Multithreading for ML and Agent Systems",
   "category": "ML Systems",
   "difficulty": "medium",
-  "tags": ["concurrency", "multiprocessing", "multithreading", "agents", "runtime"],
-  "companies": ["xAI"],
+  "tags": [
+    "concurrency",
+    "multiprocessing",
+    "multithreading",
+    "agents",
+    "runtime"
+  ],
+  "companies": [
+    "xAI",
+    "SpaceX"
+  ],
   "interview_frequency": {
-    "xAI": {
-      "source_record_ids": ["3cf6ce51456d81289301f54c07fdd321"],
+    "SpaceX": {
+      "source_record_ids": [
+        "3cf6ce51456d81289301f54c07fdd321"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Explain the difference between multiprocessing and multithreading, when each is appropriate, and how you would make the choice for an ML or agent system. Address CPU-bound and I/O-bound work, memory and data transfer, shared state, failure isolation, and observability.\n\nUse a truthful project example or clearly marked hypothetical example; do not invent experience. The reported prompt is an explanation question rather than a request to implement a concurrency library. This is a writing exercise.",
   "references": [
@@ -24,7 +35,9 @@
       "url": "https://www.1point3acres.com/interview/thread/1162858"
     }
   ],
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Start with the workload and isolation boundary. Processes and threads are mechanisms; the right choice depends on CPU work, I/O waits, shared-state cost, and failure behavior.",
     "reference_answer": "## Core distinction\n\nProcesses have separate address spaces, stronger fault isolation, and explicit communication through files, queues, sockets, shared memory, or another IPC mechanism. Threads share one process address space, which makes in-process sharing cheap but makes races, lock ordering, and accidental mutation easier. Threads are lighter to create and coordinate, while processes incur startup, serialization, and memory overhead.\n\nIn CPython, CPU-bound Python bytecode generally does not gain parallel execution from ordinary threads because of the interpreter lock. Native numerical kernels, external services, and I/O have different behavior, so I would describe the actual hot path instead of making a blanket rule about all ML work.\n\n## Choosing for ML and agents\n\nUse processes for independent CPU-heavy preprocessing, isolated model workers, untrusted tools, or jobs whose crash and memory leak must not corrupt a controller. Bound the worker pool and avoid repeatedly copying large tensors; use batching, shared memory, a data loader, or a service boundary only after measuring serialization and device-transfer costs.\n\nUse threads or async I/O for concurrent network calls, tool invocations, database requests, log streaming, and orchestration work that spends most time waiting. Guard shared mutable state with ownership boundaries or short, well-defined synchronization. For a GPU service, the process boundary is often chosen around device context and deployment isolation, while a thread or async layer multiplexes request I/O; device concurrency should be governed by the serving runtime rather than assumed from the host-language abstraction.\n\n## A truthful example structure\n\nA candidate can say: \"In [my project], the coordinator spent most of its time waiting for [external tools or APIs], so I used [threads or async tasks] with bounded concurrency, timeouts, and per-request tracing. The [CPU-bound parsing or independent worker] stage used [processes or a separate service] because [measured or operational reason]. We passed [immutable request data or IDs], avoided shared mutable state, and monitored [queue age, retry rate, error rate, and resource use].\" Every bracket must be replaced with the candidate's own facts.\n\n## Reliability and observability\n\nDefine cancellation, deadlines, retries, idempotency, backpressure, and ownership before adding concurrency. A worker crash should have a clear supervisor and recovery policy; a thread exception should not disappear silently. Trace work across queue, worker, tool call, and result; monitor active work, queue wait, lock contention, CPU and memory saturation, request timeouts, and duplicated side effects.\n\n## Progressive Hints\n\n1. Begin with whether the work is CPU-bound, I/O-bound, or device-bound.\n2. Processes isolate memory; threads share it.\n3. The cost of copying tensors or serializing messages can change the answer.\n4. Concurrency needs bounded queues, deadlines, and cancellation.\n5. Make shared-state ownership explicit before adding locks.\n6. Use only a truthful project example; a generic pattern is not evidence of personal work."

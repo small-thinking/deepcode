@@ -4,23 +4,32 @@
   "title": "Design a Music Recommendation System and LLM Agent",
   "category": "ML System Design",
   "difficulty": "hard",
-  "tags": ["recommendation", "llm-agent", "ranking", "evaluation"],
-  "companies": ["Google DeepMind"],
+  "tags": [
+    "recommendation",
+    "llm-agent",
+    "ranking",
+    "evaluation"
+  ],
+  "companies": [
+    "Google DeepMind"
+  ],
   "interview_frequency": {
     "Google DeepMind": {
       "source_record_ids": [
         "3cc6ce51456d81bab4e6ecba1d88799c"
       ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design a music recommendation system, then explain how the design changes when an LLM powers a recommendation agent. Cover candidate generation, ranking, feedback, cold start, diversity, freshness, and online evaluation.\n\nThe LLM may interpret natural-language intent and call approved catalog and retrieval tools, but it must not bypass catalog eligibility, ranking policy, or safety constraints. Discuss latency, cost, hallucination, experimentation, and what remains deterministic. This is a practice reconstruction of a reported AI/ML SWE interview theme.",
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Start with the recommendation objective and eligibility boundary, then separate retrieval, ranking, and agent orchestration.",
     "reference_answer": "## Baseline recommender\n\nA request passes hard catalog, region, rights, and safety eligibility before candidate generation. Candidate sources combine collaborative, content, contextual, fresh, and exploration signals. A ranker estimates calibrated user value while a reranker applies diversity, novelty, creator concentration, and policy constraints. Impression logging records request, position, model, feature versions, and visibility-qualified exposure.\n\n## Learning and evaluation\n\nTraining examples are point-in-time correct and account for position bias. Offline metrics include candidate recall, ranking quality, calibration, diversity, and cold-start slices; launch decisions also require online satisfaction, skips, hides, retention, latency, and ecosystem health. A model artifact and feature manifest make rollback reproducible.\n\n## LLM agent extension\n\nThe agent translates a request such as a mood, activity, or constraint into structured intent, then calls catalog, retrieval, and explanation tools. It does not directly invent unavailable songs or become the ranking authority. Tool results are grounded in current catalog data; ranking and eligibility remain deterministic services. A simple request can use the baseline path without an agent loop.\n\n## Guardrails\n\nBound tool calls, context size, latency, and model spend. Evaluate grounded catalog references, intent interpretation, explanation helpfulness, unsafe or fabricated suggestions, and regressions by language and music availability. Cache only identity- and policy-safe intermediate results."

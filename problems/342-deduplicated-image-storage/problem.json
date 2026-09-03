@@ -4,23 +4,32 @@
   "title": "Design a Deduplicated Image Storage Service",
   "category": "System Design",
   "difficulty": "hard",
-  "tags": ["object-storage", "sha-256", "deduplication", "multipart-upload"],
-  "companies": ["OpenAI"],
+  "tags": [
+    "object-storage",
+    "sha-256",
+    "deduplication",
+    "multipart-upload"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
   "interview_frequency": {
     "OpenAI": {
       "source_record_ids": [
         "3c56ce51456d81e6821edf0d024e3c76"
       ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design an image service with upload, view, and delete. Uploads can be large and retried; the service must compute a full-file SHA-256, deduplicate identical blobs, preserve separate user-visible image records, and safely garbage-collect an unreferenced blob.\n\nCover resumable multipart upload, integrity verification, idempotency, metadata/blob consistency, concurrent finalization, authorization, delete races, failure recovery, and observability. Do not assume a multipart ETag is a full-file SHA-256. This is a practice reconstruction of a reported image-storage interview theme.",
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Separate an upload session, a verified immutable blob, and a user-visible image reference.",
     "reference_answer": "## Data model\n\nAn upload session is idempotent by client key and moves through uploading, verifying, ready, failed, and abandoned states. A verified blob is keyed by a full-file SHA-256 plus size and immutable storage location. An image record belongs to a principal and references one blob; it is not the blob itself.\n\n## Upload and deduplication\n\nThe client uploads resumable parts to a temporary object while the service tracks part integrity and computes or verifies the complete SHA-256 at finalization. Only after full-object verification does a transaction or compare-and-set register the canonical blob. Concurrent finalizers for the same hash attach to the one blob record. A failure between object upload and metadata commit leaves a recoverable temporary object, not a ready image.\n\n## Read, delete, and recovery\n\nReads authorize the image record before issuing a short-lived object URL or streaming bytes. Delete tombstones the image reference first, then a background collector removes a blob only when its reference count is zero and no finalization lease is active. Reconciliation scans terminal sessions and object metadata to repair orphaned temporary objects and incomplete transitions.\n\n## Operations\n\nTrack upload completion, resume and retry rates, verification failures, deduplication savings, finalization races, orphan age, deletion lag, authorization failures, and storage reclaimed. The source-of-truth state machine makes blob lifetime explainable even if object-store and metadata operations are not one transaction."

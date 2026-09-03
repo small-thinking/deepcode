@@ -4,21 +4,37 @@
   "title": "Design a Like System for Brands",
   "category": "System Design",
   "difficulty": "medium",
-  "tags": ["social-graph", "idempotency", "caching", "counters", "privacy"],
-  "companies": ["Faire"],
+  "tags": [
+    "social-graph",
+    "idempotency",
+    "caching",
+    "counters",
+    "privacy"
+  ],
+  "companies": [
+    "Faire",
+    "General"
+  ],
   "interview_frequency": {
-    "Faire": {
-      "source_record_ids": ["3cf6ce51456d8141b025daefdf4fb48a"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d8141b025daefdf4fb48a"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Design a service that lets an authenticated user like or unlike a brand, read whether that user currently likes a brand, and display a brand's like count. The core product expectation is that a repeated like or unlike request is idempotent, and a user can contribute at most one active like to a brand.\n\nState the API and consistency contract before choosing storage. Then cover the authoritative data model, retry and concurrent-request behavior, count materialization and cache invalidation, hot brands, privacy and abuse controls, recovery, and the operational signals needed to prove that the displayed count is trustworthy. Make scale and freshness assumptions explicit.",
   "response": {
     "placeholder": "Start by separating the authoritative user-brand relationship from the derived public counter, then make retries and concurrent toggles deterministic.",
     "reference_answer": "## Assumptions and contract\n\nAssume an authenticated principal can hold at most one active like for a brand, and that the product exposes operations to create a like, delete a like, and fetch a brand count with optional viewer-specific state. A repeated create succeeds even if the relationship already exists, and a repeated delete succeeds even if it is absent. The write response returns the user's authoritative post-operation state. The public count may be eventually consistent, but the response must say so through a count generation or freshness timestamp rather than implying a transactional global total.\n\n## Authoritative data and write path\n\nStore an authoritative relation keyed by the pair of user ID and brand ID with active state, creation/update time, request or mutation ID, and a monotonically increasing version. Enforce the key's uniqueness at the storage layer. A transactional conditional insert or update changes active state only when necessary and records an outbox event in the same transaction. The idempotency key is scoped to authenticated user, brand, operation, and a bounded retention period; replaying it returns the recorded outcome. Concurrent like and unlike requests are serialized by the relation row or optimistic version check. If the API wants last-writer-wins behavior, use a server-assigned sequence number; do not let client timestamps decide a race.\n\n## Counts, cache, and hot brands\n\nAn idempotent consumer turns relation transitions into plus-one and minus-one counter events. Only a transition from inactive to active increments, and only active to inactive decrements. Keep the relation table as the source of truth; the counter projection is rebuildable. For ordinary brands, shard counters by brand and aggregate them into a materialized count. Cache the materialized value with a short TTL or event-driven invalidation, while viewer state comes from the relation path or a separately cached, user-scoped lookup. For a hot brand, spread writes across counter shards and coalesce counter updates; do not put all likes through one cache key or one database row. A read may show a slightly stale count, but must never expose another user's relationship.\n\n## Privacy, integrity, and abuse\n\nAuthenticate every mutation and authorize access to the brand. Treat the user-brand relation as private; a count endpoint returns only the caller's own liked flag plus the aggregate count, never the raw liker list unless a separately authorized product requires it. Apply per-user and per-IP rate limits, device and account-age risk checks, challenge escalation where appropriate, and anomaly detection for rapid like/unlike churn, coordinated account creation, and suspicious brand concentration. Keep moderation actions and blocklists in the decision path so a banned account cannot keep replaying a valid-looking request.\n\n## Recovery and observability\n\nThe outbox and consumer keep event IDs, relation versions, and applied-projection checkpoints, making delivery retries harmless. Reconcile each brand's materialized count periodically against active authoritative relations; alert on a mismatch instead of silently overwriting it without evidence. If the counter pipeline is delayed, serve the last known count with explicit freshness while relationship writes continue. Monitor like and unlike request rates, idempotency replays, conditional-write conflicts, duplicate-event drops, projection lag, cache hit rate, hot-brand shard skew, count reconciliation error, authorization failures, rate-limit and abuse actions, and the latency/error split for relationship writes versus aggregate reads.\n\n## Progressive Hints\n\n1. A user-brand relationship and a brand's displayed count have different consistency needs.\n2. A retry must not increment the count twice.\n3. The database uniqueness constraint, not the cache, enforces one active like per user and brand.\n4. A counter projection is useful only if it can be rebuilt and reconciled from the relation source of truth.\n5. Do not expose who liked a brand merely to answer whether the current user did."
   },
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "created_at": "2026-09-02"
 }
