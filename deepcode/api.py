@@ -128,6 +128,7 @@ def _handle_api_request(
             "categories": context.store.categories(),
             "difficulties": context.store.difficulties(),
             "companies": context.store.companies(),
+            "company_counts": context.store.company_counts(),
             "company_profiles": _company_profile_summaries(context),
             "total": len(problems),
         }

@@ -30,6 +30,25 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["categories"], ["Machine Learning"])
             self.assertEqual(payload["difficulties"], ["easy"])
 
+    def test_lists_global_company_counts_even_when_results_are_filtered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root)
+            self._write_problem(root, "airbnb-openai", "1", {"companies": ["Airbnb", "OpenAI"]})
+            self._write_problem(root, "airbnb-only", "2", {"companies": ["Airbnb"]})
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "GET",
+                "/api/problems",
+                {"company": ["OpenAI"]},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual([problem["slug"] for problem in payload["problems"]], ["airbnb-openai"])
+            self.assertEqual(payload["company_counts"], {"Airbnb": 2, "OpenAI": 1})
+
     def test_lists_problems_in_requested_sort_direction(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

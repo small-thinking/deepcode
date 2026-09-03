@@ -126,6 +126,9 @@ class StaticUiTest(unittest.TestCase):
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
         self.assertIn('id="company"', app_js)
+        self.assertIn("company_counts", app_js)
+        self.assertIn("function companyOptionLabel(company)", app_js)
+        self.assertIn("companyOptionLabel(company)", app_js)
         self.assertIn("company_profiles", app_js)
         self.assertIn("function companyProfileSlug(companyName)", app_js)
         self.assertIn("function companyLabelList(values", app_js)
