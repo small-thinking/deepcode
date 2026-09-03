@@ -448,6 +448,13 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("function renderProgress", app_js)
         self.assertIn("function renderProgressBreakdown", app_js)
         self.assertIn("function renderProgressHeatmap", app_js)
+        self.assertIn("function progressDailyMetrics", app_js)
+        self.assertIn("function progressEventHasFullSuitePass", app_js)
+        self.assertIn("Daily question coverage", app_js)
+        self.assertIn("Distinct questions", app_js)
+        self.assertIn("Passed questions", app_js)
+        self.assertIn("Full-suite passes", app_js)
+        self.assertIn("progress-bar-pair", app_js)
         self.assertIn("data-progress-range", app_js)
         self.assertIn("data-progress-category", app_js)
         self.assertIn("data-progress-company", app_js)
@@ -456,6 +463,8 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".progress-page", styles_css)
         self.assertIn(".progress-heatmap", styles_css)
         self.assertIn(".progress-contribution-panel", styles_css)
+        self.assertIn(".progress-trend-legend", styles_css)
+        self.assertIn(".progress-bar-pair", styles_css)
         self.assertIn("--contribution-4", styles_css)
 
     def test_problem_table_headers_control_sort_direction(self):

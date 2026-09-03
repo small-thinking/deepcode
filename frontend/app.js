@@ -1888,21 +1888,49 @@ function progressProblemMatchesFilters(problem) {
   );
 }
 
-function progressData() {
-  const events = state.progress.events.filter(progressEventMatchesFilters);
-  const problems = state.progress.problems.filter(progressProblemMatchesFilters);
+function progressEventHasFullSuitePass(event) {
+  return event.scope === "full" && event.outcome === "passed";
+}
+
+function progressProblemSlugs(events) {
+  return new Set(events.map((event) => event.problem_slug).filter(Boolean));
+}
+
+function progressDailyMetrics(events) {
   const daily = new Map();
   events.forEach((event) => {
     const day = progressDayKey(event);
-    if (day) daily.set(day, (daily.get(day) || 0) + 1);
+    if (!day) return;
+    if (!daily.has(day)) {
+      daily.set(day, { submissions: 0, problemSlugs: new Set(), passedProblemSlugs: new Set() });
+    }
+    const metric = daily.get(day);
+    metric.submissions += 1;
+    if (event.problem_slug) metric.problemSlugs.add(event.problem_slug);
+    if (event.problem_slug && progressEventHasFullSuitePass(event)) metric.passedProblemSlugs.add(event.problem_slug);
   });
+  return daily;
+}
+
+function progressDailyMetric(metric) {
+  return {
+    submissions: metric?.submissions || 0,
+    distinctQuestions: metric?.problemSlugs.size || 0,
+    passedQuestions: metric?.passedProblemSlugs.size || 0,
+  };
+}
+
+function progressData() {
+  const events = state.progress.events.filter(progressEventMatchesFilters);
+  const problems = state.progress.problems.filter(progressProblemMatchesFilters);
+  const daily = progressDailyMetrics(events);
   return {
     events,
     problems,
     daily,
     submissions: events.length,
-    uniqueProblems: new Set(events.map((event) => event.problem_slug).filter(Boolean)).size,
-    fullPasses: events.filter((event) => event.scope === "full" && event.outcome === "passed").length,
+    distinctQuestions: progressProblemSlugs(events).size,
+    passedQuestions: progressProblemSlugs(events.filter(progressEventHasFullSuitePass)).size,
     activeDays: daily.size,
   };
 }
@@ -1929,16 +1957,21 @@ function progressCategories() {
   );
 }
 
-function progressWeeklySubmissionCount(events) {
+function progressWeeklyActivity(events) {
   const start = new Date();
   const day = start.getDay();
   const daysSinceMonday = day === 0 ? 6 : day - 1;
   start.setHours(0, 0, 0, 0);
   start.setDate(start.getDate() - daysSinceMonday);
-  return events.filter((event) => {
+  const weeklyEvents = events.filter((event) => {
     const timestamp = progressEventDate(event);
     return timestamp && timestamp >= start;
-  }).length;
+  });
+  return {
+    submissions: weeklyEvents.length,
+    distinctQuestions: progressProblemSlugs(weeklyEvents).size,
+    passedQuestions: progressProblemSlugs(weeklyEvents.filter(progressEventHasFullSuitePass)).size,
+  };
 }
 
 function renderProgressTrend(data) {
@@ -1950,22 +1983,24 @@ function renderProgressTrend(data) {
     const current = new Date(start);
     current.setDate(start.getDate() + index);
     const key = progressDayKey(current);
-    return { key, count: data.daily.get(key) || 0 };
+    return { key, ...progressDailyMetric(data.daily.get(key)) };
   });
-  const maxCount = Math.max(1, ...days.map((item) => item.count));
+  const maxCount = Math.max(1, ...days.flatMap((item) => [item.distinctQuestions, item.passedQuestions]));
+  const weekly = progressWeeklyActivity(data.events);
   return `
     <section class="progress-panel progress-trend-panel">
       <div class="progress-panel-heading">
-        <div><h2>Daily activity</h2><p>Every evaluator run counts, including repeated attempts.</p></div>
-        <strong>${progressWeeklySubmissionCount(data.events)} this week</strong>
+        <div><h2>Daily question coverage</h2><p>Questions and full-suite passes are de-duplicated per day; repeated evaluator runs remain in submissions.</p></div>
+        <div class="progress-trend-summary"><strong>${weekly.distinctQuestions} this week</strong><span>${weekly.passedQuestions} passed · ${weekly.submissions} submissions</span></div>
       </div>
-      <div class="progress-bar-chart" role="img" aria-label="Daily submission activity">
+      <div class="progress-trend-legend" aria-label="Daily chart series"><span><i class="progress-bar-key distinct"></i>Distinct questions</span><span><i class="progress-bar-key passed"></i>Full-suite passes</span></div>
+      <div class="progress-bar-chart" role="list" aria-label="Daily distinct-question and full-suite-pass activity">
         ${days
           .map(
-            ({ key, count }) => `
-              <div class="progress-bar-column" title="${escapeHtml(`${formatProgressDay(key)}: ${count} submission${count === 1 ? "" : "s"}`)}">
-                <span class="progress-bar-count">${count || ""}</span>
-                <span class="progress-bar ${count ? "has-activity" : ""}" style="height: ${count ? Math.max(8, (count / maxCount) * 100) : 3}%"></span>
+            ({ key, distinctQuestions, passedQuestions, submissions }) => `
+              <div class="progress-bar-column" role="listitem" title="${escapeHtml(`${formatProgressDay(key)}: ${distinctQuestions} distinct question${distinctQuestions === 1 ? "" : "s"} · ${passedQuestions} full-suite pass${passedQuestions === 1 ? "" : "es"} · ${submissions} submission${submissions === 1 ? "" : "s"}`)}" aria-label="${escapeHtml(`${formatProgressDay(key)}: ${distinctQuestions} distinct questions, ${passedQuestions} full-suite passes, ${submissions} submissions`)}">
+                <span class="progress-bar-counts" aria-hidden="true"><span class="progress-bar-count distinct">${distinctQuestions || ""}</span><span class="progress-bar-count passed">${passedQuestions || ""}</span></span>
+                <span class="progress-bar-pair" aria-hidden="true"><span class="progress-bar distinct ${distinctQuestions ? "has-activity" : ""}" style="height: ${distinctQuestions ? Math.max(8, (distinctQuestions / maxCount) * 100) : 3}%"></span><span class="progress-bar passed ${passedQuestions ? "has-activity" : ""}" style="height: ${passedQuestions ? Math.max(8, (passedQuestions / maxCount) * 100) : 3}%"></span></span>
                 <span class="progress-bar-label">${escapeHtml(formatProgressDay(key, { month: "numeric", day: "numeric" }))}</span>
               </div>
             `
@@ -2185,8 +2220,8 @@ function renderProgress() {
           : `
             <section class="stat-grid progress-stat-grid" aria-label="Practice statistics">
               <div class="stat-card"><strong>${data.submissions}</strong><span>Submissions</span></div>
-              <div class="stat-card"><strong>${data.uniqueProblems}</strong><span>Unique questions</span></div>
-              <div class="stat-card"><strong>${data.fullPasses}</strong><span>Full-suite passes</span></div>
+              <div class="stat-card"><strong>${data.distinctQuestions}</strong><span>Distinct questions</span></div>
+              <div class="stat-card"><strong>${data.passedQuestions}</strong><span>Passed questions</span></div>
               <div class="stat-card"><strong>${data.activeDays}</strong><span>Active days</span></div>
             </section>
             ${

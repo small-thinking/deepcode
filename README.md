@@ -59,7 +59,9 @@ activity is not reduced to one completed/not-completed snapshot. Only full-suite
 runs affect the completion and in-progress status. On first use, the dashboard
 also transparently backfills each known completion/latest-status timestamp from
 the existing user-state file; it does not invent older attempt counts or test
-results.
+results. Daily coverage de-duplicates question slugs for the local day and
+separately reports distinct full-suite passes; raw submission totals continue to
+include repeat attempts.
 
 DeepCode also stores user-authored ML coding checks in `.deepcode/custom-tests.json`.
 These custom tests are local practice aids: they do not modify committed
