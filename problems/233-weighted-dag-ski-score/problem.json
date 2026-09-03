@@ -1,7 +1,7 @@
 {
   "id": "233",
   "slug": "weighted-dag-ski-score",
-  "title": "Maximum-Score Terminal Path in a Weighted DAG",
+  "title": "Ski Path: Maximum Score on a Weighted DAG",
   "category": "Algorithms",
   "difficulty": "medium",
   "tags": ["graphs", "dag", "dynamic-programming", "topological-sort"],
@@ -19,12 +19,12 @@
     "stars": 1,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `best_terminal_path(start, node_scores, edges) -> tuple[score | None, list]`. `node_scores` is either a mapping from node to reward or an iterable of `(node, reward)` pairs. `edges` is an iterable of directed `(from_node, to_node, cost)` triples. Every edge endpoint must have a score, and the graph must be acyclic.\n\nStarting at the caller-supplied `start` node, find a reachable terminal whose node name begins with `_`. A path's score is the sum of every visited node's reward, including `start`, minus the costs of its traversed edges. Return `(best_score, path)`, where `path` lists the nodes from `start` through the chosen terminal.\n\nReturn `(None, [])` when no `_`-prefixed terminal is reachable. Raise `ValueError` for a missing start score, an edge with an unknown endpoint, or a cycle. A `start` node that itself begins with `_` is a valid terminal path of length one.",
-  "starter_code": "def best_terminal_path(start, node_scores, edges):\n    # Return (best_score, path) from start to a reachable '_' terminal.\n    pass\n",
+  "prompt": "Implement `max_ski_score(travel, points) -> int | float | None` for the weighted-DAG **Ski Path** variant. This is not the similarly named downhill-grid problem.\n\n`travel` is an iterable of directed `(from_node, cost, to_node)` triples. `points` is an iterable of `(node, reward)` pairs. Node IDs are strings; costs are non-negative numbers and rewards are numbers. The literal node `START` is the fixed starting node, has reward `0`, and must not appear in `points`. Every other node mentioned by `travel` must appear exactly once in `points`. The full directed graph is acyclic.\n\nA valid ski path starts at `START` and ends at any reachable node whose ID begins with `END`. Its score is the sum of rewards for the visited non-`START` nodes minus the costs of its traversed edges. Return the largest such score. Return `None` if no `END*` node is reachable.\n\nRaise `ValueError` when the input is malformed, a non-`START` edge endpoint has no unique reward, `START` is assigned a reward, or the graph contains a cycle. Your solution should process the graph in `O(V + E)` time and use `O(V + E)` space.",
+  "starter_code": "def max_ski_score(travel, points):\n    # Return the best score from START to a reachable END* node.\n    pass\n",
   "example": {
-    "input": "best_terminal_path('ski', {'ski': 5, 'ridge': 4, '_finish': 7}, [('ski', 'ridge', 3), ('ridge', '_finish', 2)])",
-    "output": "(11, ['ski', 'ridge', '_finish'])",
-    "reasoning": "The score includes all three node rewards (16) and subtracts both edge costs (5)."
+    "input": "max_ski_score([('START', 3, 'A'), ('A', 4, 'B'), ('B', 5, 'END1'), ('START', 1, 'END2')], [('A', 5), ('B', 6), ('END1', 3), ('END2', 2)])",
+    "output": "2",
+    "reasoning": "The best terminal route is START → A → B → END1: its non-START rewards total 14 and its edge costs total 12. START has no reward."
   },
   "environment": {
     "language": "python",
@@ -34,7 +34,15 @@
   },
   "references": [
     {
-      "label": "1Point3Acres: Airbnb interview report",
+      "label": "1Point3Acres: Ski Path — Max Score on a Weighted DAG",
+      "url": "https://www.1point3acres.com/interview/problems/company/airbnb/ski-path-max-score-dag"
+    },
+    {
+      "label": "Related but distinct: PracHub downhill-grid variant",
+      "url": "https://prachub.com/interview-questions/find-best-downhill-ski-run-from-a-start"
+    },
+    {
+      "label": "1Point3Acres: related Airbnb interview report",
       "url": "https://www.1point3acres.com/bbs/thread-1139472-1-1.html"
     }
   ],

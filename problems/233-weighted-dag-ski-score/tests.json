@@ -1,27 +1,27 @@
 [
   {
-    "name": "uses the caller-provided start reward and reconstructs the best underscore terminal path",
-    "input": "a mapping of node rewards and two terminal routes from a non-default start",
-    "test": "node_scores = {'ski': 5, 'ridge': 4, '_finish': 7, '_shortcut': 2}\nedges = [('ski', 'ridge', 3), ('ridge', '_finish', 2), ('ski', '_shortcut', 1)]\nassert best_terminal_path('ski', node_scores, edges) == (11, ['ski', 'ridge', '_finish'])"
+    "name": "uses source ordering and excludes START from the reward total",
+    "input": "the fixed START node, (from, cost, to) travel records, and two END routes",
+    "test": "travel = [('START', 3, 'A'), ('A', 4, 'B'), ('B', 5, 'END1'), ('START', 1, 'END2')]\npoints = [('A', 5), ('B', 6), ('END1', 3), ('END2', 2)]\nassert max_ski_score(travel, points) == 2"
   },
   {
-    "name": "accepts score pairs and ignores unreachable underscore terminals",
-    "input": "an iterable of score pairs with a disconnected terminal",
-    "test": "node_scores = [('trailhead', 6), ('_lodge', 10), ('detached', 1), ('_closed', 50)]\nedges = [('trailhead', '_lodge', 3), ('detached', '_closed', 0)]\nassert best_terminal_path('trailhead', node_scores, edges) == (13, ['trailhead', '_lodge'])"
+    "name": "only a reachable END-prefixed node can finish a path",
+    "input": "a high-reward dead end, an unreachable terminal, and one lower-scoring valid terminal",
+    "test": "travel = [('START', 0, 'scenic'), ('START', 1, 'ridge'), ('ridge', 1, 'END_lodge'), ('detached', 0, 'END_closed')]\npoints = [('scenic', 100), ('ridge', 3), ('END_lodge', 4), ('detached', 1), ('END_closed', 50)]\nassert max_ski_score(travel, points) == 5"
   },
   {
-    "name": "returns no path when no terminal is reachable",
-    "input": "a DAG whose only underscore terminal is disconnected",
-    "test": "node_scores = {'start': -2, 'ridge': 5, '_other': 9}\nedges = [('start', 'ridge', 1)]\nassert best_terminal_path('start', node_scores, edges) == (None, [])"
+    "name": "keeps the best score at a converging DAG node",
+    "input": "two routes that merge before a terminal plus an inferior direct END route",
+    "test": "travel = [('START', 2, 'A'), ('START', 1, 'B'), ('A', 1, 'junction'), ('B', 0, 'junction'), ('junction', 3, 'END_peak'), ('START', 0, 'END_lodge')]\npoints = [('A', 9), ('B', 2), ('junction', 4), ('END_peak', 6), ('END_lodge', 5)]\nassert max_ski_score(iter(travel), iter(points)) == 13"
   },
   {
-    "name": "treats an underscore-prefixed start as a one-node terminal path",
-    "input": "a terminal start with a negative reward",
-    "test": "assert best_terminal_path('_summit', {'_summit': -3, 'ridge': 4}, []) == (-3, ['_summit'])"
+    "name": "returns None when START cannot reach an END node",
+    "input": "a graph with a disconnected END node",
+    "test": "travel = [('START', 2, 'ridge'), ('other', 0, 'END_closed')]\npoints = [('ridge', 7), ('other', 1), ('END_closed', 10)]\nassert max_ski_score(travel, points) is None"
   },
   {
-    "name": "rejects cyclic and malformed graphs",
-    "input": "a cycle and an edge endpoint without a node score",
-    "test": "try:\n    best_terminal_path('start', {'start': 1, 'A': 2}, [('start', 'A', 1), ('A', 'start', 1)])\n    raise AssertionError('expected cycle to be rejected')\nexcept ValueError:\n    pass\n\ntry:\n    best_terminal_path('start', {'start': 1}, [('start', '_missing', 1)])\n    raise AssertionError('expected unknown endpoint to be rejected')\nexcept ValueError:\n    pass\n\ntry:\n    best_terminal_path('start', {'start': 1, '_end': 2}, [('start', '_end')])\n    raise AssertionError('expected malformed edge to be rejected')\nexcept ValueError:\n    pass"
+    "name": "rejects invalid source-contract inputs",
+    "input": "a cycle, a missing reward, and an invalid START reward",
+    "test": "def raises_value_error(travel, points):\n    try:\n        max_ski_score(travel, points)\n    except ValueError:\n        return True\n    return False\n\nassert raises_value_error([('START', 1, 'A'), ('A', 1, 'B'), ('B', 1, 'A')], [('A', 1), ('B', 1)])\nassert raises_value_error([('START', 1, 'END1')], [])\nassert raises_value_error([('START', 1, 'END1')], [('START', 0), ('END1', 2)])\nassert raises_value_error([('START', 1, 'END1')], [('END1', 2), ('END1', 3)])\nassert raises_value_error([('START', -1, 'END1')], [('END1', 2)])"
   }
 ]
