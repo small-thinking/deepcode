@@ -1,0 +1,17 @@
+[
+  {
+    "name": "filters unsorted tagged points before computing fixed-count windows",
+    "input": "mixed tags and timestamp order with the published fixed-count value sequence",
+    "test": "points = [(3, 10, {'ml'}), (0, -1, {'ml'}), (1, 2, {'ml'}), (2, -10, {'ml'}), (4, 100, {'ml'}), (5, 999, {'other'})]\nbefore = list(points)\nassert fixed_count_moving_sums(points, 'ml', 2) == [1, -8, 0, 110]\nassert points == before"
+  },
+  {
+    "name": "uses half-open complete time windows with duplicate timestamps",
+    "input": "tagged timestamps zero, two, five, five, and six",
+    "test": "points = [(5, 10, {'x'}), (0, 1, {'x'}), (2, 2, {'x'}), (5, 3, {'x'}), (6, 4, {'x'}), (7, 999, {'other'})]\nassert time_window_moving_sums(points, 'x', 2) == [1, 2]\nassert time_window_moving_sums(points, 'x', 1) == [1, 2, 13, 13]\nassert fixed_count_moving_sums(points, 'missing', 1) == []\nassert time_window_moving_sums(points, 'missing', 1) == []"
+  },
+  {
+    "name": "rejects malformed points and invalid window settings",
+    "input": "invalid tags, windows, timestamps, values, and point records",
+    "test": "def must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nvalid = [(0, 1.0, {'x'})]\nmust_raise(lambda: fixed_count_moving_sums(valid, '', 1))\nmust_raise(lambda: fixed_count_moving_sums(valid, 'x', 0))\nmust_raise(lambda: time_window_moving_sums(valid, 'x', False))\nmust_raise(lambda: fixed_count_moving_sums([(0, float('nan'), {'x'})], 'x', 1))\nmust_raise(lambda: fixed_count_moving_sums([('0', 1, {'x'})], 'x', 1))\nmust_raise(lambda: fixed_count_moving_sums([(0, 1, 'x')], 'x', 1))\nmust_raise(lambda: fixed_count_moving_sums([(0, 1)], 'x', 1))"
+  }
+]

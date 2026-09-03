@@ -1,0 +1,17 @@
+[
+  {
+    "name": "undoes and redoes insertions and deletions in order",
+    "input": "an insertion followed by a middle deletion",
+    "test": "doc = TextDocument('abc')\ndoc.insert(1, 'XY')\nassert doc.get_text() == 'aXYbc'\nassert doc.delete(2, 4) == 'Yb'\nassert doc.get_text() == 'aXc'\nassert doc.undo()\nassert doc.get_text() == 'aXYbc'\nassert doc.undo()\nassert doc.get_text() == 'abc'\nassert doc.redo()\nassert doc.get_text() == 'aXYbc'\nassert doc.redo()\nassert doc.get_text() == 'aXc'"
+  },
+  {
+    "name": "new edits clear redo and no-op edits create no history",
+    "input": "undo followed by a replacement edit",
+    "test": "doc = TextDocument('hello')\ndoc.delete(0, 1)\nassert doc.undo()\ndoc.insert(5, '!')\nassert doc.get_text() == 'hello!'\nassert not doc.redo()\nassert doc.delete(3, 3) == ''\ndoc.insert(0, '')\nassert doc.undo()\nassert doc.get_text() == 'hello'\nassert not doc.undo()"
+  },
+  {
+    "name": "validates construction and edit ranges",
+    "input": "invalid initial text, indices, and insertions",
+    "test": "for make in (lambda: TextDocument(3), lambda: TextDocument('ok').insert(-1, 'x'), lambda: TextDocument('ok').delete(2, 1), lambda: TextDocument('ok').insert(0, 4)):\n    try:\n        make()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

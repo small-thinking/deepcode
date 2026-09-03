@@ -1,0 +1,17 @@
+[
+  {
+    "name": "normalizes punctuation and returns a 5-7-5 sequence",
+    "input": "mixed-case words with punctuation",
+    "test": "sentence = 'A, a! a a a; B b b b b b b. C c c c c c.'\nresult = find_first_haiku(sentence, {'a': 1, 'b': 1, 'c': 1})\nassert result == [['a'] * 5, ['b'] * 7, ['c'] * 5]"
+  },
+  {
+    "name": "returns the earliest candidate and none when absent",
+    "input": "two valid spans followed by an incomplete sentence",
+    "test": "words = 'a a a a a b b b b b b b c c c c c a a a a a b b b b b b b c c c c c'\nanswer = find_first_haiku(words, {'a': 1, 'b': 1, 'c': 1})\nassert answer == [['a'] * 5, ['b'] * 7, ['c'] * 5]\nassert find_first_haiku('a a a', {'a': 1}) is None"
+  },
+  {
+    "name": "rejects unknown and invalid syllable entries",
+    "input": "unknown words and nonpositive counts",
+    "test": "for sentence, counts in [('mystery', {}), ('a', {'a': 0}), ('a', {'a': True})]:\n    try:\n        find_first_haiku(sentence, counts)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

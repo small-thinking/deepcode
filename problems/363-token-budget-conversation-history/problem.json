@@ -1,0 +1,28 @@
+{
+  "id": "363",
+  "slug": "token-budget-conversation-history",
+  "title": "Keep Recent Conversation History Within a Token Budget",
+  "category": "Data Structures",
+  "difficulty": "medium",
+  "tags": ["prefix-sum", "binary-search", "queues", "conversation-history"],
+  "companies": ["Sierra"],
+  "interview_frequency": {
+    "Sierra": {
+      "source_record_ids": ["3cf6ce51456d8191bbfcd2a517c7e3a7"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "prompt": "Implement ConversationHistory with add(role, content) and get_recent(max_tokens) -> list[tuple[str, str]]. add appends one message chronologically. A message's token count is len(content.split()); its role does not count toward the budget. get_recent returns the longest contiguous suffix of messages whose total token count is at most max_tokens, preserving chronological order. If the newest message alone exceeds the budget, return an empty list.\n\nRoles are nonempty strings and contents are strings. max_tokens is a nonnegative ordinary integer. Invalid inputs raise ValueError. Treat whitespace-only content as a zero-token message and preserve its original content in the returned tuple. Aim for O(log n + output size) per read after maintaining cumulative token counts.",
+  "starter_code": "class ConversationHistory:\n    def __init__(self):\n        pass\n\n    def add(self, role, content):\n        pass\n\n    def get_recent(self, max_tokens):\n        pass\n",
+  "example": {
+    "input": "history.add('user', 'one two'); history.add('assistant', 'three'); history.add('user', 'four five'); history.get_recent(3)",
+    "output": "[('assistant', 'three'), ('user', 'four five')]",
+    "reasoning": "The latest two messages use exactly three tokens, while including the prior message would exceed the budget."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "references": [{"label": "1Point3Acres: Sierra agent engineering technical phone", "url": "https://www.1point3acres.com/interview/thread/1181173"}],
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-09-02"
+}

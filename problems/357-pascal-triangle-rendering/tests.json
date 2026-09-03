@@ -1,0 +1,17 @@
+[
+  {
+    "name": "generates the first four rows and their rendering",
+    "input": "height four",
+    "test": "assert generate_pascal(4) == [[1], [1, 1], [1, 2, 1], [1, 3, 3, 1]]\nassert render_pascal(4) == ['   1', '  1 1', ' 1 2 1', '1 3 3 1']"
+  },
+  {
+    "name": "keeps numeric data separate from formatting",
+    "input": "six rows containing multi-digit values",
+    "test": "rows = generate_pascal(6)\nassert rows[-1] == [1, 5, 10, 10, 5, 1]\nassert [sum(row) for row in rows] == [1, 2, 4, 8, 16, 32]\nlines = render_pascal(6)\nassert len(lines) == 6\nassert all(line == line.rstrip() for line in lines)\nassert '10' in lines[-1]"
+  },
+  {
+    "name": "handles zero and rejects invalid heights",
+    "input": "zero, negative, boolean, and fractional heights",
+    "test": "assert generate_pascal(0) == []\nassert render_pascal(0) == []\nfor height in (-1, True, 1.5):\n    try:\n        generate_pascal(height)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

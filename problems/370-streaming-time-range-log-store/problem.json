@@ -1,0 +1,28 @@
+{
+  "id": "370",
+  "slug": "streaming-time-range-log-store",
+  "title": "Time-Range Log Queries with Streaming Results",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": ["iterators", "binary-search", "logs", "time-range-query", "streaming"],
+  "companies": ["Datadog"],
+  "interview_frequency": {
+    "Datadog": {
+      "source_record_ids": ["3cf6ce51456d8153bb01d662156a9fe4"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "prompt": "Practice reconstruction: the source report specifies a time-range query and streaming follow-up, but not a concrete storage API.\n\nImplement `LogStore`. `add(timestamp, message)` accepts an integer timestamp and a string message; arrivals may be out of timestamp order. `iter_range(start, end)` returns a fresh iterator of `(timestamp, message)` pairs for the closed interval `[start, end]`. Results must be ordered by timestamp, and records with equal timestamps must retain insertion order.\n\nUse binary search to locate a query range and yield records lazily rather than constructing a result list. `start` and `end` must be integers with `start <= end`; reject invalid arguments with `ValueError`. The exercise is single-threaded: concurrent writes during iteration are out of scope.",
+  "starter_code": "class LogStore:\n    def __init__(self):\n        pass\n\n    def add(self, timestamp, message):\n        pass\n\n    def iter_range(self, start, end):\n        pass\n",
+  "example": {
+    "input": "store.add(4, 'later'); store.add(2, 'earlier'); list(store.iter_range(2, 3))",
+    "output": "[(2, 'earlier')]",
+    "reasoning": "Out-of-order ingestion is normalized at query time, and both query boundaries are inclusive."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "references": [{"label": "1Point3Acres: Datadog MLE interview experience", "url": "https://www.1point3acres.com/interview/thread/1122315"}],
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-09-02"
+}

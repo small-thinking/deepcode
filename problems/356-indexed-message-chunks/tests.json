@@ -1,0 +1,22 @@
+[
+  {
+    "name": "splits into fixed-width indexed chunks",
+    "input": "nine characters with a six-character limit",
+    "test": "assert split_indexed_message('abcdefghi', 6) == ['abc#01', 'def#02', 'ghi#03']"
+  },
+  {
+    "name": "preserves every whitespace character",
+    "input": "leading, repeated, and trailing spaces",
+    "test": "message = ' a  b '\nchunks = split_indexed_message(message, 5)\nassert [len(chunk) for chunk in chunks] == [5, 5, 5]\nassert ''.join(chunk[:-3] for chunk in chunks) == message"
+  },
+  {
+    "name": "widens suffixes past ninety-nine chunks",
+    "input": "a payload large enough to need more than 99 chunks",
+    "test": "chunks = split_indexed_message('x' * 496, 8)\nassert len(chunks) == 124\nassert chunks[98].endswith('#099')\nassert chunks[99].endswith('#100')\nassert all(len(chunk) <= 8 for chunk in chunks)\nassert ''.join(chunk[:-4] for chunk in chunks) == 'x' * 496"
+  },
+  {
+    "name": "handles empty and impossible messages",
+    "input": "an empty string and a too-small limit",
+    "test": "assert split_indexed_message('', 1) == []\ntry:\n    split_indexed_message('x', 3)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass"
+  }
+]

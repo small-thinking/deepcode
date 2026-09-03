@@ -1,0 +1,28 @@
+{
+  "id": "360",
+  "slug": "text-document-undo-redo",
+  "title": "Text Document Editing with Undo and Redo",
+  "category": "Data Structures",
+  "difficulty": "medium",
+  "tags": ["strings", "stacks", "stateful", "undo-redo"],
+  "companies": ["Notion"],
+  "interview_frequency": {
+    "Notion": {
+      "source_record_ids": ["3cf6ce51456d81eba58bc38dc58f6f98"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "prompt": "Implement TextDocument(initial_text='') with insert(index, text), delete(start, end) -> str, undo() -> bool, redo() -> bool, and get_text() -> str. Indices are zero-based. insert places text before index; delete removes the half-open range [start, end) and returns the removed text. Empty inserts and empty deletions are no-ops and do not create history entries.\n\nEvery successful nonempty edit is undoable. undo reverses the latest edit and makes it redoable; redo reapplies the latest undone edit. A successful new edit after an undo clears all redo history. Return False when undo or redo has no available operation, and True otherwise. Reject invalid indices or non-string text with ValueError.\n\nThis is a practice reconstruction of the Notion report's unpublished class signature. Its nested-todo follow-up is deliberately out of scope for the plain-text operation-history contract.",
+  "starter_code": "class TextDocument:\n    def __init__(self, initial_text=''):\n        pass\n\n    def insert(self, index, text):\n        pass\n\n    def delete(self, start, end):\n        pass\n\n    def undo(self):\n        pass\n\n    def redo(self):\n        pass\n\n    def get_text(self):\n        pass\n",
+  "example": {
+    "input": "doc = TextDocument('abc'); doc.insert(1, 'XY'); doc.delete(2, 4)",
+    "output": "doc.get_text() == 'aXc'",
+    "reasoning": "The deletion removes the half-open range containing Y and b."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "references": [{"label": "1Point3Acres: Notion text editor interview report", "url": "https://www.1point3acres.com/interview/thread/1141145"}],
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-09-02"
+}

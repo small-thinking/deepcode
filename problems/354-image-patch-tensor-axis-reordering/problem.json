@@ -1,0 +1,43 @@
+{
+  "id": "354",
+  "slug": "image-patch-tensor-axis-reordering",
+  "title": "Image Patch Tensor Axis Reordering",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["numpy", "computer-vision", "image-patches", "tensor-layout"],
+  "companies": ["xAI"],
+  "interview_frequency": {
+    "xAI": {
+      "source_record_ids": ["3cf6ce51456d8168a32cce3d19089cdd"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
+  "prompt": "Implement `patchify_channels_first(image, patch_height, patch_width)` using NumPy. `image` is a numeric, three-dimensional array with shape `(height, width, channels)` for one HWC image. Divide it into non-overlapping patches of size `patch_height` by `patch_width`, without padding or resizing. Both image dimensions must be exactly divisible by their corresponding patch dimensions.\n\nReturn an array with shape `(height // patch_height, width // patch_width, channels, patch_height, patch_width)`. The first two axes preserve raster order of the patches, and the channel axis must precede the two within-patch spatial axes. In particular, for every valid index `r`, `c`, `channel`, `i`, and `j`, the result must satisfy `result[r, c, channel, i, j] == image[r * patch_height + i, c * patch_width + j, channel]`. Preserve the input dtype and do not mutate `image`.\n\nRaise `ValueError` when `image` is not a numeric three-dimensional NumPy array, any image dimension is zero, either patch dimension is not a positive integer, or the patch dimensions do not divide the image height and width exactly.",
+  "starter_code": "import numpy as np\n\n\ndef patchify_channels_first(image, patch_height, patch_width):\n    # Return HWC image patches with channels before within-patch spatial axes.\n    pass\n",
+  "example": {
+    "input": "image = np.arange(16).reshape(2, 4, 2); patchify_channels_first(image, 1, 2).shape",
+    "output": "(2, 2, 2, 1, 2)",
+    "reasoning": "A 2-by-4 image split into 1-by-2 patches has two patch rows and two patch columns; each patch keeps its two channels before its spatial axes."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": ["numpy"],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "1Point3Acres: xAI ML/Infra engineer interview experience",
+      "url": "https://www.1point3acres.com/interview/thread/1171574"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-02"
+}

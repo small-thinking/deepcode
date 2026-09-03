@@ -1,0 +1,17 @@
+[
+  {
+    "name": "tracks increasing and decreasing table maxima",
+    "input": "overwrites of a current maximum across two tables",
+    "test": "index = TableMaxIndex()\nindex.set_cell('a', 'x', 3)\nindex.set_cell('a', 'y', 5)\nindex.set_cell('b', 'z', 4)\nassert index.table_max('a') == 5\nassert index.global_max() == 5\nindex.set_cell('a', 'y', 2)\nassert index.table_max('a') == 3\nassert index.global_max() == 4"
+  },
+  {
+    "name": "handles duplicate maxima, deletions, and empty tables",
+    "input": "two equal maxima followed by removals",
+    "test": "index = TableMaxIndex()\nindex.set_cell('a', 'first', 7)\nindex.set_cell('a', 'second', 7)\nassert index.delete_cell('a', 'first')\nassert index.table_max('a') == 7\nassert index.delete_cell('a', 'second')\nassert index.table_max('a') is None\nassert index.global_max() is None\nassert not index.delete_cell('a', 'missing')\nassert not index.delete_cell('missing', 'cell')"
+  },
+  {
+    "name": "rejects malformed keys values and unknown table reads",
+    "input": "empty names, boolean values, and absent tables",
+    "test": "index = TableMaxIndex()\nfor call in (lambda: index.set_cell('', 'x', 1), lambda: index.set_cell('a', '', 1), lambda: index.set_cell('a', 'x', True), lambda: index.table_max('missing')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

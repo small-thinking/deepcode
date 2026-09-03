@@ -1,0 +1,17 @@
+[
+  {
+    "name": "uses a nonlinear denoiser that preserves NCHW shape",
+    "input": "a two-channel, four-hidden-channel model and a two-item image batch",
+    "test": "import torch\nfrom torch import nn\nmodel = TinyDenoiser(2, 4)\nassert any(isinstance(module, nn.SiLU) for module in model.modules())\nx = torch.randn(2, 2, 3, 3)\nout = model(x)\nassert out.shape == x.shape\nassert torch.isfinite(out).all()"
+  },
+  {
+    "name": "normalizes uint8 images, clears gradients, and updates parameters",
+    "input": "a two-pixel uint8 image at the normalization endpoints with alpha_bar one",
+    "test": "import torch\nfrom torch import nn\nclass CaptureModel(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.bias = nn.Parameter(torch.tensor(0.5))\n        self.seen = None\n    def forward(self, value):\n        self.seen = value.detach().clone()\n        return value * 0 + self.bias\nclass CountingSGD(torch.optim.SGD):\n    def __init__(self, params, *args, **kwargs):\n        super().__init__(params, *args, **kwargs)\n        self.zero_calls = 0\n    def zero_grad(self, *args, **kwargs):\n        self.zero_calls += 1\n        return super().zero_grad(*args, **kwargs)\nmodel = CaptureModel()\noptimizer = CountingSGD(model.parameters(), lr=0.1)\nmodel.bias.grad = torch.ones_like(model.bias)\nimages = torch.tensor([[[[0, 255]]]], dtype=torch.uint8)\nnoise = torch.zeros((1, 1, 1, 2), dtype=torch.float32)\nimages_before = images.clone()\nnoise_before = noise.clone()\nbefore = model.bias.detach().clone()\nloss = diffusion_train_step(model, optimizer, images, noise, 1.0)\nassert isinstance(loss, float) and torch.isfinite(torch.tensor(loss))\nassert torch.allclose(model.seen, torch.tensor([[[[-1.0, 1.0]]]]))\nassert optimizer.zero_calls == 1\nassert not torch.equal(before, model.bias.detach())\nassert torch.equal(images, images_before)\nassert torch.equal(noise, noise_before)"
+  },
+  {
+    "name": "rejects malformed diffusion inputs and wrong model output shape",
+    "input": "bad image/noise contracts, invalid alpha, and a model that changes spatial shape",
+    "test": "import torch\nfrom torch import nn\nmodel = TinyDenoiser(1, 2)\noptimizer = torch.optim.SGD(model.parameters(), lr=0.1)\nimages = torch.zeros((1, 1, 2, 2), dtype=torch.uint8)\nnoise = torch.zeros((1, 1, 2, 2))\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nmust_raise(lambda: diffusion_train_step(model, optimizer, images.float(), noise, 0.5))\nmust_raise(lambda: diffusion_train_step(model, optimizer, images, noise[:, :, :, :1], 0.5))\nmust_raise(lambda: diffusion_train_step(model, optimizer, images, noise, float('nan')))\nclass BadModel(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.weight = nn.Parameter(torch.tensor(1.0))\n    def forward(self, value):\n        return value[:, :, :, :1] * self.weight\nbad = BadModel()\nbad_optimizer = torch.optim.SGD(bad.parameters(), lr=0.1)\nmust_raise(lambda: diffusion_train_step(bad, bad_optimizer, images, noise, 0.5))"
+  }
+]

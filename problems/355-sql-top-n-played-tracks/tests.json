@@ -1,0 +1,20 @@
+[
+  {
+    "name": "aggregates global and per-country rankings independently",
+    "input": "plays for the same tracks in the US and DE, with timestamps and users ignored",
+    "test": "from copy import deepcopy\nevents = [\n    {'user_id': 'u1', 'track_id': 'alpha', 'timestamp': '2026-01-01', 'country': 'US'},\n    {'user_id': 'u2', 'track_id': 'alpha', 'timestamp': '2026-01-02', 'country': 'US'},\n    {'user_id': 'u3', 'track_id': 'beta', 'timestamp': '2026-01-03', 'country': 'US'},\n    {'user_id': 'u4', 'track_id': 'beta', 'timestamp': '2026-01-04', 'country': 'US'},\n    {'user_id': 'u5', 'track_id': 'beta', 'timestamp': '2026-01-05', 'country': 'DE'},\n    {'user_id': 'u6', 'track_id': 'beta', 'timestamp': '2026-01-06', 'country': 'DE'},\n    {'user_id': 'u7', 'track_id': 'gamma', 'timestamp': '2026-01-07', 'country': 'DE'},\n]\noriginal = deepcopy(events)\nassert top_played_tracks(events, 2) == {\n    'global': [('beta', 4), ('alpha', 2)],\n    'by_country': {\n        'DE': [('beta', 2), ('gamma', 1)],\n        'US': [('alpha', 2), ('beta', 2)],\n    },\n}\nassert events == original",
+    "expected_output": ""
+  },
+  {
+    "name": "uses track ID as the deterministic tie breaker and handles N boundaries",
+    "input": "ties at the cutoff, an N larger than the candidate set, and zero N",
+    "test": "events = [\n    {'track_id': 'beta', 'country': 'US'},\n    {'track_id': 'alpha', 'country': 'US'},\n    {'track_id': 'beta', 'country': 'CA'},\n    {'track_id': 'alpha', 'country': 'CA'},\n    {'track_id': 'gamma', 'country': 'CA'},\n]\nassert top_played_tracks(events, 1) == {\n    'global': [('alpha', 2)],\n    'by_country': {'CA': [('alpha', 1)], 'US': [('alpha', 1)]},\n}\nassert top_played_tracks(events, 5) == {\n    'global': [('alpha', 2), ('beta', 2), ('gamma', 1)],\n    'by_country': {\n        'CA': [('alpha', 1), ('beta', 1), ('gamma', 1)],\n        'US': [('alpha', 1), ('beta', 1)],\n    },\n}\nassert top_played_tracks(events, 0) == {\n    'global': [],\n    'by_country': {'CA': [], 'US': []},\n}",
+    "expected_output": ""
+  },
+  {
+    "name": "returns the empty shape and rejects invalid rank parameters or events",
+    "input": "empty input plus malformed N values and event records",
+    "test": "assert top_played_tracks([], 3) == {'global': [], 'by_country': {}}\ninvalid_calls = [\n    lambda: top_played_tracks([], -1),\n    lambda: top_played_tracks([], True),\n    lambda: top_played_tracks([], 1.5),\n    lambda: top_played_tracks([{'track_id': 'a'}], 1),\n    lambda: top_played_tracks([{'track_id': '', 'country': 'US'}], 1),\n    lambda: top_played_tracks([{'track_id': 'a', 'country': ''}], 1),\n    lambda: top_played_tracks([('a', 'US')], 1),\n]\nfor call in invalid_calls:\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass",
+    "expected_output": ""
+  }
+]

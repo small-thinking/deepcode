@@ -1,0 +1,17 @@
+[
+  {
+    "name": "shares one key-value head across multiple query heads",
+    "input": "two query heads, one key-value head, and a single key token",
+    "test": "import numpy as np\nquery = np.array([[[[2.0]], [[-3.0]]]])\nkey = np.array([[[[5.0]]]])\nvalue = np.array([[[[7.0]]]])\nactual = grouped_query_attention(query, key, value)\nassert actual.shape == (1, 2, 1, 1)\nassert np.array_equal(actual, np.array([[[[7.0]], [[7.0]]]]))"
+  },
+  {
+    "name": "matches an independent grouped-head calculation and stays numerically stable",
+    "input": "four query heads, two key-value heads, two keys, and extreme logits",
+    "test": "import math\nimport numpy as np\nquery = np.array([[[[1000.0]], [[-1000.0]], [[2.0]], [[-2.0]]]])\nkey = np.array([[[[1.0], [-1.0]], [[3.0], [-3.0]]]])\nvalue = np.array([[[[10.0], [20.0]], [[30.0], [40.0]]]])\nactual = grouped_query_attention(query, key, value)\nexpected = np.empty_like(actual)\nfor head in range(4):\n    kv_head = head // 2\n    scores = (query[0, head, 0, 0] * key[0, kv_head, :, 0]) / math.sqrt(1)\n    weights = np.exp(scores - scores.max())\n    weights = weights / weights.sum()\n    expected[0, head, 0] = weights @ value[0, kv_head]\nassert np.isfinite(actual).all()\nassert np.allclose(actual, expected)\nassert np.allclose(actual[0, 0, 0], [10.0])\nassert np.allclose(actual[0, 1, 0], [20.0])\nassert np.allclose(actual[0, 2, 0], [30.0])\nassert np.allclose(actual[0, 3, 0], [40.0])"
+  },
+  {
+    "name": "rejects incompatible grouped-attention shapes",
+    "input": "rank, zero-size, head-divisibility, batch, token, and feature mismatches",
+    "test": "import numpy as np\ndef must_raise(q, k, v):\n    try:\n        grouped_query_attention(q, k, v)\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nq = np.ones((1, 4, 2, 3))\nk = np.ones((1, 2, 5, 3))\nv = np.ones((1, 2, 5, 3))\nmust_raise(q[0], k, v)\nmust_raise(np.ones((1, 3, 2, 3)), k, v)\nmust_raise(np.ones((2, 4, 2, 3)), k, v)\nmust_raise(q, np.ones((1, 2, 5, 2)), v)\nmust_raise(q, k, np.ones((1, 2, 4, 3)))\nmust_raise(np.ones((1, 4, 0, 3)), k, v)"
+  }
+]

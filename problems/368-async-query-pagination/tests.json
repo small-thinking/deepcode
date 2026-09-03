@@ -1,0 +1,17 @@
+[
+  {
+    "name": "submits once, polls to success, and streams pages in order",
+    "input": "queued then running then successful status with two result pages",
+    "test": "import asyncio\nclass API:\n    def __init__(self):\n        self.statuses = iter(['QUEUED', 'RUNNING', 'SUCCEEDED'])\n        self.submits = []\n        self.pages = []\n    async def submit(self, sql):\n        self.submits.append(sql)\n        return 'q-1'\n    async def status(self, query_id):\n        assert query_id == 'q-1'\n        return next(self.statuses)\n    async def page(self, query_id, token):\n        self.pages.append(token)\n        return ((['a', 'b'], 'next') if token is None else (['c'], None))\napi = API()\nasync def collect():\n    return [row async for row in stream_query(api, 'select 1', max_polls=3)]\nassert asyncio.run(collect()) == ['a', 'b', 'c']\nassert api.submits == ['select 1']\nassert api.pages == [None, 'next']"
+  },
+  {
+    "name": "raises typed terminal errors and detects bad continuation tokens",
+    "input": "failed, canceled, exhausted, and repeated-token APIs",
+    "test": "import asyncio\nclass StatusAPI:\n    def __init__(self, statuses):\n        self.statuses = iter(statuses)\n    async def submit(self, sql): return 'q'\n    async def status(self, query_id): return next(self.statuses)\n    async def page(self, query_id, token): return ([], None)\nasync def consume(api, polls=2):\n    return [row async for row in stream_query(api, 'sql', polls)]\ndef must_raise(api, error, polls=2):\n    try:\n        asyncio.run(consume(api, polls))\n    except error:\n        return\n    raise AssertionError(f'expected {error.__name__}')\nmust_raise(StatusAPI(['FAILED']), QueryFailed)\nmust_raise(StatusAPI(['CANCELED']), QueryCancelled)\nmust_raise(StatusAPI(['RUNNING', 'RUNNING']), QueryTimeout)\nclass RepeatedTokenAPI:\n    async def submit(self, sql): return 'q'\n    async def status(self, query_id): return 'SUCCEEDED'\n    async def page(self, query_id, token):\n        return (([1], 'same') if token is None else ([2], 'same'))\nmust_raise(RepeatedTokenAPI(), ValueError)"
+  },
+  {
+    "name": "validates inputs and does not fetch a second page before the first row is consumed",
+    "input": "invalid SQL/settings and a two-page API observed through anext",
+    "test": "import asyncio\nclass API:\n    def __init__(self): self.calls = []\n    async def submit(self, sql): return 'q'\n    async def status(self, query_id): return 'SUCCEEDED'\n    async def page(self, query_id, token):\n        self.calls.append(token)\n        return (([1], 'later') if token is None else ([2], None))\nasync def check_laziness():\n    api = API()\n    rows = stream_query(api, 'sql')\n    assert await anext(rows) == 1\n    assert api.calls == [None]\n    assert await anext(rows) == 2\n    assert api.calls == [None, 'later']\nasyncio.run(check_laziness())\nasync def invalid():\n    api = API()\n    for sql, polls in [('', 1), (None, 1), ('x', 0), ('x', True)]:\n        try:\n            await anext(stream_query(api, sql, polls))\n        except ValueError:\n            continue\n        raise AssertionError('expected ValueError')\nasyncio.run(invalid())"
+  }
+]

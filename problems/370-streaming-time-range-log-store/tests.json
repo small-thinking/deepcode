@@ -1,0 +1,17 @@
+[
+  {
+    "name": "orders out-of-order records and preserves equal-timestamp insertion order",
+    "input": "four inserts including two records at timestamp three",
+    "test": "store = LogStore()\nstore.add(5, 'late')\nstore.add(3, 'first-three')\nstore.add(3, 'second-three')\nstore.add(1, 'early')\nassert list(store.iter_range(1, 3)) == [(1, 'early'), (3, 'first-three'), (3, 'second-three')]\nassert list(store.iter_range(4, 4)) == []"
+  },
+  {
+    "name": "returns fresh lazy iterators for inclusive range queries",
+    "input": "a five-record store queried by next and then from the beginning",
+    "test": "store = LogStore()\nfor timestamp in [10, 8, 9, 11, 12]:\n    store.add(timestamp, str(timestamp))\nrows = store.iter_range(9, 11)\nassert not isinstance(rows, list)\nassert next(rows) == (9, '9')\nassert list(rows) == [(10, '10'), (11, '11')]\nassert list(store.iter_range(9, 11)) == [(9, '9'), (10, '10'), (11, '11')]"
+  },
+  {
+    "name": "validates log records and range boundaries",
+    "input": "non-integer timestamps, non-string messages, and invalid intervals",
+    "test": "store = LogStore()\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nmust_raise(lambda: store.add(True, 'x'))\nmust_raise(lambda: store.add(1, 2))\nmust_raise(lambda: store.iter_range(3, 2))\nmust_raise(lambda: store.iter_range(1.5, 2))\nmust_raise(lambda: store.iter_range(1, False))"
+  }
+]
