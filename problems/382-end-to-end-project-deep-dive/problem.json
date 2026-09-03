@@ -9,13 +9,13 @@
   "interview_frequency": {
     "xAI": {
       "source_record_ids": ["3cf6ce51456d814ca313e01a5741ec53"],
-      "stars": 1,
-      "synced_at": "2026-09-02"
+      "stars": 2,
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
-    "synced_at": "2026-09-02"
+    "stars": 2,
+    "synced_at": "2026-09-03"
   },
   "prompt": "Prepare an end-to-end deep dive on a current project. Cover the goal and context, your exact ownership, architecture, important decisions and trade-offs, challenges, measurable outcome, and what you would change next.\n\nUse only truthful project facts. The reported interview prompt does not specify a project domain, scoring rubric, or required metric, so mark any general storytelling advice as an assumption. This is a writing exercise.",
   "references": [

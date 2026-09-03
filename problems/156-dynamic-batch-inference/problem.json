@@ -9,12 +9,12 @@
   "interview_frequency": {
     "xAI": {
       "source_record_ids": ["3cf6ce51456d81ab93cdf20fb33771cc"],
-      "stars": 1,
+      "stars": 2,
       "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
+    "stars": 2,
     "synced_at": "2026-09-03"
   },
   "prompt": "Implement a deterministic scheduler for token-by-token inference requests. This exercise models scheduling and result routing only: the supplied model is a synchronous fake backend, not a GPU runtime.\n\nThe model passed to `DynamicBatchInference` exposes:\n\n- `next_tokens(prefixes) -> list[int]` for a compact batch. It returns one token for each supplied prefix, in the same order.\n- `next_tokens_padded(prefixes, active_mask) -> list[int]` for a fixed-size batch. It receives exactly `batch_size` prefixes; inactive positions are `[]` and have a `False` mask entry. Its return list also has exactly `batch_size` tokens, and tokens for inactive positions are ignored.\n\nImplement `DynamicBatchInference(model, batch_size, stop_token)` with:\n\n- `submit(prompt_tokens, max_new_tokens, on_complete, stop_sequences=None)`\n- `run()` for compact batches\n- `run_padded()` for fixed-size padded batches\n\nUse FIFO admission. At most `batch_size` requests are active. After every model step, finish each request that reached its new-token budget, produced `stop_token`, or now ends in one of its non-empty stop sequences. Append the model token before testing termination, so the callback receives the full prompt plus every generated token, including a terminal token. Refill finished slots from the waiting queue only after processing every output from the current model call.\n\nCopy prompts and stop sequences at submission. `max_new_tokens == 0` completes immediately without a model call. For a stop sequence already at the prompt tail, complete immediately as well. A callback runs exactly once. Reject invalid batch sizes, negative budgets, non-integer tokens, empty stop sequences, non-callable callbacks, and model output lists with the wrong length.\n\nThe key invariant is positional: each returned token belongs to the request occupying that compact index or padded slot for that exact model call.",

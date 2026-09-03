@@ -22,19 +22,19 @@
         "35c6ce51456d81819855e471214f723a"
       ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     },
     "OpenAI": {
       "source_record_ids": [
         "36c6ce51456d817f9564cfe3bbdd5678"
       ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 3,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement three NumPy helpers for a vectorized 1-nearest-neighbor classifier.\n\n`predict_1nn_l2(queries, train_points, train_labels)` should predict the label of the closest training point under squared L2 distance. Use NumPy vectorization over all query/training pairs; do not write a Python loop over queries.\n\n`l2_distance_logits(queries, train_points)` should return logits whose `argmax(axis=1)` gives the same nearest training index as L2 1-NN. Use the identity `-||q - x||^2 = 2 q dot x - ||x||^2 - ||q||^2`, and omit the query-only term because it is shared across every training point.\n\n`predict_1nn_l1(queries, train_points, train_labels)` should predict under L1 distance. This may materialize pairwise absolute differences. Ties should follow NumPy `argmin` / `argmax` behavior: choose the first training point.",
   "starter_code": "import numpy as np\n\n\ndef predict_1nn_l2(queries, train_points, train_labels):\n    # Return labels for nearest training points under squared L2 distance.\n    pass\n\n\ndef l2_distance_logits(queries, train_points):\n    # Return logits whose argmax selects the L2 nearest training point.\n    pass\n\n\ndef predict_1nn_l1(queries, train_points, train_labels):\n    # Return labels for nearest training points under L1 distance.\n    pass\n",
