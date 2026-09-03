@@ -2,12 +2,12 @@
   {
     "name": "returns a minimum-cost 0/1 cover in index order",
     "input": "three bundles with a cheaper two-bundle cover",
-    "test": "menu = [(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)]\nassert minimum_cover(menu, ['p', 'r', 's']) == (5, [(1, 1), (2, 1)])"
+    "test": "menu = [(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)]\nassert minimum_cover(menu, ['p', 'r', 's']) == (5, [1, 2])"
   },
   {
     "name": "prefers fewer bundles before the index tie-break",
     "input": "one early full bundle versus two later equal-cost bundles",
-    "test": "menu = [(['p', 'q'], 2), (['p'], 1), (['q'], 1)]\nassert minimum_cover(menu, ['p', 'p', 'q']) == (2, [(0, 1)])"
+    "test": "menu = [(['p', 'q'], 2), (['p'], 1), (['q'], 1)]\nassert minimum_cover(menu, ['p', 'p', 'q']) == (2, [0])"
   },
   {
     "name": "uses the documented impossible and empty sentinels",

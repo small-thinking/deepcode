@@ -19,11 +19,11 @@
     "stars": 3,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Airbnb reports call this recurring family “Minimum Menu Order Cost II.” The exact interface and tie policy below are this exercise's practice reconstruction.\n\nImplement `minimum_cover(menu, wanted) -> tuple[int, list[tuple[int, int]]]`. Each menu entry is `(items, nonnegative_price)`. Return the minimum total price of a 0/1 selection that covers every distinct item in `wanted`, together with increasing-index `(bundle_index, 1)` pairs for the selected bundles. Contents absent from `wanted` have no effect.\n\nReturn `(-1, [])` when no selection covers all wanted items, and `(0, [])` when `wanted` is empty. If multiple selections have the same minimum cost, prefer the selection with fewer bundles; if still tied, choose the lexicographically smallest tuple of selected bundle indices.",
-  "starter_code": "def minimum_cover(menu, wanted):\n    # Return (minimum_cost, [(bundle_index, 1), ...]) or the documented sentinel.\n    pass\n",
+  "prompt": "Implement `minimum_cover(menu, wanted) -> tuple[int, list[int]]`. `menu` is a list of `(items, price)` tuples, where `items` is a list of item names and `price` is a nonnegative integer. `wanted` is a list of item names; duplicate names do not change the request. You may choose each bundle at most once.\n\nReturn `(minimum_cost, selected_indices)`. `selected_indices` must contain the chosen 0-based bundle indices in ascending order. The selected bundles must cover every distinct item in `wanted`; items not in `wanted` have no effect.\n\nReturn `(-1, [])` when no selection covers all wanted items, and `(0, [])` when `wanted` is empty. If multiple selections have the same minimum cost, prefer the selection with fewer bundles; if still tied, choose the lexicographically smallest tuple of selected bundle indices.",
+  "starter_code": "def minimum_cover(menu, wanted):\n    # Return (minimum_cost, [bundle_index, ...]) or the documented sentinel.\n    pass\n",
   "example": {
     "input": "minimum_cover([(['p', 'q', 'r'], 8), (['s', 't'], 3), (['p', 'r'], 2)], ['p', 'r', 's'])",
-    "output": "(5, [(1, 1), (2, 1)])",
+    "output": "(5, [1, 2])",
     "reasoning": "The second and third bundles cover all requested items for a total cost of five."
   },
   "environment": {
