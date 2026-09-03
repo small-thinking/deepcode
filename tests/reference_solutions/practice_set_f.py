@@ -122,4 +122,4 @@ def minimum_cover(menu, wanted):
     if result is None:
         return -1, []
     cost, counts = result
-    return cost, [(index, 1) for index, count in enumerate(counts) if count]
+    return cost, [index for index, count in enumerate(counts) if count]
