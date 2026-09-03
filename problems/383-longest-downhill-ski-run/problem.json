@@ -1,0 +1,32 @@
+{
+  "id": "383",
+  "slug": "longest-downhill-ski-run",
+  "title": "Longest Downhill Ski Run from One or More Starts",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["graphs", "grid", "dynamic-programming", "depth-first-search", "memoization"],
+  "companies": ["Airbnb"],
+  "prompt": "A ski-planning tool stores mountain elevations in a rectangular grid. A skier at `(row, col)` may move one cell up, down, left, or right, but only to a cell with a strictly lower elevation. Diagonal moves are not allowed.\n\nImplement `downhill_run_scores(elevations, starts) -> list[int]`. `elevations` is a nonempty rectangular list of integer elevations. `starts` is a list of in-bounds `(row, col)` coordinates, one per skier. For each start, return the largest number of cells that skier can visit on a valid downhill run, including the starting cell. Return the scores in the same order as `starts`; an empty `starts` list returns `[]`.\n\nReuse work across starts: after computing the best run from a cell once, do not recompute it for another skier. Raise `ValueError` when the elevation grid is empty or ragged, or when a start is out of bounds. Do not mutate either input. Aim for O(rows * cols + len(starts)) time and O(rows * cols) auxiliary space.",
+  "starter_code": "def downhill_run_scores(elevations, starts):\n    # Return one maximum downhill-run length for each start coordinate.\n    pass\n",
+  "example": {
+    "input": "downhill_run_scores([[9, 8, 7], [2, 1, 6], [3, 4, 5]], [(0, 0), (2, 0)])",
+    "output": "[9, 3]",
+    "reasoning": "From (0, 0), the skier can follow the descending snake 9 → 8 → 7 → 6 → 5 → 4 → 3 → 2 → 1. From (2, 0), the best run is 3 → 2 → 1."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "PracHub: Airbnb downhill ski-run interview question",
+      "url": "https://prachub.com/interview-questions/find-best-downhill-ski-run-from-a-start"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-02"
+}
