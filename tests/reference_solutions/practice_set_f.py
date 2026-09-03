@@ -75,51 +75,50 @@ def parse_query(url):
     return result
 
 
-def minimum_cover(menu, wanted):
-    bundles = list(menu)
-    bit_for = {}
-    for item in wanted:
-        if item not in bit_for:
-            bit_for[item] = 1 << len(bit_for)
+def minimum_menu_order_cost(menu, userWants):
+    bit_for = {item: 1 << index for index, item in enumerate(userWants)}
+    if not bit_for:
+        return [[]]
 
     full_mask = (1 << len(bit_for)) - 1
-    if full_mask == 0:
-        return 0, []
+    epsilon = 1e-6
+    states = {0: (0.0, {()})}
 
-    useful = []
-    for index, (items, price) in enumerate(bundles):
-        if price < 0:
-            raise ValueError("prices must be nonnegative")
-        mask = 0
-        for item in items:
-            mask |= bit_for.get(item, 0)
-        if mask:
-            useful.append((index, mask, price))
-
-    def rank(cost, counts):
-        selected = tuple(index for index, count in enumerate(counts) if count)
-        return cost, len(selected), selected
-
-    zero_counts = (0,) * len(bundles)
-    states = {0: (0, zero_counts)}
-    for covered in range(full_mask + 1):
-        state = states.get(covered)
-        if state is None:
+    for index, (_, raw_price, item_names) in enumerate(menu):
+        bundle_mask = 0
+        for item in item_names.split(","):
+            bundle_mask |= bit_for.get(item.strip(), 0)
+        if not bundle_mask:
             continue
-        cost, counts = state
-        for index, bundle_mask, price in useful:
+
+        price = float(raw_price)
+        next_states = {
+            covered: (cost, set(combinations))
+            for covered, (cost, combinations) in states.items()
+        }
+        for covered, (cost, combinations) in states.items():
             next_covered = covered | bundle_mask
             if next_covered == covered:
                 continue
-            next_counts = list(counts)
-            next_counts[index] = 1
-            candidate = (cost + price, tuple(next_counts))
-            existing = states.get(next_covered)
-            if existing is None or rank(*candidate) < rank(*existing):
-                states[next_covered] = candidate
+
+            candidate_cost = cost + price
+            candidate_combinations = {
+                combination + (index,)
+                for combination in combinations
+            }
+            existing = next_states.get(next_covered)
+            if existing is None or candidate_cost < existing[0] - epsilon:
+                next_states[next_covered] = (candidate_cost, candidate_combinations)
+            elif abs(candidate_cost - existing[0]) <= epsilon:
+                existing[1].update(candidate_combinations)
+        states = next_states
 
     result = states.get(full_mask)
     if result is None:
-        return -1, []
-    cost, counts = result
-    return cost, [index for index, count in enumerate(counts) if count]
+        return []
+
+    _, combinations = result
+    return [
+        [menu[index][0] for index in combination]
+        for combination in sorted(combinations)
+    ]
