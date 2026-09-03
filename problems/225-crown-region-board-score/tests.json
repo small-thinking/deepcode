@@ -1,8 +1,8 @@
 [
   {
-    "name": "scores every connected region independently",
-    "input": "a small board with one multi-cell region and one single-cell region",
-    "test": "assert board_score([['F0', 'F1'], ['F0', 'W2']]) == 5"
+    "name": "scores the two source-board regions independently",
+    "input": "the first two rows of the reported G/W/S board",
+    "test": "assert board_score([['G1', 'G2', 'W0', 'W1'], ['G2', 'G3', 'W0', 'W1']]) == 40"
   },
   {
     "name": "does not join diagonal cells and keeps zero-crown terrain cells",
@@ -10,8 +10,13 @@
     "test": "assert board_score([['A0', 'B9'], ['B9', 'A0']]) == 18"
   },
   {
-    "name": "handles a board with several regions and an empty board",
-    "input": "a five-by-five board plus both empty-grid representations",
-    "test": "grid = [['F2', 'F0', 'R1', 'R3', 'M0'], ['F1', 'P2', 'R1', 'M0', 'M0'], ['P0', 'P4', 'P1', 'F2', 'M1'], ['F3', 'F1', 'R0', 'R2', 'M1'], ['F0', 'F2', 'R0', 'R2', 'M0']]\nassert board_score(grid) == 106\nassert board_score([]) == 0\nassert board_score([[]]) == 0"
+    "name": "scores every region in the full reported board",
+    "input": "the five-by-five G/W/S source board",
+    "test": "grid = [['G1', 'G2', 'W0', 'W1', 'S1'], ['G2', 'G3', 'W0', 'W1', 'S1'], ['S2', 'S3', 'S1', 'G1', 'S1'], ['G1', 'G2', 'W0', 'W1', 'S1'], ['G1', 'G2', 'W0', 'W1', 'S1']]\nassert board_score(grid) == 116"
+  },
+  {
+    "name": "handles the reported edge cases and empty boards",
+    "input": "single-cell, one-region, zero-crown, and empty boards",
+    "test": "assert board_score([['G0']]) == 0\nassert board_score([['G1', 'G2', 'G3']]) == 18\nassert board_score([['G1', 'W2'], ['W3', 'G4']]) == 10\nassert board_score([['G0', 'G0', 'G0'], ['G0', 'G0', 'G0'], ['G0', 'G0', 'G0']]) == 0\nassert board_score([]) == 0\nassert board_score([[]]) == 0"
   }
 ]
