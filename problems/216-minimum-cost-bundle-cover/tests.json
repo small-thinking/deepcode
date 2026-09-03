@@ -12,9 +12,15 @@
     "expected_output": "[[\"0\"], [\"1\", \"2\"]]"
   },
   {
-    "name": "keeps the existing impossible and empty-request edge cases",
-    "input": "menu = [[\"1\", \"2.00\", \"p\"]], userWants = [\"p\", \"q\"] and []",
-    "test": "import json\nmenu = [['1', '2.00', 'p']]\nassert minimum_menu_order_cost(menu, ['p', 'q']) == []\nprint(json.dumps(minimum_menu_order_cost(menu, [])))",
+    "name": "returns no menu IDs when a wanted item cannot be covered",
+    "input": "menu = [[\"1\", \"2.00\", \"p\"]], userWants = [\"p\", \"q\"]",
+    "test": "import json\nmenu = [['1', '2.00', 'p']]\nprint(json.dumps(minimum_menu_order_cost(menu, ['p', 'q'])))",
+    "expected_output": "[]"
+  },
+  {
+    "name": "returns one empty menu-ID combination for an empty request",
+    "input": "menu = [[\"1\", \"2.00\", \"p\"]], userWants = []",
+    "test": "import json\nmenu = [['1', '2.00', 'p']]\nprint(json.dumps(minimum_menu_order_cost(menu, [])))",
     "expected_output": "[[]]"
   },
   {
