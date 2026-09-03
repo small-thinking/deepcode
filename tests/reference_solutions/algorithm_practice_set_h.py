@@ -1,25 +1,52 @@
 from bisect import bisect_right
 from collections import deque
+from numbers import Number
 
 
-def best_terminal_path(start, node_scores, edges):
-    if hasattr(node_scores, "items"):
-        scores = dict(node_scores.items())
-    else:
-        scores = dict(node_scores)
+def max_ski_score(travel, points):
+    try:
+        travel = list(travel)
+        points = list(points)
+    except TypeError as error:
+        raise ValueError("travel and points must be iterable") from error
 
-    if start not in scores:
-        raise ValueError("start must have a node score")
-
-    graph = {node: [] for node in scores}
-    indegree = {node: 0 for node in scores}
-    for edge in edges:
+    rewards = {}
+    for point in points:
         try:
-            source, destination, cost = edge
+            node, reward = point
         except (TypeError, ValueError) as error:
-            raise ValueError("each edge must be a (from_node, to_node, cost) triple") from error
-        if source not in scores or destination not in scores:
-            raise ValueError("every edge endpoint must have a node score")
+            raise ValueError("each point must be a (node, reward) pair") from error
+        if (
+            not isinstance(node, str)
+            or node == "START"
+            or node in rewards
+            or not isinstance(reward, Number)
+            or isinstance(reward, bool)
+        ):
+            raise ValueError("points must give each non-START node one numeric reward")
+        rewards[node] = reward
+
+    graph = {"START": []}
+    indegree = {"START": 0}
+    for node in rewards:
+        graph[node] = []
+        indegree[node] = 0
+
+    for edge in travel:
+        try:
+            source, cost, destination = edge
+        except (TypeError, ValueError) as error:
+            raise ValueError("each travel record must be a (from_node, cost, to_node) triple") from error
+        if (
+            not isinstance(source, str)
+            or not isinstance(destination, str)
+            or source not in graph
+            or destination not in graph
+            or not isinstance(cost, Number)
+            or isinstance(cost, bool)
+            or cost < 0
+        ):
+            raise ValueError("travel must use known nodes and non-negative numeric costs")
         graph[source].append((destination, cost))
         indegree[destination] += 1
 
@@ -33,37 +60,22 @@ def best_terminal_path(start, node_scores, edges):
             if indegree[destination] == 0:
                 ready.append(destination)
 
-    if len(order) != len(scores):
+    if len(order) != len(graph):
         raise ValueError("graph must be a DAG")
 
-    best_scores = {node: None for node in scores}
-    parents = {start: None}
-    best_scores[start] = scores[start]
+    best_scores = {"START": 0}
     for source in order:
-        if best_scores[source] is None:
+        if source not in best_scores:
             continue
         for destination, cost in graph[source]:
-            candidate = best_scores[source] + scores[destination] - cost
-            if best_scores[destination] is None or candidate > best_scores[destination]:
+            candidate = best_scores[source] + rewards[destination] - cost
+            if destination not in best_scores or candidate > best_scores[destination]:
                 best_scores[destination] = candidate
-                parents[destination] = source
 
-    terminals = [
-        node
-        for node, score in best_scores.items()
-        if str(node).startswith("_") and score is not None
+    terminal_scores = [
+        score for node, score in best_scores.items() if node.startswith("END")
     ]
-    if not terminals:
-        return None, []
-
-    end = max(terminals, key=best_scores.__getitem__)
-    path = []
-    current = end
-    while current is not None:
-        path.append(current)
-        current = parents[current]
-    path.reverse()
-    return best_scores[end], path
+    return max(terminal_scores, default=None)
 
 
 def job_scheduling(start_times, end_times, profits):

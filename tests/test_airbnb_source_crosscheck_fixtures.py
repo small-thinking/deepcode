@@ -40,7 +40,9 @@ class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
                 "https://www.1point3acres.com/interview/thread/1163600",
             },
             "weighted-dag-ski-score": {
+                "https://www.1point3acres.com/interview/problems/company/airbnb/ski-path-max-score-dag",
                 "https://www.1point3acres.com/bbs/thread-1139472-1-1.html",
+                "https://prachub.com/interview-questions/find-best-downhill-ski-run-from-a-start",
             },
             "nested-array-list-iterator": {
                 "https://www.1point3acres.com/interview/thread/1123318",
