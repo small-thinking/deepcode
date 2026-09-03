@@ -38,6 +38,7 @@ const state = {
   categories: [],
   difficulties: [],
   companyNames: [],
+  companyCounts: {},
   companyProfiles: [],
   filters: {
     search: "",
@@ -459,6 +460,7 @@ async function loadProblems() {
     state.categories = payload.categories;
     state.difficulties = payload.difficulties;
     state.companyNames = payload.companies || [];
+    state.companyCounts = payload.company_counts || {};
     state.companyProfiles = payload.company_profiles || [];
   } catch (error) {
     state.error = error.message;
@@ -2242,6 +2244,11 @@ function renderProgress() {
   `;
 }
 
+function companyOptionLabel(company) {
+  const count = state.companyCounts[company];
+  return Number.isInteger(count) ? `${company} (${count})` : company;
+}
+
 function renderList() {
   const categoryOptions = [
     `<option value="all">All Categories</option>`,
@@ -2263,7 +2270,7 @@ function renderList() {
     `<option value="all">All Companies</option>`,
     ...state.companyNames.map((company) => {
       const selected = state.filters.company === company ? "selected" : "";
-      return `<option value="${escapeHtml(company)}" ${selected}>${escapeHtml(company)}</option>`;
+      return `<option value="${escapeHtml(company)}" ${selected}>${escapeHtml(companyOptionLabel(company))}</option>`;
     }),
   ].join("");
 
