@@ -1,0 +1,56 @@
+[
+  {
+    "name": "finds the odd-length median from the supplied example",
+    "input": "nums = [3, 1, 2, 4, 5]",
+    "test": "print(find_median([3, 1, 2, 4, 5]))",
+    "expected_output": "3"
+  },
+  {
+    "name": "averages the two middle values for the supplied even example",
+    "input": "nums = [7, 4, 1, 2]",
+    "test": "print(find_median([7, 4, 1, 2]))",
+    "expected_output": "3"
+  },
+  {
+    "name": "keeps duplicate values when selecting the supplied odd median",
+    "input": "nums = [9, 2, 5, 3, 5, 8, 9, 7, 9, 3, 2]",
+    "test": "print(find_median([9, 2, 5, 3, 5, 8, 9, 7, 9, 3, 2]))",
+    "expected_output": "5"
+  },
+  {
+    "name": "handles the supplied signed 32-bit extremes without overflow",
+    "input": "nums = [2147483647, -2147483648, 0, 1000000000, -1000000000]",
+    "test": "print(find_median([2147483647, -2147483648, 0, 1000000000, -1000000000]))",
+    "expected_output": "0"
+  },
+  {
+    "name": "returns the only value in a singleton array",
+    "input": "nums = [1]",
+    "test": "print(find_median([1]))",
+    "expected_output": "1"
+  },
+  {
+    "name": "returns an exact half for the two signed 32-bit endpoints",
+    "input": "nums = [-2147483648, 2147483647]",
+    "test": "print(find_median([-2147483648, 2147483647]))",
+    "expected_output": "-0.5"
+  },
+  {
+    "name": "handles duplicate values around the median partition",
+    "input": "nums = [5, 2, 5, 3, 5, 4, 5]",
+    "test": "print(find_median([5, 2, 5, 3, 5, 4, 5]))",
+    "expected_output": "5"
+  },
+  {
+    "name": "returns a negative fractional median",
+    "input": "nums = [-6, -1, -3, -4]",
+    "test": "print(find_median([-6, -1, -3, -4]))",
+    "expected_output": "-3.5"
+  },
+  {
+    "name": "handles a decreasing array at the maximum input length",
+    "input": "100000 integers in decreasing order",
+    "test": "nums = list(range(100000, 0, -1))\nprint(find_median(nums))",
+    "expected_output": "50000.5"
+  }
+]

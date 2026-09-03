@@ -1,0 +1,26 @@
+{
+  "id": "353",
+  "slug": "find-median-large-array",
+  "title": "Find Median in a Large Unsorted Array",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["arrays", "quickselect", "selection", "median"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement find_median(nums) -> float for one large, unsorted list of integers. Return the middle value after ordering the values when len(nums) is odd; when it is even, return the arithmetic mean of the two middle values. Always return a float.\n\nnums contains between 1 and 100000 integers, each in the inclusive 32-bit signed range. This is a static-array selection problem, not a streaming-median API. Meet an expected O(N) time target for one call: randomized Quickselect is a suitable approach, while sorting the whole array is O(N log N) and does not meet the target. You may rearrange nums in place.",
+  "starter_code": "def find_median(nums):\n    # Return the median as a float; nums may be rearranged in place.\n    pass\n",
+  "example": {
+    "input": "find_median([3, 1, 2, 4, 5])",
+    "output": "3.0",
+    "reasoning": "The sorted values are [1, 2, 3, 4, 5], so the middle value is 3."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "numeric"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-09-02"
+}
