@@ -1,0 +1,41 @@
+{
+  "id": "384",
+  "slug": "enterprise-research-assistant-verifiable-citations",
+  "title": "Design an Enterprise Research Assistant with Verifiable Citations",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "agents",
+    "retrieval",
+    "citations",
+    "access-control",
+    "semantic-cache",
+    "external-connectors",
+    "revocation"
+  ],
+  "companies": ["Cohere"],
+  "interview_frequency": {
+    "Cohere": {
+      "source_record_ids": ["3d06ce51456d80b3ba06c008a528d490"],
+      "stars": 1,
+      "synced_at": "2026-09-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
+  "prompt": "Design an enterprise research assistant for complex questions. It must retrieve from authorized internal knowledge and governed external sources, synthesize a report, and attach verifiable citations for its factual claims. It must remain correct when an organization or downstream party later loses access to material that had informed a result.\n\nState the answer, citation, authorization, freshness, and latency contracts before choosing an architecture. Cover:\n\n- ingestion and connector boundaries for internal and external sources, including versioning, provenance, and policy-aware retrieval;\n- the authenticated query path, hybrid retrieval, reranking, bounded agent planning or function calls, report synthesis, and claim-to-evidence citation checks;\n- semantic caching that can recognize similar questions without crossing principal, entitlement, corpus-version, or external-source-policy boundaries;\n- entitlement or consent revocation through retrieval indexes, caches, generated reports, citations, and downstream access;\n- evaluation and operations for citation support, authorization isolation, retrieval quality, abstention, freshness, latency, cost, cache safety, and revocation convergence.\n\nDo not treat an LLM planner as the authorization or citation authority: deterministic services must enforce access policy and evidence validation.",
+  "evaluation": {"type": "system_design"},
+  "response": {
+    "placeholder": "Define the evidence and revocation guarantees first; then describe policy-scoped retrieval, bounded tools, claim-level citations, and safe cache reuse.",
+    "reference_answer": "## 1. Contracts before components\n\nI would first define who may ask which class of question, which internal and external sources are allowed, what it means for a citation to support a claim, the permitted staleness, and the response when the evidence is insufficient. A result includes a report, claim-level citations pointing to immutable evidence versions, and an authorization and freshness status. A citation is traceability rather than proof, so support needs an evaluation or validation step.\n\n## 2. Policy-aware sources and retrieval\n\nInternal documents are durably versioned and asynchronously parsed, chunked, embedded, indexed, and tagged with ACLs and lineage. External connectors are separately governed: each request is allowed only the source classes, credentials, rate budgets, and retention rules that its policy permits. The interactive path begins with a server-side principal and entitlement snapshot, runs lexical and semantic retrieval with filters enforced before text reaches a model, deduplicates and reranks authorized candidates, and stores the evidence snapshot used for the answer.\n\n## 3. Bounded research agent\n\nA planner may choose a small, observable tool set: search authorized internal content, query an allowed external connector, fetch a selected source, ask a clarification question, and draft a cited report. It receives budgets for calls, time, tokens, and candidate counts. Deterministic services enforce ACLs, connector policy, citation schema, and report publication checks. A simple question should bypass multi-step planning rather than paying agent overhead by default.\n\n## 4. Citations and semantic caching\n\nThe report generator emits claim-to-evidence links, including source version, retrieval time, and access scope. A post-generation verifier rejects or flags claims without adequate authorized support. A semantic cache can use embedding similarity only as a lookup candidate. Its key and reuse check include principal or ACL scope, entitlement version, corpus and index generation, external-source policy, model version, and citation compatibility. Returning a semantically similar answer without rechecking those dimensions can leak both content and the existence of protected material.\n\n## 5. Revocation\n\nAn ACL or consent event increments an entitlement version, invalidates affected cache entries, makes retrieval filters deny the material immediately, and triggers asynchronous revalidation or withdrawal of stored reports and citations. Downstream shares are checked against current entitlement when opened, not trusted because they were valid at generation time. The system tracks the time from revocation event to index filtering, cache invalidation, report revalidation, and downstream denial; a failed or delayed propagation is a security incident rather than only a freshness issue.\n\n## 6. Evaluation and operations\n\nEvaluate retrieval recall and precision, citation support, abstention, external-source quality, authorization isolation, prompt-injection resistance in retrieved text, and revocation scenarios. Monitor per-stage latency and cost, connector failures, agent tool counts, cache candidate versus safe-reuse rates, unsupported-claim rate, source-to-index lag, and revocation convergence. Keep redacted audit traces so a report can be explained without retaining content beyond its policy."
+  },
+  "references": [
+    {
+      "label": "PracHub: Cohere Agent Platform ML system-design report (curated secondary source)",
+      "url": "https://prachub.com/interview-experiences/cohere-software-engineer-interview-experience-rejected-at-the-ml-system-design-round"
+    }
+  ],
+  "created_at": "2026-09-03"
+}
