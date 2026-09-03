@@ -92,7 +92,6 @@ class CompanyStoreTest(unittest.TestCase):
             - {
                 "general",
                 "microsoftai",
-                "spacex",
                 # These source-backed question associations have not yet had
                 # Company Hub profiles curated in Opportunity 2026.
                 "canva",
@@ -119,6 +118,7 @@ class CompanyStoreTest(unittest.TestCase):
 
         xai = companies.get_company("xAI", problems)
         self.assertEqual(xai["name"], "SpaceXAI / xAI-related roles")
+        self.assertEqual(companies.get_company("SpaceX", problems)["name"], xai["name"])
         self.assertTrue(
             {
                 "distributed-token-bucket-rate-limiter",

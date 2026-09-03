@@ -29,6 +29,15 @@ SUMMARY_FIELDS = (
 PROBLEM_ASSET_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"})
 SYSTEM_DESIGN_ASSET_SECTIONS = frozenset({"prompt", "reference_answer"})
 
+# Keep source labels on each problem intact while exposing one selector for the
+# SpaceX/xAI scope that is curated in the Company Hub.
+COMPANY_FACET_LABELS = {
+    "spacex": "SpaceXAI / xAI-related roles",
+    "xai": "SpaceXAI / xAI-related roles",
+    "spacexai / xai-related roles": "SpaceXAI / xAI-related roles",
+    "spacexai-xai-related-roles": "SpaceXAI / xAI-related roles",
+}
+
 
 class ProblemStore:
     """Read problem folders from disk.
@@ -56,11 +65,14 @@ class ProblemStore:
         if difficulty and difficulty.lower() not in {"all", "any"}:
             problems = [problem for problem in problems if problem.get("difficulty") == difficulty]
         if company and company.casefold() not in {"all", "all companies"}:
-            company_key = company.casefold()
+            company_key = self._canonical_company_label(company).casefold()
             problems = [
                 problem
                 for problem in problems
-                if any(str(value).casefold() == company_key for value in problem.get("companies", []))
+                if any(
+                    self._canonical_company_label(str(value)).casefold() == company_key
+                    for value in problem.get("companies", [])
+                )
             ]
         if search:
             needle = search.casefold()
@@ -70,7 +82,11 @@ class ProblemStore:
                 if needle in problem.get("title", "").casefold()
                 or needle in problem.get("category", "").casefold()
                 or any(needle in tag.casefold() for tag in problem.get("tags", []))
-                or any(needle in company.casefold() for company in problem.get("companies", []))
+                or any(
+                    needle in str(value).casefold()
+                    or needle in self._canonical_company_label(str(value)).casefold()
+                    for value in problem.get("companies", [])
+                )
             ]
 
         return sorted(problems, key=self._sort_key(sort), reverse=order.casefold() == "desc")
@@ -87,7 +103,7 @@ class ProblemStore:
         """Return the stable, display-ready company labels used by the catalog."""
         return sorted(
             {
-                company
+                self._canonical_company_label(company)
                 for problem in self._load_all()
                 for company in problem.get("companies", [])
                 if isinstance(company, str) and company.strip()
@@ -106,15 +122,20 @@ class ProblemStore:
             for company in problem.get("companies", []):
                 if not isinstance(company, str) or not company.strip():
                     continue
-                key = company.casefold()
+                label = self._canonical_company_label(company)
+                key = label.casefold()
                 if key in seen:
                     continue
                 seen.add(key)
-                label = labels_by_key.get(key)
-                if label:
-                    counts[label] += 1
+                display_label = labels_by_key.get(key)
+                if display_label:
+                    counts[display_label] += 1
 
         return counts
+
+    @staticmethod
+    def _canonical_company_label(company: str) -> str:
+        return COMPANY_FACET_LABELS.get(company.casefold(), company)
 
     def get_problem(self, identifier: str) -> dict[str, Any]:
         for problem in self._load_all():

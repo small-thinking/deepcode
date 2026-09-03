@@ -265,6 +265,50 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertEqual(store.list_problems()[0]["interview_frequency_total"]["stars"], 3)
             self.assertEqual(store.get_problem("company-problem")["interview_frequency"]["Anthropic"]["synced_at"], "2026-08-16")
 
+    def test_groups_spacex_and_xai_in_company_facets_filters_and_counts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for slug, problem_id, companies in (
+                ("spacex-only", "1", ["SpaceX"]),
+                ("xai-only", "2", ["xAI"]),
+                ("both-labels", "3", ["SpaceX", "xAI"]),
+            ):
+                self._write_problem(
+                    root,
+                    slug,
+                    {
+                        "id": problem_id,
+                        "slug": slug,
+                        "title": slug,
+                        "category": "Systems Coding",
+                        "difficulty": "medium",
+                        "companies": companies,
+                        "prompt": "Return one.",
+                        "starter_code": "def one():\n    pass\n",
+                        "example": {"input": "none", "output": "1", "reasoning": "Toy example."},
+                        "environment": {"language": "python", "timeout_seconds": 2, "packages": []},
+                    },
+                    [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+                )
+
+            store = ProblemStore(root)
+            company = "SpaceXAI / xAI-related roles"
+
+            self.assertEqual(store.companies(), [company])
+            self.assertEqual(store.company_counts(), {company: 3})
+            self.assertEqual(
+                [problem["slug"] for problem in store.list_problems(company=company)],
+                ["spacex-only", "xai-only", "both-labels"],
+            )
+            self.assertEqual(
+                [problem["slug"] for problem in store.list_problems(company="SpaceX")],
+                ["spacex-only", "xai-only", "both-labels"],
+            )
+            self.assertEqual(
+                [problem["slug"] for problem in store.list_problems(search="xai")],
+                ["spacex-only", "xai-only", "both-labels"],
+            )
+
     def test_committed_frequency_tiers_are_per_company_and_source_neutral(self):
         root = Path(__file__).resolve().parents[1]
         store = ProblemStore(root / "problems")
