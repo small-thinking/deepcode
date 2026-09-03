@@ -95,6 +95,7 @@ class CompanyStoreTest(unittest.TestCase):
                 # These source-backed question associations have not yet had
                 # Company Hub profiles curated in Opportunity 2026.
                 "canva",
+                "cohere",
                 "datadog",
                 "notion",
                 "spotify",

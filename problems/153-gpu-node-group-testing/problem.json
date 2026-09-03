@@ -6,6 +6,17 @@
   "difficulty": "hard",
   "tags": ["fault-isolation", "group-testing", "black-box-oracle", "gpu-clusters", "algorithm"],
   "companies": ["xAI"],
+  "interview_frequency": {
+    "xAI": {
+      "source_record_ids": ["3d06ce51456d800a81f5f9e2e00878d7"],
+      "stars": 1,
+      "synced_at": "2026-09-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "A cluster has `n >= 2` numbered nodes and at least two healthy nodes. Implement `find_faulty_nodes(n, test)`, where `test(nodes)` accepts a Python `set` of node IDs with at least two members. It returns `True` exactly when every node in that set is healthy, and `False` when the set contains one or more faulty nodes.\n\nReturn the set of all faulty node IDs. The hidden health state is available only through `test`; do not inspect or modify the callback's closure. Do not call `test` on a singleton or empty set.\n\nThe general contract permits only quadratic worst-case oracle usage: if exactly two nodes are healthy, every tested set with three or more nodes must fail, so locating the one healthy pair can require checking pairs. Correctness and valid oracle calls matter more than a fabricated subquadratic target.",
   "starter_code": "def find_faulty_nodes(n, test):\n    # test(nodes) accepts a set with at least two node IDs.\n    pass\n",
   "example": {
@@ -22,5 +33,11 @@
   "evaluation": {
     "type": "ml_modeling"
   },
+  "references": [
+    {
+      "label": "PracHub: xAI MLE group-testing interview report (curated secondary source)",
+      "url": "https://prachub.com/interview-experiences/xai-machine-learning-engineer-interview-experience-three-tech-rounds-in-two-days-rejected-at-the-offer-stage"
+    }
+  ],
   "created_at": "2026-08-17"
 }
