@@ -24,12 +24,12 @@
     "stars": 2,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Two Airbnb tech-phone reports specify an integer key store with dependency updates.\n\n- `set_value(key, value)` stores an integer value for `key`.\n- `set_sum(key, refs)` defines `key` as the sum of the values of every key in `refs`.\n- `get_value(key) -> int` returns the current value.\n\nA change must propagate through downstream sums, and repeated references count repeatedly. The reported follow-up asks how to reduce `set_value` work when reads are rare and writes are frequent.\n\nFor a deterministic practice contract, references must already exist; an empty formula is zero; `set_value` or `set_sum` replaces a prior formula; cycles raise `ValueError` atomically; unknown keys raise `KeyError`; and invalid keys, values, or reference collections raise `TypeError`. Use eager propagation. Do not implement deletion, persistence, or concurrency.",
+  "prompt": "Implement a class that supports the following operations:\n\n- `set_value(key: str, value: int)`: Stores the integer value for the given key.\n- `set_sum(key: str, values: List[str])`: Defines `key` as the sum of the values associated with the keys in `values`.\n- `get_value(key: str) -> int`: Returns the integer value associated with `key`. If the key was defined using `set_sum`, return the computed sum.\n\nKeys can depend on other keys. When a key's value changes, update every dependent key.",
   "starter_code": "class KeyStore:\n    def __init__(self):\n        pass\n\n    def set_value(self, key, value):\n        pass\n\n    def set_sum(self, key, refs):\n        pass\n\n    def get_value(self, key):\n        pass\n",
   "example": {
-    "input": "store = KeyStore(); store.set_value('a', 2); store.set_value('b', 3); store.set_sum('total', ['a', 'a', 'b']); store.get_value('total')",
-    "output": "7",
-    "reasoning": "The formula preserves duplicate references, so `a` contributes twice."
+    "input": "store = KeyStore()\nstore.set_value(\"A\", 5)\nstore.set_value(\"B\", 10)\nstore.set_sum(\"C\", [\"A\", \"B\"])\nstore.set_sum(\"D\", [\"C\", \"C\", \"A\"])\nstore.get_value(\"A\")\nstore.set_value(\"B\", 10)\nstore.get_value(\"C\")\nstore.get_value(\"D\")\nstore.set_value(\"A\", 100)\nstore.get_value(\"D\")",
+    "output": "5\n15\n35\n320",
+    "reasoning": "`C` depends on `A` and `B`, so it is initially `5 + 10 = 15`. `D` depends on `C`, `C`, and `A`, so it is `15 + 15 + 5 = 35`. Setting `B` to `10` again changes nothing. When `A` changes to `100`, `C` updates to `100 + 10 = 110`, and `D` updates to `110 + 110 + 100 = 320`."
   },
   "environment": {
     "language": "python",
