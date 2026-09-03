@@ -49,6 +49,26 @@ class ApiTest(unittest.TestCase):
             self.assertEqual([problem["slug"] for problem in payload["problems"]], ["airbnb-openai"])
             self.assertEqual(payload["company_counts"], {"Airbnb": 2, "OpenAI": 1})
 
+    def test_lists_a_merged_spacex_xai_company_facet(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ProblemStore(root)
+            self._write_problem(root, "spacex", "1", {"companies": ["SpaceX"]})
+            self._write_problem(root, "xai", "2", {"companies": ["xAI"]})
+
+            status, payload = handle_api_request(
+                ApiContext(store=store),
+                "GET",
+                "/api/problems",
+                {"company": ["SpaceXAI / xAI-related roles"]},
+                None,
+            )
+
+            self.assertEqual(status, 200)
+            self.assertEqual([problem["slug"] for problem in payload["problems"]], ["spacex", "xai"])
+            self.assertEqual(payload["companies"], ["SpaceXAI / xAI-related roles"])
+            self.assertEqual(payload["company_counts"], {"SpaceXAI / xAI-related roles": 2})
+
     def test_lists_problems_in_requested_sort_direction(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
