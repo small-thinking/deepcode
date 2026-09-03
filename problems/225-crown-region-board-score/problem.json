@@ -4,18 +4,27 @@
   "title": "Crown Region Board Score",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["graphs", "grid", "flood-fill", "connected-components"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "graphs",
+    "grid",
+    "flood-fill",
+    "connected-components"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d81ee85cbede07d3e464a"],
+      "source_record_ids": [
+        "3cf6ce51456d81ee85cbede07d3e464a"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `board_score(grid) -> int` for a tile-board game. `grid` is a rectangular list of rows; each cell is a terrain letter followed by one crown digit, such as `G1`, `W0`, or `S2`.\n\nA region is a maximal group of same-terrain cells joined by an edge (up, down, left, or right); diagonal cells do not connect. A zero-crown cell still belongs to and enlarges its region. Score each region as `number_of_cells * total_crowns_in_the_region`, then return the sum of all region scores. Return `0` for `[]` or `[[]]`.",
   "starter_code": "def board_score(grid):\n    # Sum every 4-connected terrain region's size times its crowns.\n    pass\n",

@@ -4,16 +4,29 @@
   "title": "Normalize and Reshape a Flat Grayscale Image",
   "category": "ML Coding",
   "difficulty": "easy",
-  "tags": ["numpy", "image-preprocessing", "normalization", "validation"],
-  "companies": ["Canva"],
+  "tags": [
+    "numpy",
+    "image-preprocessing",
+    "normalization",
+    "validation"
+  ],
+  "companies": [
+    "Canva",
+    "General"
+  ],
   "interview_frequency": {
-    "Canva": {
-      "source_record_ids": ["3cf6ce51456d816cbabecd62e737bde1"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d816cbabecd62e737bde1"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "A grayscale preprocessing stage receives one flat 8-bit image. Implement `sanitize_image(image) -> np.ndarray`. `image` must be a non-empty, one-dimensional NumPy array with dtype `uint8`, and its length must be a perfect square.\n\nReturn a new square `float32` array. Min-max normalize the pixel values so the smallest value becomes `0.0` and the largest becomes `1.0`, then reshape to `(side, side)`. If every pixel has the same value, return an all-zero image of the required shape instead of dividing by zero. Raise `ValueError` for an empty image, a non-1-D input, a non-`uint8` dtype, or a length that is not a perfect square. Do not mutate `image`.",
   "starter_code": "import numpy as np\n\n\ndef sanitize_image(image):\n    pass\n",
   "example": {
@@ -21,8 +34,22 @@
     "output": "array([[0.0, 0.33333334], [0.6666667, 1.0]], dtype=float32)",
     "reasoning": "Four pixels form a 2-by-2 image, and their values are scaled across the inclusive unit interval."
   },
-  "environment": {"language": "python", "timeout_seconds": 3, "packages": ["numpy"], "comparator": "assertions"},
-  "references": [{"label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen", "url": "https://www.1point3acres.com/interview/thread/1064047"}],
-  "evaluation": {"type": "ml_modeling"},
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [
+      "numpy"
+    ],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen",
+      "url": "https://www.1point3acres.com/interview/thread/1064047"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "created_at": "2026-09-02"
 }

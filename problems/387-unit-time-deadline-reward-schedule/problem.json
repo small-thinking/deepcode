@@ -4,8 +4,29 @@
   "title": "Unit-Time Deadline Reward Schedule",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["greedy", "scheduling", "deadlines", "priority-queue", "reconstruction"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "greedy",
+    "scheduling",
+    "deadlines",
+    "priority-queue",
+    "reconstruction"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3d06ce51456d8096aa81dd1b4e8b614c"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Implement `deadline_reward_schedule(tasks) -> tuple[list[str], int]`. Each task is a mapping with a unique string `id`, a positive integer `deadline`, and a positive integer `reward`. Every task takes one day. A selected task with deadline `d` must be assigned to a distinct integer day from 1 through `d`, inclusive.\n\nReturn `(order, total_reward)`, where `order` lists the selected task IDs in execution-day order with no empty-day placeholders, and `total_reward` is the maximum achievable reward. The source does not specify how to break equally rewarding optima, so for this practice reconstruction process equal-reward tasks by lexicographically smaller ID first and place each accepted task on its latest still-free valid day; return the selected tasks ordered by their assigned day. Assume all inputs satisfy the stated shape. Do not mutate the input.",
   "starter_code": "def deadline_reward_schedule(tasks):\n    # Return (task IDs in execution order, maximum total reward).\n    pass\n",
   "example": {

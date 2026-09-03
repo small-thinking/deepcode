@@ -4,18 +4,27 @@
   "title": "Why Airbnb, a World Problem, and a Personal Cause",
   "category": "Behavioral",
   "difficulty": "medium",
-  "tags": ["motivation", "values", "reflection", "communication"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "motivation",
+    "values",
+    "reflection",
+    "communication"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d81f7b844c88519a5d38a"],
+      "source_record_ids": [
+        "3cf6ce51456d81f7b844c88519a5d38a"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Prepare concise, truthful answers to three reported Airbnb values questions: Why Airbnb? What is the biggest problem in the world? What cause or mission matters personally to you?\n\nOrganize an answer that connects motivation to credible evidence and invites follow-up. Do not fabricate personal experience, impact, or company facts. The report does not establish a universal rubric or answer order; label any general interview-preparation assumptions. This is a writing exercise.",
   "references": [
@@ -28,7 +37,9 @@
       "url": "https://www.1point3acres.com/interview/thread/1171020"
     }
   ],
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Use a clear thesis, one truthful supporting example, and a concrete connection; replace every bracketed placeholder with your own evidence.",
     "reference_answer": "## Assumptions\n\nNo candidate background or company-specific evaluation rubric is supplied. The bracketed details below are a structure to replace with truthful, checkable evidence, not facts to claim. Assume each answer should be brief enough to leave room for follow-up.\n\n## Why Airbnb\n\nStart with one precise motivation: \"I am interested in Airbnb because [product or trust problem] matches the kind of work I want to do.\" Support it with one relevant experience: \"In [project], I learned [evidence-based lesson], which makes me want to contribute through [specific role-relevant capability].\" End with a question or learning goal rather than claiming knowledge of an undisclosed team roadmap.\n\n## Biggest world problem\n\nChoose a problem you can bound and discuss with evidence. Explain who is affected, one mechanism that sustains it, and one realistic contribution technology and institutions can make. Acknowledge trade-offs and limits; a credible answer is more useful than a grand solution detached from action.\n\n## Personal cause\n\nName a cause that genuinely connects to your values or experience, then give one concrete action you have taken, sustained interest you have developed, or responsible next step you intend to take. Distinguish personal commitment from professional impact, and be ready to explain how the cause shapes decisions without making it a test of other people's values."

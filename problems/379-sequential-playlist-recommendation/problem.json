@@ -4,18 +4,29 @@
   "title": "Sequential Playlist Recommendation for Exactly 10 Tracks",
   "category": "ML System Design",
   "difficulty": "hard",
-  "tags": ["recommendation", "ranking", "slate-optimization", "sequences", "experimentation"],
-  "companies": ["Spotify"],
+  "tags": [
+    "recommendation",
+    "ranking",
+    "slate-optimization",
+    "sequences",
+    "experimentation"
+  ],
+  "companies": [
+    "Spotify",
+    "General"
+  ],
   "interview_frequency": {
-    "Spotify": {
-      "source_record_ids": ["3cf6ce51456d81fd9e0ad057e18b3613"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d81fd9e0ad057e18b3613"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design a one-shot recommender that selects and orders exactly 10 tracks from a candidate pool of roughly 10,000 for a user playlist. The system cannot adapt while the playlist is playing. Optimize satisfaction using completion, skips, saves, and later behavior.\n\nExplain labels and objectives for whole-playlist quality rather than only per-track click-through rate; retrieval, ranking, and slate selection; diversity, novelty, and coherence; position and exposure bias; offline and online evaluation; and serving constraints. This is a writing exercise.",
   "references": [
@@ -24,7 +35,9 @@
       "url": "https://www.1point3acres.com/interview/thread/1186264"
     }
   ],
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Define the playlist-level objective and immutable ten-track constraint first, then separate fast candidate retrieval, calibrated ranking, and constrained ordered-slate selection.",
     "reference_answer": "## Objective and decision unit\n\nThe decision is one ordered slate of exactly ten eligible tracks at a fixed request time. I would define satisfaction as a multi-objective outcome: qualified listening and completion, low early skipping, saves or follows, and a delayed return or retention signal. These outcomes have different delays and biases, so the training target should retain components and uncertainty rather than reduce everything to one historical click-through label.\n\nEligibility, rights, explicit-content settings, and already-heard exclusions are hard filters before ranking. A simple baseline is an ordered list from a strong per-track ranker; it gives a measurable benchmark before adding a more complex sequence model.\n\n## Retrieval, scoring, and slate construction\n\nRetrieve a few hundred candidates from complementary sources such as user history, similar listeners, item content, fresh catalog, and controlled exploration. Use point-in-time-correct features and record the retrieval source and availability of every candidate. A ranker estimates conditional utility using user, track, context, and prefix features.\n\nThen select ten tracks with a constrained slate objective. It can reward predicted engagement while penalizing repeated artists, excessive similarity, abrupt tempo or mood changes, and unsupported novelty. Sequence features should model transitions and position effects, not merely append ten independent top scores. Use deterministic tie breaking and a safe fallback slate when retrieval coverage is weak.\n\n## Learning and bias controls\n\nTrain from impression and listening logs with the displayed position, prior tracks, policy version, and feature snapshot. Exposure is not random, so use randomized traffic where possible and apply propensity-aware analysis or counterfactual estimators cautiously offline. Time-based splits avoid leaking later listening into features, and the model must distinguish a skip caused by a track from a skip caused by a poor preceding transition or session interruption.\n\nCompare per-track objectives with slate-level metrics such as expected completion, sequence coherence, artist concentration, novelty, and satisfaction by playlist position. Evaluate cold-start users and tracks separately because a global average can hide coverage failures.\n\n## Online validation and operations\n\nUse a guarded A/B experiment at a stable assignment unit, with playlist completion, skip curves, saves, downstream listening, and retention as outcomes. Track diversity, creator concentration, rights coverage, complaint signals, latency, and candidate-retrieval failures as guardrails. Roll out gradually with a fixed baseline and preserve the full request, candidate, slate, and model trace for diagnosis.\n\n## Progressive Hints\n\n1. Ten positions create one slate decision, not ten unrelated CTR decisions.\n2. Separate eligibility, retrieval, scoring, and re-ranking constraints.\n3. A prefix changes the value of the next track.\n4. Historical position bias makes raw listening logs insufficient for causal claims.\n5. Measure diversity and coherence at the slate level.\n6. Keep a safe fallback when a candidate source is empty or stale."

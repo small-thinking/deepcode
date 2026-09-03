@@ -4,16 +4,29 @@
   "title": "Maintain Per-Table and Global Maximums",
   "category": "Data Structures",
   "difficulty": "medium",
-  "tags": ["heap", "hash-map", "lazy-deletion", "streaming-updates"],
-  "companies": ["Notion"],
+  "tags": [
+    "heap",
+    "hash-map",
+    "lazy-deletion",
+    "streaming-updates"
+  ],
+  "companies": [
+    "Notion",
+    "General"
+  ],
   "interview_frequency": {
-    "Notion": {
-      "source_record_ids": ["3cf6ce51456d81d68e96f6afda9ef52b"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d81d68e96f6afda9ef52b"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Implement TableMaxIndex for online cell updates across named tables. set_cell(table, cell, value) creates or overwrites one integer-valued cell. delete_cell(table, cell) -> bool deletes a present cell and returns whether it existed. table_max(table) -> int | None returns a table's current maximum, or None when that known table has no cells. global_max() -> int | None returns the maximum across every table, or None when no cells remain.\n\nTable and cell names are nonempty strings. Values are ordinary integers, not booleans. set_cell creates a table when needed; querying an unknown table raises ValueError. Aim to avoid rescanning an entire table after every overwrite or deletion by using a max-heap with lazy deletion or an equivalent ordered structure.\n\nThis is a practice reconstruction of a reported Notion interview theme: the report asks for efficient updates but does not publish its original cell-operation schema.",
   "starter_code": "class TableMaxIndex:\n    def __init__(self):\n        pass\n\n    def set_cell(self, table, cell, value):\n        pass\n\n    def delete_cell(self, table, cell):\n        pass\n\n    def table_max(self, table):\n        pass\n\n    def global_max(self):\n        pass\n",
   "example": {
@@ -21,8 +34,20 @@
     "output": "index.table_max('a') == 5 and index.global_max() == 5",
     "reasoning": "The global result is the largest live cell among all tables."
   },
-  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
-  "references": [{"label": "1Point3Acres: Notion AI onsite report", "url": "https://www.1point3acres.com/interview/thread/1157681"}],
-  "evaluation": {"type": "ml_modeling"},
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "1Point3Acres: Notion AI onsite report",
+      "url": "https://www.1point3acres.com/interview/thread/1157681"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "created_at": "2026-09-02"
 }

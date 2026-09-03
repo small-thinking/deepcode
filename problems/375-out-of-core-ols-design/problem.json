@@ -4,22 +4,43 @@
   "title": "Design Out-of-Core Ordinary Least Squares",
   "category": "ML System Design",
   "difficulty": "hard",
-  "tags": ["linear-regression", "out-of-core", "numerical-stability", "distributed-computing", "data-validation"],
-  "companies": ["Datadog"],
+  "tags": [
+    "linear-regression",
+    "out-of-core",
+    "numerical-stability",
+    "distributed-computing",
+    "data-validation"
+  ],
+  "companies": [
+    "Datadog",
+    "General"
+  ],
   "interview_frequency": {
-    "Datadog": {
-      "source_record_ids": ["3cf6ce51456d81f1be32da0aff234ab9"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d81f1be32da0aff234ab9"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Design an ordinary least-squares training pipeline for a 25GB CSV that has more than one million rows, roughly 3,000 floating-point features, and one label column. The full dataset cannot fit in memory.\n\nCover a single-machine streaming implementation first, including parsing, feature validation, scaling, numerical stability, conditioning, regularization, solver choice, checkpointing, and validation. Then explain how a distributed implementation would aggregate work without shipping all raw rows. Discuss failure modes and state when normal equations are no longer the right approach.",
   "response": {
     "placeholder": "First separate row-scale storage from feature-scale state: 25GB of rows may not fit in memory even though a 3,000-by-3,000 sufficient-statistics matrix can. Then explain the numerical conditions under which that shortcut is unsafe.",
     "reference_answer": "## Scope and input contract\n\nI would establish whether the objective includes an intercept, missing-value policy, categorical expansion, sparsity, target transformation, and whether a time or group split is required. Each run pins a CSV snapshot, feature schema, preprocessing revision, and split rule. A row is not silently coerced: parse failures, non-finite values, schema drift, and missingness rates are counted and either quarantined or handled by an explicit imputation policy.\n\nThe key observation is that row-scale data and feature-scale state differ. With about 3,000 dense features, an `X^T X` matrix has about nine million entries, which can fit in memory in float64, while the raw table cannot. That does not prove the normal equations are numerically appropriate.\n\n## Single-machine streaming path\n\nRead bounded CSV chunks with fixed dtypes and accumulate row count, target moments, feature moments, and validation counters. If scaling is needed, use a first streaming pass with stable online moments, then a second pass to apply frozen means and scales while accumulating sufficient statistics. This avoids scaling each chunk against a moving local mean. Persist checkpointed partial statistics with the input-partition identity so a restart does not double-count a chunk.\n\nFor a dense ridge baseline, accumulate `A = X^T X + lambda I` and `b = X^T y` in float64 using compensated or pairwise aggregation where practical. Do not form an inverse. Solve the linear system with a Cholesky factorization only after checking conditioning and positive definiteness; use QR, SVD, or an iterative method when the problem is ill-conditioned or rank-deficient. Keep the intercept unregularized by representing it separately or applying a zero penalty to that coordinate.\n\n## Numerical and modeling safeguards\n\nNormal equations square the condition number, so a small residual on `A w = b` is not enough evidence of a reliable coefficient vector. Estimate condition number, inspect singular values or iterative convergence, and compare a ridge path against a baseline. Collinearity, high dynamic range, sparse one-hot features, and large feature expansion may make a sparse iterative solver or coordinate/gradient method preferable. A memory-mapped columnar conversion can reduce repeated CSV parsing, but it does not change the need for a stable solver.\n\nEvaluate on an untouched time- or group-held-out set to avoid leakage from duplicate entities or future data. Report residual distribution, calibration where relevant, slice errors, feature-missingness drift, coefficient stability across bootstrap or time slices, and the gap between train and held-out error.\n\n## Distributed extension and operations\n\nPartition workers by immutable input shard. Each worker emits a local `(count, moments, A, b, validation summary)` for a fixed preprocessing revision. A tree reduction combines those objects deterministically; the coordinator solves once and records every shard and aggregate revision. This moves feature-scale statistics rather than raw row-scale data. For an iterative solver, workers instead compute partition-local matrix-vector products or gradients and synchronize the bounded vector state, with checkpoints and convergence diagnostics.\n\nMonitor bytes parsed, rows accepted/quarantined, checkpoint age, matrix condition estimate, solver residual, convergence iterations, validation loss, and shard skew. A failed worker must either retry its idempotent partition or be explicitly excluded from a new run manifest; silently dropping a shard biases the fit.\n\n## Progressive Hints\n\n1. The raw dataset size and the feature-space matrix size are different memory questions.\n2. Standardize against global streaming moments, not per-chunk moments.\n3. Solve a system; never explicitly invert `X^T X`.\n4. Normal equations can be compact but still numerically unsafe.\n5. Workers can reduce sufficient statistics without transferring raw examples.\n6. Pin the split and preprocessing revision before judging model quality."
   },
-  "references": [{"label": "1Point3Acres: Datadog LLM Applied Scientist ML system design interview", "url": "https://www.1point3acres.com/interview/thread/1173182"}],
-  "evaluation": {"type": "system_design"},
+  "references": [
+    {
+      "label": "1Point3Acres: Datadog LLM Applied Scientist ML system design interview",
+      "url": "https://www.1point3acres.com/interview/thread/1173182"
+    }
+  ],
+  "evaluation": {
+    "type": "system_design"
+  },
   "created_at": "2026-09-02"
 }

@@ -4,18 +4,27 @@
   "title": "Minimum Purchases to Fill an Exact Target Amount",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["dynamic-programming", "unbounded-knapsack", "reconstruction", "coin-change"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "dynamic-programming",
+    "unbounded-knapsack",
+    "reconstruction",
+    "coin-change"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d81599929d5d1f175d1ed"],
+      "source_record_ids": [
+        "3cf6ce51456d81599929d5d1f175d1ed"
+      ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `min_exact_purchase_plan(prices, target)`. `prices` is a nonempty list of positive integer cent amounts. You may buy unlimited copies of every listed price. `target` is a nonnegative integer cent amount.\n\nIf no multiset of prices totals exactly `target`, return `-1`. Otherwise return `{'minimum_count': count, 'items': items}`, where `items` is a nondecreasing list of selected prices whose sum is exactly `target` and whose length is `count`. If more than one minimum-count selection exists, either is valid. For `target == 0`, return `{'minimum_count': 0, 'items': []}`.",
   "starter_code": "def min_exact_purchase_plan(prices, target):\n    pass\n",

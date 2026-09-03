@@ -4,18 +4,27 @@
   "title": "Iterator over Nested Array Lists with Remove",
   "category": "Systems Coding",
   "difficulty": "medium",
-  "tags": ["iterator", "state", "nested-lists", "mutation"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "iterator",
+    "state",
+    "nested-lists",
+    "mutation"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "interview_frequency": {
     "Airbnb": {
-      "source_record_ids": ["3cf6ce51456d814b8d26e4a95be9c3b6"],
+      "source_record_ids": [
+        "3cf6ce51456d814b8d26e4a95be9c3b6"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `NestedArrayListIterator(nested)`. `nested` is a mutable list of mutable lists. The iterator has Java-style `hasNext()`, `next()`, and `remove()` methods; it visits values in row order and skips empty inner lists. `hasNext()` must be idempotent. `next()` returns the next value or raises `StopIteration` after exhaustion.\n\n`remove()` removes from the original `nested` structure the particular value most recently returned by `next()`. It may be called at most once after each successful `next()`; calling it before any `next()`, twice for the same returned value, or after exhaustion without a new value must raise `RuntimeError`. Removing an item must not cause the following item to be skipped, including when removal empties an inner list.\n\n`remove()` must mutate the caller's original `nested` structure.",
   "starter_code": "class NestedArrayListIterator:\n    def __init__(self, nested):\n        pass\n\n    def hasNext(self):\n        pass\n\n    def next(self):\n        pass\n\n    def remove(self):\n        pass\n",

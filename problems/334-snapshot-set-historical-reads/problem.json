@@ -4,20 +4,26 @@
   "title": "Snapshot Set with Historical Reads",
   "category": "Systems Coding",
   "difficulty": "medium",
-  "tags": ["persistent-data-structures", "snapshots", "copy-on-write"],
-  "companies": ["OpenAI"],
+  "tags": [
+    "persistent-data-structures",
+    "snapshots",
+    "copy-on-write"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
   "interview_frequency": {
     "OpenAI": {
       "source_record_ids": [
         "3b66ce51456d8149983af82c3c436283"
       ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Implement `SnapshotSet`, an in-memory set with versioned reads.\n\n- `add(value) -> bool` inserts a hashable value into the current version and returns whether it changed the set.\n- `remove(value) -> bool` removes a value from the current version and returns whether it changed the set.\n- `snapshot() -> int` returns an immutable handle for the current version.\n- `values_at(snapshot_id) -> set` returns an independent copy of the values visible at that snapshot.\n\nEvery mutating call creates a new current version, including a no-op add or remove. Snapshot IDs are zero-based and must remain valid after later mutations. Reject an unhashable value with `TypeError`; raise `IndexError` for an invalid snapshot ID (including `bool`). Do not expose an internal mutable set. This is a practice reconstruction of a reported persistent-set interview theme.",
   "starter_code": "class SnapshotSet:\n    def __init__(self):\n        pass\n\n    def add(self, value):\n        pass\n\n    def remove(self, value):\n        pass\n\n    def snapshot(self):\n        pass\n\n    def values_at(self, snapshot_id):\n        pass\n",
@@ -26,7 +32,14 @@
     "output": "s.values_at(before) == {'a'}",
     "reasoning": "Later mutations create a new version instead of changing an existing snapshot."
   },
-  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
-  "evaluation": {"type": "ml_modeling"},
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "created_at": "2026-08-30"
 }

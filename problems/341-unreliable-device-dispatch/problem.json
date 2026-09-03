@@ -4,23 +4,32 @@
   "title": "Design an Unreliable Device Dispatch and Reconciliation System",
   "category": "System Design",
   "difficulty": "hard",
-  "tags": ["state-machines", "telemetry", "reconciliation", "idempotency"],
-  "companies": ["OpenAI"],
+  "tags": [
+    "state-machines",
+    "telemetry",
+    "reconciliation",
+    "idempotency"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
   "interview_frequency": {
     "OpenAI": {
       "source_record_ids": [
         "3c36ce51456d815a9bd8c1072fcbb740"
       ],
       "stars": 2,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-02"
+    "synced_at": "2026-09-03"
   },
   "prompt": "Design a control center that sends an energy-reduction command to many smart devices. A device may miss a command, reject it, accept it without executing it, or execute it while telemetry arrives late, duplicated, or out of order. The controller must reconcile observed state before issuing unsafe follow-up commands.\n\nDefine command identity and lifecycle, telemetry ingestion, event-time handling, idempotent reconciliation, retry and expiry policy, group-level safety limits, recovery, and user-visible uncertainty. Separate delivery acknowledgement from actual execution. This is a practice reconstruction of a reported unreliable-device dispatch interview theme.",
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "Start with an authoritative command ledger and the distinction between intent, delivery, execution, and observation.",
     "reference_answer": "## State contract\n\nEvery command has a durable ID, target selector, desired effect, expiry, policy version, and per-device state. Sent, acknowledged, accepted, executed, rejected, expired, and unknown are distinct states. A delivery acknowledgement never proves the physical action occurred.\n\n## Ingestion and reconciliation\n\nCommands and telemetry append to durable, partitioned logs. The ingestion path deduplicates by device event ID and retains event time, arrival time, and a sequence or epoch where available. A reconciliation worker joins expected outcomes with acknowledgements and telemetry using a bounded-lateness watermark. It produces idempotent transitions and keeps contradictory or late evidence as diagnostics instead of overwriting a newer decision blindly.\n\n## Safety and recovery\n\nRetries apply only while the command is eligible and the group safety budget permits it. The controller uses conservative behavior for unknown device state, such as withholding a follow-up increase until reconciliation or expiry. Commands and observations are replayable after a controller failure; leases and state versions prevent an old worker from reviving a superseded command.\n\n## Operations\n\nMeasure delivery, acknowledgement, observed-execution, unknown-outcome, duplicate-event, late-event, reconciliation-lag, and safety-cap rates by device class and region. Operators can inspect the evidence behind a device state and override policy through an auditable command, not by mutating telemetry history."

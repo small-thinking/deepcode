@@ -4,16 +4,30 @@
   "title": "Image Crop and White-Canvas Augmentations",
   "category": "ML Coding",
   "difficulty": "medium",
-  "tags": ["numpy", "computer-vision", "augmentation", "cropping", "randomness"],
-  "companies": ["Luma AI"],
+  "tags": [
+    "numpy",
+    "computer-vision",
+    "augmentation",
+    "cropping",
+    "randomness"
+  ],
+  "companies": [
+    "Luma AI",
+    "General"
+  ],
   "interview_frequency": {
-    "Luma AI": {
-      "source_record_ids": ["3cf6ce51456d810eafeffdb29aec6fb4"],
+    "General": {
+      "source_record_ids": [
+        "3cf6ce51456d810eafeffdb29aec6fb4"
+      ],
       "stars": 1,
-      "synced_at": "2026-09-02"
+      "synced_at": "2026-09-03"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-03"
+  },
   "prompt": "Practice reconstruction: the interview report identifies crop and paste operations but does not specify signatures or framework utilities.\n\nImplement `center_crop(image, crop_h, crop_w)`, `random_crop(image, crop_h, crop_w, rng)`, and `random_crop_paste_on_white(image, crop_h, crop_w, rng)`. `image` is a non-empty numeric NumPy image with shape `[H,W]` or `[H,W,C]`, where `C` is 1, 3, or 4. Crop dimensions are positive and may not exceed the source size.\n\n`center_crop` uses floor division for odd differences. `random_crop` samples `top` then `left` uniformly from the valid integer origins using the supplied `np.random.Generator`. `random_crop_paste_on_white` first samples the crop with that rule, creates a white canvas with the original shape/dtype, then samples a valid paste `top` and `left` in the same order and pastes the crop. White is `1.0` for floating dtypes and the dtype maximum for integer dtypes. Preserve input dtype and never mutate `image`.",
   "starter_code": "import numpy as np\n\n\ndef center_crop(image, crop_h, crop_w):\n    pass\n\n\ndef random_crop(image, crop_h, crop_w, rng):\n    pass\n\n\ndef random_crop_paste_on_white(image, crop_h, crop_w, rng):\n    pass\n",
   "example": {
@@ -21,8 +35,22 @@
     "output": "array([[ 6,  7,  8], [11, 12, 13], [16, 17, 18]])",
     "reasoning": "With a two-pixel difference in both dimensions, the centered origin is `(1, 1)`."
   },
-  "environment": {"language": "python", "timeout_seconds": 3, "packages": ["numpy"], "comparator": "assertions"},
-  "references": [{"label": "1Point3Acres: Luma AI interview report", "url": "https://www.1point3acres.com/interview/thread/1134165"}],
-  "evaluation": {"type": "ml_modeling"},
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [
+      "numpy"
+    ],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "1Point3Acres: Luma AI interview report",
+      "url": "https://www.1point3acres.com/interview/thread/1134165"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "created_at": "2026-09-02"
 }
