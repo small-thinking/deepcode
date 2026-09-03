@@ -17,12 +17,12 @@
     "stars": 1,
     "synced_at": "2026-09-02"
   },
-  "prompt": "Implement `board_score(grid) -> int`. `grid` is a rectangular two-dimensional grid whose cells contain one terrain letter followed by one crown digit, such as `F2` or `R0`. A region is a maximal 4-connected component of cells with the same terrain letter.\n\nFor every region, compute `number_of_cells * sum_of_crowns_in_that_region`, then return the sum across all regions. Diagonal cells are not connected. A zero-crown cell still belongs to and enlarges its region. Return `0` for an empty grid.",
-  "starter_code": "def board_score(grid):\n    # Sum size times crowns for every 4-connected terrain region.\n    pass\n",
+  "prompt": "Implement `board_score(grid) -> int` for a tile-board game. `grid` is a rectangular list of rows; each cell is a terrain letter followed by one crown digit, such as `G1`, `W0`, or `S2`.\n\nA region is a maximal group of same-terrain cells joined by an edge (up, down, left, or right); diagonal cells do not connect. A zero-crown cell still belongs to and enlarges its region. Score each region as `number_of_cells * total_crowns_in_the_region`, then return the sum of all region scores. Return `0` for `[]` or `[[]]`.",
+  "starter_code": "def board_score(grid):\n    # Sum every 4-connected terrain region's size times its crowns.\n    pass\n",
   "example": {
-    "input": "board_score([['F0', 'F1'], ['F0', 'W2']])",
-    "output": "5",
-    "reasoning": "The three-cell F region has one crown and scores 3; the one-cell W region scores 2."
+    "input": "board_score([['G1', 'G2', 'W0', 'W1'], ['G2', 'G3', 'W0', 'W1']])",
+    "output": "40",
+    "reasoning": "The four-cell G region has 1 + 2 + 2 + 3 = 8 crowns and scores 4 * 8 = 32. The four-cell W region has 0 + 1 + 0 + 1 = 2 crowns and scores 4 * 2 = 8. Total: 40."
   },
   "environment": {
     "language": "python",
