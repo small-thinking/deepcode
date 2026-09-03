@@ -1,0 +1,17 @@
+[
+  {
+    "name": "normalizes and reshapes a non-constant square image",
+    "input": "four uint8 pixels spanning the input range",
+    "test": "import numpy as np\nimage = np.array([0, 85, 170, 255], dtype=np.uint8)\nbefore = image.copy()\nactual = sanitize_image(image)\nexpected = np.array([[0.0, 1.0 / 3.0], [2.0 / 3.0, 1.0]], dtype=np.float32)\nassert actual.shape == (2, 2)\nassert actual.dtype == np.float32\nassert np.allclose(actual, expected, atol=1e-7)\nassert np.array_equal(image, before)"
+  },
+  {
+    "name": "handles constant and one-pixel images without division by zero",
+    "input": "constant four-pixel images and a one-pixel image",
+    "test": "import numpy as np\nfor image in (np.zeros(4, dtype=np.uint8), np.full(4, 255, dtype=np.uint8), np.array([37], dtype=np.uint8)):\n    actual = sanitize_image(image)\n    assert actual.shape == (int(image.size ** 0.5), int(image.size ** 0.5))\n    assert actual.dtype == np.float32\n    assert np.array_equal(actual, np.zeros_like(actual))"
+  },
+  {
+    "name": "rejects malformed flat-image inputs",
+    "input": "empty, non-square, non-1-D, and non-uint8 arrays",
+    "test": "import numpy as np\ndef must_raise(value):\n    try:\n        sanitize_image(value)\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nmust_raise(np.array([], dtype=np.uint8))\nmust_raise(np.arange(6, dtype=np.uint8))\nmust_raise(np.zeros((2, 2), dtype=np.uint8))\nmust_raise(np.arange(4, dtype=np.int64))"
+  }
+]

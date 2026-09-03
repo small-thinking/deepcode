@@ -1,0 +1,33 @@
+{
+  "id": "382",
+  "slug": "end-to-end-project-deep-dive",
+  "title": "End-to-End Project Deep Dive",
+  "category": "Behavioral",
+  "difficulty": "medium",
+  "tags": ["project-story", "ownership", "trade-offs", "impact", "communication"],
+  "companies": ["xAI"],
+  "interview_frequency": {
+    "xAI": {
+      "source_record_ids": ["3cf6ce51456d814ca313e01a5741ec53"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-02"
+  },
+  "prompt": "Prepare an end-to-end deep dive on a current project. Cover the goal and context, your exact ownership, architecture, important decisions and trade-offs, challenges, measurable outcome, and what you would change next.\n\nUse only truthful project facts. The reported interview prompt does not specify a project domain, scoring rubric, or required metric, so mark any general storytelling advice as an assumption. This is a writing exercise.",
+  "references": [
+    {
+      "label": "1Point3Acres: xAI 15-minute machine learning interview overview",
+      "url": "https://www.1point3acres.com/interview/thread/1162858"
+    }
+  ],
+  "evaluation": {"type": "system_design"},
+  "response": {
+    "placeholder": "Lead with a decision-worthy problem and your accountable scope. Then make the architecture, evidence, trade-off, outcome, and reflection easy to follow without overstating ownership.",
+    "reference_answer": "## Assumptions and setup\n\nAssume the interviewer wants a concise narrative followed by technical and ownership probes. No candidate project, architecture, or result is supplied here. The bracketed material below is a structure to replace with truthful, checkable evidence, not a story to claim.\n\nOpen with: \"At [organization], [users or system] faced [specific problem]. The cost of leaving it unresolved was [measured or observed consequence]. I owned [precise scope], while [partners] owned [their scopes]. We defined success as [primary metric] with [guardrail].\" Establish the baseline and constraint before describing the solution.\n\n## Architecture and decisions\n\nExplain the smallest architecture that makes the key decision understandable: inputs and data flow, major components, state or model boundaries, and how the system was measured or validated. Identify one consequential alternative: \"We considered [option A] and [option B]. I recommended [choice] because [evidence and constraints], accepting [specific downside].\" Distinguish implementation details you personally led from decisions made by a partner or team.\n\nFor an ML project, be ready to explain label or data provenance, validation split, model baseline, deployment path, and monitoring. For a systems project, be ready to explain API contracts, failure handling, latency or capacity constraints, and operational evidence. Do not add technical detail merely to sound sophisticated; connect each component to the problem and a decision you can defend.\n\n## Execution, challenge, and outcome\n\nDescribe milestones, a real challenge, and how evidence changed the plan: \"When [risk or failure] appeared, I [diagnosed action], learned [result], and [changed decision].\" Name collaborators accurately and explain how you aligned on an interface, priority, or trade-off.\n\nReport an outcome with its comparison point and limits: \"After [release or experiment], [metric] moved from [baseline] to [result] over [window], while [guardrail] [held or changed].\" If the project did not achieve its target, state what happened and what you learned rather than manufacturing a success. Finish with one concrete next step or a design decision you would revisit now.\n\n## Progressive Hints\n\n1. State the problem, baseline, and your ownership before the architecture.\n2. Use one decision with a genuine alternative and trade-off.\n3. Separate your work from partner and team contributions.\n4. Tie technical detail to a constraint, metric, or observed failure.\n5. Give measured results with a comparison point and a limitation.\n6. Replace every placeholder with your own facts; honesty is part of the exercise."
+  },
+  "created_at": "2026-09-02"
+}

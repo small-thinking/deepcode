@@ -86,7 +86,22 @@ class CompanyStoreTest(unittest.TestCase):
 
         # Canonical interview-bank links can establish a problem/company association
         # before a separately sourced Company Hub profile is curated.
-        self.assertEqual(company_labels - profile_identifiers - {"general", "microsoftai", "spacex"}, set())
+        self.assertEqual(
+            company_labels
+            - profile_identifiers
+            - {
+                "general",
+                "microsoftai",
+                "spacex",
+                # These source-backed question associations have not yet had
+                # Company Hub profiles curated in Opportunity 2026.
+                "canva",
+                "datadog",
+                "notion",
+                "spotify",
+            },
+            set(),
+        )
 
         reddit = companies.get_company("reddit", problems)
         self.assertEqual(reddit["stage"]["company_state"], "Public")

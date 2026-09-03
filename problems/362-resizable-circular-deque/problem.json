@@ -1,0 +1,28 @@
+{
+  "id": "362",
+  "slug": "resizable-circular-deque",
+  "title": "Implement a Resizable Circular Deque",
+  "category": "Data Structures",
+  "difficulty": "medium",
+  "tags": ["deque", "circular-buffer", "arrays", "amortized-analysis"],
+  "companies": ["Thinking Machines Lab"],
+  "interview_frequency": {
+    "Thinking Machines Lab": {
+      "source_record_ids": ["3cf6ce51456d818ea979c3ebb2ec3ca4"],
+      "stars": 1,
+      "synced_at": "2026-09-02"
+    }
+  },
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-02"},
+  "prompt": "Implement ResizableDeque(initial_capacity=4) using a circular array. Provide append_left(value), append_right(value), pop_left(), pop_right(), to_list(), __len__(), and the read-only capacity property. Pushes and pops at either end should be O(1) amortized. When a full deque receives an append, allocate an array with twice the capacity and copy current values in logical left-to-right order before completing the append.\n\ninitial_capacity is a positive ordinary integer. Values are unrestricted, including None and duplicates. Popping from an empty deque raises IndexError. This contract intentionally requires growth only; no shrink policy is assumed.",
+  "starter_code": "class ResizableDeque:\n    def __init__(self, initial_capacity=4):\n        pass\n\n    @property\n    def capacity(self):\n        pass\n\n    def append_left(self, value):\n        pass\n\n    def append_right(self, value):\n        pass\n\n    def pop_left(self):\n        pass\n\n    def pop_right(self):\n        pass\n\n    def to_list(self):\n        pass\n\n    def __len__(self):\n        pass\n",
+  "example": {
+    "input": "deque = ResizableDeque(2); deque.append_right(1); deque.append_right(2); deque.append_right(3)",
+    "output": "deque.to_list() == [1, 2, 3] and deque.capacity == 4",
+    "reasoning": "Appending to a full two-slot buffer grows it before preserving order."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "references": [{"label": "1Point3Acres: Thinking Machines Lab coding interview report", "url": "https://www.1point3acres.com/bbs/thread-1175619-1-1.html"}],
+  "evaluation": {"type": "ml_modeling"},
+  "created_at": "2026-09-02"
+}

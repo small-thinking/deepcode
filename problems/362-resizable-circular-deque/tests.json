@@ -1,0 +1,17 @@
+[
+  {
+    "name": "grows after wraparound without changing logical order",
+    "input": "a two-slot deque that wraps before resizing",
+    "test": "deque = ResizableDeque(2)\ndeque.append_right(1)\ndeque.append_right(2)\nassert deque.pop_left() == 1\ndeque.append_right(3)\ndeque.append_right(4)\nassert deque.capacity == 4\nassert deque.to_list() == [2, 3, 4]\ndeque.append_left(0)\nassert deque.to_list() == [0, 2, 3, 4]"
+  },
+  {
+    "name": "pops correctly from both ends and retains arbitrary values",
+    "input": "duplicates and None at opposite ends",
+    "test": "deque = ResizableDeque(1)\ndeque.append_left(None)\ndeque.append_right('x')\ndeque.append_left('x')\nassert len(deque) == 3\nassert deque.pop_right() == 'x'\nassert deque.pop_left() == 'x'\nassert deque.pop_left() is None\nassert len(deque) == 0"
+  },
+  {
+    "name": "rejects invalid capacities and empty pops",
+    "input": "zero, boolean, and empty deque operations",
+    "test": "for capacity in (0, -1, True):\n    try:\n        ResizableDeque(capacity)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nfor method in (ResizableDeque().pop_left, ResizableDeque().pop_right):\n    try:\n        method()\n        raise AssertionError('expected IndexError')\n    except IndexError:\n        pass"
+  }
+]

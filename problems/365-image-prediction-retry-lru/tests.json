@@ -1,0 +1,17 @@
+[
+  {
+    "name": "caches successful predictions by image and model key",
+    "input": "two models, one shared image, and repeated requests",
+    "test": "calls = []\nclass Model:\n    def __init__(self, name):\n        self.name = name\n    def predict(self, value):\n        calls.append(('predict', self.name, value))\n        return f'{self.name}:{value}'\ndef download(image_id):\n    calls.append(('download', image_id))\n    return f'raw-{image_id}'\ndef sanitize(raw):\n    calls.append(('sanitize', raw))\n    return raw.upper()\nservice = ImagePredictionService(download, sanitize, {'a': Model('a'), 'b': Model('b')}, capacity=2)\nassert service.predict('img', 'a') == 'a:RAW-IMG'\nassert service.predict('img', 'a') == 'a:RAW-IMG'\nassert service.predict('img', 'b') == 'b:RAW-IMG'\nassert calls.count(('download', 'img')) == 2\nassert calls.count(('sanitize', 'raw-img')) == 2\nassert calls.count(('predict', 'a', 'RAW-IMG')) == 1\nassert calls.count(('predict', 'b', 'RAW-IMG')) == 1"
+  },
+  {
+    "name": "retries only transient downloads and preserves the LRU policy",
+    "input": "a download that succeeds on attempt three, a sanitizer failure, and a capacity-two cache",
+    "test": "attempts = {}\ndef download(image_id):\n    attempts[image_id] = attempts.get(image_id, 0) + 1\n    if image_id == 'retry' and attempts[image_id] < 3:\n        raise TransientDownloadError('temporary')\n    return image_id\ndef sanitize(raw):\n    if raw == 'bad':\n        raise RuntimeError('invalid image')\n    return raw\nclass Model:\n    def __init__(self):\n        self.calls = []\n    def predict(self, value):\n        self.calls.append(value)\n        return value.upper()\nmodel = Model()\nservice = ImagePredictionService(download, sanitize, {'m': model}, capacity=2, max_retries=2)\nassert service.predict('retry', 'm') == 'RETRY'\nassert attempts['retry'] == 3\ntry:\n    service.predict('bad', 'm')\nexcept RuntimeError:\n    pass\nelse:\n    raise AssertionError('sanitizer errors must propagate')\nassert attempts['bad'] == 1\nassert service.predict('one', 'm') == 'ONE'\nassert service.predict('retry', 'm') == 'RETRY'\nassert service.predict('two', 'm') == 'TWO'\nassert service.predict('one', 'm') == 'ONE'\nassert attempts['one'] == 2\nassert attempts['retry'] == 3"
+  },
+  {
+    "name": "validates construction and does not cache exhausted retries or model failures",
+    "input": "invalid cache settings, a permanent transient failure, and a failing model",
+    "test": "def must_raise(call, error=ValueError):\n    try:\n        call()\n    except error:\n        return\n    raise AssertionError(f'expected {error.__name__}')\nmust_raise(lambda: ImagePredictionService(lambda x: x, lambda x: x, {}, 0))\nmust_raise(lambda: ImagePredictionService(lambda x: x, lambda x: x, {}, 1, -1))\ndef broken_download(_):\n    raise TransientDownloadError('down')\nservice = ImagePredictionService(broken_download, lambda x: x, {'m': object()}, 1, max_retries=1)\nmust_raise(lambda: service.predict('x', 'm'), TransientDownloadError)\nmust_raise(lambda: service.predict('x', 'missing'))\nclass BadModel:\n    def predict(self, _):\n        raise RuntimeError('model failed')\nmodel_service = ImagePredictionService(lambda x: x, lambda x: x, {'m': BadModel()}, 1)\nmust_raise(lambda: model_service.predict('x', 'm'), RuntimeError)"
+  }
+]

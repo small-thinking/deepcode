@@ -1,0 +1,17 @@
+[
+  {
+    "name": "computes per-example focal loss and all reductions",
+    "input": "one positive and one negative prediction",
+    "test": "import numpy as np\nlabels = np.array([1, 0])\nprobabilities = np.array([0.9, 0.2])\nnone = binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction='none')\nexpected = np.array([-0.25 * 0.1**2 * np.log(0.9), -0.75 * 0.2**2 * np.log(0.8)])\nassert none.shape == (2,)\nassert np.allclose(none, expected, atol=1e-15)\nassert np.isclose(binary_focal_loss(labels, probabilities, 0.25, 2.0, 'sum'), expected.sum())\nassert np.isclose(binary_focal_loss(labels, probabilities, 0.25, 2.0, 'mean'), expected.mean())"
+  },
+  {
+    "name": "gamma zero becomes alpha-balanced binary cross entropy and endpoints remain finite",
+    "input": "a two-by-two label array with probabilities at zero and one",
+    "test": "import numpy as np\nlabels = np.array([[1, 0], [1, 0]])\nprobabilities = np.array([[0.8, 0.3], [0.0, 1.0]])\nactual = binary_focal_loss(labels, probabilities, alpha=0.2, gamma=0.0, reduction='none')\npt = np.clip(np.where(labels == 1, probabilities, 1 - probabilities), 1e-15, 1 - 1e-15)\nalpha_t = np.where(labels == 1, 0.2, 0.8)\nexpected = -alpha_t * np.log(pt)\nassert actual.shape == labels.shape\nassert np.allclose(actual, expected)\nassert np.isfinite(actual).all()"
+  },
+  {
+    "name": "rejects invalid values and does not mutate arrays",
+    "input": "mismatched shapes, invalid labels/probabilities, and invalid hyperparameters",
+    "test": "import numpy as np\nlabels = np.array([1, 0])\nprobabilities = np.array([0.2, 0.7])\nbefore = probabilities.copy()\n_ = binary_focal_loss(labels, probabilities)\nassert np.array_equal(probabilities, before)\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nmust_raise(lambda: binary_focal_loss([], []))\nmust_raise(lambda: binary_focal_loss([1], [0.5, 0.5]))\nmust_raise(lambda: binary_focal_loss([2], [0.5]))\nmust_raise(lambda: binary_focal_loss([1], [-0.1]))\nmust_raise(lambda: binary_focal_loss([1], [float('nan')]))\nmust_raise(lambda: binary_focal_loss([1], [0.5], alpha=1.1))\nmust_raise(lambda: binary_focal_loss([1], [0.5], gamma=-1))\nmust_raise(lambda: binary_focal_loss([1], [0.5], reduction='median'))"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "returns the longest recent suffix within the budget",
+    "input": "three messages totaling two, one, and two tokens",
+    "test": "history = ConversationHistory()\nhistory.add('user', 'one two')\nhistory.add('assistant', 'three')\nhistory.add('user', 'four five')\nassert history.get_recent(3) == [('assistant', 'three'), ('user', 'four five')]\nassert history.get_recent(2) == [('user', 'four five')]\nassert history.get_recent(1) == []"
+  },
+  {
+    "name": "keeps zero-token whitespace messages in a valid suffix",
+    "input": "whitespace-only content after a budget-exceeding message",
+    "test": "history = ConversationHistory()\nhistory.add('user', 'one')\nhistory.add('assistant', '   \\t ')\nassert history.get_recent(0) == [('assistant', '   \\t ')]\nassert history.get_recent(10) == [('user', 'one'), ('assistant', '   \\t ')]"
+  },
+  {
+    "name": "validates roles contents and budgets",
+    "input": "empty roles, non-string content, and invalid budgets",
+    "test": "history = ConversationHistory()\nfor call in (lambda: history.add('', 'ok'), lambda: history.add('user', 3), lambda: history.get_recent(-1), lambda: history.get_recent(True)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]

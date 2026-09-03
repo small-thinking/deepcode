@@ -1,0 +1,17 @@
+[
+  {
+    "name": "inherits group grants and strengthens them on descendants",
+    "input": "a root group grant and a child user grant",
+    "test": "permissions = PagePermissions()\npermissions.add_page('root')\npermissions.add_page('child', 'root')\npermissions.add_page('leaf', 'child')\npermissions.add_user_to_group('ben', 'readers')\npermissions.grant_group('root', 'readers', 'view')\npermissions.grant_user('child', 'ada', 'edit')\nassert permissions.getUserPermissionForPage('leaf', 'ben') == 'view'\nassert permissions.getUserPermissionForPage('leaf', 'ada') == 'edit'"
+  },
+  {
+    "name": "combines groups and returns sorted users meeting a threshold",
+    "input": "users with view, comment, and edit grants",
+    "test": "permissions = PagePermissions()\npermissions.add_page('page')\npermissions.add_user_to_group('zoe', 'writers')\npermissions.add_user_to_group('ada', 'writers')\npermissions.grant_group('page', 'writers', 'comment')\npermissions.grant_user('page', 'ben', 'view')\npermissions.grant_user('page', 'ada', 'edit')\nassert permissions.getAllUsersWithPermissionForPage('page') == ['ada', 'ben', 'zoe']\nassert permissions.getAllUsersWithPermissionForPage('page', 'comment') == ['ada', 'zoe']"
+  },
+  {
+    "name": "returns none for an ungranted user and rejects invalid pages",
+    "input": "unknown users, parent pages, and roles",
+    "test": "permissions = PagePermissions()\npermissions.add_page('root')\nassert permissions.getUserPermissionForPage('root', 'nobody') == 'none'\nfor call in (lambda: permissions.add_page('child', 'missing'), lambda: permissions.grant_user('missing', 'ada', 'view'), lambda: permissions.grant_user('root', 'ada', 'owner')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+  }
+]
