@@ -1,0 +1,26 @@
+{
+  "id": "386",
+  "slug": "minimum-listing-count-capacity",
+  "title": "Choose Listings with Minimum Count Then Capacity",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["subsets", "dynamic-programming", "optimization", "tie-breaking", "marketplace"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `select_group_listings(listings, group_size, neighborhood) -> list[str]`. Each listing is a mapping with a unique string `id`, a `neighborhood`, and a nonnegative integer `capacity`. Consider only listings whose neighborhood equals the requested `neighborhood`. Return the IDs of a subset whose total capacity is at least `group_size`.\n\nRank feasible subsets by `(listing_count, total_capacity, original_index_tuple)`: first minimize the number of selected listings, then minimize their combined capacity, then use original input positions only as a deterministic final tie-breaker. Return the selected IDs in original input order. Return `[]` when no eligible subset is feasible. Assume all inputs satisfy the stated shape. Do not mutate the input. This is a practice reconstruction of a reported Airbnb prompt; the tie-break makes its stated two-level objective executable.",
+  "starter_code": "def select_group_listings(listings, group_size, neighborhood):\n    # Return the highest-ranked feasible listing IDs in input order.\n    pass\n",
+  "example": {
+    "input": "select_group_listings([{'id': 'a', 'neighborhood': 'Mission', 'capacity': 6}, {'id': 'b', 'neighborhood': 'Mission', 'capacity': 4}, {'id': 'c', 'neighborhood': 'Mission', 'capacity': 11}], 10, 'Mission')",
+    "output": "['c']",
+    "reasoning": "One listing is preferred to two even though its total capacity is higher; listing count is the primary objective."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-03"
+}

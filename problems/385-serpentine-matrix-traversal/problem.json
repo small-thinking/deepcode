@@ -1,0 +1,26 @@
+{
+  "id": "385",
+  "slug": "serpentine-matrix-traversal",
+  "title": "Serpentine Matrix Traversal (Alternating Rows)",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["matrix", "traversal", "simulation", "boundary-conditions"],
+  "companies": ["Airbnb"],
+  "prompt": "Implement `zigzag_matrix_rows(matrix) -> list[object]`. `matrix` is a rectangular list of rows. Visit every cell row by row: visit row 0 from left to right, row 1 from right to left, row 2 from left to right, and so on. Return the visited values as one flat list. This is an alternating-row (serpentine) traversal, not the diagonal zigzag traversal sometimes used in matrix problems.\n\nAssume that the input matrix is rectangular. Do not print values or mutate the input. Aim for O(rows * cols) time and O(rows * cols) space for the returned list. This is a practice reconstruction of a reported Airbnb coding prompt; it supplies a return value so the interview idea can be run and verified.",
+  "starter_code": "def zigzag_matrix_rows(matrix):\n    # Return the alternating-row traversal as a flat list.\n    pass\n",
+  "example": {
+    "input": "zigzag_matrix_rows([[1, 2, 3], [4, 5, 6], [7, 8, 9]])",
+    "output": "[1, 2, 3, 6, 5, 4, 7, 8, 9]",
+    "reasoning": "Rows are visited in alternating directions: left-to-right, right-to-left, then left-to-right."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-03"
+}
