@@ -46,10 +46,18 @@
   },
   "interactive_demos": [
     {
+      "schema_version": 1,
+      "id": "cover-photo-decision-loop",
+      "kind": "standalone_html",
       "path": "assets/cover-photo-decision-loop.html",
       "title": "Explore the cover photo decision and evaluation loop",
       "section": "reference_answer",
-      "height": 760
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 760
+      }
     }
   ],
   "created_at": "2026-09-02"

@@ -8,6 +8,19 @@ from deepcode.problem_store import ProblemStore
 
 
 class ProblemStoreTest(unittest.TestCase):
+    def test_interactive_demo_v1_schema_is_strict_and_versioned(self):
+        schema = json.loads(Path("schemas/interactive-demos-v1.schema.json").read_text(encoding="utf-8"))
+        item = schema["items"]
+        presentation = item["properties"]["presentation"]
+
+        self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
+        self.assertFalse(item["additionalProperties"])
+        self.assertEqual(item["properties"]["schema_version"]["const"], 1)
+        self.assertEqual(item["properties"]["kind"]["const"], "standalone_html")
+        self.assertEqual(presentation["properties"]["theme"]["enum"], ["sync", "light", "dark"])
+        self.assertEqual(presentation["properties"]["height"]["enum"], ["content", "fixed"])
+        self.assertFalse(presentation["additionalProperties"])
+
     def test_loads_problem_folders_and_sorts_by_numeric_id(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -240,10 +253,18 @@ class ProblemStoreTest(unittest.TestCase):
                     "response": {"placeholder": "Start.", "reference_answer": "## Reference"},
                     "interactive_demos": [
                         {
+                            "schema_version": 1,
+                            "id": "walkthrough",
+                            "kind": "standalone_html",
                             "path": "assets/walkthrough.html",
                             "title": "Explore the design",
                             "section": "reference_answer",
-                            "height": 720,
+                            "presentation": {
+                                "theme": "sync",
+                                "fallback_theme": "light",
+                                "height": "content",
+                                "fallback_height": 720,
+                            },
                         }
                     ],
                     "evaluation": {"type": "system_design"},
@@ -257,24 +278,64 @@ class ProblemStoreTest(unittest.TestCase):
             problem = ProblemStore(root).get_problem("interactive-system-design")
 
             self.assertEqual(problem["interactive_demos"][0]["path"], "assets/walkthrough.html")
-            self.assertEqual(problem["interactive_demos"][0]["height"], 720)
+            self.assertEqual(problem["interactive_demos"][0]["schema_version"], 1)
+            self.assertEqual(problem["interactive_demos"][0]["presentation"]["theme"], "sync")
+            self.assertEqual(problem["interactive_demos"][0]["presentation"]["fallback_height"], 720)
 
     def test_rejects_invalid_interactive_demo_contracts(self):
+        base_demo = {
+            "schema_version": 1,
+            "id": "walkthrough",
+            "kind": "standalone_html",
+            "path": "assets/walkthrough.html",
+            "title": "Demo",
+            "section": "reference_answer",
+            "presentation": {
+                "theme": "sync",
+                "fallback_theme": "light",
+                "height": "content",
+                "fallback_height": 680,
+            },
+        }
         invalid_cases = [
-            ("../walkthrough.html", "under assets/", "system_design", "reference_answer", 680),
-            ("/tmp/walkthrough.html", "under assets/", "system_design", "reference_answer", 680),
-            ("https://example.com/demo.html", "under assets/", "system_design", "reference_answer", 680),
-            ("assets/missing.html", "not found", "system_design", "reference_answer", 680),
-            ("assets/walkthrough.svg", "must use one of", "system_design", "reference_answer", 680),
-            ("assets/walkthrough.html", "must be reference_answer", "system_design", "prompt", 680),
-            ("assets/walkthrough.html", "must be between", "system_design", "reference_answer", 1200),
-            ("assets/walkthrough.html", "only supported", "ml_coding", "reference_answer", 680),
+            ({"path": "../walkthrough.html"}, "under assets/", "system_design"),
+            ({"path": "/tmp/walkthrough.html"}, "under assets/", "system_design"),
+            ({"path": "https://example.com/demo.html"}, "under assets/", "system_design"),
+            ({"path": "assets/missing.html"}, "not found", "system_design"),
+            ({"path": "assets/walkthrough.svg"}, "must use one of", "system_design"),
+            ({"section": "prompt"}, "must be reference_answer", "system_design"),
+            ({"schema_version": 2}, "schema_version.*must be 1", "system_design"),
+            ({"id": "Bad ID"}, "lowercase kebab-case", "system_design"),
+            ({"kind": "module"}, "kind.*must be one of", "system_design"),
+            (
+                {"presentation": {**base_demo["presentation"], "theme": "sepia"}},
+                "presentation.theme.*must be one of",
+                "system_design",
+            ),
+            (
+                {"presentation": {**base_demo["presentation"], "fallback_theme": "sepia"}},
+                "presentation.fallback_theme.*must be one of",
+                "system_design",
+            ),
+            (
+                {"presentation": {**base_demo["presentation"], "height": "viewport"}},
+                "presentation.height.*must be one of",
+                "system_design",
+            ),
+            (
+                {"presentation": {**base_demo["presentation"], "fallback_height": 1200}},
+                "fallback_height.*must be between",
+                "system_design",
+            ),
+            ({}, "only supported", "ml_coding"),
         ]
 
-        for path, error, evaluation_type, section, height in invalid_cases:
-            with self.subTest(path=path, error=error), tempfile.TemporaryDirectory() as tmp:
+        for overrides, error, evaluation_type in invalid_cases:
+            with self.subTest(overrides=overrides, error=error), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
                 system_design = evaluation_type == "system_design"
+                demo = json.loads(json.dumps(base_demo))
+                demo.update(overrides)
                 problem = {
                     "id": "143",
                     "slug": "invalid-demo",
@@ -282,14 +343,7 @@ class ProblemStoreTest(unittest.TestCase):
                     "category": "System Design" if system_design else "Machine Learning",
                     "difficulty": "medium",
                     "prompt": "Design safely.",
-                    "interactive_demos": [
-                        {
-                            "path": path,
-                            "title": "Demo",
-                            "section": section,
-                            "height": height,
-                        }
-                    ],
+                    "interactive_demos": [demo],
                     "evaluation": {"type": evaluation_type},
                 }
                 if system_design:
@@ -305,6 +359,102 @@ class ProblemStoreTest(unittest.TestCase):
 
                 with self.assertRaisesRegex(ValueError, error):
                     ProblemStore(root).get_problem("invalid-demo")
+
+    def test_rejects_missing_unknown_and_duplicate_interactive_demo_fields(self):
+        cases = [
+            (
+                [
+                    {
+                        "schema_version": 1,
+                        "id": "walkthrough",
+                        "kind": "standalone_html",
+                        "path": "assets/walkthrough.html",
+                        "title": "Demo",
+                        "section": "reference_answer",
+                    }
+                ],
+                "is missing: presentation",
+            ),
+            (
+                [
+                    {
+                        "schema_version": 1,
+                        "id": "walkthrough",
+                        "kind": "standalone_html",
+                        "path": "assets/walkthrough.html",
+                        "title": "Demo",
+                        "section": "reference_answer",
+                        "presentation": {
+                            "theme": "light",
+                            "fallback_theme": "light",
+                            "height": "fixed",
+                            "fallback_height": 680,
+                            "scroll": "nested",
+                        },
+                    }
+                ],
+                "presentation.*unsupported fields: scroll",
+            ),
+            (
+                [
+                    {
+                        "schema_version": 1,
+                        "id": "walkthrough",
+                        "kind": "standalone_html",
+                        "path": "assets/walkthrough.html",
+                        "title": "Demo",
+                        "section": "reference_answer",
+                        "presentation": {
+                            "theme": "sync",
+                            "fallback_theme": "light",
+                            "height": "content",
+                            "fallback_height": 680,
+                        },
+                    },
+                    {
+                        "schema_version": 1,
+                        "id": "walkthrough",
+                        "kind": "standalone_html",
+                        "path": "assets/walkthrough.html",
+                        "title": "Duplicate demo",
+                        "section": "reference_answer",
+                        "presentation": {
+                            "theme": "sync",
+                            "fallback_theme": "light",
+                            "height": "content",
+                            "fallback_height": 680,
+                        },
+                    },
+                ],
+                "id.*must be unique",
+            ),
+        ]
+
+        for demos, error in cases:
+            with self.subTest(error=error), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                self._write_problem(
+                    root,
+                    "invalid-demo-shape",
+                    {
+                        "id": "144",
+                        "slug": "invalid-demo-shape",
+                        "title": "Invalid Demo Shape",
+                        "category": "System Design",
+                        "difficulty": "medium",
+                        "prompt": "Design safely.",
+                        "response": {"placeholder": "Start.", "reference_answer": "## Reference"},
+                        "interactive_demos": demos,
+                        "evaluation": {"type": "system_design"},
+                    },
+                    [],
+                )
+                asset_dir = root / "invalid-demo-shape" / "assets"
+                asset_dir.mkdir()
+                (asset_dir / "walkthrough.html").write_text("<!doctype html><title>Demo</title>", encoding="utf-8")
+
+                with self.assertRaisesRegex(ValueError, error):
+                    ProblemStore(root).get_problem("invalid-demo-shape")
 
     def test_includes_companies_in_summaries_details_and_search(self):
         with tempfile.TemporaryDirectory() as tmp:

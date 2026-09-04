@@ -1,47 +1,49 @@
-# System design reference tabs QA
+# Interactive demo schema and theme bridge QA
 
 ## Evidence
 
-- **Source visual truth path:** current-turn `Browser Comment 1` attachment (the client did not provide a filesystem path), showing the 1099 × 988 dark-theme split Draft/Reference workspace.
-- **Implementation screenshots:** `/private/tmp/deepcode-system-design-draft-tab-final.png`, `/private/tmp/deepcode-system-design-reference-tab-top-autosized.png`, and `/private/tmp/deepcode-system-design-reference-tab-bottom-autosized.png`.
+- **Source visual truth path:** current-turn `Browser Comment 1` attachment (the client did not provide a filesystem path), showing the 1099 × 988 dark-theme System Design workspace.
+- **Implementation evidence:** current-turn Codex in-app browser captures in Dark mode plus computed-style reads in both Dark and Light modes.
 - **Route:** `http://127.0.0.1:8848/#/problems/cover-photo-conversion-evaluation` in the Codex in-app browser.
-- **Viewport and density:** 1099 × 988 CSS px at device pixel ratio 2. Browser captures were normalized to 1099 × 988 pixels, matching the annotated viewport size.
-- **State:** dark theme; Draft tab, Reference tab at canvas top, and Reference tab at answer bottom.
+- **State:** Reference tab with a schema-v1 `sync` / `content` demo; original Dark mode restored after checking both themes.
 
 ## Comparison history
 
-1. **Source finding — P1:** Draft Response and Reference Answer shared the right panel vertically, so neither received the full workspace and the large walkthrough appeared clipped.
-2. **First implementation — P1:** Separate full-height tabs fixed the workspace competition, but the 760 px iframe still had its own 1151 px document and therefore retained a nested scrollbar.
-3. **Fix:** Replaced the internal Draft/Reference splitter with accessible tabs, made Reference the only vertical scroll container, and added a source-validated `postMessage` height handshake so the iframe expands to the walkthrough's rendered canvas height.
-4. **Post-fix evidence:** The iframe reports and renders at 1151 px, its document client height and scroll height both equal 1151 px, its body overflow is hidden, and the Reference panel scrolls 1421 px from the walkthrough header through the final Guardrails paragraph. No actionable P0/P1/P2 difference remains.
+1. **Source finding — P1:** The visualization architecture needed a reusable contract instead of per-question assumptions, especially for theme ownership and large-canvas sizing.
+2. **Contract:** Added a strict v1 schema with a stable demo ID, local standalone resource, `sync | light | dark` theme policy, pale `fallback_theme`, and `content | fixed` height policy.
+3. **Theme bridge:** A sandbox-safe `postMessage` handshake sends the active theme plus resolved semantic DeepCode color tokens. The iframe accepts the message only from `window.parent` and retains a self-contained light default.
+4. **Sizing bridge:** Only a schema-declared `content` demo can update its iframe height. The parent still source-matches the iframe and clamps the request before applying it.
+5. **Post-fix evidence:** Dark and Light mode both produced exact host/demo background and surface token matches. The content iframe expanded from its 760 px fallback to 1151 px while the 741 px Reference viewport retained one outer scroll over 2162 px of content.
 
 ## Surface review
 
 | Surface | Result | Evidence |
 | --- | --- | --- |
-| Fonts and typography | Pass | Existing DeepCode font families, weights, uppercase labels, and body line heights are unchanged; tab labels reuse the established tab component. |
-| Spacing and layout rhythm | Pass | Each tab owns the complete right-panel content area; header, tab strip, and 16 px workspace padding retain the existing panel rhythm. |
-| Colors and visual tokens | Pass | Tabs, borders, panels, focus states, and walkthrough continue to use the existing dark-theme tokens. |
+| Fonts and typography | Pass | Existing DeepCode font families, weights, uppercase labels, and body line heights are unchanged. |
+| Spacing and layout rhythm | Pass | The demo remains a full-width canvas inside Reference and keeps the established panel rhythm. |
+| Colors and visual tokens | Pass | Dark host/demo matched `#17191f` background and `#20232b` surface; Light matched `#eef1f5` and `#f7f8fb`. Accent, text, border, status, and soft colors use the same semantic token payload. |
 | Image and asset fidelity | Pass | No source imagery was replaced or added; the existing interactive walkthrough is preserved without scaling or cropping. |
-| Copy and content | Pass | The controls are now named `Draft response` and `Reference answer`; the neutral panel subtitle explains the draft-to-compare workflow. |
-| Interaction and accessibility | Pass | Tabs expose `tablist`/`tab`/`tabpanel`, selected state, roving tabindex, ArrowLeft/ArrowRight/Home/End navigation, and draft persistence across switching. |
-| Scrolling and responsiveness | Pass | Desktop Reference uses one visible vertical scrollbar; the iframe has no nested scroll. Mobile keeps natural document scrolling and full-height tab content. |
+| Copy and content | Pass | This change does not alter the question's teaching sequence or reference answer; it only makes the existing walkthrough the first schema consumer. |
+| Interaction and accessibility | Pass | The existing controls remain available inside the titled sandbox; theme changes do not reset walkthrough state. |
+| Scrolling and responsiveness | Pass | Desktop Reference uses one vertical scrollbar; the iframe grows to its reported canvas height and has no nested scroll. |
+| Fallback behavior | Pass | The demo's inline palette starts in the schema-declared pale Light style if no parent theme message arrives. |
 
 ## Browser checks
 
-- Switched both tabs with pointer input and ArrowRight keyboard input.
-- Confirmed a draft survives a tab round trip, then restored the original empty draft state.
-- Confirmed the walkthrough remains interactive and lazy-loads only after opening Reference.
-- Measured Reference at 741 px viewport height and 2162 px total content height after auto-sizing.
-- Scrolled the Reference panel from `scrollTop = 0` to its maximum and visually confirmed the final answer content.
+- Reloaded in Draft and confirmed the iframe had schema data but no `src`; opening Reference lazy-loaded it.
+- Confirmed `data-demo-theme=sync`, `fallbackTheme=light`, and `heightMode=content` reached the rendered iframe.
+- Measured Reference at 741 px viewport height and 2162 px total content height; the iframe expanded to 1151 px.
+- In Dark mode, host and iframe both resolved background `#17191f` and surface `#20232b`.
+- In Light mode, host and iframe both resolved background `#eef1f5` and surface `#f7f8fb`.
+- Restored Dark mode and `scrollTop = 0` after verification.
 - Checked browser console errors: none.
 
 ## Focused comparison
 
-The full-view captures were sufficient for the left problem pane and overall two-column composition. Focused top and bottom Reference captures were also reviewed because the core requirement depends on the walkthrough boundary and the final answer remaining reachable within the same scroll container.
+The full-view Dark capture was reviewed for the overall two-column composition and the walkthrough header/canvas boundary. Computed styles were used for the theme check because they verify exact token equality more reliably than visual comparison alone.
 
 ## Follow-up polish
 
-- No P0/P1/P2 findings remain. A future P3 enhancement could remember the selected System Design tab per problem, but defaulting to Draft is safer for interview practice.
+- No P0/P1/P2 findings remain. The next design iteration can change this question's teaching content without changing the host integration contract.
 
 final result: passed

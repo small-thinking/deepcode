@@ -10,23 +10,47 @@
     <title>Cover photo decision and evaluation loop</title>
     <style>
       :root {
+        color-scheme: light;
+        --bg: #eef1f5;
+        --panel: #f7f8fb;
+        --panel-2: #e8ebf1;
+        --panel-inset: #f6f7fa;
+        --line: #cdd3df;
+        --line-strong: #9da7b8;
+        --text: #1f2530;
+        --body: #2f3541;
+        --muted: #667082;
+        --blue: #2563eb;
+        --blue-soft: rgba(37, 99, 235, 0.12);
+        --blue-text: #f7f8fb;
+        --green: #16823a;
+        --green-soft: rgba(22, 130, 58, 0.14);
+        --amber: #b7791f;
+        --amber-soft: rgba(183, 121, 31, 0.14);
+        --red: #dc2626;
+        --red-soft: rgba(220, 38, 38, 0.12);
+      }
+
+      :root[data-theme="dark"] {
         color-scheme: dark;
-        --bg: #14171d;
-        --panel: #1d222b;
-        --panel-2: #242a34;
-        --line: #394150;
-        --line-strong: #647084;
-        --text: #f2f5f8;
-        --body: #c9d0da;
-        --muted: #98a3b3;
-        --blue: #64a9ff;
-        --blue-soft: rgba(100, 169, 255, 0.14);
-        --green: #4bd17c;
-        --green-soft: rgba(75, 209, 124, 0.12);
-        --amber: #f2be4c;
-        --amber-soft: rgba(242, 190, 76, 0.12);
-        --red: #ff7373;
-        --red-soft: rgba(255, 115, 115, 0.12);
+        --bg: #17191f;
+        --panel: #20232b;
+        --panel-2: #282c35;
+        --panel-inset: #181b22;
+        --line: #383d49;
+        --line-strong: #687080;
+        --text: #eef1f5;
+        --body: #d4d7df;
+        --muted: #aeb4c0;
+        --blue: #5aa7ff;
+        --blue-soft: rgba(90, 167, 255, 0.16);
+        --blue-text: #17191f;
+        --green: #22c55e;
+        --green-soft: rgba(34, 197, 94, 0.16);
+        --amber: #f5b301;
+        --amber-soft: rgba(245, 179, 1, 0.16);
+        --red: #ef4444;
+        --red-soft: rgba(239, 68, 68, 0.16);
       }
 
       * {
@@ -129,7 +153,7 @@
 
       .control.primary {
         border-color: var(--blue);
-        color: #07121e;
+        color: var(--blue-text);
         background: var(--blue);
       }
 
@@ -180,12 +204,12 @@
         color: var(--text);
         border-color: var(--blue);
         background: var(--blue-soft);
-        box-shadow: inset 0 0 0 1px rgba(100, 169, 255, 0.15);
+        box-shadow: inset 0 0 0 1px var(--blue-soft);
       }
 
       .stage-button.is-complete {
         color: var(--green);
-        border-color: rgba(75, 209, 124, 0.42);
+        border-color: var(--green);
       }
 
       .stage-number {
@@ -268,7 +292,7 @@
 
       .candidate.is-selected {
         border-color: var(--green);
-        box-shadow: inset 0 0 0 1px rgba(75, 209, 124, 0.18);
+        box-shadow: inset 0 0 0 1px var(--green-soft);
         transform: translateY(-2px);
       }
 
@@ -322,7 +346,7 @@
         padding: 10px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: #181c23;
+        background: var(--panel-inset);
         opacity: 0.45;
         transition: border-color 180ms ease, opacity 180ms ease, transform 180ms ease;
       }
@@ -334,7 +358,7 @@
       }
 
       .signal-card.is-complete {
-        border-color: rgba(75, 209, 124, 0.42);
+        border-color: var(--green);
         opacity: 0.78;
       }
 
@@ -508,7 +532,7 @@
         padding: 10px;
         border: 1px solid var(--line);
         border-radius: 7px;
-        background: #181c23;
+        background: var(--panel-inset);
       }
 
       .teaching-block span {
@@ -785,6 +809,26 @@
         const lessonFooter = root.querySelector("#lesson-footer");
         const demo = root.querySelector(".demo");
         const choices = [...root.querySelectorAll("[data-unit]")];
+        const themeTokenProperties = Object.freeze({
+          background: "--bg",
+          surface: "--panel",
+          surfaceRaised: "--panel-2",
+          surfaceInset: "--panel-inset",
+          border: "--line",
+          borderStrong: "--line-strong",
+          text: "--text",
+          body: "--body",
+          muted: "--muted",
+          accent: "--blue",
+          accentSoft: "--blue-soft",
+          accentText: "--blue-text",
+          positive: "--green",
+          positiveSoft: "--green-soft",
+          warning: "--amber",
+          warningSoft: "--amber-soft",
+          danger: "--red",
+          dangerSoft: "--red-soft",
+        });
 
         const status = [
           "Define one decision before choosing a model",
@@ -803,6 +847,20 @@
 
         let currentStep = 0;
         let playTimer = null;
+
+        function applyTheme(message) {
+          const theme = message.theme === "dark" ? "dark" : "light";
+          root.documentElement.dataset.theme = theme;
+          Object.entries(themeTokenProperties).forEach(([name, property]) => {
+            const value = message.tokens?.[name];
+            if (typeof value === "string" && value.trim()) {
+              root.documentElement.style.setProperty(property, value.trim());
+            } else {
+              root.documentElement.style.removeProperty(property);
+            }
+          });
+          window.requestAnimationFrame(reportHeight);
+        }
 
         function stopPlayback() {
           if (playTimer !== null) window.clearInterval(playTimer);
@@ -861,7 +919,7 @@
 
         function reportHeight() {
           const height = Math.ceil(demo.getBoundingClientRect().height);
-          window.parent.postMessage({ type: "deepcode:interactive-demo-height", height }, "*");
+          window.parent.postMessage({ type: "deepcode:interactive-demo-height", version: 1, height }, "*");
         }
 
         stageButtons.forEach((button) => {
@@ -887,7 +945,18 @@
         if (window.ResizeObserver) {
           new ResizeObserver(reportHeight).observe(demo);
         }
+        window.addEventListener("message", (event) => {
+          if (
+            event.source !== window.parent ||
+            event.data?.type !== "deepcode:interactive-demo-theme" ||
+            event.data?.version !== 1
+          ) {
+            return;
+          }
+          applyTheme(event.data);
+        });
         window.addEventListener("load", reportHeight);
+        window.parent.postMessage({ type: "deepcode:interactive-demo-ready", version: 1 }, "*");
 
         setStep(0, false);
         updateAllocation();
