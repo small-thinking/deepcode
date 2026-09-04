@@ -104,6 +104,7 @@ const state = {
   theme: initialTheme(),
   layout: {
     problemRatio: 0.46,
+    problemPaneCollapsed: false,
     resultsRatio: 0.32,
     resultsCollapsed: false,
     systemDesignActiveTab: "draft",
@@ -634,6 +635,11 @@ function handlePaneResizeKeydown(event) {
   applyPaneSizes();
 }
 
+function toggleProblemPaneCollapsed() {
+  state.layout.problemPaneCollapsed = !state.layout.problemPaneCollapsed;
+  render();
+}
+
 function toggleResultsPanel() {
   state.layout.resultsCollapsed = !state.layout.resultsCollapsed;
   render();
@@ -694,6 +700,7 @@ async function loadProblem(identifier) {
   state.customTests = [];
   state.dataLink = null;
   state.dataLinkTarget = "";
+  state.layout.problemPaneCollapsed = false;
   state.layout.systemDesignActiveTab = "draft";
   state.loading = true;
   render();
@@ -2865,15 +2872,17 @@ function renderDetail() {
           ${themeToggleButton()}
         </div>
       </header>
-      <section class="detail-layout ${systemDesign ? "system-design-layout" : ""}" ${paneLayoutStyle()}>
-        <article class="detail-panel">
+      <section class="detail-layout ${systemDesign ? "system-design-layout" : ""} ${
+        state.layout.problemPaneCollapsed ? "problem-pane-collapsed" : ""
+      }" ${paneLayoutStyle()}>
+        <article class="detail-panel" id="problem-detail-panel">
           <div class="panel-header">
             <div class="panel-title">
               <h2>${escapeHtml(problem.title)}</h2>
               <p>#${escapeHtml(displayId)} / ${escapeHtml(problem.category)} / ${escapeHtml(problem.difficulty)}</p>
               ${renderProblemProgress(problem)}
             </div>
-            <div class="tabs">
+            <div class="tabs panel-header-tabs">
               ${tabButton("description", "Problem")}
               ${systemDesign ? "" : `${tabButton("tests", "Tests")}${tabButton("environment", "Env")}`}
             </div>
@@ -3139,32 +3148,37 @@ function renderSystemDesignWorkspace(problem) {
   const draftActive = activeTab === "draft";
   return `
     <section class="editor-panel system-design-panel">
-      <div class="panel-header">
-        <div class="system-design-heading">
-          <h3>Your design</h3>
-          <p>Draft your response, then compare it with the walkthrough.</p>
+      <div class="system-design-tabs">
+        <div class="system-design-tab-list" role="tablist" aria-label="System design workspace">
+          <button
+            class="tab system-design-tab ${draftActive ? "active" : ""}"
+            id="system-design-draft-tab"
+            data-system-design-tab="draft"
+            role="tab"
+            aria-selected="${draftActive}"
+            aria-controls="system-design-draft-panel"
+            tabindex="${draftActive ? "0" : "-1"}"
+          >Draft response</button>
+          <button
+            class="tab system-design-tab ${draftActive ? "" : "active"}"
+            id="system-design-reference-tab"
+            data-system-design-tab="reference"
+            role="tab"
+            aria-selected="${!draftActive}"
+            aria-controls="system-design-reference-panel"
+            tabindex="${draftActive ? "-1" : "0"}"
+          >Reference answer</button>
         </div>
-        <button class="ghost-button system-design-reset" id="reset-system-design-answer" ${draftActive ? "" : "hidden"}>Reset</button>
-      </div>
-      <div class="system-design-tabs" role="tablist" aria-label="System design workspace">
-        <button
-          class="tab system-design-tab ${draftActive ? "active" : ""}"
-          id="system-design-draft-tab"
-          data-system-design-tab="draft"
-          role="tab"
-          aria-selected="${draftActive}"
-          aria-controls="system-design-draft-panel"
-          tabindex="${draftActive ? "0" : "-1"}"
-        >Draft response</button>
-        <button
-          class="tab system-design-tab ${draftActive ? "" : "active"}"
-          id="system-design-reference-tab"
-          data-system-design-tab="reference"
-          role="tab"
-          aria-selected="${!draftActive}"
-          aria-controls="system-design-reference-panel"
-          tabindex="${draftActive ? "-1" : "0"}"
-        >Reference answer</button>
+        <div class="system-design-toolbar-actions">
+          <button
+            class="ghost-button pane-focus-toggle"
+            id="toggle-problem-pane"
+            type="button"
+            aria-controls="problem-detail-panel"
+            aria-pressed="${state.layout.problemPaneCollapsed}"
+          >${state.layout.problemPaneCollapsed ? "Show problem" : "Hide problem"}</button>
+          <button class="ghost-button system-design-reset" id="reset-system-design-answer" ${draftActive ? "" : "hidden"}>Reset</button>
+        </div>
       </div>
       <div class="system-design-workspace">
         <section
@@ -3771,6 +3785,7 @@ function bindEvents() {
   document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
   document.querySelector("#toggle-results")?.addEventListener("click", toggleResultsPanel);
+  document.querySelector("#toggle-problem-pane")?.addEventListener("click", toggleProblemPaneCollapsed);
   document.querySelectorAll("[data-run-test-index]").forEach((button) => {
     button.addEventListener("click", () => runTests(Number(button.dataset.runTestIndex)));
   });
