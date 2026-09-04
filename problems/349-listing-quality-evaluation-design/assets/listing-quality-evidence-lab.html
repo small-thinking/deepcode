@@ -1,0 +1,1684 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Listing quality evidence lab</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f5;
+        --panel: #f8f9fb;
+        --panel-raised: #e7ebf1;
+        --panel-inset: #f3f5f8;
+        --line: #cbd2dd;
+        --line-strong: #939eae;
+        --text: #202631;
+        --body: #343b48;
+        --muted: #657083;
+        --accent: #2563eb;
+        --accent-soft: rgba(37, 99, 235, 0.12);
+        --accent-text: #ffffff;
+        --positive: #16823a;
+        --positive-soft: rgba(22, 130, 58, 0.13);
+        --warning: #ad701a;
+        --warning-soft: rgba(173, 112, 26, 0.14);
+        --danger: #d42f2f;
+        --danger-soft: rgba(212, 47, 47, 0.12);
+      }
+
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #17191f;
+        --panel: #20232b;
+        --panel-raised: #292d36;
+        --panel-inset: #1a1d24;
+        --line: #393e49;
+        --line-strong: #687080;
+        --text: #eef1f5;
+        --body: #d4d7df;
+        --muted: #aeb4c0;
+        --accent: #5aa7ff;
+        --accent-soft: rgba(90, 167, 255, 0.16);
+        --accent-text: #17191f;
+        --positive: #22c55e;
+        --positive-soft: rgba(34, 197, 94, 0.16);
+        --warning: #f5b301;
+        --warning-soft: rgba(245, 179, 1, 0.16);
+        --danger: #ef4444;
+        --danger-soft: rgba(239, 68, 68, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        color: inherit;
+      }
+
+      .demo {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+      }
+
+      .demo-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 5px;
+        font-size: clamp(18px, 3vw, 25px);
+        letter-spacing: -0.025em;
+      }
+
+      .demo-header p {
+        max-width: 760px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .assumption-badge {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        min-height: 29px;
+        padding: 0 9px;
+        border: 1px solid var(--warning);
+        border-radius: 999px;
+        color: var(--warning);
+        background: var(--warning-soft);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .stage-rail {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(105px, 1fr));
+        gap: 7px;
+      }
+
+      .stage-button,
+      .choice,
+      .small-button {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-raised);
+        cursor: pointer;
+      }
+
+      .stage-button {
+        position: relative;
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr);
+        align-items: center;
+        gap: 7px;
+        min-height: 50px;
+        padding: 8px;
+        color: var(--muted);
+        text-align: left;
+      }
+
+      .stage-button::after {
+        position: absolute;
+        right: -8px;
+        width: 8px;
+        height: 1px;
+        background: var(--line-strong);
+        content: "";
+      }
+
+      .stage-button:last-child::after {
+        display: none;
+      }
+
+      .stage-button:hover,
+      .stage-button:focus-visible,
+      .choice:hover,
+      .choice:focus-visible,
+      .small-button:hover,
+      .small-button:focus-visible {
+        color: var(--text);
+        border-color: var(--accent);
+        outline: none;
+      }
+
+      .stage-button[aria-current="step"] {
+        color: var(--text);
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        box-shadow: inset 0 0 0 1px var(--accent-soft);
+      }
+
+      .stage-button.is-complete {
+        color: var(--positive);
+        border-color: var(--positive);
+      }
+
+      .stage-number {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 10px;
+        font-weight: 800;
+      }
+
+      .stage-label {
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1.25;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(270px, 0.75fr);
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .lab,
+      .narration {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: var(--panel);
+      }
+
+      .lab {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: hidden;
+      }
+
+      .lab-header,
+      .narration-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 43px;
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel-raised);
+      }
+
+      .lab-header strong,
+      .narration-header strong {
+        font-size: 12px;
+      }
+
+      .lab-header span,
+      .narration-header span {
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .scene {
+        min-height: 495px;
+        padding: 13px;
+        animation: enter 180ms ease-out;
+      }
+
+      .scene[hidden],
+      .lesson[hidden] {
+        display: none;
+      }
+
+      .scene-title {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .scene-title h2 {
+        margin-bottom: 4px;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+      }
+
+      .scene-title p {
+        max-width: 610px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+
+      .choice-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .choice,
+      .small-button {
+        min-height: 31px;
+        padding: 0 9px;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 750;
+      }
+
+      .choice[aria-pressed="true"],
+      .small-button[aria-pressed="true"] {
+        color: var(--text);
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .component-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .component-card,
+      .metric-card,
+      .feature-card,
+      .audit-card,
+      .policy-card,
+      .loop-box {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel-inset);
+      }
+
+      .component-card {
+        min-height: 139px;
+        padding: 10px;
+      }
+
+      .component-card h3 {
+        margin: 5px 0;
+        font-size: 12px;
+      }
+
+      .component-card p {
+        margin-bottom: 10px;
+        color: var(--muted);
+        font-size: 9px;
+        line-height: 1.4;
+      }
+
+      .component-tag,
+      .mini-label {
+        color: var(--accent);
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .signal-list {
+        display: grid;
+        gap: 4px;
+      }
+
+      .signal {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 7px;
+        color: var(--body);
+        font-size: 9px;
+      }
+
+      .signal span:last-child {
+        color: var(--muted);
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+
+      .formula-box {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
+        gap: 9px;
+        margin-top: 9px;
+      }
+
+      .formula,
+      .warning-box,
+      .insight-box {
+        min-height: 74px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel-raised);
+      }
+
+      .formula code {
+        display: block;
+        margin-top: 8px;
+        overflow-wrap: anywhere;
+        color: var(--text);
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 10px;
+        line-height: 1.45;
+      }
+
+      .warning-box {
+        border-color: var(--warning);
+        background: var(--warning-soft);
+      }
+
+      .warning-box strong,
+      .insight-box strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 10px;
+      }
+
+      .warning-box p,
+      .insight-box p {
+        margin-bottom: 0;
+        color: var(--body);
+        font-size: 9px;
+        line-height: 1.45;
+      }
+
+      .timeline {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        margin: 18px 0 14px;
+      }
+
+      .time-node {
+        position: relative;
+        padding: 27px 6px 0;
+        color: var(--muted);
+        text-align: center;
+        font-size: 8px;
+        line-height: 1.35;
+      }
+
+      .time-node::before {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        z-index: 2;
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--panel);
+        border-radius: 50%;
+        background: var(--line-strong);
+        content: "";
+        transform: translateX(-50%);
+      }
+
+      .time-node::after {
+        position: absolute;
+        top: 13px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--line);
+        content: "";
+      }
+
+      .time-node:first-child::after {
+        left: 50%;
+        width: 50%;
+      }
+
+      .time-node:last-child::after {
+        width: 50%;
+      }
+
+      .time-node.is-cutoff::before {
+        background: var(--accent);
+      }
+
+      .time-node.is-observed::before {
+        background: var(--positive);
+      }
+
+      .time-node.is-delayed::before {
+        background: var(--warning);
+      }
+
+      .time-node strong {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--text);
+        font-size: 9px;
+      }
+
+      .data-shelves {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+
+      .feature-card {
+        padding: 10px;
+      }
+
+      .feature-card.invalid {
+        border-color: var(--danger);
+        background: var(--danger-soft);
+      }
+
+      .feature-card h3 {
+        margin: 5px 0 7px;
+        font-size: 11px;
+      }
+
+      .feature-pill {
+        display: inline-flex;
+        margin: 0 4px 5px 0;
+        padding: 4px 6px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--body);
+        background: var(--panel-raised);
+        font-size: 8px;
+      }
+
+      .horizon-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 10px;
+        margin-top: 9px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel-raised);
+      }
+
+      .horizon-copy strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 10px;
+      }
+
+      .horizon-copy span {
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .validity-score {
+        min-width: 104px;
+        color: var(--positive);
+        text-align: right;
+      }
+
+      .validity-score.invalid {
+        color: var(--danger);
+      }
+
+      .validity-score strong {
+        display: block;
+        font-size: 18px;
+      }
+
+      .validity-score span {
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric-stack {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+        margin-bottom: 10px;
+      }
+
+      .metric-card {
+        min-height: 75px;
+        padding: 9px;
+      }
+
+      .metric-card strong {
+        display: block;
+        margin: 6px 0 3px;
+        font-size: 11px;
+      }
+
+      .metric-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 8px;
+        line-height: 1.35;
+      }
+
+      .audit-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(210px, 0.85fr);
+        gap: 9px;
+      }
+
+      .audit-card {
+        padding: 10px;
+      }
+
+      .audit-card h3 {
+        margin-bottom: 9px;
+        font-size: 11px;
+      }
+
+      .model-row {
+        display: grid;
+        grid-template-columns: minmax(100px, 0.65fr) minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        margin-top: 9px;
+      }
+
+      .model-row span {
+        color: var(--body);
+        font-size: 9px;
+      }
+
+      .bar-track {
+        height: 7px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--line);
+      }
+
+      .bar-fill {
+        display: block;
+        height: 100%;
+        width: var(--width);
+        border-radius: inherit;
+        background: var(--line-strong);
+        transition: width 180ms ease;
+      }
+
+      .model-row.challenger .bar-fill {
+        background: var(--accent);
+      }
+
+      .model-row strong {
+        min-width: 34px;
+        font-size: 10px;
+        text-align: right;
+      }
+
+      .calibration-chart {
+        width: 100%;
+        min-height: 155px;
+      }
+
+      .chart-grid {
+        stroke: var(--line);
+        stroke-width: 1;
+      }
+
+      .chart-reference {
+        stroke: var(--line-strong);
+        stroke-width: 1.5;
+        stroke-dasharray: 4 4;
+      }
+
+      .chart-model {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: d 180ms ease;
+      }
+
+      .chart-point {
+        fill: var(--accent);
+      }
+
+      .chart-label {
+        fill: var(--muted);
+        font-size: 8px;
+      }
+
+      .audit-verdict {
+        margin-top: 9px;
+        padding: 8px;
+        border-radius: 7px;
+        color: var(--positive);
+        background: var(--positive-soft);
+        font-size: 9px;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+
+      .audit-verdict.warning {
+        color: var(--warning);
+        background: var(--warning-soft);
+      }
+
+      .policy-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(260px, 1.2fr);
+        gap: 9px;
+      }
+
+      .policy-card {
+        padding: 11px;
+      }
+
+      .range-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 9px 0 3px;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .range-label strong {
+        color: var(--accent);
+        font-size: 18px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+
+      .confusion-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .confusion-cell {
+        min-height: 69px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-raised);
+      }
+
+      .confusion-cell strong {
+        display: block;
+        margin: 5px 0 2px;
+        font-size: 17px;
+      }
+
+      .confusion-cell span:last-child {
+        color: var(--muted);
+        font-size: 8px;
+      }
+
+      .action-ladder {
+        display: grid;
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .action-step {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--muted);
+        background: var(--panel-raised);
+        font-size: 8px;
+        line-height: 1.35;
+      }
+
+      .action-step strong {
+        color: var(--text);
+        font-size: 9px;
+      }
+
+      .action-step.active {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .action-step.blocked {
+        border-color: var(--danger);
+        background: var(--danger-soft);
+      }
+
+      .loop-board {
+        display: grid;
+        gap: 8px;
+      }
+
+      .loop-row {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 13px;
+      }
+
+      .loop-box {
+        position: relative;
+        min-height: 76px;
+        padding: 9px;
+      }
+
+      .loop-box::after {
+        position: absolute;
+        top: 50%;
+        right: -13px;
+        width: 13px;
+        height: 1px;
+        background: var(--line-strong);
+        content: "";
+      }
+
+      .loop-box:last-child::after {
+        display: none;
+      }
+
+      .loop-box strong {
+        display: block;
+        margin: 5px 0 3px;
+        font-size: 9px;
+      }
+
+      .loop-box p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 8px;
+        line-height: 1.35;
+      }
+
+      .loop-row.online .loop-box {
+        border-color: var(--accent);
+      }
+
+      .experiment-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(235px, 0.8fr);
+        gap: 9px;
+        margin-top: 9px;
+      }
+
+      .experiment-result,
+      .decision-card {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel-inset);
+      }
+
+      .result-row {
+        display: grid;
+        grid-template-columns: minmax(105px, 1fr) auto auto;
+        gap: 8px;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .result-row strong {
+        color: var(--text);
+      }
+
+      .result-row .good {
+        color: var(--positive);
+      }
+
+      .result-row .bad {
+        color: var(--danger);
+      }
+
+      .decision-card {
+        display: grid;
+        align-content: start;
+        gap: 8px;
+      }
+
+      .decision-state {
+        padding: 9px;
+        border-radius: 7px;
+        color: var(--positive);
+        background: var(--positive-soft);
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1.4;
+      }
+
+      .decision-state.rollback {
+        color: var(--danger);
+        background: var(--danger-soft);
+      }
+
+      .narration {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        overflow: hidden;
+      }
+
+      .lesson {
+        padding: 14px;
+        animation: enter 180ms ease-out;
+      }
+
+      .lesson h2 {
+        margin-bottom: 8px;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+      }
+
+      .lesson > p {
+        margin-bottom: 11px;
+        color: var(--body);
+        font-size: 10px;
+        line-height: 1.55;
+      }
+
+      .reasoning-block {
+        margin-top: 8px;
+        padding: 9px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-inset);
+      }
+
+      .reasoning-block span {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--muted);
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .reasoning-block strong,
+      .reasoning-block code {
+        color: var(--text);
+        font-size: 9px;
+        line-height: 1.45;
+      }
+
+      .reasoning-block code {
+        display: block;
+        overflow-wrap: anywhere;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+
+      .narration-footer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+        padding: 10px 12px;
+        border-top: 1px solid var(--line);
+        background: var(--panel-raised);
+      }
+
+      .nav-button {
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--text);
+        background: var(--panel);
+        cursor: pointer;
+        font-size: 9px;
+        font-weight: 800;
+      }
+
+      .nav-button.primary {
+        border-color: var(--accent);
+        color: var(--accent-text);
+        background: var(--accent);
+      }
+
+      .nav-button:hover,
+      .nav-button:focus-visible {
+        border-color: var(--accent);
+        outline: none;
+      }
+
+      .nav-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+
+      @keyframes enter {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 820px) {
+        .stage-rail {
+          grid-template-columns: repeat(5, minmax(96px, 1fr));
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .scene {
+          min-height: 0;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .demo {
+          padding: 11px;
+        }
+
+        .demo-header,
+        .scene-title {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .component-grid,
+        .metric-stack,
+        .formula-box,
+        .audit-layout,
+        .policy-layout,
+        .experiment-panel,
+        .data-shelves {
+          grid-template-columns: 1fr;
+        }
+
+        .loop-row {
+          grid-template-columns: 1fr;
+          gap: 7px;
+        }
+
+        .loop-box::after {
+          display: none;
+        }
+
+        .timeline {
+          grid-template-columns: 1fr;
+          gap: 6px;
+          margin-left: 8px;
+        }
+
+        .time-node {
+          padding: 3px 3px 3px 27px;
+          text-align: left;
+        }
+
+        .time-node::before {
+          top: 7px;
+          left: 6px;
+        }
+
+        .time-node::after {
+          top: 0;
+          left: 11px !important;
+          width: 2px !important;
+          height: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="demo">
+      <header class="demo-header">
+        <div>
+          <span class="eyebrow">ML decision + evaluation lab</span>
+          <h1>Turn “high quality” into trustworthy evidence</h1>
+          <p>Build the construct before the classifier. Explore label timing, slice-aware evaluation, intervention thresholds, and the online learning loop. All windows, volumes, rates, weights, and model results are deterministic teaching assumptions—not reported Airbnb facts.</p>
+        </div>
+        <span class="assumption-badge">Toy assumptions clearly labeled</span>
+      </header>
+
+      <nav class="stage-rail" aria-label="Listing quality design stages">
+        <button class="stage-button" type="button" data-step="0" aria-current="step">
+          <span class="stage-number">1</span><span class="stage-label">Define quality</span>
+        </button>
+        <button class="stage-button" type="button" data-step="1">
+          <span class="stage-number">2</span><span class="stage-label">Build labels</span>
+        </button>
+        <button class="stage-button" type="button" data-step="2">
+          <span class="stage-number">3</span><span class="stage-label">Audit offline</span>
+        </button>
+        <button class="stage-button" type="button" data-step="3">
+          <span class="stage-number">4</span><span class="stage-label">Choose action</span>
+        </button>
+        <button class="stage-button" type="button" data-step="4">
+          <span class="stage-number">5</span><span class="stage-label">Validate the loop</span>
+        </button>
+      </nav>
+
+      <section class="workspace">
+        <section class="lab" aria-label="Interactive listing quality evidence lab">
+          <div class="lab-header">
+            <strong id="lab-title">Quality construct</strong>
+            <span id="lab-status">A latent concept needs observable components</span>
+          </div>
+
+          <section class="scene" data-scene="0">
+            <div class="scene-title">
+              <div>
+                <h2>Do not hide trade-offs inside one label</h2>
+                <p>Candidate outcomes describe different failure modes and arrive under different opportunities. Keep calibrated component heads visible before deriving a product policy.</p>
+              </div>
+              <div class="choice-group" aria-label="Quality formulation">
+                <button class="choice" type="button" data-formulation="multi" aria-pressed="true">Multi-objective heads</button>
+                <button class="choice" type="button" data-formulation="blend" aria-pressed="false">One blended label</button>
+              </div>
+            </div>
+
+            <div class="component-grid">
+              <article class="component-card">
+                <span class="component-tag">Guest experience</span>
+                <h3>Was the stay satisfactory?</h3>
+                <p>Normalize by completed stays and distinguish silence from a positive response.</p>
+                <div class="signal-list">
+                  <div class="signal"><span>Bad review rate</span><span>per stay</span></div>
+                  <div class="signal"><span>NPS or survey</span><span>missing-aware</span></div>
+                </div>
+              </article>
+              <article class="component-card">
+                <span class="component-tag">Transaction reliability</span>
+                <h3>Did the booked stay complete cleanly?</h3>
+                <p>Separate host- and guest-initiated events where attribution is available.</p>
+                <div class="signal-list">
+                  <div class="signal"><span>Cancellation</span><span>reason-coded</span></div>
+                  <div class="signal"><span>Dispute / refund</span><span>delayed</span></div>
+                </div>
+              </article>
+              <article class="component-card">
+                <span class="component-tag">Sustainable value</span>
+                <h3>Did good experience persist?</h3>
+                <p>Longer-horizon behavior is useful, but availability and market demand confound it.</p>
+                <div class="signal-list">
+                  <div class="signal"><span>Guest retention</span><span>contextual</span></div>
+                  <div class="signal"><span>Repeat demand</span><span>opportunity-adjusted</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="formula-box">
+              <div class="formula">
+                <span class="mini-label">Current formulation</span>
+                <code id="quality-formula">predict P(bad review), P(host cancellation), P(dispute/refund) + calibrated long-horizon head</code>
+              </div>
+              <div class="warning-box" id="formulation-warning">
+                <strong>Why keep the vector?</strong>
+                <p>A listing can be strong on guest sentiment yet weak on transaction reliability. Inspect each head and combine only for a named action.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="scene" data-scene="1" hidden>
+            <div class="scene-title">
+              <div>
+                <h2>Freeze features; let outcomes arrive later</h2>
+                <p>Score at decision time. Reviews, support actions, refunds, and future cancellations may become labels—but never inputs for that earlier prediction.</p>
+              </div>
+              <div class="choice-group" aria-label="Label horizon">
+                <button class="choice" type="button" data-horizon="30" aria-pressed="false">30 days</button>
+                <button class="choice" type="button" data-horizon="90" aria-pressed="true">90 days</button>
+                <button class="choice" type="button" data-horizon="180" aria-pressed="false">180 days</button>
+              </div>
+            </div>
+
+            <div class="timeline" aria-label="Point-in-time label timeline">
+              <div class="time-node"><strong>T−30</strong>Listing and host history</div>
+              <div class="time-node is-cutoff"><strong>T0 · cutoff</strong>Score before intervention</div>
+              <div class="time-node is-observed"><strong>T+14</strong>Stay, review, NPS in context</div>
+              <div class="time-node is-observed"><strong>T+30</strong>Refunds and disputes mature</div>
+              <div class="time-node is-delayed"><strong id="long-window-label">T+90</strong>Retention window closes</div>
+            </div>
+
+            <div class="data-shelves">
+              <article class="feature-card">
+                <span class="component-tag">Valid at T0</span>
+                <h3>Point-in-time feature snapshot</h3>
+                <span class="feature-pill">listing attributes</span>
+                <span class="feature-pill">verified amenities</span>
+                <span class="feature-pill">prior host history</span>
+                <span class="feature-pill">market context</span>
+                <span class="feature-pill">listing age</span>
+              </article>
+              <article class="feature-card" id="future-feature-card">
+                <span class="component-tag">Label-only after T0</span>
+                <h3>Future evidence</h3>
+                <span class="feature-pill">future review</span>
+                <span class="feature-pill">support action</span>
+                <span class="feature-pill">refund decision</span>
+                <span class="feature-pill">future retention</span>
+              </article>
+            </div>
+
+            <div class="horizon-panel">
+              <div class="horizon-copy">
+                <strong id="horizon-title">90-day horizon: balanced freshness and coverage</strong>
+                <span id="horizon-copy">Toy cohort has 88% mature labels; recent examples remain censored or are excluded.</span>
+                <div class="choice-group" style="margin-top: 8px">
+                  <button class="small-button" id="leakage-toggle" type="button" aria-pressed="false">Inject future-feature leakage</button>
+                </div>
+              </div>
+              <div class="validity-score" id="validity-score">
+                <strong id="offline-auc">0.74</strong>
+                <span id="validity-label">valid time split AUC</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="scene" data-scene="2" hidden>
+            <div class="scene-title">
+              <div>
+                <h2>Offline quality is a stack, not one score</h2>
+                <p>Use a time-based holdout plus market-held-out stress test. Compare a simple calibrated baseline, then inspect discrimination, probability quality, slices, and coverage.</p>
+              </div>
+              <div class="choice-group" aria-label="Evaluation slice">
+                <button class="choice" type="button" data-segment="overall" aria-pressed="true">Overall</button>
+                <button class="choice" type="button" data-segment="new" aria-pressed="false">New listings</button>
+                <button class="choice" type="button" data-segment="sparse" aria-pressed="false">Sparse markets</button>
+                <button class="choice" type="button" data-segment="mature" aria-pressed="false">Mature listings</button>
+              </div>
+            </div>
+
+            <div class="metric-stack">
+              <article class="metric-card"><span class="component-tag">Model</span><strong>PR-AUC + calibration</strong><p>Rare negative outcomes and probability quality.</p></article>
+              <article class="metric-card"><span class="component-tag">Decision</span><strong>Precision @ capacity</strong><p>Useful actions inside review or support budget.</p></article>
+              <article class="metric-card"><span class="component-tag">Product</span><strong>Completed clean stays</strong><p>Must be validated through an intervention.</p></article>
+              <article class="metric-card"><span class="component-tag">Guardrail</span><strong>Host burden + appeals</strong><p>Do not improve guests by silently harming hosts.</p></article>
+            </div>
+
+            <div class="audit-layout">
+              <article class="audit-card">
+                <h3 id="segment-title">Overall time-based holdout · toy results</h3>
+                <div class="model-row">
+                  <span>Rule / calibrated baseline</span>
+                  <div class="bar-track"><span class="bar-fill" id="baseline-bar" style="--width: 63%"></span></div>
+                  <strong id="baseline-value">0.63</strong>
+                </div>
+                <div class="model-row challenger">
+                  <span>Multi-task challenger</span>
+                  <div class="bar-track"><span class="bar-fill" id="challenger-bar" style="--width: 74%"></span></div>
+                  <strong id="challenger-value">0.74</strong>
+                </div>
+                <div class="model-row">
+                  <span>Label coverage</span>
+                  <div class="bar-track"><span class="bar-fill" id="coverage-bar" style="--width: 88%"></span></div>
+                  <strong id="coverage-value">88%</strong>
+                </div>
+                <div class="audit-verdict" id="audit-verdict">Promising screen: challenger improves discrimination and remains reasonably calibrated.</div>
+              </article>
+
+              <article class="audit-card">
+                <h3>Reliability curve · risk probability</h3>
+                <svg class="calibration-chart" viewBox="0 0 230 170" role="img" aria-labelledby="chart-title chart-desc">
+                  <title id="chart-title">Calibration curve</title>
+                  <desc id="chart-desc">Predicted poor-outcome risk compared with observed rate for the selected slice.</desc>
+                  <line class="chart-grid" x1="30" y1="140" x2="215" y2="140"></line>
+                  <line class="chart-grid" x1="30" y1="95" x2="215" y2="95"></line>
+                  <line class="chart-grid" x1="30" y1="50" x2="215" y2="50"></line>
+                  <line class="chart-reference" x1="30" y1="140" x2="210" y2="20"></line>
+                  <path class="chart-model" id="calibration-path" d="M30 138 L75 111 L120 84 L165 55 L210 27"></path>
+                  <g id="calibration-points"></g>
+                  <text class="chart-label" x="30" y="158">low predicted risk</text>
+                  <text class="chart-label" x="153" y="158">high risk</text>
+                  <text class="chart-label" x="34" y="20">observed</text>
+                </svg>
+              </article>
+            </div>
+          </section>
+
+          <section class="scene" data-scene="3" hidden>
+            <div class="scene-title">
+              <div>
+                <h2>A calibrated score still needs an action policy</h2>
+                <p>Move the risk threshold and choose what happens. The “best” operating point depends on review capacity, false-positive cost, reversibility, and uncertainty.</p>
+              </div>
+              <div class="choice-group" aria-label="Intervention type">
+                <button class="choice" type="button" data-action="guidance" aria-pressed="true">Guidance</button>
+                <button class="choice" type="button" data-action="verification" aria-pressed="false">Verification</button>
+                <button class="choice" type="button" data-action="suppress" aria-pressed="false">Auto-suppress</button>
+              </div>
+            </div>
+
+            <div class="policy-layout">
+              <article class="policy-card">
+                <span class="component-tag">Toy cohort · 1,000 listings</span>
+                <div class="range-label"><span>Intervene above risk</span><strong id="threshold-value">55</strong></div>
+                <input id="threshold" type="range" min="35" max="75" step="10" value="55" aria-label="Intervention risk threshold" />
+                <div class="confusion-grid">
+                  <div class="confusion-cell"><span class="mini-label">Action load</span><strong id="action-load">210</strong><span>listings routed</span></div>
+                  <div class="confusion-cell"><span class="mini-label">Risk captured</span><strong id="risk-captured">70%</strong><span>recall at threshold</span></div>
+                  <div class="confusion-cell"><span class="mini-label">Useful actions</span><strong id="policy-precision">60%</strong><span>precision at capacity</span></div>
+                  <div class="confusion-cell"><span class="mini-label">False positives</span><strong id="false-positive">84</strong><span>good listings affected</span></div>
+                </div>
+              </article>
+
+              <article class="policy-card">
+                <span class="component-tag">Reversible action ladder</span>
+                <div class="action-ladder">
+                  <div class="action-step active" data-action-step="guidance"><strong>Guidance</strong><span>Offer listing improvements and support; measure adoption and outcomes.</span></div>
+                  <div class="action-step" data-action-step="verification"><strong>Verification</strong><span>Request evidence or route to review when predicted harm justifies friction.</span></div>
+                  <div class="action-step" data-action-step="suppress"><strong>Auto-suppress</strong><span>High-impact irreversible policy; unsafe as the default use of an uncertain quality score.</span></div>
+                </div>
+                <div class="warning-box" id="action-warning" style="margin-top: 9px">
+                  <strong>Policy check: reasonable starting point</strong>
+                  <p>Guidance is reversible. New listings with sparse history receive an uncertainty-aware fallback, not an automatic low-quality judgment.</p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="scene" data-scene="4" hidden>
+            <div class="scene-title">
+              <div>
+                <h2>Connect the offline and online loops</h2>
+                <p>The model estimates risk; only a controlled intervention can show that acting on the estimate improves the product. Keep model, policy, and experiment versions separately auditable.</p>
+              </div>
+              <div class="choice-group" aria-label="Experiment outcome scenario">
+                <button class="choice" type="button" data-scenario="healthy" aria-pressed="true">Healthy guardrails</button>
+                <button class="choice" type="button" data-scenario="appeals" aria-pressed="false">Appeals spike</button>
+              </div>
+            </div>
+
+            <div class="loop-board" aria-label="Offline and online ML system architecture">
+              <div class="loop-row offline">
+                <article class="loop-box"><span class="component-tag">Offline 1</span><strong>Event + outcome log</strong><p>IDs, timestamps, opportunity, policy, action, delayed outcome.</p></article>
+                <article class="loop-box"><span class="component-tag">Offline 2</span><strong>Point-in-time join</strong><p>Freeze features, mature labels, exclude leakage and censored rows.</p></article>
+                <article class="loop-box"><span class="component-tag">Offline 3</span><strong>Train + calibrate</strong><p>Baseline first, multi-task challenger, market and time splits.</p></article>
+                <article class="loop-box"><span class="component-tag">Offline 4</span><strong>Registry gate</strong><p>Metrics, slices, lineage, model card, rollback artifact.</p></article>
+                <article class="loop-box"><span class="component-tag">Offline 5</span><strong>Batch refresh</strong><p>Versioned listing scores with freshness and uncertainty.</p></article>
+              </div>
+              <div class="loop-row online">
+                <article class="loop-box"><span class="component-tag">Online 1</span><strong>Listing context</strong><p>Fetch score, freshness, uncertainty, and decision-time context.</p></article>
+                <article class="loop-box"><span class="component-tag">Online 2</span><strong>Policy engine</strong><p>Threshold, action tier, exclusions, capacity, and fallback.</p></article>
+                <article class="loop-box"><span class="component-tag">Online 3</span><strong>Stable assignment</strong><p>Randomize eligible listings into intervention and control.</p></article>
+                <article class="loop-box"><span class="component-tag">Online 4</span><strong>Action + appeal</strong><p>Deliver guidance or verification with reason and review path.</p></article>
+                <article class="loop-box"><span class="component-tag">Online 5</span><strong>Monitor + rollback</strong><p>Product, host, trust, slice, data-quality, and system SLOs.</p></article>
+              </div>
+            </div>
+
+            <div class="experiment-panel">
+              <article class="experiment-result">
+                <span class="component-tag">Randomized intervention · toy readout</span>
+                <div class="result-row"><span>Completed clean stays</span><strong>+2.4%</strong><strong class="good">credible lift</strong></div>
+                <div class="result-row"><span>Bad-review rate</span><strong>−3.1%</strong><strong class="good">improves</strong></div>
+                <div class="result-row"><span>Host appeal rate</span><strong id="appeal-value">+0.1%</strong><strong id="appeal-status" class="good">inside budget</strong></div>
+                <div class="result-row"><span>p95 decision latency</span><strong>42 ms</strong><strong class="good">SLO met</strong></div>
+              </article>
+              <article class="decision-card">
+                <span class="component-tag">Predeclared decision</span>
+                <div class="decision-state" id="ship-state">Stage rollout: product improves and guardrails pass.</div>
+                <span style="color: var(--muted); font-size: 8px; line-height: 1.4">Continue monitoring label delay, score drift, calibration, action rate, uncertainty, slice harm, appeals, and data joins.</span>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <aside class="narration" aria-label="Interview reasoning for the current stage">
+          <div class="narration-header">
+            <strong>Interview reasoning</strong>
+            <span id="step-count">Step 1 of 5</span>
+          </div>
+
+          <div aria-live="polite">
+            <article class="lesson" data-lesson="0">
+              <span class="eyebrow">Problem formulation</span>
+              <h2>Quality is a construct, not a raw column</h2>
+              <p>Define the entity and decision first: estimate listing-level risk at a declared time so a named intervention can improve guest experience and transaction reliability.</p>
+              <div class="reasoning-block"><span>Say this</span><strong>“I will preserve the candidate outcomes as calibrated components before deriving any composite policy score.”</strong></div>
+              <div class="reasoning-block"><span>Why</span><code>retention ≠ review sentiment ≠ cancellation ≠ dispute/refund</code></div>
+              <div class="reasoning-block"><span>Control confounding</span><strong>Normalize by opportunity and keep market demand, availability, listing age, and responsibility for an event visible.</strong></div>
+            </article>
+
+            <article class="lesson" data-lesson="1" hidden>
+              <span class="eyebrow">Labels + logging</span>
+              <h2>Make every example reconstructable</h2>
+              <p>At T0, log listing and host IDs, timestamp, feature snapshot/version, model score/version, policy/action, eligibility, and uncertainty. Join delayed outcome components only after their windows mature.</p>
+              <div class="reasoning-block"><span>Leakage rule</span><strong>If information did not exist when the score was used, it cannot be a feature for that score.</strong></div>
+              <div class="reasoning-block"><span>Label caveat</span><code>no review or no dispute may mean no opportunity, delayed evidence, or true negative</code></div>
+              <div class="reasoning-block"><span>Split</span><strong>Use forward-in-time validation and a held-out market test; deduplicate listing/stay entities across splits.</strong></div>
+            </article>
+
+            <article class="lesson" data-lesson="2" hidden>
+              <span class="eyebrow">Model + offline evaluation</span>
+              <h2>Earn complexity with slice evidence</h2>
+              <p>Start with transparent per-component rates or calibrated rules. Add structured listing, host-history, and permitted text/image features only when a challenger improves relevant holdouts.</p>
+              <div class="reasoning-block"><span>Metric stack</span><strong>Discrimination + calibration + precision at operational capacity + label coverage + slice robustness.</strong></div>
+              <div class="reasoning-block"><span>Cold start</span><code>new listing: content and host priors + wide uncertainty → fallback, not “low quality”</code></div>
+              <div class="reasoning-block"><span>Do not claim</span><strong>Better offline AUC does not prove that an intervention based on the score improves guest outcomes.</strong></div>
+            </article>
+
+            <article class="lesson" data-lesson="3" hidden>
+              <span class="eyebrow">Decision policy</span>
+              <h2>Optimize the action, not the score</h2>
+              <p>Choose thresholds against error costs and capacity. Guidance, verification, review, or support have different acceptable precision, recall, explanation, and rollback requirements.</p>
+              <div class="reasoning-block"><span>Policy contract</span><code>score + uncertainty + threshold version + eligibility → reversible action or fallback</code></div>
+              <div class="reasoning-block"><span>Safeguards</span><strong>Reason codes, review and appeal, action caps, fairness slices, and no automatic penalty for missing history.</strong></div>
+              <div class="reasoning-block"><span>Deep dive</span><strong>Show how moving a threshold trades captured risk against false-positive host burden.</strong></div>
+            </article>
+
+            <article class="lesson" data-lesson="4" hidden>
+              <span class="eyebrow">Online validation + monitoring</span>
+              <h2>Separate prediction validity from intervention impact</h2>
+              <p>Among eligible score-triggered listings, randomize the proposed action against the current policy with stable assignment. Predeclare primary, guardrail, stop, ship, and rollback criteria.</p>
+              <div class="reasoning-block"><span>High-level architecture</span><strong>Offline label-and-training loop produces versioned scores; the online policy and experiment loop turns them into reversible actions.</strong></div>
+              <div class="reasoning-block"><span>Monitor</span><code>label delay · missingness · drift · calibration · action rate · guest/host/trust slices · latency · fallback</code></div>
+              <div class="reasoning-block"><span>Close the loop</span><strong>Log every decision and outcome, investigate failures, retrain on mature point-in-time examples, and revalidate causally.</strong></div>
+            </article>
+          </div>
+
+          <footer class="narration-footer">
+            <button class="nav-button" id="previous" type="button">Previous</button>
+            <button class="nav-button primary" id="next" type="button">Next</button>
+          </footer>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const root = document;
+        const demo = root.querySelector(".demo");
+        const stageButtons = [...root.querySelectorAll("[data-step]")];
+        const scenes = [...root.querySelectorAll("[data-scene]")];
+        const lessons = [...root.querySelectorAll("[data-lesson]")];
+        const previous = root.querySelector("#previous");
+        const next = root.querySelector("#next");
+        const stepCount = root.querySelector("#step-count");
+        const labTitle = root.querySelector("#lab-title");
+        const labStatus = root.querySelector("#lab-status");
+        const themeTokenProperties = Object.freeze({
+          background: "--bg",
+          surface: "--panel",
+          surfaceRaised: "--panel-raised",
+          surfaceInset: "--panel-inset",
+          border: "--line",
+          borderStrong: "--line-strong",
+          text: "--text",
+          body: "--body",
+          muted: "--muted",
+          accent: "--accent",
+          accentSoft: "--accent-soft",
+          accentText: "--accent-text",
+          positive: "--positive",
+          positiveSoft: "--positive-soft",
+          warning: "--warning",
+          warningSoft: "--warning-soft",
+          danger: "--danger",
+          dangerSoft: "--danger-soft",
+        });
+
+        const stageCopy = [
+          ["Quality construct", "A latent concept needs observable components"],
+          ["Point-in-time dataset", "Labels arrive after the scoring cutoff"],
+          ["Evaluation stack", "Aggregate gains must survive calibration and slices"],
+          ["Threshold policy", "A score matters only through an explicit action"],
+          ["Learning system", "Prediction, intervention, monitoring, and rollback"],
+        ];
+
+        const horizonData = {
+          30: { coverage: "68%", title: "30-day horizon: fresh but incomplete", copy: "Toy cohort has 68% mature labels; disputes, refunds, and retention are heavily censored." },
+          90: { coverage: "88%", title: "90-day horizon: balanced freshness and coverage", copy: "Toy cohort has 88% mature labels; recent examples remain censored or are excluded." },
+          180: { coverage: "96%", title: "180-day horizon: broad coverage but slow feedback", copy: "Toy cohort has 96% mature labels; the training signal may lag product and market changes." },
+        };
+
+        const segmentData = {
+          overall: { title: "Overall time-based holdout · toy results", baseline: 0.63, challenger: 0.74, coverage: 88, points: [[30, 138], [75, 111], [120, 84], [165, 55], [210, 27]], verdict: "Promising screen: challenger improves discrimination and remains reasonably calibrated.", warning: false },
+          new: { title: "New listings · sparse-history slice", baseline: 0.57, challenger: 0.60, coverage: 54, points: [[30, 139], [75, 127], [120, 105], [165, 73], [210, 43]], verdict: "Do not auto-act: small gain, low label coverage, and under-estimated risk require an uncertainty-aware fallback.", warning: true },
+          sparse: { title: "Sparse markets · held-out geography", baseline: 0.59, challenger: 0.65, coverage: 71, points: [[30, 137], [75, 119], [120, 94], [165, 66], [210, 35]], verdict: "Conditional: retain market context, recalibrate, and limit rollout until this slice meets its guardrail.", warning: true },
+          mature: { title: "Mature listings · rich-history slice", baseline: 0.68, challenger: 0.79, coverage: 97, points: [[30, 136], [75, 108], [120, 79], [165, 48], [210, 23]], verdict: "Strong offline screen: high coverage and calibration support a bounded intervention experiment.", warning: false },
+        };
+
+        const thresholdData = {
+          35: { load: 420, recall: 91, precision: 39, fp: 256 },
+          45: { load: 300, recall: 82, precision: 50, fp: 150 },
+          55: { load: 210, recall: 70, precision: 60, fp: 84 },
+          65: { load: 135, recall: 55, precision: 73, fp: 36 },
+          75: { load: 70, recall: 32, precision: 82, fp: 13 },
+        };
+
+        let currentStep = 0;
+
+        function reportHeight() {
+          const height = Math.ceil(demo.getBoundingClientRect().height);
+          window.parent.postMessage({ type: "deepcode:interactive-demo-height", version: 1, height }, "*");
+        }
+
+        function setStep(step) {
+          currentStep = Math.max(0, Math.min(scenes.length - 1, step));
+          stageButtons.forEach((button, index) => {
+            if (index === currentStep) button.setAttribute("aria-current", "step");
+            else button.removeAttribute("aria-current");
+            button.classList.toggle("is-complete", index < currentStep);
+          });
+          scenes.forEach((scene, index) => { scene.hidden = index !== currentStep; });
+          lessons.forEach((lesson, index) => { lesson.hidden = index !== currentStep; });
+          previous.disabled = currentStep === 0;
+          next.disabled = currentStep === scenes.length - 1;
+          stepCount.textContent = `Step ${currentStep + 1} of ${scenes.length}`;
+          [labTitle.textContent, labStatus.textContent] = stageCopy[currentStep];
+          window.requestAnimationFrame(reportHeight);
+        }
+
+        function setPressed(group, selected) {
+          group.forEach((item) => item.setAttribute("aria-pressed", String(item === selected)));
+        }
+
+        const formulationButtons = [...root.querySelectorAll("[data-formulation]")];
+        const qualityFormula = root.querySelector("#quality-formula");
+        const formulationWarning = root.querySelector("#formulation-warning");
+        formulationButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            setPressed(formulationButtons, button);
+            const blended = button.dataset.formulation === "blend";
+            qualityFormula.textContent = blended
+              ? "quality = 0.45 guest + 0.35 reliability + 0.20 sustainable value  // toy weights"
+              : "predict P(bad review), P(host cancellation), P(dispute/refund) + calibrated long-horizon head";
+            formulationWarning.innerHTML = blended
+              ? "<strong>Composite requires governance</strong><p>Weights encode product values and can mask a severe component failure. Version them, inspect each head, and tie the composite to one action.</p>"
+              : "<strong>Why keep the vector?</strong><p>A listing can be strong on guest sentiment yet weak on transaction reliability. Inspect each head and combine only for a named action.</p>";
+          });
+        });
+
+        const horizonButtons = [...root.querySelectorAll("[data-horizon]")];
+        const horizonTitle = root.querySelector("#horizon-title");
+        const horizonCopy = root.querySelector("#horizon-copy");
+        const longWindowLabel = root.querySelector("#long-window-label");
+        horizonButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            setPressed(horizonButtons, button);
+            const horizon = button.dataset.horizon;
+            const values = horizonData[horizon];
+            horizonTitle.textContent = values.title;
+            horizonCopy.textContent = values.copy;
+            longWindowLabel.textContent = `T+${horizon}`;
+          });
+        });
+
+        const leakageToggle = root.querySelector("#leakage-toggle");
+        const validityScore = root.querySelector("#validity-score");
+        const offlineAuc = root.querySelector("#offline-auc");
+        const validityLabel = root.querySelector("#validity-label");
+        const futureFeatureCard = root.querySelector("#future-feature-card");
+        leakageToggle.addEventListener("click", () => {
+          const leaking = leakageToggle.getAttribute("aria-pressed") !== "true";
+          leakageToggle.setAttribute("aria-pressed", String(leaking));
+          leakageToggle.textContent = leaking ? "Remove future-feature leakage" : "Inject future-feature leakage";
+          validityScore.classList.toggle("invalid", leaking);
+          futureFeatureCard.classList.toggle("invalid", leaking);
+          offlineAuc.textContent = leaking ? "0.93" : "0.74";
+          validityLabel.textContent = leaking ? "invalid leaked AUC" : "valid time split AUC";
+        });
+
+        const segmentButtons = [...root.querySelectorAll("[data-segment]")];
+        const segmentTitle = root.querySelector("#segment-title");
+        const baselineBar = root.querySelector("#baseline-bar");
+        const challengerBar = root.querySelector("#challenger-bar");
+        const coverageBar = root.querySelector("#coverage-bar");
+        const baselineValue = root.querySelector("#baseline-value");
+        const challengerValue = root.querySelector("#challenger-value");
+        const coverageValue = root.querySelector("#coverage-value");
+        const auditVerdict = root.querySelector("#audit-verdict");
+        const calibrationPath = root.querySelector("#calibration-path");
+        const calibrationPoints = root.querySelector("#calibration-points");
+
+        function updateSegment(name) {
+          const values = segmentData[name];
+          segmentTitle.textContent = values.title;
+          baselineValue.textContent = values.baseline.toFixed(2);
+          challengerValue.textContent = values.challenger.toFixed(2);
+          coverageValue.textContent = `${values.coverage}%`;
+          baselineBar.style.setProperty("--width", `${values.baseline * 100}%`);
+          challengerBar.style.setProperty("--width", `${values.challenger * 100}%`);
+          coverageBar.style.setProperty("--width", `${values.coverage}%`);
+          auditVerdict.textContent = values.verdict;
+          auditVerdict.classList.toggle("warning", values.warning);
+          calibrationPath.setAttribute("d", values.points.map(([x, y], index) => `${index ? "L" : "M"}${x} ${y}`).join(" "));
+          calibrationPoints.innerHTML = values.points.map(([x, y]) => `<circle class="chart-point" cx="${x}" cy="${y}" r="3"></circle>`).join("");
+        }
+
+        segmentButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            setPressed(segmentButtons, button);
+            updateSegment(button.dataset.segment);
+          });
+        });
+
+        const threshold = root.querySelector("#threshold");
+        const thresholdValue = root.querySelector("#threshold-value");
+        const actionLoad = root.querySelector("#action-load");
+        const riskCaptured = root.querySelector("#risk-captured");
+        const policyPrecision = root.querySelector("#policy-precision");
+        const falsePositive = root.querySelector("#false-positive");
+        function updateThreshold() {
+          const value = Number(threshold.value);
+          const data = thresholdData[value];
+          thresholdValue.textContent = value;
+          actionLoad.textContent = data.load;
+          riskCaptured.textContent = `${data.recall}%`;
+          policyPrecision.textContent = `${data.precision}%`;
+          falsePositive.textContent = data.fp;
+        }
+        threshold.addEventListener("input", updateThreshold);
+
+        const actionButtons = [...root.querySelectorAll("[data-action]")];
+        const actionSteps = [...root.querySelectorAll("[data-action-step]")];
+        const actionWarning = root.querySelector("#action-warning");
+        actionButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            setPressed(actionButtons, button);
+            const action = button.dataset.action;
+            actionSteps.forEach((step) => {
+              step.classList.toggle("active", step.dataset.actionStep === action && action !== "suppress");
+              step.classList.toggle("blocked", step.dataset.actionStep === action && action === "suppress");
+            });
+            const messages = {
+              guidance: ["Policy check: reasonable starting point", "Guidance is reversible. New listings with sparse history receive an uncertainty-aware fallback, not an automatic low-quality judgment."],
+              verification: ["Policy check: higher evidence bar", "Verification adds host friction. Require adequate precision, reason codes, capacity limits, an appeal path, and a bounded causal test."],
+              suppress: ["Policy check: do not launch", "Automatic suppression turns uncertain predictions into inventory harm. Add human review, explicit policy authority, appeals, fairness audits, and causal evidence first."],
+            };
+            actionWarning.innerHTML = `<strong>${messages[action][0]}</strong><p>${messages[action][1]}</p>`;
+          });
+        });
+
+        const scenarioButtons = [...root.querySelectorAll("[data-scenario]")];
+        const appealValue = root.querySelector("#appeal-value");
+        const appealStatus = root.querySelector("#appeal-status");
+        const shipState = root.querySelector("#ship-state");
+        scenarioButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            setPressed(scenarioButtons, button);
+            const rollback = button.dataset.scenario === "appeals";
+            appealValue.textContent = rollback ? "+4.8%" : "+0.1%";
+            appealStatus.textContent = rollback ? "guardrail breached" : "inside budget";
+            appealStatus.className = rollback ? "bad" : "good";
+            shipState.textContent = rollback
+              ? "Rollback: host appeal guardrail breached despite guest-side lift."
+              : "Stage rollout: product improves and guardrails pass.";
+            shipState.classList.toggle("rollback", rollback);
+          });
+        });
+
+        function applyTheme(message) {
+          root.documentElement.dataset.theme = message.theme === "dark" ? "dark" : "light";
+          Object.entries(themeTokenProperties).forEach(([name, property]) => {
+            const value = message.tokens?.[name];
+            if (typeof value === "string" && value.trim()) root.documentElement.style.setProperty(property, value.trim());
+            else root.documentElement.style.removeProperty(property);
+          });
+          window.requestAnimationFrame(reportHeight);
+        }
+
+        stageButtons.forEach((button) => button.addEventListener("click", () => setStep(Number(button.dataset.step))));
+        previous.addEventListener("click", () => setStep(currentStep - 1));
+        next.addEventListener("click", () => setStep(currentStep + 1));
+        window.addEventListener("message", (event) => {
+          if (event.source !== window.parent || event.data?.type !== "deepcode:interactive-demo-theme" || event.data?.version !== 1) return;
+          applyTheme(event.data);
+        });
+        if (window.ResizeObserver) new ResizeObserver(reportHeight).observe(demo);
+        window.addEventListener("load", reportHeight);
+        window.parent.postMessage({ type: "deepcode:interactive-demo-ready", version: 1 }, "*");
+
+        setStep(0);
+        updateSegment("overall");
+        updateThreshold();
+        reportHeight();
+      })();
+    </script>
+  </body>
+</html>
