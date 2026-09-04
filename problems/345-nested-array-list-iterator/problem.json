@@ -26,12 +26,12 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `NestedArrayListIterator(nested)`. `nested` is a mutable list of mutable lists. The iterator has Java-style `hasNext()`, `next()`, and `remove()` methods; it visits values in row order and skips empty inner lists. `hasNext()` must be idempotent. `next()` returns the next value or raises `StopIteration` after exhaustion.\n\n`remove()` removes from the original `nested` structure the particular value most recently returned by `next()`. It may be called at most once after each successful `next()`; calling it before any `next()`, twice for the same returned value, or after exhaustion without a new value must raise `RuntimeError`. Removing an item must not cause the following item to be skipped, including when removal empties an inner list.\n\n`remove()` must mutate the caller's original `nested` structure.",
-  "starter_code": "class NestedArrayListIterator:\n    def __init__(self, nested):\n        pass\n\n    def hasNext(self):\n        pass\n\n    def next(self):\n        pass\n\n    def remove(self):\n        pass\n",
+  "prompt": "Implement `class NestedArrayListIterator` for `nested: list[list[int]]`. Keep a reference to this mutable outer list: do not flatten or copy it. Visit integers in row order, skipping empty inner lists.\n\n- `hasNext() -> bool` returns whether an unconsumed integer remains. It may advance past empty rows, but it must not consume a value; repeated calls are idempotent.\n- `next() -> int` returns the next integer, whether or not the caller first used `hasNext()`. Once exhausted, it raises `StopIteration`.\n- `remove() -> None` removes from the original `nested` structure the exact occurrence most recently returned by a successful `next()`. One successful `next()` makes exactly one `remove()` available; calls to `hasNext()` do not change that entitlement. A failed `next()` neither creates a new removal nor cancels an outstanding one. Calling `remove()` before any successful `next()`, or twice for the same returned occurrence, raises `RuntimeError`.\n\nAfter a removal, adjust the iterator so the successor is not skipped—even if the removal shifts values left or empties an inner row. The caller must observe the mutation in its original `nested` list.",
+  "starter_code": "class NestedArrayListIterator:\n    # nested is the caller-owned list[list[int]] and must be mutated in place.\n    def __init__(self, nested):\n        pass\n\n    # Return whether another integer is available without consuming it.\n    def hasNext(self):\n        pass\n\n    # Return the next integer, or raise StopIteration after exhaustion.\n    def next(self):\n        pass\n\n    # Remove the exact last value returned by next(); return None.\n    def remove(self):\n        pass\n",
   "example": {
-    "input": "rows = [[1, 2], [], [3]]; it = NestedArrayListIterator(rows); it.next(); it.remove(); it.next()",
-    "output": "2",
-    "reasoning": "Removing 1 shifts 2 into its position, and the iterator adjusts so 2 is still returned next."
+    "input": "rows = [[], [1, 2, 3], [4, 5], [], [], [6], [7, 8], [], [9], [10], []]; repeatedly call next() while hasNext()",
+    "output": "1 2 3 4 5 6 7 8 9 10",
+    "reasoning": "Repeated next() calls visit the rows left to right. If remove() is called immediately for each even value, traversal still visits every value and the remaining rows contain 1, 3, 5, 7, and 9."
   },
   "environment": {
     "language": "python",

@@ -29,6 +29,24 @@ class AirbnbCatalogGapFixtureTest(unittest.TestCase):
     def test_nested_array_list_iterator_reference_solution_passes(self):
         self._assert_reference_solution_passes("nested-array-list-iterator")
 
+    def test_nested_array_list_iterator_keeps_the_executable_contract_visible(self):
+        problem = ProblemStore(ROOT / "problems").get_problem("nested-array-list-iterator")
+
+        self.assertTrue(problem["prompt"].startswith("Implement `class NestedArrayListIterator`"))
+        self.assertIn("One successful `next()` makes exactly one `remove()` available", problem["prompt"])
+        self.assertIn("class NestedArrayListIterator", problem["starter_code"])
+        self.assertEqual(len(problem["tests"]), 5)
+        self.assertEqual(
+            [test["input"] for test in problem["tests"]],
+            [
+                "rows = [[], [1, 2, 3], [4, 5], [], [], [6], [7, 8], [], [9], [10], []]",
+                "rows = [[1, 2], [3], [4, 5, 6], []]",
+                "rows = [[7], [], [], [8, 9], [10, 11], [], [12]]",
+                "rows = [[], [], [], [1]]",
+                "rows = [[15, 16], [17], [18], [19, 20]]",
+            ],
+        )
+
     def test_account_contact_components_reference_solution_passes(self):
         self._assert_reference_solution_passes("account-contact-components")
 
