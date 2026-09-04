@@ -1,0 +1,48 @@
+{
+  "id": "391",
+  "slug": "numpy-sigmoid-relu-network",
+  "title": "Batched Sigmoid\u2013ReLU Network Forward Pass",
+  "category": "ML Coding",
+  "difficulty": "easy",
+  "tags": [
+    "numpy",
+    "forward-pass"
+  ],
+  "companies": [],
+  "prompt": "Implement `nn(x, W1, W2, b1, b2)` using NumPy:\n\n```text\nhidden = sigmoid(x @ W1 + b1)\noutput = relu(hidden @ W2 + b2)\n```\n\n`x: (B, input_dim)`, `W1: (input_dim, hidden_dim)`, `W2: (hidden_dim, output_dim)`, `b1: (hidden_dim,)`, and `b2: (output_dim,)` have compatible positive dimensions and finite floating values. Return `(B, output_dim)` without squeezing singleton dimensions. Accept array-like inputs and do not mutate inputs. Use a numerically stable sigmoid that stays finite without overflow warnings for preactivations as large as \u00b11000. ReLU clips negative values to zero; there is no softmax or training step.",
+  "starter_code": "import numpy as np\n\n\ndef nn(x, W1, W2, b1, b2):\n    pass\n",
+  "example": {
+    "input": "nn([[0.]], [[1.]], [[2., -2.]], [0.], [0., 0.])",
+    "output": "array([[1., 0.]])",
+    "reasoning": "The hidden sigmoid is 0.5, the output affine values are [1, -1], and ReLU clips the negative value."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "python",
+    "timeout_seconds": 15,
+    "packages": [
+      "numpy"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "operation-theater",
+      "kind": "standalone_html",
+      "path": "assets/operation-theater.html",
+      "title": "Batched Sigmoid\u2013ReLU Network Forward Pass operation walkthrough",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 680
+      }
+    }
+  ],
+  "created_at": "2026-09-04"
+}
