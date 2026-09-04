@@ -275,55 +275,245 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function markdownInline(value) {
-  return escapeHtml(value).replace(/`([^`]+)`/g, "<code>$1</code>");
+function markdownLinkHref(value) {
+  const href = String(value ?? "")
+    .trim()
+    .replace(/^<|>$/g, "");
+  if (!href) return null;
+  if (href.startsWith("#")) return escapeHtml(href);
+
+  try {
+    const protocol = new URL(href, window.location.origin).protocol;
+    if (!["http:", "https:", "mailto:"].includes(protocol)) return null;
+  } catch {
+    return null;
+  }
+
+  return escapeHtml(href);
 }
 
-function renderMarkdownLines(lines) {
-  const blocks = [];
-  let paragraphLines = [];
-  let listItems = [];
+function markdownInline(value, allowLinks = true) {
+  const tokens = [];
+  const hold = (html) => `\uE000${tokens.push(html) - 1}\uE001`;
+  let text = String(value ?? "");
 
-  const flushParagraph = () => {
-    if (!paragraphLines.length) return;
-    blocks.push(`<p>${paragraphLines.map((line) => markdownInline(line)).join("<br>")}</p>`);
-    paragraphLines = [];
+  text = text.replace(/`([^`\n]+)`/g, (_match, code) => hold(`<code>${escapeHtml(code)}</code>`));
+  if (allowLinks) {
+    text = text.replace(
+      /\[([^\]\n]+)\]\((<[^>\n]+>|[^\s)]+)(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\)/g,
+      (match, label, href) => {
+        const safeHref = markdownLinkHref(href);
+        if (!safeHref) return match;
+        return hold(
+          `<a href="${safeHref}" target="_blank" rel="noopener noreferrer">${markdownInline(label, false)}</a>`
+        );
+      }
+    );
+  }
+
+  text = escapeHtml(text)
+    .replace(/~~(?=\S)([^\n]*?\S)~~/g, "<s>$1</s>")
+    .replace(/(\*\*|__)(?=\S)([^\n]*?\S)\1/g, "<strong>$2</strong>")
+    .replace(/(?<!\*)\*(?!\s)([^*\n]*?\S)\*(?!\*)/g, "<em>$1</em>")
+    .replace(/(^|[^\w])_(?=\S)([^_\n]*?\S)_(?!\w)/g, "$1<em>$2</em>");
+
+  return text.replace(/\uE000(\d+)\uE001/g, (_match, index) => tokens[Number(index)]);
+}
+
+function markdownListItem(line) {
+  const match = String(line ?? "").match(/^(\s*)([-+*]|\d+[.)])\s+(.*)$/);
+  if (!match) return null;
+  return {
+    indent: match[1].replaceAll("\t", "  ").length,
+    ordered: /^\d/.test(match[2]),
+    content: match[3],
   };
+}
 
-  const flushList = () => {
-    if (!listItems.length) return;
-    blocks.push(`<ul>${listItems.map((item) => `<li>${markdownInline(item)}</li>`).join("")}</ul>`);
-    listItems = [];
-  };
+function markdownTableCells(line) {
+  let row = String(line ?? "").trim();
+  if (row.startsWith("|")) row = row.slice(1);
+  if (row.endsWith("|")) row = row.slice(0, -1);
+  return row.split("|").map((cell) => cell.trim());
+}
 
-  lines.forEach((line) => {
-    if (line.startsWith("- ")) {
-      flushParagraph();
-      listItems.push(line.slice(2));
-      return;
+function isMarkdownTableDivider(line) {
+  const cells = markdownTableCells(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+}
+
+function markdownFence(line) {
+  return String(line ?? "").match(/^ {0,3}(`{3,}|~{3,})\s*([^\s]*)?.*$/);
+}
+
+function isMarkdownHorizontalRule(line) {
+  return /^ {0,3}(?:(?:\*\s*){3,}|(?:-\s*){3,}|(?:_\s*){3,})$/.test(String(line ?? ""));
+}
+
+function isMarkdownTable(lines, index) {
+  if (index + 1 >= lines.length || !String(lines[index]).includes("|")) return false;
+  return markdownTableCells(lines[index]).length === markdownTableCells(lines[index + 1]).length && isMarkdownTableDivider(lines[index + 1]);
+}
+
+function renderMarkdownList(lines, start, firstItem = markdownListItem(lines[start])) {
+  const baseIndent = firstItem.indent;
+  const ordered = firstItem.ordered;
+  const items = [];
+  let index = start;
+
+  while (index < lines.length) {
+    const item = markdownListItem(lines[index]);
+    if (!item || item.indent !== baseIndent || item.ordered !== ordered) break;
+
+    index += 1;
+    const contentLines = [item.content];
+    let nested = "";
+    while (index < lines.length) {
+      const nextItem = markdownListItem(lines[index]);
+      if (nextItem) {
+        if (nextItem.indent > baseIndent) {
+          const rendered = renderMarkdownList(lines, index, nextItem);
+          nested += rendered.html;
+          index = rendered.index;
+          continue;
+        }
+        break;
+      }
+
+      const continuation = lines[index];
+      if (!String(continuation).trim()) break;
+      const continuationIndent = String(continuation).match(/^\s*/)[0].replaceAll("\t", "  ").length;
+      if (continuationIndent <= baseIndent) break;
+      contentLines.push(String(continuation).trim());
+      index += 1;
     }
-    flushList();
-    paragraphLines.push(line);
-  });
 
-  flushParagraph();
-  flushList();
+    items.push({ contentLines, nested });
+  }
+
+  const tag = ordered ? "ol" : "ul";
+  return {
+    html: `<${tag}>${items
+      .map((item) => `<li>${item.contentLines.map((line) => markdownInline(line)).join("<br>")}${item.nested}</li>`)
+      .join("")}</${tag}>`,
+    index,
+  };
+}
+
+function renderMarkdownTable(lines, start) {
+  const headers = markdownTableCells(lines[start]);
+  const rows = [];
+  let index = start + 2;
+  while (index < lines.length && String(lines[index]).includes("|")) {
+    const cells = markdownTableCells(lines[index]);
+    if (cells.length !== headers.length) break;
+    rows.push(cells);
+    index += 1;
+  }
+
+  return {
+    html: `<div class="markdown-table-wrap"><table><thead><tr>${headers
+      .map((cell) => `<th>${markdownInline(cell)}</th>`)
+      .join("")}</tr></thead><tbody>${rows
+      .map((row) => `<tr>${row.map((cell) => `<td>${markdownInline(cell)}</td>`).join("")}</tr>`)
+      .join("")}</tbody></table></div>`,
+    index,
+  };
+}
+
+function isMarkdownBlockStart(lines, index) {
+  const line = String(lines[index] ?? "");
+  return (
+    Boolean(markdownFence(line)) ||
+    /^ {0,3}#{1,6}\s+/.test(line) ||
+    /^\s*>\s?/.test(line) ||
+    Boolean(markdownListItem(line)) ||
+    isMarkdownHorizontalRule(line) ||
+    isMarkdownTable(lines, index)
+  );
+}
+
+function renderMarkdownBlocks(lines) {
+  const blocks = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = String(lines[index] ?? "");
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    const fence = markdownFence(line);
+    if (fence) {
+      const marker = fence[1];
+      const closingFence = new RegExp(`^\\s*${marker[0]}{${marker.length},}\\s*$`);
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !closingFence.test(String(lines[index]))) {
+        codeLines.push(String(lines[index]));
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+      const language = fence[2] ? ` class="language-${escapeHtml(fence[2])}"` : "";
+      blocks.push(`<pre><code${language}>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+      continue;
+    }
+
+    const heading = line.match(/^ {0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+    if (heading) {
+      const level = Math.min(heading[1].length + 1, 6);
+      blocks.push(`<h${level}>${markdownInline(heading[2])}</h${level}>`);
+      index += 1;
+      continue;
+    }
+
+    if (isMarkdownHorizontalRule(line)) {
+      blocks.push("<hr>");
+      index += 1;
+      continue;
+    }
+
+    if (isMarkdownTable(lines, index)) {
+      const table = renderMarkdownTable(lines, index);
+      blocks.push(table.html);
+      index = table.index;
+      continue;
+    }
+
+    if (/^\s*>\s?/.test(line)) {
+      const quoteLines = [];
+      while (index < lines.length && /^\s*>\s?/.test(String(lines[index]))) {
+        quoteLines.push(String(lines[index]).replace(/^\s*>\s?/, ""));
+        index += 1;
+      }
+      blocks.push(`<blockquote>${renderMarkdownBlocks(quoteLines)}</blockquote>`);
+      continue;
+    }
+
+    const listItem = markdownListItem(line);
+    if (listItem) {
+      const list = renderMarkdownList(lines, index, listItem);
+      blocks.push(list.html);
+      index = list.index;
+      continue;
+    }
+
+    const paragraphLines = [];
+    while (index < lines.length && String(lines[index]).trim()) {
+      if (paragraphLines.length && isMarkdownBlockStart(lines, index)) break;
+      paragraphLines.push(String(lines[index]));
+      index += 1;
+    }
+    blocks.push(`<p>${paragraphLines.map((paragraphLine) => markdownInline(paragraphLine)).join("<br>")}</p>`);
+  }
+
   return blocks.join("");
 }
 
 function markdownLite(value) {
-  const normalized = String(value ?? "").trim();
-  if (!normalized) return "";
-
-  return normalized
-    .split(/\n{2,}/)
-    .map((block) => {
-      const lines = block.split("\n");
-      if (lines.length === 1 && block.startsWith("### ")) return `<h4>${markdownInline(block.slice(4))}</h4>`;
-      if (lines.length === 1 && block.startsWith("## ")) return `<h3>${markdownInline(block.slice(3))}</h3>`;
-      return renderMarkdownLines(lines);
-    })
-    .join("");
+  const normalized = String(value ?? "").replaceAll("\r\n", "\n").trim();
+  return normalized ? renderMarkdownBlocks(normalized.split("\n")) : "";
 }
 
 function clamp(value, min, max) {
@@ -2747,7 +2937,7 @@ function renderProblemDescription(problem) {
     renderProblemBlock(
       PROBLEM_SECTION_CLASSES.prompt,
       "Prompt",
-      `<div class="problem-prompt">${markdownLite(problem.prompt)}</div>`
+      `<div class="problem-prompt markdown-content">${markdownLite(problem.prompt)}</div>`
     ),
     renderProblemAssets(problem, "prompt"),
     renderProblemDataInfo(problem.data),
@@ -2805,7 +2995,7 @@ function renderSystemDesignWorkspace(problem) {
         <p class="system-design-note">Use Markdown headings and lists to structure requirements, APIs, data model, scale, failure handling, and trade-offs.</p>
         <details class="reference-answer">
           <summary>Show reference answer</summary>
-          <div class="reference-answer-content">
+          <div class="reference-answer-content markdown-content">
             ${markdownLite(problem.response?.reference_answer || "")}
             ${renderProblemAssets(problem, "reference_answer")}
           </div>
@@ -2818,12 +3008,17 @@ function renderSystemDesignWorkspace(problem) {
 function renderProblemDataInfo(data) {
   if (!data?.path) return "";
 
+  const markdownValue = (value) => {
+    const rendered = markdownLite(value || "");
+    return rendered ? `<div class="markdown-content">${rendered}</div>` : "";
+  };
+
   const rows = [
     ["Path", `<code>${escapeHtml(data.path)}</code>`],
     ["Contents", escapeHtml(data.format || "")],
-    ["Note", markdownLite(data.note || "")],
-    ["Setup", markdownLite(data.setup || "")],
-    ["Runtime", markdownLite(data.runtime || "")],
+    ["Note", markdownValue(data.note)],
+    ["Setup", markdownValue(data.setup)],
+    ["Runtime", markdownValue(data.runtime)],
   ]
     .filter(([, value]) => String(value ?? "").trim())
     .map((row) => `<div class="problem-meta-row"><div class="label">${row[0]}</div><div>${row[1]}</div></div>`)

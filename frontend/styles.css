@@ -717,8 +717,11 @@ body.is-resizing {
   max-height: calc(100vh - 126px);
 }
 
+.problem-body h2,
 .problem-body h3,
-.problem-body h4 {
+.problem-body h4,
+.problem-body h5,
+.problem-body h6 {
   margin: 20px 0 10px;
 }
 
@@ -727,22 +730,90 @@ body.is-resizing {
   line-height: 1.62;
 }
 
-.problem-prompt p {
+.markdown-content p {
   margin: 0 0 14px;
 }
 
-.problem-prompt p:last-child,
-.problem-prompt ul:last-child {
+.markdown-content > :last-child {
   margin-bottom: 0;
 }
 
-.problem-prompt ul {
+.markdown-content ul,
+.markdown-content ol {
   margin: 0 0 14px;
   padding-left: 20px;
 }
 
-.problem-prompt li + li {
+.markdown-content ul ul,
+.markdown-content ul ol,
+.markdown-content ol ul,
+.markdown-content ol ol {
+  margin: 6px 0 0;
+}
+
+.markdown-content li + li {
   margin-top: 6px;
+}
+
+.markdown-content pre {
+  margin: 0 0 14px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--code-bg);
+  padding: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.markdown-content pre code {
+  padding: 0;
+  background: transparent;
+  white-space: pre;
+}
+
+.markdown-content blockquote {
+  margin: 0 0 14px;
+  border-left: 3px solid var(--blue);
+  padding: 2px 0 2px 12px;
+  color: var(--muted);
+}
+
+.markdown-content hr {
+  margin: 18px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.markdown-content a {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-table-wrap {
+  margin: 0 0 14px;
+  overflow-x: auto;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-content th {
+  color: var(--text);
+  background: var(--mini-bg);
+  font-weight: 700;
 }
 
 .problem-body p {
@@ -1075,8 +1146,11 @@ pre {
   line-height: 1.6;
 }
 
+.reference-answer-content h2,
 .reference-answer-content h3,
-.reference-answer-content h4 {
+.reference-answer-content h4,
+.reference-answer-content h5,
+.reference-answer-content h6 {
   margin: 18px 0 8px;
 }
 
