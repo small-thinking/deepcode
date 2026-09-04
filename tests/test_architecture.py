@@ -123,7 +123,8 @@ class ArchitectureTest(unittest.TestCase):
                 self.assertEqual(response.headers["Content-Security-Policy"], server.PROBLEM_DEMO_CSP)
                 self.assertEqual(response.headers["Cross-Origin-Resource-Policy"], "same-origin")
                 self.assertEqual(response.headers["X-Content-Type-Options"], "nosniff")
-                self.assertIn(b"From candidate photos to causal rollout", response.read())
+                demo_path = ROOT / "problems/348-cover-photo-conversion-evaluation/assets/cover-photo-decision-loop.html"
+                self.assertEqual(response.read(), demo_path.read_bytes())
         finally:
             httpd.shutdown()
             httpd.server_close()

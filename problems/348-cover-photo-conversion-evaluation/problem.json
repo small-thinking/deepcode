@@ -50,7 +50,7 @@
       "id": "cover-photo-decision-loop",
       "kind": "standalone_html",
       "path": "assets/cover-photo-decision-loop.html",
-      "title": "Explore the cover photo decision and evaluation loop",
+      "title": "从问题定义到上线决策：封面图系统设计推演",
       "section": "reference_answer",
       "presentation": {
         "theme": "sync",

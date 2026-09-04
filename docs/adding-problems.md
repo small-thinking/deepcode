@@ -246,6 +246,13 @@ The parent accepts height messages only from the matching `content` iframe and
 clamps the reported canvas to a safe range. Keep a valid
 `presentation.fallback_height` as the no-JavaScript fallback.
 
+After explicit stage navigation, a demo may send
+`{ type: "deepcode:interactive-demo-scroll-start", version: 1 }` to its parent.
+The parent verifies the declared iframe source and version, then scrolls that
+visible iframe to the start of the host pane. This optional message does not grant
+parent-DOM access; send it only after user navigation, never during automatic
+height updates or normal input edits.
+
 ML coding problems should use the default evaluator:
 
 ```json
