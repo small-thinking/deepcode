@@ -584,6 +584,15 @@ tbody tr:hover {
   height: calc(100vh - 104px);
 }
 
+.detail-layout.problem-pane-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.detail-layout.problem-pane-collapsed > .detail-panel,
+.detail-layout.problem-pane-collapsed > .problem-code-resizer {
+  display: none;
+}
+
 .detail-panel,
 .editor-panel {
   min-width: 0;
@@ -698,7 +707,23 @@ body.is-resizing {
 
 .tabs {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
+}
+
+.panel-header-tabs {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.pane-focus-toggle {
+  min-height: 34px;
+}
+
+.pane-focus-toggle[aria-pressed="true"] {
+  border-color: var(--blue);
+  color: var(--blue);
 }
 
 .tab {
@@ -1070,30 +1095,37 @@ pre {
 
 .system-design-panel {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
-}
-
-.system-design-heading h3 {
-  margin: 0;
-  font-size: 15px;
-}
-
-.system-design-heading p {
-  margin: 3px 0 0;
-  color: var(--muted);
-  font-size: 13px;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .system-design-reset[hidden] {
   display: none;
 }
 
+.system-design-reset {
+  min-height: 34px;
+}
+
 .system-design-tabs {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--line);
   background: var(--panel-header-bg);
+}
+
+.system-design-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.system-design-tab-list {
+  display: flex;
+  gap: 4px;
 }
 
 .system-design-tab {
@@ -2968,6 +3000,10 @@ body[data-theme="light"] .progress-page {
 
   .pane-resizer {
     display: none;
+  }
+
+  .panel-header-tabs {
+    flex-wrap: wrap;
   }
 
   .editor-panel {
