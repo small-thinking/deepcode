@@ -359,10 +359,18 @@ class StaticUiTest(unittest.TestCase):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
-        self.assertIn('class="problem-prompt"', app_js)
+        self.assertIn('class="problem-prompt markdown-content"', app_js)
         self.assertNotIn("<p>${markdownLite(problem.prompt)}</p>", app_js)
-        self.assertIn('line.startsWith("- ")', app_js)
-        self.assertIn(".problem-prompt ul", styles_css)
+        self.assertIn("function renderMarkdownBlocks", app_js)
+        self.assertIn("function renderMarkdownList", app_js)
+        self.assertIn("function renderMarkdownTable", app_js)
+        self.assertIn("function markdownLinkHref", app_js)
+        self.assertIn('["http:", "https:", "mailto:"]', app_js)
+        self.assertIn("<pre><code", app_js)
+        self.assertIn("<blockquote>", app_js)
+        self.assertIn('class="reference-answer-content markdown-content"', app_js)
+        self.assertIn(".markdown-content pre", styles_css)
+        self.assertIn(".markdown-content table", styles_css)
 
     def test_problem_detail_uses_shared_display_blocks(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
