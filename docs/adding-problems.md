@@ -176,8 +176,15 @@ Interactive demos are opt-in and separate from Markdown and static image
 assets. Each lowercase kebab-case `id` must be unique within the problem. The
 file must be a standalone `.html` document under the same problem's `assets/`
 folder, `title` must describe the iframe for assistive technology, and
-`section` must be `reference_answer`. Demos are available only on
-`system_design` problems.
+`section` must match the evaluator: `reference_answer` for `system_design`,
+or `interactive_demo` for `ml_coding`, `ml_modeling`, `ml_torch_modeling`, and
+`ml_torch_lab`. System Design keeps its Reference answer placement. Coding
+problems show an **Interactive Demo** tab beside Problem, Tests, and Env only
+when a demo is declared. Switching these tabs keeps the editor and demo state
+mounted; the iframe loads on first opening its tab. Keyboard users can use
+Left/Right, Home, and End to move between tabs. The problem pane owns scrolling
+and can be widened with the existing pane divider. Use the same metadata as
+above with `"section": "interactive_demo"` for a coding walkthrough.
 
 `presentation.theme` controls the parent-to-demo palette contract:
 

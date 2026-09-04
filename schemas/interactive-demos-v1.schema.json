@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/small-thinking/deepcode/blob/main/schemas/interactive-demos-v1.schema.json",
   "title": "DeepCode interactive_demos v1",
-  "description": "Metadata contract for sandboxed, problem-scoped System Design visualizations.",
+  "description": "Metadata contract for sandboxed, problem-scoped System Design and ML Coding visualizations.",
   "type": "array",
   "items": {
     "type": "object",
@@ -37,7 +37,7 @@
         "pattern": "\\S"
       },
       "section": {
-        "const": "reference_answer"
+        "enum": ["reference_answer", "interactive_demo"]
       },
       "presentation": {
         "type": "object",

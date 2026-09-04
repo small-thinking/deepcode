@@ -1,0 +1,49 @@
+{
+  "id": "388",
+  "slug": "pytorch-projected-multihead-attention",
+  "title": "Projected Multi-Head Attention in PyTorch",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "pytorch",
+    "attention",
+    "autograd"
+  ],
+  "companies": [],
+  "prompt": "Implement `MHA(n_heads, dim)` with `forward(x, mask=None) -> output`. Project x once to concatenated Q, K, V with `W_qkv: dim \u2192 3 * dim`, divide each into n_heads heads, perform scaled dot-product attention, merge heads in original order, and apply `W_o: dim \u2192 dim`. Output shape is `(B, T, dim)`; scores have shape `(B, n_heads, T, T)`.\n\nUse PyTorch on CPU. Preserve the public API and expose biased `nn.Linear` layers named `W_qkv` and `W_o`. Inputs are floating tensors `x: (B, T, dim)` with positive dimensions. Preserve dtype/device and autograd; do not mutate inputs or parameters. No dropout, residual connection, layer normalization, positional encoding, or implicit causal mask is required. `mask` is either None or a boolean tensor broadcastable to attention scores; True means allowed. Every query row has at least one allowed key. Apply the mask before softmax over keys, and scale scores by `1 / sqrt(head_dim)`. Reject nonpositive or nondivisible constructor head/dimension values with ValueError. Input shapes, mask dtype, and mask rows otherwise satisfy this contract.",
+  "starter_code": "import torch\nfrom torch import nn\n\n\nclass MHA(nn.Module):\n    def __init__(self, n_heads, dim):\n        super().__init__()\n        # Define W_qkv and W_o.\n        pass\n\n    def forward(self, x, mask=None):\n        pass\n",
+  "example": {
+    "input": "model = MHA(2, 8); x = torch.randn(2, 3, 8); out = model(x, torch.ones(3, 3, dtype=torch.bool).tril())",
+    "output": "out.shape == (2, 3, 8)",
+    "reasoning": "Two heads each use four features, and the caller-supplied triangular mask blocks future keys."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "operation-theater",
+      "kind": "standalone_html",
+      "path": "assets/operation-theater.html",
+      "title": "Projected Multi-Head Attention in PyTorch operation walkthrough",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 680
+      }
+    }
+  ],
+  "created_at": "2026-09-04"
+}

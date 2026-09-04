@@ -1,0 +1,74 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Attention with an external KV cache</title><style>
+:root{color-scheme:light;--background:#faf9f6;--surface:#fff;--surfaceInset:#f2f3f5;--text:#17212d;--body:#344151;--muted:#627080;--border:#d9dfe5;--accent:#385bd7;--accentSoft:#e9edff;--positive:#197451;--warning:#99651b}
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--text);font:14px/1.55 system-ui,sans-serif}.demo{padding:22px;max-width:1180px;margin:auto}h1{font-size:25px;line-height:1.2;letter-spacing:-.6px;margin:8px 0}h2{font-size:17px;margin:0 0 12px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:750}p{margin:8px 0 14px;color:var(--body)}.muted,small{color:var(--muted)}.controls,.steps,.nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}label{display:flex;gap:7px;align-items:center}button,select,input{font:inherit}button,select{border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);background:var(--surface)}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}button[aria-pressed=true]{background:var(--accentSoft);color:var(--accent);border-color:var(--accent)}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}.panel{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:17px;min-width:0}.wide{grid-column:1/-1}.code{font:12px/1.8 ui-monospace,SFMono-Regular,monospace;overflow-x:auto;white-space:pre;margin:0}.code span{display:block;padding:2px 8px;border-left:3px solid transparent}.code .active{background:var(--accentSoft);border-color:var(--accent)}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);white-space:nowrap}th{color:var(--muted);font-weight:500}td.num{font-family:ui-monospace,monospace}.note{background:var(--surfaceInset);border-left:3px solid var(--accent);padding:10px 13px;margin-top:12px;border-radius:4px}.barrow{display:grid;grid-template-columns:70px minmax(0,1fr) 60px;gap:8px;align-items:center;margin:8px 0}.track{height:19px;border-radius:4px;background:var(--surfaceInset);overflow:hidden}.bar{height:100%;background:var(--accent);border-radius:4px}.blocked{opacity:.45}.metric{font-size:30px;font-weight:700;letter-spacing:-1px}.map{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.head{padding:8px;border:1px solid var(--border);border-radius:7px}.head.selected{border-color:var(--accent);background:var(--accentSoft)}svg{width:100%;height:75px;overflow:visible}.caption{font-size:12px;margin-top:12px}.nav{justify-content:space-between}.steps button{font-size:12px}.status{min-height:48px}input[type=range]{width:140px;accent-color:var(--accent)}@media(max-width:780px){.layout{grid-template-columns:1fr}.demo{padding:12px}h1{font-size:22px}.panel{padding:12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body><main class="demo"><div class="eyebrow">ML Coding · Operation theater</div><h1>Attention with an external KV cache</h1><p>Change one input, follow the operation, and check the invariant.</p><div class="controls"><label>Query position <select id="token" aria-label="Query position"><option value="0">0</option></select></label><label>Query head <select id="head" aria-label="Query head"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label><label><input id="causal" type="checkbox" checked>Causal mask</label><label>Cache phase <select id="cachemode" aria-label="Cache phase"><option value="prefill">Prefill · 3 tokens</option><option value="decode">Decode · 1 new token</option><option value="chunk">Chunk · 2 new tokens</option></select></label></div><nav class="steps" id="steps" aria-label="Operation steps"></nav><div class="layout"><section class="panel wide status" aria-live="polite"><h2 id="stepname"></h2><div id="explanation"></div></section><section class="panel"><h2 id="visualtitle"></h2><div id="map" class="map"></div><div id="projection"></div><div id="bars"></div><div id="values"></div><div id="grad"></div><div class="note" id="invariant"></div></section><section class="panel"><h2>Code and current operation</h2><p class="caption">Simplified Python: helper names make shape operations explicit. Use the problem contract for the exact submission API.</p><pre class="code" id="code"></pre></section><section class="panel wide"><h2>Shape contract</h2><div id="shapes"></div></section></div><div class="nav"><button id="prev">Previous</button><span id="counter"></span><button id="next">Next</button><button id="reset">Reset walkthrough</button></div><p class="caption">Deterministic toy: B=1, C=8, H=4, D=2. Q=x; K=0.5× the first Hkv×D features; V=the same features; Wₒ=identity; all biases are zero. The exercise learns unrestricted projections.</p></main><script>const CONFIG={"variant": "cache"};
+const root=document.querySelector('.demo');
+function reportHeight(){parent.postMessage({type:'deepcode:interactive-demo-height',version:1,height:Math.ceil(root.getBoundingClientRect().height)},'*');}
+window.addEventListener('message',event=>{if(event.source!==parent||event.data?.type!=='deepcode:interactive-demo-theme'||event.data?.version!==1)return;const d=event.data;document.documentElement.style.colorScheme=d.theme==='dark'?'dark':'light';for(const key of ['background','surface','surfaceInset','text','body','muted','border','accent','accentSoft','positive','warning'])if(typeof d.tokens?.[key]==='string')document.documentElement.style.setProperty('--'+key,d.tokens[key]);reportHeight();});
+new ResizeObserver(reportHeight).observe(root);window.addEventListener('load',reportHeight);parent.postMessage({type:'deepcode:interactive-demo-ready',version:1},'*');
+
+const variant=CONFIG.variant;
+const isCache=variant==='cache',isGroup=variant==='group';
+let stage=0;
+const names=['Project & split','Score & mask','Normalize','Read values','Merge heads','Gradient flow'];
+const el=id=>document.getElementById(id);
+const fmt=v=>Math.abs(v)<1e-9?'0.000':v.toFixed(3);
+const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+function table(headers,rows){return '<div class="tablewrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(c=>'<td class="num">'+c+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';}
+function calculate(){
+ const kvHeads=isGroup?Number(el('kvheads').value):4;
+ const mode=isCache?el('cachemode').value:'full';
+ const past=mode==='decode'||mode==='chunk'?3:0;
+ const cur=mode==='prefill'?3:mode==='decode'?1:mode==='chunk'?2:4;
+ const total=past+cur,head=Number(el('head').value);
+ let token=Math.min(Number(el('token').value),cur-1);
+ el('token').innerHTML=Array.from({length:cur},(_,i)=>'<option value="'+i+'">'+(past+i)+'</option>').join('');el('token').value=String(token);
+ const x=Array.from({length:total},(_,t)=>Array.from({length:8},(_,c)=>(((t+1)*(c+2))%9-4)/4));
+ const kvhead=Math.floor(head/(4/kvHeads));
+ const q=x[past+token].slice(head*2,head*2+2);
+ const k=x.map(row=>row.slice(kvhead*2,kvhead*2+2).map(v=>v*.5));
+ const v=x.map(row=>row.slice(kvhead*2,kvhead*2+2));
+ const mask=el('causal').checked;
+ const scores=k.map(row=>dot(q,row)/Math.sqrt(2));
+ const allowed=scores.map((_,i)=>!mask||i<=past+token);
+ const max=Math.max(...scores.filter((_,i)=>allowed[i]));
+ const exp=scores.map((s,i)=>allowed[i]?Math.exp(s-max):0);const sum=exp.reduce((a,b)=>a+b,0);const p=exp.map(z=>z/sum);
+ const out=[0,1].map(c=>p.reduce((s,w,i)=>s+w*v[i][c],0));
+ return {kvHeads,mode,past,cur,total,head,token,x,kvhead,q,k,v,mask,scores,allowed,p,out};
+}
+function render(){
+ const d=calculate();
+ if(!el('steps').children.length) el('steps').innerHTML=names.map((n,i)=>'<button data-step="'+i+'" aria-pressed="'+(i===stage)+'">'+(i+1)+'. '+n+'</button>').join('');
+ el('steps').querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed',String(Number(b.dataset.step)===stage));b.onclick=()=>{stage=Number(b.dataset.step);render()}});
+ el('stepname').textContent=names[stage];
+ el('prev').disabled=stage===0;el('next').disabled=stage===5;el('counter').textContent='Step '+(stage+1)+' / 6';
+ const split=isGroup?'Q, K, V = W_qkv(x).split([C, Hkv*D, Hkv*D], -1)':'Q, K, V = split_qkv(W_qkv(x))';
+ const code=[split,'Q, K, V = split_heads(Q, K, V)',...(isCache?['K = cat([past_K, K], dim=2)  # if cached','V = cat([past_V, V], dim=2)  # if cached']:[]),...(isGroup?['K, V = repeat_kv_heads(K, V, H // Hkv)']:[]),'scores = (Q @ K.transpose(-2, -1)) / sqrt(D)','scores = scores.masked_fill(~mask, -inf)  # if mask supplied','P = softmax(scores, dim=-1)','head_out = P @ V','out = W_o(merge_heads(head_out))','loss.backward()  # autograd follows every operation'];
+ const stages=[0,0,...(isCache?[0,0]:[]),...(isGroup?[0]:[]),1,1,2,3,4,5];
+ el('code').innerHTML=code.map((c,i)=>'<span class="'+(stages[i]===stage?'active':'')+'">'+c.replaceAll('&','&amp;').replaceAll('<','&lt;')+'</span>').join('');
+ const explanation=[
+  isCache?'Project only '+d.cur+' current token(s). Keep old K/V, then append on the token axis. Q never includes the cached prefix.':isGroup?'Each query head keeps its own Q. Consecutive groups of '+(4/d.kvHeads)+' query heads share one K/V head.':'A single learned linear layer produces Q, K and V. Split the feature axis, then move heads before tokens.',
+  'Query position '+(d.past+d.token)+' compares with '+d.total+' keys. Scale by sqrt(2). '+(d.mask?'Causal visibility uses key_position ≤ past_length + query_index.':'The mask is off: future keys are visible in multi-token input.'),
+  'Softmax runs over keys for each query/head separately. The selected row sums to '+d.p.reduce((a,b)=>a+b,0).toFixed(6)+'. Blocked keys receive zero probability.',
+  'Each output coordinate is a weighted sum of V. Head '+d.head+' returns ['+d.out.map(fmt).join(', ')+'] for the selected query.',
+  'Transpose back to [B, T, H, D], reshape to [B, T, C], then apply W_o. Head order must be preserved. '+(isCache?'Return the appended K/V cache alongside the current-token outputs.':''),
+  'For O = P V: dV = Pᵀ dO and dP = dO Vᵀ. For softmax: dS = P ⊙ (dP − sum(dP ⊙ P)). Masked scores have zero gradient. '+(isGroup?'Shared K/V heads accumulate gradients from every query head in their group.':isCache?'This contract returns cache tensors without detaching; autograd remains connected.':'Gradients continue through Q/K/V projections and W_o.')
+ ];el('explanation').textContent=explanation[stage];
+ const shapes=[['Input x','[1, '+d.cur+', 8]'],['Q','[1, 4, '+d.cur+', 2]'],['K/V '+(isCache?'cache':'before sharing'),'[1, '+d.kvHeads+', '+d.total+', 2]'],['Scores / P','[1, 4, '+d.cur+', '+d.total+']'],['Merged output','[1, '+d.cur+', 8]']];
+ el('shapes').innerHTML=table(['Tensor','Shape'],shapes);
+ el('map').innerHTML=Array.from({length:4},(_,h)=>'<div class="head '+(h===d.head?'selected':'')+'">Q'+h+' → KV'+Math.floor(h/(4/d.kvHeads))+'</div>').join('');
+ el('projection').innerHTML=table(['Selected quantity','Values'],[['Q (head '+d.head+')',d.q.map(fmt).join(', ')],['K (key '+(d.past+d.token)+', head '+d.kvhead+')',d.k[d.past+d.token].map(fmt).join(', ')],['Output (head '+d.head+')',d.out.map(fmt).join(', ')]]);
+ const rows=d.scores.map((s,i)=>['key '+i+(i<d.past?' · cached':''),d.allowed[i]?fmt(s):'blocked',fmt(d.p[i]),d.v[i].map(fmt).join(', '),d.v[i].map(z=>fmt(z*d.p[i])).join(', ')]);
+ el('values').innerHTML=table(['Position','Scaled score','P','V','P × V'],rows);
+ el('bars').innerHTML=d.p.map((p,i)=>'<div class="barrow '+(!d.allowed[i]?'blocked':'')+'"><span>Key '+i+'</span><div class="track"><div class="bar" style="width:'+(100*p)+'%"></div></div><span>'+fmt(p)+'</span></div>').join('');
+ el('invariant').textContent=isCache?'Cache length: '+d.past+' + '+d.cur+' = '+d.total+'. '+(d.past?'Old tokens are not projected again.':'Prefill starts with no previous cache.'):isGroup?'K/V projection width: '+(2*d.kvHeads*2)+'; packed projection width: '+(8+2*d.kvHeads*2)+'. MHA uses Hkv=4; MQA uses Hkv=1.':'Each head has D = C / H = 8 / 4 = 2. Softmax must never mix heads or batches.';
+ el('visualtitle').textContent=stage===0?'Projection and head ownership':stage===1?'Scores and visibility':stage===2?'Probability over keys':stage===3?'Read a weighted mixture':stage===4?'Preserve head order':'Follow both matmul branches';
+ el('projection').hidden=stage>0;el('map').hidden=stage!==0&&stage!==4;el('bars').hidden=stage!==2;el('values').hidden=stage===0||stage===5;
+ el('grad').hidden=stage!==5;
+ el('grad').innerHTML='<div class="note">dO → dP & dV<br>dP → dS → dQ & dK<br>dQ, dK, dV → W_qkv & x</div><p class="caption">Symbolic chain rule, not a numeric gradient simulation. The executable exercise tests PyTorch autograd.</p>';
+ reportHeight();
+}
+el('prev').onclick=()=>{stage=Math.max(0,stage-1);render()};el('next').onclick=()=>{stage=Math.min(5,stage+1);render()};el('reset').onclick=()=>{stage=0;el('head').value='0';el('token').value='0';el('causal').checked=true;if(isGroup)el('kvheads').value='2';if(isCache)el('cachemode').value='prefill';render()};
+for(const id of ['head','token','causal','kvheads','cachemode'])el(id)?.addEventListener('change',render);
+render();
+</script></body></html>

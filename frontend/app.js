@@ -1845,6 +1845,7 @@ function render() {
   }
   bindEvents();
   mountEditor();
+  if (state.selected) activateProblemTab(state.activeTab);
   applyPaneSizes();
   syncProblemTimer();
   scrollPendingCustomTestIntoView();
@@ -2882,12 +2883,12 @@ function renderDetail() {
               <p>#${escapeHtml(displayId)} / ${escapeHtml(problem.category)} / ${escapeHtml(problem.difficulty)}</p>
               ${renderProblemProgress(problem)}
             </div>
-            <div class="tabs panel-header-tabs">
+            <div class="tabs panel-header-tabs" role="tablist" aria-label="Problem information">
               ${tabButton("description", "Problem")}
-              ${systemDesign ? "" : `${tabButton("tests", "Tests")}${tabButton("environment", "Env")}`}
+              ${systemDesign ? "" : `${tabButton("tests", "Tests")}${tabButton("environment", "Env")}${hasCodingInteractiveDemos(problem) ? tabButton("demo", "Interactive Demo") : ""}`}
             </div>
           </div>
-          <div class="problem-body">${renderProblemTab(problem, env)}</div>
+          <div class="problem-body">${renderProblemPanels(problem, env)}</div>
         </article>
 
         <div
@@ -2937,21 +2938,67 @@ function renderDetail() {
   `;
 }
 
-function tabButton(tab, label) {
-  const active = state.activeTab === tab ? "active" : "";
-  return `<button class="tab ${active}" data-tab="${tab}">${label}</button>`;
+function hasCodingInteractiveDemos(problem) {
+  return !isSystemDesignProblem(problem) && (problem.interactive_demos || []).some(
+    (demo) => demo.section === "interactive_demo"
+  );
 }
 
-function renderProblemTab(problem, env) {
+function tabButton(tab, label) {
+  const active = state.activeTab === tab;
+  return `<button class="tab ${active ? "active" : ""}" id="problem-${tab}-tab" data-tab="${tab}"
+    role="tab" aria-selected="${active}" aria-controls="problem-${tab}-panel" tabindex="${active ? 0 : -1}">${label}</button>`;
+}
+
+function renderProblemPanels(problem, env) {
+  const tabs = isSystemDesignProblem(problem) ? ["description"] : ["description", "tests", "environment"];
+  if (hasCodingInteractiveDemos(problem)) tabs.push("demo");
+  return tabs.map((tab) => `<section id="problem-${tab}-panel" data-problem-panel="${tab}"
+    role="tabpanel" aria-labelledby="problem-${tab}-tab" tabindex="0" ${state.activeTab === tab ? "" : "hidden"}>
+    ${renderProblemTab(problem, env, tab)}</section>`).join("");
+}
+
+function activateProblemTab(tabName, focusTab = false) {
+  const panel = document.querySelector(`[data-problem-panel="${tabName}"]`);
+  if (!panel) return;
+  state.activeTab = tabName;
+  document.querySelectorAll(".tab[data-tab]").forEach((tab) => {
+    const active = tab.dataset.tab === tabName;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+    tab.tabIndex = active ? 0 : -1;
+    if (active && focusTab) tab.focus();
+  });
+  document.querySelectorAll("[data-problem-panel]").forEach((candidate) => {
+    candidate.hidden = candidate !== panel;
+  });
+  if (tabName === "demo") loadInteractiveDemos(panel);
+}
+
+function handleProblemTabKeydown(event) {
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  const tabs = [...document.querySelectorAll(".tab[data-tab]")];
+  const current = tabs.indexOf(event.currentTarget);
+  let next = current;
+  if (event.key === "ArrowLeft") next = (current - 1 + tabs.length) % tabs.length;
+  if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
+  if (event.key === "Home") next = 0;
+  if (event.key === "End") next = tabs.length - 1;
+  activateProblemTab(tabs[next].dataset.tab, true);
+  event.preventDefault();
+}
+
+function renderProblemTab(problem, env, tab = state.activeTab) {
   if (isSystemDesignProblem(problem)) return renderProblemDescription(problem);
-  if (state.activeTab === "tests") {
+  if (tab === "tests") {
     return [renderProblemTests(problem.tests || []), renderCustomTests(problem)].join("");
   }
-
-  if (state.activeTab === "environment") {
+  if (tab === "environment") {
     return [renderProblemEnvironment(env), renderDataLinkSetup(problem)].join("");
   }
-
+  if (tab === "demo" && hasCodingInteractiveDemos(problem)) {
+    return renderInteractiveDemos(problem, "interactive_demo");
+  }
   return renderProblemDescription(problem);
 }
 
@@ -3762,11 +3809,8 @@ function bindEvents() {
     button.addEventListener("click", () => loadProblem(button.dataset.companyProblem));
   });
   document.querySelectorAll(".tab[data-tab]").forEach((tab) => {
-    tab.addEventListener("click", () => {
-      saveCode(editorCode());
-      state.activeTab = tab.dataset.tab;
-      render();
-    });
+    tab.addEventListener("click", () => activateProblemTab(tab.dataset.tab));
+    tab.addEventListener("keydown", handleProblemTabKeydown);
   });
   document.querySelectorAll("[data-system-design-tab]").forEach((tab) => {
     tab.addEventListener("click", () => activateSystemDesignTab(tab.dataset.systemDesignTab));

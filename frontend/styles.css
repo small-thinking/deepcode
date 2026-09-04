@@ -714,7 +714,29 @@ body.is-resizing {
 
 .panel-header-tabs {
   flex: 0 0 auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+}
+
+/* A walkthrough adds a fourth tab: give the title its own row in the split pane. */
+#problem-detail-panel:has([data-tab="demo"]) > .panel-header {
+  flex-wrap: wrap;
+}
+
+#problem-detail-panel:has([data-tab="demo"]) .panel-title {
+  flex: 1 0 100%;
+}
+
+#problem-detail-panel:has([data-tab="demo"]) .panel-title h2 {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#problem-detail-panel:has([data-tab="demo"]) .panel-header-tabs {
+  flex: 1 1 100%;
+}
+
+[data-problem-panel][hidden] {
+  display: none;
 }
 
 .pane-focus-toggle {

@@ -1,0 +1,14 @@
+[
+  {
+    "name": "batched affine ordering and both activations",
+    "input": "batched affine ordering and both activations",
+    "test": "import numpy as np\nx = np.array([[1., -2.], [-1., 3.], [0., 0.]])\nw1 = np.array([[1., -2., .5], [2., 1., -.5]])\nw2 = np.array([[1., -1.], [2., 3.], [-4., 2.]])\nb1, b2 = np.array([.1, .2, -.3]), np.array([-1., .5])\ninputs = [x, w1, w2, b1, b2]\nsaved = [a.copy() for a in inputs]\nexpected = []\nfor row in x:\n    hidden = [1 / (1 + np.exp(-(sum(row[i]*w1[i,j] for i in range(2)) + b1[j]))) for j in range(3)]\n    expected.append([max(0., sum(hidden[j]*w2[j,k] for j in range(3)) + b2[k]) for k in range(2)])\nnp.testing.assert_allclose(nn(*inputs), expected)\nfor original, before in zip(inputs, saved):\n    np.testing.assert_array_equal(original, before)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "array-like singleton dimensions and stable extreme sigmoid",
+    "input": "array-like singleton dimensions and stable extreme sigmoid",
+    "test": "import numpy as np\nwith np.errstate(over='raise', invalid='raise'):\n    result = nn([[1000.], [-1000.], [0.]], [[1.]], [[2.]], [0.], [-.5])\nassert result.shape == (3, 1)\nnp.testing.assert_allclose(result, [[1.5], [0.], [.5]])\nassert nn([[0.]], [[1.]], [[1.]], [0.], [0.]).shape == (1, 1)\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]

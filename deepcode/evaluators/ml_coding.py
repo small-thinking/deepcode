@@ -25,6 +25,7 @@ class MlCodingEvaluator:
             tests=request.tests,
             timeout_seconds=request.environment.get("timeout_seconds", 2),
             comparator=request.environment.get("comparator", "exact"),
+            runtime=request.environment.get("runtime", "python"),
         )
 
 
@@ -33,10 +34,13 @@ def run_submission(
     tests: list[dict[str, Any]],
     timeout_seconds: int | float = 2,
     comparator: str = "exact",
+    runtime: str = "python",
 ) -> dict[str, Any]:
+    if runtime not in ("python", "pytorch"):
+        raise ValueError(f"Unsupported ML coding runtime: {runtime}")
     results = []
     for test in tests:
-        actual_output = _run_single_test(code, test["test"], timeout_seconds)
+        actual_output = _run_single_test(code, test["test"], timeout_seconds, runtime)
         expected_output = str(test["expected_output"]).strip()
         passed = compare_output(actual_output, expected_output, comparator)
         results.append(
@@ -87,8 +91,22 @@ def compare_output(actual: str, expected: str, comparator: str = "exact", tolera
     return True
 
 
-def _run_single_test(code: str, test_code: str, timeout_seconds: int | float) -> str:
+def _run_single_test(
+    code: str, test_code: str, timeout_seconds: int | float, runtime: str = "python"
+) -> str:
     script = _build_script(code, test_code)
+    env = _runner_env()
+    limiter = _resource_limiter
+    if runtime == "pytorch":
+        # Native libraries reserve much more virtual address space than their RSS.
+        # A 512 MiB RLIMIT_AS prevents torch importing on Linux.
+        env.update({
+            "OMP_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "DEEPCODE_TORCH_DEVICE": "cpu",
+        })
+        limiter = lambda: _pytorch_resource_limiter(timeout_seconds)
     with tempfile.TemporaryDirectory(prefix="deepcode-run-") as tmp:
         script_path = Path(tmp) / "submission_test.py"
         script_path.write_text(script, encoding="utf-8")
@@ -96,11 +114,11 @@ def _run_single_test(code: str, test_code: str, timeout_seconds: int | float) ->
             process = subprocess.run(
                 [sys.executable, str(script_path)],
                 cwd=tmp,
-                env=_runner_env(),
+                env=env,
                 capture_output=True,
                 text=True,
                 timeout=timeout_seconds,
-                preexec_fn=_resource_limiter() if os.name == "posix" else None,
+                preexec_fn=limiter() if os.name == "posix" else None,
             )
         except subprocess.TimeoutExpired:
             return f"Timed out after {timeout_seconds} seconds"
@@ -147,6 +165,21 @@ def _resource_limiter():
             resource.setrlimit(resource.RLIMIT_FSIZE, (1_000_000, 1_000_000))
             if hasattr(resource, "RLIMIT_AS"):
                 resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024, 512 * 1024 * 1024))
+        except Exception:
+            pass
+
+    return limit_resources
+
+
+def _pytorch_resource_limiter(timeout_seconds: int | float):
+    def limit_resources():
+        try:
+            import resource
+
+            cpu_seconds = max(1, math.ceil(timeout_seconds) + 1)
+            resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds))
+            resource.setrlimit(resource.RLIMIT_FSIZE, (1_000_000, 1_000_000))
+            resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
         except Exception:
             pass
 

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "learned projections, masks, noncontiguous batches, and gradients",
+    "input": "learned projections, masks, noncontiguous batches, and gradients",
+    "test": "import torch\nimport math\ntorch.manual_seed(17)\ndef oracle(model, x, heads, kv_heads, mask=None):\n    # Independent per-head reference: slice linear weights directly, no packed reshape.\n    d = x.shape[-1] // heads\n    qwidth, kvwidth = x.shape[-1], kv_heads * d\n    outputs = []\n    for h in range(heads):\n        kh = h // (heads // kv_heads)\n        def project(start):\n            return torch.nn.functional.linear(x, model.W_qkv.weight[start:start+d], model.W_qkv.bias[start:start+d])\n        q, k, v = project(h*d), project(qwidth+kh*d), project(qwidth+kvwidth+kh*d)\n        scores = torch.bmm(q, k.transpose(1, 2)) / math.sqrt(d)\n        if mask is not None:\n            expanded = torch.broadcast_to(mask, (x.shape[0], heads, x.shape[1], x.shape[1]))\n            scores = scores.masked_fill(~expanded[:, h], float('-inf'))\n        outputs.append(torch.bmm(scores.softmax(-1), v))\n    return torch.nn.functional.linear(torch.cat(outputs, -1), model.W_o.weight, model.W_o.bias)\nmodel = GQA(4, 8, 2).double()\nx = torch.randn(2, 8, 4, dtype=torch.double).transpose(1, 2).requires_grad_()\nsnapshot = x.detach().clone()\nmask = torch.tensor([[[[True, False, True, False]]], [[[False, True, False, True]]]])\nactual = model(x, mask)\nexpected = oracle(model, x, 4, 2, mask)\ntorch.testing.assert_close(actual, expected)\nparams = (x, *model.parameters())\na = torch.autograd.grad(actual.square().sum(), params)\ne = torch.autograd.grad(expected.square().sum(), params)\nfor got, want in zip(a, e):\n    torch.testing.assert_close(got, want)\nassert torch.equal(x, snapshot)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "unmasked singleton and causal masks match a per-head reference",
+    "input": "unmasked singleton and causal masks match a per-head reference",
+    "test": "import torch\nimport math\ntorch.manual_seed(17)\ndef oracle(model, x, heads, kv_heads, mask=None):\n    # Independent per-head reference: slice linear weights directly, no packed reshape.\n    d = x.shape[-1] // heads\n    qwidth, kvwidth = x.shape[-1], kv_heads * d\n    outputs = []\n    for h in range(heads):\n        kh = h // (heads // kv_heads)\n        def project(start):\n            return torch.nn.functional.linear(x, model.W_qkv.weight[start:start+d], model.W_qkv.bias[start:start+d])\n        q, k, v = project(h*d), project(qwidth+kh*d), project(qwidth+kvwidth+kh*d)\n        scores = torch.bmm(q, k.transpose(1, 2)) / math.sqrt(d)\n        if mask is not None:\n            expanded = torch.broadcast_to(mask, (x.shape[0], heads, x.shape[1], x.shape[1]))\n            scores = scores.masked_fill(~expanded[:, h], float('-inf'))\n        outputs.append(torch.bmm(scores.softmax(-1), v))\n    return torch.nn.functional.linear(torch.cat(outputs, -1), model.W_o.weight, model.W_o.bias)\nmodel = GQA(4, 8, 2).double()\nfor length in (1, 3):\n    x = torch.randn(1, length, 8, dtype=torch.double)\n    for mask in (None, torch.ones(length, length, dtype=torch.bool).tril()):\n        actual = model(x, mask)\n        assert actual.shape == (1, length, 8)\n        torch.testing.assert_close(actual, oracle(model, x, 4, 2, mask))\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "MHA and MQA limits plus contiguous grouped-head mapping",
+    "input": "MHA and MQA limits plus contiguous grouped-head mapping",
+    "test": "import torch\nimport math\ntorch.manual_seed(17)\ndef oracle(model, x, heads, kv_heads, mask=None):\n    # Independent per-head reference: slice linear weights directly, no packed reshape.\n    d = x.shape[-1] // heads\n    qwidth, kvwidth = x.shape[-1], kv_heads * d\n    outputs = []\n    for h in range(heads):\n        kh = h // (heads // kv_heads)\n        def project(start):\n            return torch.nn.functional.linear(x, model.W_qkv.weight[start:start+d], model.W_qkv.bias[start:start+d])\n        q, k, v = project(h*d), project(qwidth+kh*d), project(qwidth+kvwidth+kh*d)\n        scores = torch.bmm(q, k.transpose(1, 2)) / math.sqrt(d)\n        if mask is not None:\n            expanded = torch.broadcast_to(mask, (x.shape[0], heads, x.shape[1], x.shape[1]))\n            scores = scores.masked_fill(~expanded[:, h], float('-inf'))\n        outputs.append(torch.bmm(scores.softmax(-1), v))\n    return torch.nn.functional.linear(torch.cat(outputs, -1), model.W_o.weight, model.W_o.bias)\nfor kv_heads in (1, 2, 4):\n    model = GQA(4, 8, kv_heads).double()\n    assert model.W_qkv.out_features == 8 + 2 * kv_heads * 2\n    x = torch.randn(2, 3, 8, dtype=torch.double)\n    torch.testing.assert_close(model(x), oracle(model, x, 4, kv_heads))\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "invalid constructor dimensions raise ValueError",
+    "input": "invalid constructor dimensions raise ValueError",
+    "test": "for args in [(0, 8, 1), (4, 8, 0), (3, 8, 1), (4, 8, 3), (2, -8, 1)]:\n    try:\n        GQA(*args)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('expected ValueError for ' + str(args))\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]
