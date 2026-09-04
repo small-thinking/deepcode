@@ -1,5 +1,8 @@
 import unittest
+from http.server import ThreadingHTTPServer
 from pathlib import Path
+from threading import Thread
+from urllib.request import urlopen
 
 from deepcode import server
 from deepcode.problem_store import ProblemStore
@@ -68,6 +71,63 @@ class ArchitectureTest(unittest.TestCase):
         self.assertIn("cross-request prefix", problem["response"]["reference_answer"].lower())
         self.assertIsNone(server.resolve_problem_asset("/problem-assets/batched-llm-inference-service/../secret.png", ROOT / "problems"))
         self.assertIsNone(server.resolve_problem_asset("/problem-assets/batched-llm-inference-service/problem.json", ROOT / "problems"))
+
+    def test_problem_demos_are_declared_and_scoped_to_the_owning_problem(self):
+        demo = (
+            ROOT
+            / "problems"
+            / "348-cover-photo-conversion-evaluation"
+            / "assets"
+            / "cover-photo-decision-loop.html"
+        )
+
+        self.assertEqual(
+            server.resolve_problem_demo(
+                "/problem-demos/cover-photo-conversion-evaluation/assets/cover-photo-decision-loop.html",
+                ROOT / "problems",
+            ),
+            demo.resolve(),
+        )
+        self.assertIsNone(
+            server.resolve_problem_demo(
+                "/problem-demos/cover-photo-conversion-evaluation/assets/../problem.json",
+                ROOT / "problems",
+            )
+        )
+        self.assertIsNone(
+            server.resolve_problem_demo(
+                "/problem-demos/cover-photo-conversion-evaluation/assets/not-declared.html",
+                ROOT / "problems",
+            )
+        )
+        self.assertIsNone(
+            server.resolve_problem_demo(
+                "/problem-demos/batched-llm-inference-service/assets/cover-photo-decision-loop.html",
+                ROOT / "problems",
+            )
+        )
+
+    def test_problem_demo_response_uses_html_content_type_and_restrictive_headers(self):
+        httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.DeepCodeHandler)
+        thread = Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        try:
+            url = (
+                f"http://127.0.0.1:{httpd.server_port}"
+                "/problem-demos/cover-photo-conversion-evaluation/assets/cover-photo-decision-loop.html"
+            )
+            with urlopen(url, timeout=5) as response:
+                self.assertEqual(response.status, 200)
+                self.assertEqual(response.headers.get_content_type(), "text/html")
+                self.assertEqual(response.headers["Cache-Control"], "no-store")
+                self.assertEqual(response.headers["Content-Security-Policy"], server.PROBLEM_DEMO_CSP)
+                self.assertEqual(response.headers["Cross-Origin-Resource-Policy"], "same-origin")
+                self.assertEqual(response.headers["X-Content-Type-Options"], "nosniff")
+                self.assertIn(b"From candidate photos to causal rollout", response.read())
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+            thread.join(timeout=5)
 
 
 if __name__ == "__main__":

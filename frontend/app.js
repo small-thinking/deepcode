@@ -85,7 +85,9 @@ const state = {
   layout: {
     problemRatio: 0.46,
     resultsRatio: 0.32,
+    systemDesignReferenceRatio: 0.46,
     resultsCollapsed: false,
+    systemDesignReferenceOpen: false,
   },
 };
 
@@ -527,7 +529,7 @@ function percent(value) {
 function paneLayoutStyle() {
   return `style="--problem-pane-width: ${percent(state.layout.problemRatio)}; --results-pane-height: ${percent(
     state.layout.resultsRatio
-  )};"`;
+  )}; --system-design-reference-height: ${percent(state.layout.systemDesignReferenceRatio)};"`;
 }
 
 function applyPaneSizes() {
@@ -535,6 +537,12 @@ function applyPaneSizes() {
   if (!layout) return;
   layout.style.setProperty("--problem-pane-width", percent(state.layout.problemRatio));
   layout.style.setProperty("--results-pane-height", percent(state.layout.resultsRatio));
+  layout.style.setProperty("--system-design-reference-height", percent(state.layout.systemDesignReferenceRatio));
+  const designReferenceHandle = document.querySelector('[data-resize-handle="design-reference"]');
+  designReferenceHandle?.setAttribute(
+    "aria-valuenow",
+    String(Math.round(state.layout.systemDesignReferenceRatio * 100))
+  );
   codeEditor?.resize();
 }
 
@@ -545,6 +553,7 @@ function startPaneResize(event) {
   handle.setPointerCapture?.(event.pointerId);
   window.addEventListener("pointermove", updatePaneResize);
   window.addEventListener("pointerup", stopPaneResize, { once: true });
+  window.addEventListener("pointercancel", stopPaneResize, { once: true });
   updatePaneResize(event);
   event.preventDefault();
 }
@@ -568,6 +577,13 @@ function updatePaneResize(event) {
     state.layout.resultsRatio = clamp((rect.bottom - event.clientY) / usableHeight, 0.18, 0.62);
   }
 
+  if (activePaneResize === "design-reference") {
+    const workspace = document.querySelector(".system-design-workspace.reference-open");
+    if (!workspace) return;
+    const rect = workspace.getBoundingClientRect();
+    state.layout.systemDesignReferenceRatio = clamp((rect.bottom - event.clientY) / rect.height, 0.28, 0.72);
+  }
+
   applyPaneSizes();
 }
 
@@ -575,6 +591,8 @@ function stopPaneResize() {
   activePaneResize = null;
   document.body.classList.remove("is-resizing");
   window.removeEventListener("pointermove", updatePaneResize);
+  window.removeEventListener("pointerup", stopPaneResize);
+  window.removeEventListener("pointercancel", stopPaneResize);
 }
 
 function handlePaneResizeKeydown(event) {
@@ -600,6 +618,25 @@ function handlePaneResizeKeydown(event) {
     }
     if (event.key === "ArrowDown") {
       state.layout.resultsRatio = clamp(state.layout.resultsRatio - step, 0.18, 0.62);
+      handled = true;
+    }
+  }
+
+  if (handle.dataset.resizeHandle === "design-reference") {
+    if (event.key === "ArrowUp") {
+      state.layout.systemDesignReferenceRatio = clamp(
+        state.layout.systemDesignReferenceRatio + step,
+        0.28,
+        0.72
+      );
+      handled = true;
+    }
+    if (event.key === "ArrowDown") {
+      state.layout.systemDesignReferenceRatio = clamp(
+        state.layout.systemDesignReferenceRatio - step,
+        0.28,
+        0.72
+      );
       handled = true;
     }
   }
@@ -669,6 +706,7 @@ async function loadProblem(identifier) {
   state.customTests = [];
   state.dataLink = null;
   state.dataLinkTarget = "";
+  state.layout.systemDesignReferenceOpen = false;
   state.loading = true;
   render();
   try {
@@ -2839,7 +2877,7 @@ function renderDetail() {
           ${themeToggleButton()}
         </div>
       </header>
-      <section class="detail-layout" ${paneLayoutStyle()}>
+      <section class="detail-layout ${systemDesign ? "system-design-layout" : ""}" ${paneLayoutStyle()}>
         <article class="detail-panel">
           <div class="panel-header">
             <div class="panel-title">
@@ -2955,6 +2993,14 @@ function problemAssetUrl(problem, asset) {
   return `/problem-assets/${encodeURIComponent(problem.slug)}/${encodedPath}`;
 }
 
+function problemDemoUrl(problem, demo) {
+  const encodedPath = String(demo.path)
+    .split("/")
+    .map((part) => encodeURIComponent(part))
+    .join("/");
+  return `/problem-demos/${encodeURIComponent(problem.slug)}/${encodedPath}`;
+}
+
 function renderProblemAssets(problem, section) {
   const assets = (problem.assets || []).filter((asset) => asset?.section === section && asset.path && asset.alt);
   if (!assets.length) return "";
@@ -2971,8 +3017,57 @@ function renderProblemAssets(problem, section) {
   return renderProblemBlock(PROBLEM_SECTION_CLASSES.assets, "Diagrams", `<div class="problem-asset-list">${figures}</div>`);
 }
 
+function renderInteractiveDemos(problem, section) {
+  const demos = (problem.interactive_demos || []).filter(
+    (demo) => demo?.section === section && demo.path && demo.title
+  );
+  if (!demos.length) return "";
+
+  return demos
+    .map((demo) => {
+      const height = clamp(Number(demo.height) || 680, 320, 1000);
+      return `
+        <section class="interactive-demo">
+          <div class="interactive-demo-heading">
+            <span>Interactive walkthrough</span>
+            <h4>${escapeHtml(demo.title)}</h4>
+          </div>
+          <iframe
+            class="interactive-demo-frame"
+            data-src="${escapeHtml(problemDemoUrl(problem, demo))}"
+            sandbox="allow-scripts"
+            referrerpolicy="no-referrer"
+            loading="lazy"
+            title="${escapeHtml(demo.title)}"
+            style="--interactive-demo-height: ${height}px"
+          ></iframe>
+        </section>
+      `;
+    })
+    .join("");
+}
+
+function loadInteractiveDemos(container) {
+  container.querySelectorAll("iframe.interactive-demo-frame[data-src]").forEach((frame) => {
+    frame.setAttribute("src", frame.dataset.src);
+    frame.removeAttribute("data-src");
+  });
+}
+
+function handleReferenceAnswerToggle(event) {
+  const details = event.currentTarget;
+  const workspace = details.closest(".system-design-workspace");
+  const handle = workspace?.querySelector('[data-resize-handle="design-reference"]');
+  state.layout.systemDesignReferenceOpen = details.open;
+  workspace?.classList.toggle("reference-open", details.open);
+  if (handle) handle.hidden = !details.open;
+  if (details.open) loadInteractiveDemos(details);
+  applyPaneSizes();
+}
+
 function renderSystemDesignWorkspace(problem) {
   const answer = currentSystemDesignAnswer(problem);
+  const referenceOpen = state.layout.systemDesignReferenceOpen;
   return `
     <section class="editor-panel system-design-panel">
       <div class="panel-header">
@@ -2982,22 +3077,40 @@ function renderSystemDesignWorkspace(problem) {
         </div>
         <button class="ghost-button" id="reset-system-design-answer">Reset</button>
       </div>
-      <div class="system-design-workspace">
-        <label class="system-design-answer-label" for="system-design-answer">
-          <span>Draft response</span>
-          <textarea
-            id="system-design-answer"
-            class="system-design-answer"
-            spellcheck="true"
-            placeholder="${escapeHtml(problem.response?.placeholder || "Write your design here.")}"
-          >${escapeHtml(answer)}</textarea>
-        </label>
-        <p class="system-design-note">Use Markdown headings and lists to structure requirements, APIs, data model, scale, failure handling, and trade-offs.</p>
-        <details class="reference-answer">
+      <div class="system-design-workspace ${referenceOpen ? "reference-open" : ""}">
+        <div class="system-design-draft-pane" id="system-design-draft">
+          <label class="system-design-answer-label" for="system-design-answer">
+            <span>Draft response</span>
+            <textarea
+              id="system-design-answer"
+              class="system-design-answer"
+              spellcheck="true"
+              placeholder="${escapeHtml(problem.response?.placeholder || "Write your design here.")}"
+            >${escapeHtml(answer)}</textarea>
+          </label>
+          <p class="system-design-note">Use Markdown headings and lists to structure requirements, APIs, data model, scale, failure handling, and trade-offs.</p>
+        </div>
+        <div
+          class="pane-resizer design-reference-resizer"
+          data-resize-handle="design-reference"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="Resize draft response and reference answer"
+          aria-controls="system-design-draft reference-answer"
+          aria-valuemin="28"
+          aria-valuemax="72"
+          aria-valuenow="${Math.round(state.layout.systemDesignReferenceRatio * 100)}"
+          tabindex="0"
+          ${referenceOpen ? "" : "hidden"}
+        ></div>
+        <details class="reference-answer" id="reference-answer" ${referenceOpen ? "open" : ""}>
           <summary>Show reference answer</summary>
-          <div class="reference-answer-content markdown-content">
-            ${markdownLite(problem.response?.reference_answer || "")}
-            ${renderProblemAssets(problem, "reference_answer")}
+          <div class="reference-answer-content" id="reference-answer-content">
+            ${renderInteractiveDemos(problem, "reference_answer")}
+            <div class="reference-answer-text markdown-content">
+              ${markdownLite(problem.response?.reference_answer || "")}
+              ${renderProblemAssets(problem, "reference_answer")}
+            </div>
           </div>
         </details>
       </div>
@@ -3589,6 +3702,9 @@ function bindEvents() {
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));
   document.querySelector("#system-design-answer")?.addEventListener("input", (event) => saveSystemDesignAnswer(event.target.value));
   document.querySelector("#reset-system-design-answer")?.addEventListener("click", resetSystemDesignAnswer);
+  const referenceAnswer = document.querySelector("#reference-answer");
+  referenceAnswer?.addEventListener("toggle", handleReferenceAnswerToggle);
+  if (referenceAnswer?.open) loadInteractiveDemos(referenceAnswer);
 }
 
 function bootFromHash() {

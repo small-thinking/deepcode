@@ -224,6 +224,88 @@ class ProblemStoreTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must be under assets/"):
                 ProblemStore(root).get_problem("unsafe-system-design")
 
+    def test_loads_system_design_problem_with_interactive_demo(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "interactive-system-design",
+                {
+                    "id": "142",
+                    "slug": "interactive-system-design",
+                    "title": "Interactive System Design",
+                    "category": "System Design",
+                    "difficulty": "medium",
+                    "prompt": "Design an interactive system.",
+                    "response": {"placeholder": "Start.", "reference_answer": "## Reference"},
+                    "interactive_demos": [
+                        {
+                            "path": "assets/walkthrough.html",
+                            "title": "Explore the design",
+                            "section": "reference_answer",
+                            "height": 720,
+                        }
+                    ],
+                    "evaluation": {"type": "system_design"},
+                },
+                [],
+            )
+            asset_dir = root / "interactive-system-design" / "assets"
+            asset_dir.mkdir()
+            (asset_dir / "walkthrough.html").write_text("<!doctype html><title>Demo</title>", encoding="utf-8")
+
+            problem = ProblemStore(root).get_problem("interactive-system-design")
+
+            self.assertEqual(problem["interactive_demos"][0]["path"], "assets/walkthrough.html")
+            self.assertEqual(problem["interactive_demos"][0]["height"], 720)
+
+    def test_rejects_invalid_interactive_demo_contracts(self):
+        invalid_cases = [
+            ("../walkthrough.html", "under assets/", "system_design", "reference_answer", 680),
+            ("/tmp/walkthrough.html", "under assets/", "system_design", "reference_answer", 680),
+            ("https://example.com/demo.html", "under assets/", "system_design", "reference_answer", 680),
+            ("assets/missing.html", "not found", "system_design", "reference_answer", 680),
+            ("assets/walkthrough.svg", "must use one of", "system_design", "reference_answer", 680),
+            ("assets/walkthrough.html", "must be reference_answer", "system_design", "prompt", 680),
+            ("assets/walkthrough.html", "must be between", "system_design", "reference_answer", 1200),
+            ("assets/walkthrough.html", "only supported", "ml_coding", "reference_answer", 680),
+        ]
+
+        for path, error, evaluation_type, section, height in invalid_cases:
+            with self.subTest(path=path, error=error), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                system_design = evaluation_type == "system_design"
+                problem = {
+                    "id": "143",
+                    "slug": "invalid-demo",
+                    "title": "Invalid Demo",
+                    "category": "System Design" if system_design else "Machine Learning",
+                    "difficulty": "medium",
+                    "prompt": "Design safely.",
+                    "interactive_demos": [
+                        {
+                            "path": path,
+                            "title": "Demo",
+                            "section": section,
+                            "height": height,
+                        }
+                    ],
+                    "evaluation": {"type": evaluation_type},
+                }
+                if system_design:
+                    problem["response"] = {"placeholder": "Start.", "reference_answer": "## Reference"}
+                else:
+                    problem["starter_code"] = "def solve():\n    pass\n"
+                    problem["example"] = {"input": "none", "output": "none", "reasoning": "none"}
+                self._write_problem(root, "invalid-demo", problem, [] if system_design else [{"test": "solve()", "expected_output": ""}])
+                asset_dir = root / "invalid-demo" / "assets"
+                asset_dir.mkdir()
+                (asset_dir / "walkthrough.html").write_text("<!doctype html><title>Demo</title>", encoding="utf-8")
+                (asset_dir / "walkthrough.svg").write_text("<svg/>", encoding="utf-8")
+
+                with self.assertRaisesRegex(ValueError, error):
+                    ProblemStore(root).get_problem("invalid-demo")
+
     def test_includes_companies_in_summaries_details_and_search(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

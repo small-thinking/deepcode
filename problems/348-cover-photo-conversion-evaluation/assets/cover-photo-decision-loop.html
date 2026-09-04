@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Cover photo decision and evaluation loop</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #14171d;
+        --panel: #1d222b;
+        --panel-2: #242a34;
+        --line: #394150;
+        --line-strong: #647084;
+        --text: #f2f5f8;
+        --body: #c9d0da;
+        --muted: #98a3b3;
+        --blue: #64a9ff;
+        --blue-soft: rgba(100, 169, 255, 0.14);
+        --green: #4bd17c;
+        --green-soft: rgba(75, 209, 124, 0.12);
+        --amber: #f2be4c;
+        --amber-soft: rgba(242, 190, 76, 0.12);
+        --red: #ff7373;
+        --red-soft: rgba(255, 115, 115, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        color: inherit;
+      }
+
+      .demo {
+        display: grid;
+        gap: 14px;
+        min-height: 100vh;
+        padding: 16px;
+      }
+
+      .demo-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--blue);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 5px;
+        font-size: clamp(18px, 3vw, 24px);
+        letter-spacing: -0.02em;
+      }
+
+      .demo-header p {
+        max-width: 720px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .playback {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 7px;
+      }
+
+      .control,
+      .stage-button,
+      .choice {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--panel-2);
+        cursor: pointer;
+      }
+
+      .control {
+        min-height: 34px;
+        padding: 0 11px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .control:hover,
+      .control:focus-visible,
+      .choice:hover,
+      .choice:focus-visible {
+        border-color: var(--blue);
+        outline: none;
+      }
+
+      .control.primary {
+        border-color: var(--blue);
+        color: #07121e;
+        background: var(--blue);
+      }
+
+      .control:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+
+      .stage-rail {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(92px, 1fr));
+        gap: 7px;
+      }
+
+      .stage-button {
+        position: relative;
+        display: grid;
+        grid-template-columns: 23px minmax(0, 1fr);
+        align-items: center;
+        gap: 7px;
+        min-height: 48px;
+        padding: 8px;
+        color: var(--muted);
+        text-align: left;
+      }
+
+      .stage-button::after {
+        position: absolute;
+        right: -8px;
+        width: 8px;
+        height: 1px;
+        background: var(--line-strong);
+        content: "";
+      }
+
+      .stage-button:last-child::after {
+        display: none;
+      }
+
+      .stage-button:hover,
+      .stage-button:focus-visible {
+        color: var(--text);
+        border-color: var(--line-strong);
+        outline: none;
+      }
+
+      .stage-button[aria-current="step"] {
+        color: var(--text);
+        border-color: var(--blue);
+        background: var(--blue-soft);
+        box-shadow: inset 0 0 0 1px rgba(100, 169, 255, 0.15);
+      }
+
+      .stage-button.is-complete {
+        color: var(--green);
+        border-color: rgba(75, 209, 124, 0.42);
+      }
+
+      .stage-number {
+        display: grid;
+        width: 23px;
+        height: 23px;
+        place-items: center;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 10px;
+        font-weight: 800;
+      }
+
+      .stage-label {
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1.25;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.75fr);
+        gap: 12px;
+        min-height: 470px;
+      }
+
+      .simulation,
+      .lesson {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+      }
+
+      .simulation {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        gap: 12px;
+        padding: 13px;
+        overflow: hidden;
+      }
+
+      .simulation-header,
+      .lesson-header,
+      .experiment-controls,
+      .metric-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .simulation-header strong,
+      .lesson-header strong {
+        font-size: 12px;
+      }
+
+      .simulation-header span,
+      .lesson-header span,
+      .metric-heading span {
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .candidate-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .candidate {
+        position: relative;
+        min-height: 102px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-2);
+        transition: border-color 180ms ease, opacity 180ms ease, transform 180ms ease;
+      }
+
+      .candidate.is-selected {
+        border-color: var(--green);
+        box-shadow: inset 0 0 0 1px rgba(75, 209, 124, 0.18);
+        transform: translateY(-2px);
+      }
+
+      .candidate.is-blocked {
+        border-color: var(--red);
+        opacity: 0.58;
+      }
+
+      .candidate-tag {
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .candidate h3 {
+        margin: 7px 0 4px;
+        font-size: 12px;
+      }
+
+      .candidate p {
+        margin-bottom: 7px;
+        color: var(--body);
+        font-size: 10px;
+        line-height: 1.35;
+      }
+
+      .score {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .score strong {
+        color: var(--text);
+        font-size: 11px;
+      }
+
+      .signal-board {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+        min-height: 0;
+      }
+
+      .signal-card {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #181c23;
+        opacity: 0.45;
+        transition: border-color 180ms ease, opacity 180ms ease, transform 180ms ease;
+      }
+
+      .signal-card.is-active {
+        border-color: var(--blue);
+        opacity: 1;
+        transform: translateY(-2px);
+      }
+
+      .signal-card.is-complete {
+        border-color: rgba(75, 209, 124, 0.42);
+        opacity: 0.78;
+      }
+
+      .signal-card h3 {
+        margin-bottom: 4px;
+        font-size: 11px;
+      }
+
+      .signal-card p {
+        margin-bottom: 9px;
+        color: var(--muted);
+        font-size: 9px;
+        line-height: 1.4;
+      }
+
+      .log-line {
+        display: block;
+        overflow: hidden;
+        color: var(--body);
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 9px;
+        line-height: 1.55;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .allocation-value {
+        color: var(--blue);
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .experiment-controls {
+        align-items: flex-end;
+        margin-top: 8px;
+      }
+
+      .range-wrap {
+        display: grid;
+        flex: 1;
+        gap: 4px;
+      }
+
+      .range-wrap label,
+      .choice-label {
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--blue);
+      }
+
+      .choice-group {
+        display: flex;
+        gap: 5px;
+        margin-top: 8px;
+      }
+
+      .choice {
+        flex: 1;
+        min-height: 29px;
+        padding: 0 7px;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .choice[aria-pressed="true"] {
+        color: var(--text);
+        border-color: var(--blue);
+        background: var(--blue-soft);
+      }
+
+      .metric-row + .metric-row {
+        margin-top: 7px;
+      }
+
+      .metric-heading {
+        margin-bottom: 4px;
+      }
+
+      .metric-heading strong {
+        font-size: 10px;
+      }
+
+      .metric-track {
+        height: 7px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--line);
+      }
+
+      .metric-fill {
+        display: block;
+        height: 100%;
+        width: var(--metric-width);
+        border-radius: inherit;
+        background: var(--green);
+        transition: width 240ms ease;
+      }
+
+      .metric-row.guardrail .metric-fill {
+        background: var(--amber);
+      }
+
+      .decision-list {
+        display: grid;
+        gap: 6px;
+      }
+
+      .decision {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 7px;
+        align-items: start;
+        padding: 7px;
+        border-radius: 6px;
+        color: var(--body);
+        background: var(--panel-2);
+        font-size: 9px;
+        line-height: 1.4;
+      }
+
+      .decision strong {
+        color: var(--green);
+      }
+
+      .decision.rollback strong {
+        color: var(--red);
+      }
+
+      .lesson {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        overflow: hidden;
+      }
+
+      .lesson-header {
+        min-height: 42px;
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel-2);
+      }
+
+      .slide {
+        padding: 15px;
+        animation: enter 220ms ease-out;
+      }
+
+      .slide[hidden] {
+        display: none;
+      }
+
+      .slide h2 {
+        margin-bottom: 8px;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+      }
+
+      .slide > p {
+        margin-bottom: 14px;
+        color: var(--body);
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      .teaching-block {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #181c23;
+      }
+
+      .teaching-block span {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .teaching-block strong,
+      .teaching-block code {
+        color: var(--text);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+
+      .teaching-block code {
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+
+      .lesson-footer {
+        padding: 10px 12px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        background: var(--panel-2);
+        font-size: 9px;
+        line-height: 1.4;
+      }
+
+      .lesson-footer strong {
+        color: var(--amber);
+      }
+
+      @keyframes enter {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 760px) {
+        .demo-header {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .playback {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .stage-rail {
+          grid-template-columns: repeat(5, minmax(88px, 1fr));
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 460px) {
+        .demo {
+          padding: 11px;
+        }
+
+        .candidate-grid,
+        .signal-board {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="demo">
+      <header class="demo-header">
+        <div>
+          <span class="eyebrow">Decision + evaluation theater</span>
+          <h1>From candidate photos to causal rollout</h1>
+          <p>Step through the contract, data, experiment, and guardrails. Change the allocation and assignment unit to see what the design must explain. All photos, scores, traffic, and outcomes are toy assumptions for learning, not reported Airbnb facts.</p>
+        </div>
+        <div class="playback" aria-label="Walkthrough controls">
+          <button class="control" id="previous" type="button">Previous</button>
+          <button class="control primary" id="play" type="button" aria-pressed="false">Play once</button>
+          <button class="control" id="next" type="button">Next</button>
+        </div>
+      </header>
+
+      <nav class="stage-rail" aria-label="Walkthrough stages">
+        <button class="stage-button" type="button" data-step="0" aria-current="step">
+          <span class="stage-number">1</span><span class="stage-label">Decision contract</span>
+        </button>
+        <button class="stage-button" type="button" data-step="1">
+          <span class="stage-number">2</span><span class="stage-label">Eligible ranking</span>
+        </button>
+        <button class="stage-button" type="button" data-step="2">
+          <span class="stage-number">3</span><span class="stage-label">Random exposure</span>
+        </button>
+        <button class="stage-button" type="button" data-step="3">
+          <span class="stage-number">4</span><span class="stage-label">Delayed outcomes</span>
+        </button>
+        <button class="stage-button" type="button" data-step="4">
+          <span class="stage-number">5</span><span class="stage-label">Ship or rollback</span>
+        </button>
+      </nav>
+
+      <section class="workspace">
+        <section class="simulation" aria-label="Cover photo decision simulation">
+          <div class="simulation-header">
+            <strong>Qualified listing impression</strong>
+            <span id="simulation-status">Define one decision before choosing a model</span>
+          </div>
+
+          <div class="candidate-grid" aria-label="Candidate images">
+            <article class="candidate" data-candidate="a">
+              <span class="candidate-tag">Photo A · eligible</span>
+              <h3>Bright exterior</h3>
+              <p>Clear composition; current-cover baseline.</p>
+              <div class="score"><span>Offline score</span><strong>0.74</strong></div>
+            </article>
+            <article class="candidate" data-candidate="b">
+              <span class="candidate-tag">Photo B · eligible</span>
+              <h3>Living room</h3>
+              <p>High quality; ranker challenger.</p>
+              <div class="score"><span>Offline score</span><strong>0.83</strong></div>
+            </article>
+            <article class="candidate" data-candidate="c">
+              <span class="candidate-tag">Photo C · review</span>
+              <h3>Promotional collage</h3>
+              <p>Text overlay fails the policy gate.</p>
+              <div class="score"><span>Offline score</span><strong>0.91</strong></div>
+            </article>
+          </div>
+
+          <div class="signal-board">
+            <article class="signal-card" data-stage="1">
+              <h3>Exposure log</h3>
+              <p>Point-in-time evidence, not post-exposure features.</p>
+              <span class="log-line">request_id = req_42</span>
+              <span class="log-line">eligible = [A, B]</span>
+              <span class="log-line">displayed = B · model = v7</span>
+            </article>
+
+            <article class="signal-card" data-stage="2">
+              <h3>Randomized allocation</h3>
+              <p id="allocation-copy">20,000 of 100,000 qualified impressions enter the experiment.</p>
+              <div class="experiment-controls">
+                <div class="range-wrap">
+                  <label for="allocation">Experiment traffic</label>
+                  <input id="allocation" type="range" min="5" max="50" step="5" value="20" />
+                </div>
+                <strong class="allocation-value" id="allocation-value">20%</strong>
+              </div>
+              <span class="choice-label">Stable assignment unit</span>
+              <div class="choice-group" aria-label="Assignment unit">
+                <button class="choice" type="button" data-unit="viewer" aria-pressed="true">Viewer</button>
+                <button class="choice" type="button" data-unit="listing-day" aria-pressed="false">Listing-day</button>
+              </div>
+            </article>
+
+            <article class="signal-card" data-stage="3">
+              <h3>Outcome + guardrails</h3>
+              <p>Compare like-for-like assigned exposures inside one attribution window.</p>
+              <div class="metric-row">
+                <div class="metric-heading"><strong>Booking conversion</strong><span>+2.1%</span></div>
+                <div class="metric-track"><span class="metric-fill" style="--metric-width: 71%"></span></div>
+              </div>
+              <div class="metric-row guardrail">
+                <div class="metric-heading"><strong>Guest complaints</strong><span>+0.1%</span></div>
+                <div class="metric-track"><span class="metric-fill" style="--metric-width: 18%"></span></div>
+              </div>
+            </article>
+
+            <article class="signal-card" data-stage="4">
+              <h3>Decision state</h3>
+              <p>Predeclare thresholds so a noisy point estimate is not a launch rule.</p>
+              <div class="decision-list">
+                <div class="decision"><strong>Ship</strong><span>Conversion lift is credible and guardrails remain inside budget.</span></div>
+                <div class="decision rollback"><strong>Rollback</strong><span>Complaint, cancellation, or slice thresholds breach the plan.</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <aside class="lesson" aria-label="Current walkthrough explanation">
+          <div class="lesson-header">
+            <strong>Interview narration</strong>
+            <span id="step-count">Step 1 of 5</span>
+          </div>
+
+          <div aria-live="polite">
+            <article class="slide" data-slide="0">
+              <span class="eyebrow">Start with the contract</span>
+              <h2>What decision is made, and when?</h2>
+              <p>Select exactly one policy-eligible cover photo before a qualified listing impression, then attribute a booking inside a declared window.</p>
+              <div class="teaching-block"><span>Say this first</span><strong>“My decision unit is one listing × qualified impression, before exposure.”</strong></div>
+              <div class="teaching-block"><span>Do not assume</span><code>historical booking label ⇒ this photo caused the booking</code></div>
+            </article>
+
+            <article class="slide" data-slide="1" hidden>
+              <span class="eyebrow">Separate policy from ranking</span>
+              <h2>Filter first; rank only eligible images</h2>
+              <p>Photo C has the highest offline score, but it fails the policy gate. The challenger is Photo B, compared with the current-cover baseline A.</p>
+              <div class="teaching-block"><span>Offline evidence</span><strong>Ranking quality, calibration, coverage, and important market/device/new-listing slices.</strong></div>
+              <div class="teaching-block"><span>Bias warning</span><code>observed logs reflect the previous selection policy</code></div>
+            </article>
+
+            <article class="slide" data-slide="2" hidden>
+              <span class="eyebrow">Create causal evidence</span>
+              <h2>Randomize a bounded share of safe traffic</h2>
+              <p>Use a stable assignment unit that limits inconsistent experiences. Move the traffic slider and compare viewer-level learning speed with listing-day consistency.</p>
+              <div class="teaching-block"><span>Current assignment</span><strong id="assignment-explanation">Viewer assignment learns quickly, but one listing may show different covers to different guests.</strong></div>
+              <div class="teaching-block"><span>Log</span><code>assignment_id, eligible set, displayed photo, policy/model version</code></div>
+            </article>
+
+            <article class="slide" data-slide="3" hidden>
+              <span class="eyebrow">Wait for the outcome window</span>
+              <h2>Measure conversion and trust separately</h2>
+              <p>Join assigned exposures to delayed bookings without leaking post-exposure behavior into features. Report uncertainty and slices, not only one aggregate lift.</p>
+              <div class="teaching-block"><span>Primary</span><strong>Booking conversion within the declared attribution window.</strong></div>
+              <div class="teaching-block"><span>Guardrails</span><code>bounce, cancellation, complaints, host trust, coverage</code></div>
+            </article>
+
+            <article class="slide" data-slide="4" hidden>
+              <span class="eyebrow">Close the loop</span>
+              <h2>Ship gradually, or restore the fallback</h2>
+              <p>Promote only after predeclared evidence thresholds pass. Keep the previous cover and the selection reason so rollback is immediate and diagnosis remains possible.</p>
+              <div class="teaching-block"><span>Rollout plan</span><strong>Shadow → bounded experiment → sliced review → staged traffic → monitor.</strong></div>
+              <div class="teaching-block"><span>Feedback loop</span><code>new qualified logs → offline refresh → new causal validation</code></div>
+            </article>
+          </div>
+
+          <footer class="lesson-footer" id="lesson-footer">
+            <strong>Common miss:</strong> choosing a model family before defining the decision and outcome contract.
+          </footer>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const root = document;
+        const stageButtons = [...root.querySelectorAll("[data-step]")];
+        const slides = [...root.querySelectorAll("[data-slide]")];
+        const signalCards = [...root.querySelectorAll("[data-stage]")];
+        const candidates = [...root.querySelectorAll("[data-candidate]")];
+        const previous = root.querySelector("#previous");
+        const next = root.querySelector("#next");
+        const play = root.querySelector("#play");
+        const allocation = root.querySelector("#allocation");
+        const allocationValue = root.querySelector("#allocation-value");
+        const allocationCopy = root.querySelector("#allocation-copy");
+        const assignmentExplanation = root.querySelector("#assignment-explanation");
+        const simulationStatus = root.querySelector("#simulation-status");
+        const stepCount = root.querySelector("#step-count");
+        const lessonFooter = root.querySelector("#lesson-footer");
+        const choices = [...root.querySelectorAll("[data-unit]")];
+
+        const status = [
+          "Define one decision before choosing a model",
+          "Policy-safe challenger: Photo B",
+          "Compare assigned policies, not historical labels",
+          "Outcome window complete: review uncertainty",
+          "Evidence becomes a staged launch decision",
+        ];
+        const misses = [
+          "choosing a model family before defining the decision and outcome contract.",
+          "letting a high model score bypass rights, policy, or accessibility checks.",
+          "treating observational logs as if the old display policy were random.",
+          "reporting aggregate conversion without delayed outcomes, uncertainty, or slices.",
+          "launching on a point estimate without stop, rollback, and fallback rules.",
+        ];
+
+        let currentStep = 0;
+        let playTimer = null;
+
+        function stopPlayback() {
+          if (playTimer !== null) window.clearInterval(playTimer);
+          playTimer = null;
+          play.setAttribute("aria-pressed", "false");
+          play.textContent = "Play once";
+        }
+
+        function setStep(step, manual = true) {
+          currentStep = Math.max(0, Math.min(slides.length - 1, step));
+          stageButtons.forEach((button, index) => {
+            if (index === currentStep) button.setAttribute("aria-current", "step");
+            else button.removeAttribute("aria-current");
+            button.classList.toggle("is-complete", index < currentStep);
+          });
+          slides.forEach((slide, index) => {
+            slide.hidden = index !== currentStep;
+          });
+          signalCards.forEach((card) => {
+            const stage = Number(card.dataset.stage);
+            card.classList.toggle("is-active", stage === currentStep);
+            card.classList.toggle("is-complete", stage < currentStep);
+          });
+          candidates.forEach((candidate) => {
+            candidate.classList.toggle("is-selected", currentStep >= 1 && candidate.dataset.candidate === "b");
+            candidate.classList.toggle("is-blocked", currentStep >= 1 && candidate.dataset.candidate === "c");
+          });
+          previous.disabled = currentStep === 0;
+          next.disabled = currentStep === slides.length - 1;
+          stepCount.textContent = `Step ${currentStep + 1} of ${slides.length}`;
+          simulationStatus.textContent = status[currentStep];
+          lessonFooter.innerHTML = `<strong>Common miss:</strong> ${misses[currentStep]}`;
+          if (manual) stopPlayback();
+        }
+
+        function startPlayback() {
+          stopPlayback();
+          if (currentStep === slides.length - 1) setStep(0, false);
+          play.setAttribute("aria-pressed", "true");
+          play.textContent = "Pause";
+          playTimer = window.setInterval(() => {
+            if (currentStep >= slides.length - 1) {
+              stopPlayback();
+              return;
+            }
+            setStep(currentStep + 1, false);
+            if (currentStep === slides.length - 1) stopPlayback();
+          }, 6500);
+        }
+
+        function updateAllocation() {
+          const percent = Number(allocation.value);
+          allocationValue.textContent = `${percent}%`;
+          allocationCopy.textContent = `${(percent * 1000).toLocaleString()} of 100,000 qualified impressions enter the experiment.`;
+        }
+
+        stageButtons.forEach((button) => {
+          button.addEventListener("click", () => setStep(Number(button.dataset.step)));
+        });
+        previous.addEventListener("click", () => setStep(currentStep - 1));
+        next.addEventListener("click", () => setStep(currentStep + 1));
+        play.addEventListener("click", () => {
+          if (playTimer === null) startPlayback();
+          else stopPlayback();
+        });
+        allocation.addEventListener("input", updateAllocation);
+        choices.forEach((choice) => {
+          choice.addEventListener("click", () => {
+            choices.forEach((item) => item.setAttribute("aria-pressed", String(item === choice)));
+            assignmentExplanation.textContent =
+              choice.dataset.unit === "viewer"
+                ? "Viewer assignment learns quickly, but one listing may show different covers to different guests."
+                : "Listing-day assignment is more consistent, but needs enough listings and care around time effects.";
+          });
+        });
+
+        setStep(0, false);
+        updateAllocation();
+      })();
+    </script>
+  </body>
+</html>
