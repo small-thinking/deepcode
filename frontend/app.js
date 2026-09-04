@@ -3096,6 +3096,10 @@ function handleInteractiveDemoMessage(event) {
   const frame = interactiveDemoFrameForSource(event.source);
   if (!frame) return;
   if (event.data?.version !== Number(frame.dataset.demoSchemaVersion)) return;
+  if (event.data?.type === "deepcode:interactive-demo-scroll-start") {
+    if (frame.getClientRects().length) frame.scrollIntoView({ block: "start", behavior: "instant" });
+    return;
+  }
   if (event.data?.type === "deepcode:interactive-demo-ready") {
     postInteractiveDemoTheme(frame);
     return;

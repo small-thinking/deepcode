@@ -1,967 +1,575 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
-    />
-    <title>Cover photo decision and evaluation loop</title>
-    <style>
-      :root {
-        color-scheme: light;
-        --bg: #eef1f5;
-        --panel: #f7f8fb;
-        --panel-2: #e8ebf1;
-        --panel-inset: #f6f7fa;
-        --line: #cdd3df;
-        --line-strong: #9da7b8;
-        --text: #1f2530;
-        --body: #2f3541;
-        --muted: #667082;
-        --blue: #2563eb;
-        --blue-soft: rgba(37, 99, 235, 0.12);
-        --blue-text: #f7f8fb;
-        --green: #16823a;
-        --green-soft: rgba(22, 130, 58, 0.14);
-        --amber: #b7791f;
-        --amber-soft: rgba(183, 121, 31, 0.14);
-        --red: #dc2626;
-        --red-soft: rgba(220, 38, 38, 0.12);
-      }
-
-      :root[data-theme="dark"] {
-        color-scheme: dark;
-        --bg: #17191f;
-        --panel: #20232b;
-        --panel-2: #282c35;
-        --panel-inset: #181b22;
-        --line: #383d49;
-        --line-strong: #687080;
-        --text: #eef1f5;
-        --body: #d4d7df;
-        --muted: #aeb4c0;
-        --blue: #5aa7ff;
-        --blue-soft: rgba(90, 167, 255, 0.16);
-        --blue-text: #17191f;
-        --green: #22c55e;
-        --green-soft: rgba(34, 197, 94, 0.16);
-        --amber: #f5b301;
-        --amber-soft: rgba(245, 179, 1, 0.16);
-        --red: #ef4444;
-        --red-soft: rgba(239, 68, 68, 0.16);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        min-height: 100%;
-        overflow: hidden;
-        background: var(--bg);
-        color: var(--text);
-        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
-
-      button,
-      input {
-        font: inherit;
-      }
-
-      button {
-        color: inherit;
-      }
-
-      .demo {
-        display: grid;
-        gap: 14px;
-        min-height: 100vh;
-        padding: 16px;
-      }
-
-      .demo-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 18px;
-      }
-
-      .eyebrow {
-        display: block;
-        margin-bottom: 5px;
-        color: var(--blue);
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-      }
-
-      h1,
-      h2,
-      h3,
-      p {
-        margin-top: 0;
-      }
-
-      h1 {
-        margin-bottom: 5px;
-        font-size: clamp(18px, 3vw, 24px);
-        letter-spacing: -0.02em;
-      }
-
-      .demo-header p {
-        max-width: 720px;
-        margin-bottom: 0;
-        color: var(--muted);
-        font-size: 12px;
-        line-height: 1.5;
-      }
-
-      .playback {
-        display: flex;
-        flex: 0 0 auto;
-        gap: 7px;
-      }
-
-      .control,
-      .stage-button,
-      .choice {
-        border: 1px solid var(--line);
-        border-radius: 7px;
-        background: var(--panel-2);
-        cursor: pointer;
-      }
-
-      .control {
-        min-height: 34px;
-        padding: 0 11px;
-        font-size: 11px;
-        font-weight: 700;
-      }
-
-      .control:hover,
-      .control:focus-visible,
-      .choice:hover,
-      .choice:focus-visible {
-        border-color: var(--blue);
-        outline: none;
-      }
-
-      .control.primary {
-        border-color: var(--blue);
-        color: var(--blue-text);
-        background: var(--blue);
-      }
-
-      .control:disabled {
-        cursor: not-allowed;
-        opacity: 0.4;
-      }
-
-      .stage-rail {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(92px, 1fr));
-        gap: 7px;
-      }
-
-      .stage-button {
-        position: relative;
-        display: grid;
-        grid-template-columns: 23px minmax(0, 1fr);
-        align-items: center;
-        gap: 7px;
-        min-height: 48px;
-        padding: 8px;
-        color: var(--muted);
-        text-align: left;
-      }
-
-      .stage-button::after {
-        position: absolute;
-        right: -8px;
-        width: 8px;
-        height: 1px;
-        background: var(--line-strong);
-        content: "";
-      }
-
-      .stage-button:last-child::after {
-        display: none;
-      }
-
-      .stage-button:hover,
-      .stage-button:focus-visible {
-        color: var(--text);
-        border-color: var(--line-strong);
-        outline: none;
-      }
-
-      .stage-button[aria-current="step"] {
-        color: var(--text);
-        border-color: var(--blue);
-        background: var(--blue-soft);
-        box-shadow: inset 0 0 0 1px var(--blue-soft);
-      }
-
-      .stage-button.is-complete {
-        color: var(--green);
-        border-color: var(--green);
-      }
-
-      .stage-number {
-        display: grid;
-        width: 23px;
-        height: 23px;
-        place-items: center;
-        border: 1px solid currentColor;
-        border-radius: 50%;
-        font-size: 10px;
-        font-weight: 800;
-      }
-
-      .stage-label {
-        font-size: 10px;
-        font-weight: 800;
-        line-height: 1.25;
-      }
-
-      .workspace {
-        display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.75fr);
-        gap: 12px;
-        min-height: 470px;
-      }
-
-      .simulation,
-      .lesson {
-        min-width: 0;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: var(--panel);
-      }
-
-      .simulation {
-        display: grid;
-        grid-template-rows: auto auto minmax(0, 1fr);
-        gap: 12px;
-        padding: 13px;
-        overflow: hidden;
-      }
-
-      .simulation-header,
-      .lesson-header,
-      .experiment-controls,
-      .metric-heading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-
-      .simulation-header strong,
-      .lesson-header strong {
-        font-size: 12px;
-      }
-
-      .simulation-header span,
-      .lesson-header span,
-      .metric-heading span {
-        color: var(--muted);
-        font-size: 10px;
-      }
-
-      .candidate-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 8px;
-      }
-
-      .candidate {
-        position: relative;
-        min-height: 102px;
-        padding: 10px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel-2);
-        transition: border-color 180ms ease, opacity 180ms ease, transform 180ms ease;
-      }
-
-      .candidate.is-selected {
-        border-color: var(--green);
-        box-shadow: inset 0 0 0 1px var(--green-soft);
-        transform: translateY(-2px);
-      }
-
-      .candidate.is-blocked {
-        border-color: var(--red);
-        opacity: 0.58;
-      }
-
-      .candidate-tag {
-        color: var(--muted);
-        font-size: 9px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .candidate h3 {
-        margin: 7px 0 4px;
-        font-size: 12px;
-      }
-
-      .candidate p {
-        margin-bottom: 7px;
-        color: var(--body);
-        font-size: 10px;
-        line-height: 1.35;
-      }
-
-      .score {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 6px;
-        color: var(--muted);
-        font-size: 9px;
-      }
-
-      .score strong {
-        color: var(--text);
-        font-size: 11px;
-      }
-
-      .signal-board {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 9px;
-        min-height: 0;
-      }
-
-      .signal-card {
-        padding: 10px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel-inset);
-        opacity: 0.45;
-        transition: border-color 180ms ease, opacity 180ms ease, transform 180ms ease;
-      }
-
-      .signal-card.is-active {
-        border-color: var(--blue);
-        opacity: 1;
-        transform: translateY(-2px);
-      }
-
-      .signal-card.is-complete {
-        border-color: var(--green);
-        opacity: 0.78;
-      }
-
-      .signal-card h3 {
-        margin-bottom: 4px;
-        font-size: 11px;
-      }
-
-      .signal-card p {
-        margin-bottom: 9px;
-        color: var(--muted);
-        font-size: 9px;
-        line-height: 1.4;
-      }
-
-      .log-line {
-        display: block;
-        overflow: hidden;
-        color: var(--body);
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-        font-size: 9px;
-        line-height: 1.55;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .allocation-value {
-        color: var(--blue);
-        font-size: 18px;
-        font-weight: 800;
-      }
-
-      .experiment-controls {
-        align-items: flex-end;
-        margin-top: 8px;
-      }
-
-      .range-wrap {
-        display: grid;
-        flex: 1;
-        gap: 4px;
-      }
-
-      .range-wrap label,
-      .choice-label {
-        color: var(--muted);
-        font-size: 9px;
-      }
-
-      input[type="range"] {
-        width: 100%;
-        accent-color: var(--blue);
-      }
-
-      .choice-group {
-        display: flex;
-        gap: 5px;
-        margin-top: 8px;
-      }
-
-      .choice {
-        flex: 1;
-        min-height: 29px;
-        padding: 0 7px;
-        color: var(--muted);
-        font-size: 9px;
-        font-weight: 700;
-      }
-
-      .choice[aria-pressed="true"] {
-        color: var(--text);
-        border-color: var(--blue);
-        background: var(--blue-soft);
-      }
-
-      .metric-row + .metric-row {
-        margin-top: 7px;
-      }
-
-      .metric-heading {
-        margin-bottom: 4px;
-      }
-
-      .metric-heading strong {
-        font-size: 10px;
-      }
-
-      .metric-track {
-        height: 7px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: var(--line);
-      }
-
-      .metric-fill {
-        display: block;
-        height: 100%;
-        width: var(--metric-width);
-        border-radius: inherit;
-        background: var(--green);
-        transition: width 240ms ease;
-      }
-
-      .metric-row.guardrail .metric-fill {
-        background: var(--amber);
-      }
-
-      .decision-list {
-        display: grid;
-        gap: 6px;
-      }
-
-      .decision {
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        gap: 7px;
-        align-items: start;
-        padding: 7px;
-        border-radius: 6px;
-        color: var(--body);
-        background: var(--panel-2);
-        font-size: 9px;
-        line-height: 1.4;
-      }
-
-      .decision strong {
-        color: var(--green);
-      }
-
-      .decision.rollback strong {
-        color: var(--red);
-      }
-
-      .lesson {
-        display: grid;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        overflow: hidden;
-      }
-
-      .lesson-header {
-        min-height: 42px;
-        padding: 9px 12px;
-        border-bottom: 1px solid var(--line);
-        background: var(--panel-2);
-      }
-
-      .slide {
-        padding: 15px;
-        animation: enter 220ms ease-out;
-      }
-
-      .slide[hidden] {
-        display: none;
-      }
-
-      .slide h2 {
-        margin-bottom: 8px;
-        font-size: 17px;
-        letter-spacing: -0.02em;
-      }
-
-      .slide > p {
-        margin-bottom: 14px;
-        color: var(--body);
-        font-size: 11px;
-        line-height: 1.55;
-      }
-
-      .teaching-block {
-        margin-top: 10px;
-        padding: 10px;
-        border: 1px solid var(--line);
-        border-radius: 7px;
-        background: var(--panel-inset);
-      }
-
-      .teaching-block span {
-        display: block;
-        margin-bottom: 5px;
-        color: var(--muted);
-        font-size: 9px;
-        font-weight: 800;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
-      }
-
-      .teaching-block strong,
-      .teaching-block code {
-        color: var(--text);
-        font-size: 10px;
-        line-height: 1.45;
-      }
-
-      .teaching-block code {
-        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-      }
-
-      .lesson-footer {
-        padding: 10px 12px;
-        border-top: 1px solid var(--line);
-        color: var(--muted);
-        background: var(--panel-2);
-        font-size: 9px;
-        line-height: 1.4;
-      }
-
-      .lesson-footer strong {
-        color: var(--amber);
-      }
-
-      @keyframes enter {
-        from {
-          opacity: 0;
-          transform: translateY(5px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @media (max-width: 760px) {
-        .demo-header {
-          align-items: stretch;
-          flex-direction: column;
-        }
-
-        .playback {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-        }
-
-        .stage-rail {
-          grid-template-columns: repeat(5, minmax(88px, 1fr));
-          overflow-x: auto;
-          padding-bottom: 4px;
-        }
-
-        .workspace {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 460px) {
-        .demo {
-          padding: 11px;
-        }
-
-        .candidate-grid,
-        .signal-board {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          scroll-behavior: auto !important;
-          animation-duration: 0.01ms !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <main class="demo">
-      <header class="demo-header">
-        <div>
-          <span class="eyebrow">Decision + evaluation theater</span>
-          <h1>From candidate photos to causal rollout</h1>
-          <p>Step through the contract, data, experiment, and guardrails. Change the allocation and assignment unit to see what the design must explain. All photos, scores, traffic, and outcomes are toy assumptions for learning, not reported Airbnb facts.</p>
-        </div>
-        <div class="playback" aria-label="Walkthrough controls">
-          <button class="control" id="previous" type="button">Previous</button>
-          <button class="control primary" id="play" type="button" aria-pressed="false">Play once</button>
-          <button class="control" id="next" type="button">Next</button>
-        </div>
-      </header>
-
-      <nav class="stage-rail" aria-label="Walkthrough stages">
-        <button class="stage-button" type="button" data-step="0" aria-current="step">
-          <span class="stage-number">1</span><span class="stage-label">Decision contract</span>
-        </button>
-        <button class="stage-button" type="button" data-step="1">
-          <span class="stage-number">2</span><span class="stage-label">Eligible ranking</span>
-        </button>
-        <button class="stage-button" type="button" data-step="2">
-          <span class="stage-number">3</span><span class="stage-label">Random exposure</span>
-        </button>
-        <button class="stage-button" type="button" data-step="3">
-          <span class="stage-number">4</span><span class="stage-label">Delayed outcomes</span>
-        </button>
-        <button class="stage-button" type="button" data-step="4">
-          <span class="stage-number">5</span><span class="stage-label">Ship or rollback</span>
-        </button>
-      </nav>
-
-      <section class="workspace">
-        <section class="simulation" aria-label="Cover photo decision simulation">
-          <div class="simulation-header">
-            <strong>Qualified listing impression</strong>
-            <span id="simulation-status">Define one decision before choosing a model</span>
-          </div>
-
-          <div class="candidate-grid" aria-label="Candidate images">
-            <article class="candidate" data-candidate="a">
-              <span class="candidate-tag">Photo A · eligible</span>
-              <h3>Bright exterior</h3>
-              <p>Clear composition; current-cover baseline.</p>
-              <div class="score"><span>Offline score</span><strong>0.74</strong></div>
-            </article>
-            <article class="candidate" data-candidate="b">
-              <span class="candidate-tag">Photo B · eligible</span>
-              <h3>Living room</h3>
-              <p>High quality; ranker challenger.</p>
-              <div class="score"><span>Offline score</span><strong>0.83</strong></div>
-            </article>
-            <article class="candidate" data-candidate="c">
-              <span class="candidate-tag">Photo C · review</span>
-              <h3>Promotional collage</h3>
-              <p>Text overlay fails the policy gate.</p>
-              <div class="score"><span>Offline score</span><strong>0.91</strong></div>
-            </article>
-          </div>
-
-          <div class="signal-board">
-            <article class="signal-card" data-stage="1">
-              <h3>Exposure log</h3>
-              <p>Point-in-time evidence, not post-exposure features.</p>
-              <span class="log-line">request_id = req_42</span>
-              <span class="log-line">eligible = [A, B]</span>
-              <span class="log-line">displayed = B · model = v7</span>
-            </article>
-
-            <article class="signal-card" data-stage="2">
-              <h3>Randomized allocation</h3>
-              <p id="allocation-copy">20,000 of 100,000 qualified impressions enter the experiment.</p>
-              <div class="experiment-controls">
-                <div class="range-wrap">
-                  <label for="allocation">Experiment traffic</label>
-                  <input id="allocation" type="range" min="5" max="50" step="5" value="20" />
-                </div>
-                <strong class="allocation-value" id="allocation-value">20%</strong>
-              </div>
-              <span class="choice-label">Stable assignment unit</span>
-              <div class="choice-group" aria-label="Assignment unit">
-                <button class="choice" type="button" data-unit="viewer" aria-pressed="true">Viewer</button>
-                <button class="choice" type="button" data-unit="listing-day" aria-pressed="false">Listing-day</button>
-              </div>
-            </article>
-
-            <article class="signal-card" data-stage="3">
-              <h3>Outcome + guardrails</h3>
-              <p>Compare like-for-like assigned exposures inside one attribution window.</p>
-              <div class="metric-row">
-                <div class="metric-heading"><strong>Booking conversion</strong><span>+2.1%</span></div>
-                <div class="metric-track"><span class="metric-fill" style="--metric-width: 71%"></span></div>
-              </div>
-              <div class="metric-row guardrail">
-                <div class="metric-heading"><strong>Guest complaints</strong><span>+0.1%</span></div>
-                <div class="metric-track"><span class="metric-fill" style="--metric-width: 18%"></span></div>
-              </div>
-            </article>
-
-            <article class="signal-card" data-stage="4">
-              <h3>Decision state</h3>
-              <p>Predeclare thresholds so a noisy point estimate is not a launch rule.</p>
-              <div class="decision-list">
-                <div class="decision"><strong>Ship</strong><span>Conversion lift is credible and guardrails remain inside budget.</span></div>
-                <div class="decision rollback"><strong>Rollback</strong><span>Complaint, cancellation, or slice thresholds breach the plan.</span></div>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <aside class="lesson" aria-label="Current walkthrough explanation">
-          <div class="lesson-header">
-            <strong>Interview narration</strong>
-            <span id="step-count">Step 1 of 5</span>
-          </div>
-
-          <div aria-live="polite">
-            <article class="slide" data-slide="0">
-              <span class="eyebrow">Start with the contract</span>
-              <h2>What decision is made, and when?</h2>
-              <p>Select exactly one policy-eligible cover photo before a qualified listing impression, then attribute a booking inside a declared window.</p>
-              <div class="teaching-block"><span>Say this first</span><strong>“My decision unit is one listing × qualified impression, before exposure.”</strong></div>
-              <div class="teaching-block"><span>Do not assume</span><code>historical booking label ⇒ this photo caused the booking</code></div>
-            </article>
-
-            <article class="slide" data-slide="1" hidden>
-              <span class="eyebrow">Separate policy from ranking</span>
-              <h2>Filter first; rank only eligible images</h2>
-              <p>Photo C has the highest offline score, but it fails the policy gate. The challenger is Photo B, compared with the current-cover baseline A.</p>
-              <div class="teaching-block"><span>Offline evidence</span><strong>Ranking quality, calibration, coverage, and important market/device/new-listing slices.</strong></div>
-              <div class="teaching-block"><span>Bias warning</span><code>observed logs reflect the previous selection policy</code></div>
-            </article>
-
-            <article class="slide" data-slide="2" hidden>
-              <span class="eyebrow">Create causal evidence</span>
-              <h2>Randomize a bounded share of safe traffic</h2>
-              <p>Use a stable assignment unit that limits inconsistent experiences. Move the traffic slider and compare viewer-level learning speed with listing-day consistency.</p>
-              <div class="teaching-block"><span>Current assignment</span><strong id="assignment-explanation">Viewer assignment learns quickly, but one listing may show different covers to different guests.</strong></div>
-              <div class="teaching-block"><span>Log</span><code>assignment_id, eligible set, displayed photo, policy/model version</code></div>
-            </article>
-
-            <article class="slide" data-slide="3" hidden>
-              <span class="eyebrow">Wait for the outcome window</span>
-              <h2>Measure conversion and trust separately</h2>
-              <p>Join assigned exposures to delayed bookings without leaking post-exposure behavior into features. Report uncertainty and slices, not only one aggregate lift.</p>
-              <div class="teaching-block"><span>Primary</span><strong>Booking conversion within the declared attribution window.</strong></div>
-              <div class="teaching-block"><span>Guardrails</span><code>bounce, cancellation, complaints, host trust, coverage</code></div>
-            </article>
-
-            <article class="slide" data-slide="4" hidden>
-              <span class="eyebrow">Close the loop</span>
-              <h2>Ship gradually, or restore the fallback</h2>
-              <p>Promote only after predeclared evidence thresholds pass. Keep the previous cover and the selection reason so rollback is immediate and diagnosis remains possible.</p>
-              <div class="teaching-block"><span>Rollout plan</span><strong>Shadow → bounded experiment → sliced review → staged traffic → monitor.</strong></div>
-              <div class="teaching-block"><span>Feedback loop</span><code>new qualified logs → offline refresh → new causal validation</code></div>
-            </article>
-          </div>
-
-          <footer class="lesson-footer" id="lesson-footer">
-            <strong>Common miss:</strong> choosing a model family before defining the decision and outcome contract.
-          </footer>
-        </aside>
-      </section>
-    </main>
-
-    <script>
-      (() => {
-        const root = document;
-        const stageButtons = [...root.querySelectorAll("[data-step]")];
-        const slides = [...root.querySelectorAll("[data-slide]")];
-        const signalCards = [...root.querySelectorAll("[data-stage]")];
-        const candidates = [...root.querySelectorAll("[data-candidate]")];
-        const previous = root.querySelector("#previous");
-        const next = root.querySelector("#next");
-        const play = root.querySelector("#play");
-        const allocation = root.querySelector("#allocation");
-        const allocationValue = root.querySelector("#allocation-value");
-        const allocationCopy = root.querySelector("#allocation-copy");
-        const assignmentExplanation = root.querySelector("#assignment-explanation");
-        const simulationStatus = root.querySelector("#simulation-status");
-        const stepCount = root.querySelector("#step-count");
-        const lessonFooter = root.querySelector("#lesson-footer");
-        const demo = root.querySelector(".demo");
-        const choices = [...root.querySelectorAll("[data-unit]")];
-        const themeTokenProperties = Object.freeze({
-          background: "--bg",
-          surface: "--panel",
-          surfaceRaised: "--panel-2",
-          surfaceInset: "--panel-inset",
-          border: "--line",
-          borderStrong: "--line-strong",
-          text: "--text",
-          body: "--body",
-          muted: "--muted",
-          accent: "--blue",
-          accentSoft: "--blue-soft",
-          accentText: "--blue-text",
-          positive: "--green",
-          positiveSoft: "--green-soft",
-          warning: "--amber",
-          warningSoft: "--amber-soft",
-          danger: "--red",
-          dangerSoft: "--red-soft",
-        });
-
-        const status = [
-          "Define one decision before choosing a model",
-          "Policy-safe challenger: Photo B",
-          "Compare assigned policies, not historical labels",
-          "Outcome window complete: review uncertainty",
-          "Evidence becomes a staged launch decision",
-        ];
-        const misses = [
-          "choosing a model family before defining the decision and outcome contract.",
-          "letting a high model score bypass rights, policy, or accessibility checks.",
-          "treating observational logs as if the old display policy were random.",
-          "reporting aggregate conversion without delayed outcomes, uncertainty, or slices.",
-          "launching on a point estimate without stop, rollback, and fallback rules.",
-        ];
-
-        let currentStep = 0;
-        let playTimer = null;
-
-        function applyTheme(message) {
-          const theme = message.theme === "dark" ? "dark" : "light";
-          root.documentElement.dataset.theme = theme;
-          Object.entries(themeTokenProperties).forEach(([name, property]) => {
-            const value = message.tokens?.[name];
-            if (typeof value === "string" && value.trim()) {
-              root.documentElement.style.setProperty(property, value.trim());
-            } else {
-              root.documentElement.style.removeProperty(property);
-            }
-          });
-          window.requestAnimationFrame(reportHeight);
-        }
-
-        function stopPlayback() {
-          if (playTimer !== null) window.clearInterval(playTimer);
-          playTimer = null;
-          play.setAttribute("aria-pressed", "false");
-          play.textContent = "Play once";
-        }
-
-        function setStep(step, manual = true) {
-          currentStep = Math.max(0, Math.min(slides.length - 1, step));
-          stageButtons.forEach((button, index) => {
-            if (index === currentStep) button.setAttribute("aria-current", "step");
-            else button.removeAttribute("aria-current");
-            button.classList.toggle("is-complete", index < currentStep);
-          });
-          slides.forEach((slide, index) => {
-            slide.hidden = index !== currentStep;
-          });
-          signalCards.forEach((card) => {
-            const stage = Number(card.dataset.stage);
-            card.classList.toggle("is-active", stage === currentStep);
-            card.classList.toggle("is-complete", stage < currentStep);
-          });
-          candidates.forEach((candidate) => {
-            candidate.classList.toggle("is-selected", currentStep >= 1 && candidate.dataset.candidate === "b");
-            candidate.classList.toggle("is-blocked", currentStep >= 1 && candidate.dataset.candidate === "c");
-          });
-          previous.disabled = currentStep === 0;
-          next.disabled = currentStep === slides.length - 1;
-          stepCount.textContent = `Step ${currentStep + 1} of ${slides.length}`;
-          simulationStatus.textContent = status[currentStep];
-          lessonFooter.innerHTML = `<strong>Common miss:</strong> ${misses[currentStep]}`;
-          if (manual) stopPlayback();
-        }
-
-        function startPlayback() {
-          stopPlayback();
-          if (currentStep === slides.length - 1) setStep(0, false);
-          play.setAttribute("aria-pressed", "true");
-          play.textContent = "Pause";
-          playTimer = window.setInterval(() => {
-            if (currentStep >= slides.length - 1) {
-              stopPlayback();
-              return;
-            }
-            setStep(currentStep + 1, false);
-            if (currentStep === slides.length - 1) stopPlayback();
-          }, 6500);
-        }
-
-        function updateAllocation() {
-          const percent = Number(allocation.value);
-          allocationValue.textContent = `${percent}%`;
-          allocationCopy.textContent = `${(percent * 1000).toLocaleString()} of 100,000 qualified impressions enter the experiment.`;
-        }
-
-        function reportHeight() {
-          const height = Math.ceil(demo.getBoundingClientRect().height);
-          window.parent.postMessage({ type: "deepcode:interactive-demo-height", version: 1, height }, "*");
-        }
-
-        stageButtons.forEach((button) => {
-          button.addEventListener("click", () => setStep(Number(button.dataset.step)));
-        });
-        previous.addEventListener("click", () => setStep(currentStep - 1));
-        next.addEventListener("click", () => setStep(currentStep + 1));
-        play.addEventListener("click", () => {
-          if (playTimer === null) startPlayback();
-          else stopPlayback();
-        });
-        allocation.addEventListener("input", updateAllocation);
-        choices.forEach((choice) => {
-          choice.addEventListener("click", () => {
-            choices.forEach((item) => item.setAttribute("aria-pressed", String(item === choice)));
-            assignmentExplanation.textContent =
-              choice.dataset.unit === "viewer"
-                ? "Viewer assignment learns quickly, but one listing may show different covers to different guests."
-                : "Listing-day assignment is more consistent, but needs enough listings and care around time effects.";
-          });
-        });
-
-        if (window.ResizeObserver) {
-          new ResizeObserver(reportHeight).observe(demo);
-        }
-        window.addEventListener("message", (event) => {
-          if (
-            event.source !== window.parent ||
-            event.data?.type !== "deepcode:interactive-demo-theme" ||
-            event.data?.version !== 1
-          ) {
-            return;
-          }
-          applyTheme(event.data);
-        });
-        window.addEventListener("load", reportHeight);
-        window.parent.postMessage({ type: "deepcode:interactive-demo-ready", version: 1 }, "*");
-
-        setStep(0, false);
-        updateAllocation();
-        reportHeight();
-      })();
-    </script>
-  </body>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<title>封面图选择：从问题定义到上线决策</title>
+<style>
+:root {
+  color-scheme:light;
+  --bg:#f4f5f7;
+  --panel:#fff;
+  --panel-2:#edf0f4;
+  --panel-inset:#f8f9fb;
+  --line:#d5dbe3;
+  --line-strong:#9da7b8;
+  --text:#202734;
+  --body:#384252;
+  --muted:#647085;
+  --blue:#2563eb;
+  --blue-soft:#eaf0ff;
+  --blue-text:#fff;
+  --green:#16753b;
+  --green-soft:#e7f4ea;
+  --amber:#966013;
+  --amber-soft:#fff4dc;
+  --red:#bf3030;
+  --red-soft:#feecec
+}
+
+:root[data-theme="dark"] {
+  color-scheme:dark;
+  --bg:#17191f;
+  --panel:#20232b;
+  --panel-2:#282c35;
+  --panel-inset:#181b22;
+  --line:#383d49;
+  --line-strong:#687080;
+  --text:#eef1f5;
+  --body:#d4d7df;
+  --muted:#aeb4c0;
+  --blue:#7cb7ff;
+  --blue-soft:#22344c;
+  --blue-text:#17191f;
+  --green:#5cdb8d;
+  --green-soft:#1e382b;
+  --amber:#f5c76b;
+  --amber-soft:#3c3120;
+  --red:#ff9292;
+  --red-soft:#40262a
+}
+
+* {
+  box-sizing:border-box
+}
+html,body {
+  margin:0;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font:14px/1.65 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+button,input,select {
+  font:inherit;
+  color:inherit
+}
+button,select,input {
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:var(--panel);
+  padding:8px
+}
+button,summary,select {
+  cursor:pointer
+}
+button:hover {
+  border-color:var(--blue)
+}
+:focus-visible {
+  outline:3px solid var(--blue);
+  outline-offset:3px
+}
+button:disabled {
+  opacity:.4;
+  cursor:default
+}
+h1,h2,h3,p {
+  margin:0 0 12px
+}
+h1 {
+  font-size:clamp(21px,3vw,28px);
+  line-height:1.3
+}
+h2 {
+  font-size:23px;
+  line-height:1.4
+}
+h3 {
+  font-size:15px
+}
+p:last-child {
+  margin-bottom:0
+}
+.demo {
+  padding:20px;
+  display:grid;
+  gap:16px
+}
+.eyebrow {
+  color:var(--blue);
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.08em;
+  margin-bottom:5px
+}
+.muted,small {
+  color:var(--muted)
+}
+.header {
+  display:flex;
+  gap:15px;
+  justify-content:space-between;
+  align-items:start
+}
+.header p {
+  max-width:760px;
+  font-size:13px
+}
+.rail {
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:6px
+}
+.rail button {
+  text-align:left;
+  padding:9px;
+  font-size:12px;
+  color:var(--muted)
+}
+.rail button span {
+  display:block;
+  font-size:10px
+}
+.rail [aria-current="step"] {
+  background:var(--blue-soft);
+  border-color:var(--blue);
+  color:var(--text)
+}
+.layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 230px;
+  gap:16px;
+  align-items:start
+}
+.panel,.ledger {
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  padding:20px;
+  min-width:0
+}
+.ledger {
+  padding:15px;
+  font-size:12px
+}
+.ledger h2 {
+  font-size:15px
+}
+.ledger dl {
+  margin:0
+}
+.ledger dt {
+  color:var(--muted);
+  margin-top:12px
+}
+.ledger dd {
+  margin:3px 0;
+  overflow-wrap:anywhere
+}
+.ledger details {
+  border-top:1px solid var(--line);
+  padding-top:12px;
+  margin-top:15px
+}
+.ledger label {
+  display:grid;
+  gap:4px;
+  margin:12px 0
+}
+.ledger input,.ledger select {
+  width:100%;
+  min-width:0
+}
+.prompt {
+  padding-left:12px;
+  border-left:3px solid var(--blue);
+  margin:14px 0 20px;
+  color:var(--body)
+}
+.prompt small {
+  display:block;
+  margin-bottom:4px
+}
+.cards {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:16px 0
+}
+.card {
+  background:var(--panel-inset);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:14px;
+  min-width:0
+}
+.card strong.metric {
+  display:block;
+  font-size:25px;
+  color:var(--blue);
+  line-height:1.3;
+  margin:7px 0
+}
+.card p {
+  font-size:13px
+}
+.contract {
+  padding:16px;
+  border:1px solid var(--blue);
+  border-radius:9px;
+  background:var(--blue-soft);
+  margin:15px 0
+}
+.reason {
+  border-top:1px solid var(--line);
+  padding-top:14px;
+  margin-top:20px;
+  color:var(--body);
+  font-size:13px
+}
+.reason strong {
+  color:var(--text)
+}
+.controls {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:14px 0
+}
+.controls label {
+  display:grid;
+  gap:5px;
+  flex:1;
+  min-width:150px;
+  font-size:12px
+}
+.controls select {
+  width:100%
+}
+.formula {
+  display:block;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;
+  background:var(--panel-2);
+  padding:12px;
+  border-radius:7px;
+  margin:12px 0
+}
+.flow {
+  display:flex;
+  align-items:stretch;
+  gap:7px;
+  margin:12px 0
+}
+.node {
+  flex:1;
+  min-width:0;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:var(--panel-inset);
+  font-size:12px
+}
+.arrow {
+  align-self:center;
+  color:var(--muted)
+}
+.node b {
+  display:block;
+  margin-bottom:4px
+}
+.tag {
+  font-size:11px;
+  color:var(--muted)
+}
+.callout {
+  padding:12px;
+  border-radius:8px;
+  background:var(--amber-soft);
+  color:var(--body);
+  margin:12px 0;
+  font-size:13px
+}
+.good {
+  background:var(--green-soft)
+}
+.bad {
+  background:var(--red-soft)
+}
+details {
+  margin-top:14px
+}
+summary {
+  font-weight:600
+}
+details p {
+  margin-top:10px;
+  color:var(--body);
+  font-size:13px
+}
+.footer {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px
+}
+.footer p {
+  font-size:12px;
+  color:var(--muted);
+  margin:0
+}
+.footer div {
+  display:flex;
+  gap:8px
+}
+.primary {
+  background:var(--blue);
+  color:var(--blue-text);
+  border-color:var(--blue)
+}
+.choice-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:15px 0
+}
+.choice-row [aria-pressed="true"] {
+  border-color:var(--blue);
+  background:var(--blue-soft)
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+  table-layout:fixed
+}
+th,td {
+  text-align:left;
+  border-bottom:1px solid var(--line);
+  padding:9px 7px;
+  vertical-align:top;
+  overflow-wrap:anywhere
+}
+th {
+  color:var(--muted)
+}
+ul {
+  padding-left:20px;
+  margin:12px 0
+}
+li {
+  margin:7px 0
+}
+a {
+  color:var(--blue)
+}
+@media(max-width:850px) {
+  .layout {
+  grid-template-columns:1fr
+}
+.ledger dl {
+  display:grid;
+  grid-template-columns:1fr 2fr;
+  gap:8px
+}
+.ledger dt,.ledger dd {
+  margin:0
+}
+.rail {
+  grid-template-columns:repeat(3,minmax(0,1fr))
+}
+.panel {
+  padding:17px
+}
+
+}
+@media(max-width:480px) {
+  .demo {
+  padding:12px
+}
+.cards {
+  grid-template-columns:1fr
+}
+.flow {
+  flex-direction:column
+}
+.arrow {
+  transform:rotate(90deg)
+}
+.header {
+  flex-direction:column
+}
+.footer {
+  align-items:start;
+  flex-direction:column
+}
+h2 {
+  font-size:21px
+}
+
+}
+@media(prefers-reduced-motion:reduce) {
+  * {
+  scroll-behavior:auto!important;
+  animation:none!important;
+  transition:none!important
+}
+
+}
+
+</style>
+</head>
+<body>
+<main class="demo">
+<header class="header"><div><div class="eyebrow">SENIOR ENGINEER · DECISION WALKTHROUGH</div><h1>先把问题定义清楚，再画系统</h1><p class="muted">为房源选一张封面图。每一步先回答一个设计问题，再保留一项决定；修改假设，观察后续方案如何改变。所有数值都是教学假设，并非 Airbnb 事实。</p></div><button id="reset" type="button">重置推演</button></header>
+<nav class="rail" aria-label="设计推演步骤"></nav>
+<div class="layout">
+<section class="panel" id="stage" aria-labelledby="stage-title"></section>
+<aside class="ledger" aria-label="当前设计决策"><h2>随推演保留的决定</h2><dl id="ledger"></dl>
+<details id="assumptions"><summary>修改教学假设</summary><p class="muted">修改后立即重算；切换步骤会保留。</p>
+<label>合格曝光 / 日（百万）<input data-key="traffic" type="number" min="0.1" max="1000" step="0.1" value="10" /></label>
+<label>曝光基准转化率（%）<input data-key="baseline" type="number" min="0.1" max="20" step="0.1" value="2" /></label>
+<label>目标相对提升（%）<input data-key="lift" type="number" min="1" max="20" step="1" value="3" /></label>
+<label>峰值 / 平均流量<input data-key="peak" type="number" min="1" max="20" step="1" value="5" /></label>
+<label>合格候选图 / 房源<input data-key="candidates" type="number" min="2" max="30" step="1" value="8" /></label>
+<label>新增决策延迟预算（ms）<input data-key="latency" type="number" min="5" max="100" step="5" value="20" /></label>
+</details><p class="muted" style="margin-top:14px">这里只展开当前步骤。编号可跳转，返回可重新协商假设。</p></aside>
+</div>
+<footer class="footer"><p id="step-status" role="status" aria-live="polite"></p><div><button id="previous" type="button">上一步</button><button id="next" type="button" class="primary">下一步</button></div></footer>
+</main>
+<script>
+(() => {
+const root = document;
+const demo = root.querySelector('.demo');
+const names = ['问题定义','系统规格','量级与预算','高层设计','组件深挖','评估与上线'];
+const defaults = {traffic:10,baseline:2,lift:3,peak:5,candidates:8,latency:20,mode:'fixed',horizon:7,dive:'data',fault:'healthy',allocation:20,age:5,evidence:'uncertain'};
+let state = {...defaults};
+let step = 0;
+const seen = new Set([0]);
+const $ = (s) => root.querySelector(s);
+const f = (n,d=0) => n.toLocaleString('en-US',{maximumFractionDigits:d});
+const pct = (n,d=2) => `${f(n,d)}%`;
+const select = (key,label,options) => `<label>${label}<select data-key="${key}">${options.map(([v,l])=>`<option value="${v}" ${String(state[key])===String(v)?'selected':''}>${l}</option>`).join('')}</select></label>`;
+const card = (label,value,copy) => `<article class="card"><span class="tag">${label}</span><strong class="metric">${value}</strong><p>${copy}</p></article>`;
+const flow = (nodes) => `<div class="flow">${nodes.map(([a,b])=>`<div class="node"><b>${a}</b>${b}</div>`).join('<span class="arrow" aria-hidden="true">→</span>')}</div>`;
+const reason = (s) => `<p class="reason"><strong>为什么这样取舍：</strong>${s}</p>`;
+const prompt = (s) => `<div class="prompt"><small>我会先向面试官确认</small>“${s}”</div>`;
+function values(){const daily=state.traffic*1e6,p=state.baseline/100,delta=p*state.lift/100,qps=daily/86400*state.peak;return {daily,p,delta,qps,batch:1e6*.05*state.candidates/3600};}
+function constrained(){return state.mode==='context' && state.latency<15;}
+function body(){const {daily,p,delta,qps,batch}=values();const fixed=state.mode==='fixed';const batchServing=fixed||constrained();
+if(step===0)return `${prompt('我们要提升的是看房兴趣，还是最终预订？封面要对所有人相同，还是允许因访客而异？')}
+<div class="controls">${select('mode','先协商产品决策边界',[['fixed','每个房源固定一张封面'],['context','按访客情境选择封面']])}</div>
+<div class="cards">${card('业务规模 → 收益量级',`${f(daily*p)} / 日`,'按合格曝光计的预订归因事件基线；同一预订去重归因一次。')}${card('目标 → 绝对变化',`+${f(daily*delta)} / 日`,`${pct(state.baseline)} → ${pct(state.baseline*(1+state.lift/100),3)}，相对 +${state.lift}%，绝对 +${f(delta*100,3)} 个百分点；仅为目标情景。`)}</div>
+<div class="contract"><strong>把业务诉求翻译成技术决策</strong><p>${fixed?'在房源封面刷新时，从合格图片集合中选 1 张；对该房源的访客沿用此选择。':'在每次合格房源曝光之前，结合当时可用的访客情境，从合格图片集合中选 1 张。'}预测输出可为候选图的预订概率分数；真正执行的是受约束的选图策略。</p></div>
+<p>优化目标：相对当前封面策略，提高固定窗口内的预订转化。成功标准先约定为：随机实验的收益区间下界超过事先协商的最小收益门槛，且信任与系统护栏通过；目标提升不是上线证据。CTR 只是诊断指标；价格、房源可订状态、展示位置会影响结果，不能把历史高转化直接解释为图片贡献。</p>
+${reason(fixed?'先选固定封面，减少产品不一致与实时依赖；只有发现情境差异带来足够收益，才增加个性化复杂度。':'允许个性化就增加了请求时计算、隐私约束与实验一致性成本；先验证相对固定封面的增量价值。')}
+<details><summary>指标分母与 baseline 的边界</summary><p>教学主指标 = 窗口内去重归因预订数 / 合格曝光数，重复曝光须使用预先固定的归因规则。实验还应报告所有已分配合格单位的意向处理（ITT）结果，防止只分析成功曝光引入选择偏差。当前封面是 baseline；图片质量规则是第一个低复杂度 challenger。</p></details>`;
+if(step===1)return `${prompt('我先定义成功与不能失败的边界：新增延迟能给多少？多久更新一次？标签要等多久？')}
+<div class="controls">${select('horizon','预订归因窗口（也影响标签等待）',[[1,'1 天'],[7,'7 天'],[14,'14 天']])}</div>
+<table><thead><tr><th>规格（均为待协商假设）</th><th>设计含义</th></tr></thead><tbody>
+<tr><td>功能：返回 1 张可用封面 + 选择原因</td><td>候选图先检查版权、误导、政策；无合格图沿用合规兜底，不能让高分越过政策。</td></tr>
+<tr><td>新增 p99 ≤ ${state.latency} ms；可用性 ≥ 99.9%</td><td>指封面决策路径，不含整页与 CDN 下载；超时必须可独立降级。</td></tr>
+<tr><td>${fixed?'封面 24 小时内刷新；下架事件立即失效':'图片表示离线刷新；请求情境在决策时可用'}</td><td>${fixed?'低延迟读取与更新滞后之间取舍；政策撤回不能等每日任务。':'离线图像表示降低时延；缺失情境时退回固定封面。'}</td></tr>
+<tr><td>标签窗口 ${state.horizon} 天 + 迟到宽限 2 天</td><td>未成熟样本不当负例；取消率等长期护栏需要自己的更长观察窗口。</td></tr>
+<tr><td>信任与资源边界</td><td>取消、投诉、房源覆盖及重要切片不得越预设阈值；最小化访客数据，明确访问权限、保留期与删除链路。</td></tr></tbody></table>
+${reason('规格要可测量，也要说明作用域。延迟预算与隐私边界会约束方案；“高可用、实时、低成本”本身不能指导设计。')}`;
+if(step===2)return `${prompt('我只估算会改变方案的量：请求读取、候选打分和日志。图片本体走 CDN，不算进决策服务。')}
+<div class="cards">${card('峰值封面决策读取',`${f(qps)} / 秒`,`${state.traffic}M 曝光 / 日 × ${state.peak} 倍峰值；假设每次房源曝光一次决策读取，不等于页面请求 QPS。`)}${card(batchServing?'离线批次候选打分':'在线候选打分',`${f(batchServing?batch:qps*state.candidates)} / 秒`,batchServing?`额外假设 1M 活跃房源、每日更新 5%、1 小时处理窗口，每房源 ${state.candidates} 张合格图。`:`峰值决策读取 × ${state.candidates} 张候选；图像编码已离线完成。`)}</div>
+<code class="formula">峰值读取 = ${f(daily)} / 86,400 × ${state.peak} = ${f(qps,1)} / s
+${batchServing?`批次打分 = 1,000,000 × 5% × ${state.candidates} / 3,600 = ${f(batch,1)} / s`:`候选打分 = ${f(qps,1)} × ${state.candidates} = ${f(qps*state.candidates,1)} / s`}
+曝光日志 = ${f(daily)} × 1 KB = ${f(daily/1e6,1)} GB / 日（十进制原始载荷）</code>
+<div class="callout">${batchServing?'结论：当前走预计算封面，读取量不等于模型推理量。优先预计算 + 版本化封面存储 + 缓存，按更新流量规划批任务。':'结论：每次请求都打分会放大算力需求。优先离线图片表示 + 轻量在线评分；用实测吞吐和 p99 决定副本数，不能靠 QPS 猜 GPU。'}</div>
+<p>日志还需加复制、索引与保留成本。候选集完整快照超过 1 KB 时重算。当前估算用于选择架构，压测负责确认容量。</p>
+${reason('改右侧流量或候选数会改变吞吐预算；固定封面与情境选图会把打分成本放在不同路径。没有决策影响的容量算式无需铺满白板。')}`;
+if(step===3)return `${prompt('基于前面的产品边界和预算，我先画两条路径：用户请求如何完成，系统如何从结果学习。')}
+<h3>在线路径 · ${batchServing?'读预计算结果':'轻量情境决策'}</h3>${constrained()?'<div class="callout">预算收紧：先服务固定封面，情境评分暂不上请求路径。15 ms 是本演示的教学切换点，不是实际性能基准；压测通过后再启用。</div>':''}
+${flow(batchServing?[['房源曝光请求','分配实验策略'],['版本化封面存储','缓存读取 + 资格复查'],['返回封面','CDN 展示；曝光确认']]:[['房源曝光请求','稳定访客分组 + 情境'],['候选与表示','资格复查 + 轻量评分'],['返回封面','CDN 展示；曝光确认']])}
+<h3>离线路径 · 先把学习闭环接完整</h3>
+${flow([['曝光 + 预订事件','校验、去重、成熟标签'],['点时训练与验证','简单 baseline → challenger'],[batchServing?'预计算版本化封面':'发布评分器 + 图片表示','离线通过后才进受控实验']])}
+<p class="muted">曝光携带策略版本 → 结果回流训练；验证通过的版本 → 在线有界发布。发布与实验分配可独立回滚。</p>
+<div class="contract"><strong>与规格对齐</strong><p>${batchServing?`缓存 / 存储读取预算 ${state.latency} ms；过期缓存优先使用仍合规的上一版本，并触发刷新。`:`新增 ${state.latency} ms 预算包含情境读取、评分和策略处理。${state.latency<15?'预算紧：以缓存的固定封面为默认；情境评分须先压测证明可行。':'把原始图片编码留在线外，超时切固定封面。'}`}</p></div>
+<details><summary>请求 / 返回契约与日志边界</summary><code class="formula">request: decision_id, listing_id, eligible_candidate_version,
+         experiment_assignment, allowed_context (if available)
+response: photo_id, policy_version, reason, fallback_reason</code><p>同一个 decision_id 的重试复用决定；曝光确认另行发送并幂等去重。请求日志不等于成功展示日志。记录实际执行的策略与兜底原因，才能诊断离线与在线偏差。</p></details>
+${reason('先明确在线与离线责任、版本边界及失败路径，再讨论数据库或模型品牌。固定封面不必每次曝光重跑大模型；个性化也不意味着实时编码图片。')}`;
+if(step===4)return `${prompt('高层闭环已经完整。您想继续看数据可信度、服务可靠性，还是因果实验？我会沿最关键的风险深挖。')}
+<div class="choice-row" aria-label="面试官选择的深挖方向">${[['data','数据与标签'],['serving','延迟与降级'],['experiment','实验与干扰']].map(([v,l])=>`<button type="button" data-dive="${v}" aria-pressed="${state.dive===v}">${l}</button>`).join('')}</div>${deepDive(fixed)}${reason('深挖要回答一个会破坏整个方案的风险，不需要逐个介绍所有组件。面试官改变关注点时，保留前面已经协商的规格。')}`;
+return evaluation(fixed);
+}
+function deepDive(fixed){
+if(state.dive==='data')return `<h3>一次曝光，怎样变成可信训练样本？</h3>${flow([['t₀：决策时','记录可用特征、候选集、选中图'],[`t₀ + ${state.horizon} 天`,'归因窗口结束'],[`t₀ + ${state.horizon+2} 天`,'迟到宽限结束；构造标签']])}<code class="formula">decision_id, listing_id, eligible_photo_ids, selected_photo_id,
+assignment_id, policy_version, feature_version, decision_time,
+exposure_confirmation, outcome_time</code><p>去重后按约定归因规则连接预订；未到成熟时间的是 censored（尚未完整观察），不是负例。训练特征只能来自 t₀ 之前，评估按时间切分并检查同房源泄漏。</p><div class="callout">旧策略只展示过 A，不能给未展示的 B 填“未预订”。离线先检查校准、时序 holdout 与冷启动切片；有已知 propensity 且有覆盖时才讨论反事实评估，仍不能替代在线验证。</div>`;
+if(state.dive==='serving')return `<h3>把失败变成可预测的产品行为</h3><div class="controls">${select('fault','注入一次请求故障',[['healthy','服务正常'],['timeout','决策依赖超时'],['revoked','选中图片已撤回']])}</div><div class="contract"><strong>${state.fault==='healthy'?'返回当前合规策略选择':state.fault==='timeout'?'按预算终止等待 → 合规 baseline':'资格复查失败 → 合规备用图'}</strong><p>${state.fault==='healthy'?((fixed||constrained())?'读取版本化预计算封面，并记录实际返回的版本。':`用预计算表示轻量打分；端到端 p99 须实测满足 ${state.latency} ms。`):state.fault==='timeout'?'使用仍合规的当前 / 上一版本封面；记录 fallback_reason，异步告警。不能在请求里无限重试。':'失效候选不可由旧缓存复活；清缓存并发出失效事件。若没有合格备用图，使用产品允许的占位，不返回违规图片。'}</p></div><p>按 fallback rate、p99、版本覆盖监控；幂等发布与原子版本切换避免部分更新。个性化缓存须含情境与版本，不能只按房源缓存。</p>`;
+return `<h3>随机的是策略；推断单位不能假装独立</h3><div class="contract"><strong>${fixed?'默认：房源级随机分组，实验期固定':'默认：访客级稳定随机分组'}</strong><p>${fixed?'同一房源保持统一封面；按房源聚类分析，先检查足够多的房源及流量集中度。按天换组容易受跨天预订与时间效应污染。':'同一访客保持同一策略；按访客聚类分析。多个访客竞争同一房源库存仍可能产生跨组干扰。'}</p></div><p>Control 使用当前封面，Treatment 使用新策略；记录分配及实际执行（含 fallback），先检查 sample-ratio mismatch 和日志丢失。ITT 保留所有已分配合格单位；成功曝光指标作为额外诊断。</p><div class="callout">稳定分组不能消除 marketplace interference。若库存竞争主导效应，讨论市场集群随机化或带 washout 的 switchback；代价是更少独立单位、更长实验和更弱统计功效。</div>`;
+}
+function evaluation(fixed){const {daily,p,delta}=values();const perArm=daily*state.allocation/100/2;const n=Math.ceil(2*(1.96+.84)**2*p*(1-p)/delta**2);const mature=state.age>=state.horizon+2;const verdict=state.evidence==='harm'?'停止扩量并回滚':!mature?'等待首批标签成熟':state.evidence==='pass'?'进入下一档受控扩量':'保持实验，尚不足以上线';return `${prompt('什么证据会让我上线、继续观察或主动停止？先把规则说清楚，再看结果。')}
+<div class="controls">${select('allocation','实验总流量（组内 50/50）',[[5,'5%'],[20,'20%'],[50,'50%']])}${select('age','实验已运行',[[5,'5 天'],[10,'10 天'],[21,'21 天']])}${select('evidence','教学证据情景（预设，非模拟估计）',[['uncertain','区间跨 0；护栏通过'],['pass','区间下界超过收益门槛；护栏通过'],['harm','投诉护栏越界']])}</div>
+<div class="cards">${card('每组曝光流量',`${f(perArm)} / 日`,'这是曝光数，不是独立实验单位数。')}${card('首批预订标签成熟',`第 ${state.horizon+2} 天`,`${state.horizon} 天归因 + 2 天迟到宽限；今天第 ${state.age} 天。新近进入的单位仍须排除未成熟窗口或使用有效删失方法。`)}</div>
+<div class="callout ${state.evidence==='harm'?'bad':mature&&state.evidence==='pass'?'good':''}"><strong>当前决策：${verdict}</strong><p>${state.evidence==='harm'?'信任护栏可提前触发停止，不必等待收益显著。':!mature?'即使选择了正向证据情景，标签未成熟也不能通过收益门槛。':state.evidence==='pass'?'假设实验质量、聚类区间、长期护栏及切片审查全部通过；只扩大一个流量档，继续监控并保留回滚。':'正向点估计或离线分数都不等于因果收益。按预先设定的终止 / 序贯规则继续，不能反复偷看直到显著。'}</p></div>
+<table><thead><tr><th>证据层</th><th>上线前的判断</th></tr></thead><tbody><tr><td>离线：是否值得实验</td><td>优于当前封面 / 质量规则 baseline；校准、时序验证和新房源切片合理。不是上线证明。</td></tr><tr><td>在线：是否造成收益</td><td>${fixed?'房源':'访客'}聚类的因果区间；预先定义 MDE、收益门槛、功效、停止规则。检查 SRM / join loss。</td></tr><tr><td>护栏与运营</td><td>取消、投诉、重要市场切片及 p99 / fallback 均在预算内；长期窗口不足时不能宣称通过。</td></tr></tbody></table>
+<details><summary>为什么不能用曝光 QPS 直接估算实验天数？</summary><code class="formula">仅独立 Bernoulli 的粗略规划：
+n / arm ≈ 2 × (1.96 + 0.84)² × p(1−p) / δ²
+p = ${p}; δ = ${f(delta,6)} → ${f(n)} 独立观测 / arm</code><p>这是双侧 α = 5%、power ≈ 80%、相近两组比例的规划近似，不是本系统有效样本量。实际有重复曝光、${fixed?'房源':'访客'}聚类和库存干扰，须用历史集群方差或随机化仿真规划，并留足完整周期、成熟标签和长期护栏窗口。增加实验流量只增加曝光，不保证按比例缩短实验。</p></details>
+${reason('因果证据、观察窗口和信任护栏共同决定上线。此页的证据选项是教学场景，不由流量生成置信区间；目标 uplift 也不是已实现 uplift。')}`;}
+function render(focus=false){
+$('#stage').innerHTML=`<div class="eyebrow">${String(step+1).padStart(2,'0')} / 06 · ${step<3?'先收敛问题':'再收敛方案'}</div><h2 id="stage-title" tabindex="-1">${['什么结果值得做成一个系统？','把模糊期待变成可验证的规格','哪些量级真的会改变架构？','让请求路径与学习闭环各司其职','由面试官选择最值得深挖的风险','证据足够，才迈出下一步'][step]}</h2>${body()}`;
+$('.rail').innerHTML=names.map((name,i)=>`<button type="button" data-step="${i}" ${i===step?'aria-current="step"':''}><span>${String(i+1).padStart(2,'0')}${seen.has(i)?' · 已展开':''}</span>${name}</button>`).join('');
+const {daily,delta}=values();const items=[['决策边界',state.mode==='fixed'?'房源固定封面':'访客情境选图'],['收益目标',`相对 +${state.lift}%（假设 +${f(daily*delta)} 归因事件 / 日）`]];
+if(seen.has(1))items.push(['规格',`新增 p99 ${state.latency} ms；标签 ${state.horizon}+2 天`]);
+if(seen.has(2))items.push(['峰值读取',`${f(values().qps)} / 秒`]);
+if(seen.has(3))items.push(['服务方案',state.mode==='fixed'||constrained()?'离线选图 → 在线读版本':'离线表示 → 在线轻量评分']);
+if(seen.has(4))items.push(['深挖',({data:'数据与标签',serving:'延迟与降级',experiment:'实验与干扰'})[state.dive]]);
+$('#ledger').innerHTML=items.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('');
+$('#previous').disabled=step===0;$('#next').disabled=step===5;$('#step-status').textContent=`第 ${step+1} / 6 步 · ${names[step]}`;
+const heading = $('#stage-title');
+// Report the new canvas first. The host resizes the frame asynchronously;
+// let that update settle before asking the host to reveal the walkthrough.
+window.requestAnimationFrame(() => {
+  reportHeight();
+  if (!focus) return;
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      if (!heading.isConnected) return;
+      heading.focus({preventScroll:true});
+      window.parent.postMessage({type:'deepcode:interactive-demo-scroll-start',version:1}, '*');
+    });
+  });
+});
+}
+root.addEventListener('click',(event)=>{const button=event.target.closest('button');if(!button)return;if(button.dataset.step!==undefined){step=Number(button.dataset.step);seen.add(step);render(true);}else if(button.dataset.dive){state.dive=button.dataset.dive;render();$(`[data-dive="${state.dive}"]`).focus({preventScroll:true});}else if(button.id==='next'||button.id==='previous'){step=Math.max(0,Math.min(5,step+(button.id==='next'?1:-1)));seen.add(step);render(true);}else if(button.id==='reset'){state={...defaults};step=0;seen.clear();seen.add(0);root.querySelectorAll('#assumptions input').forEach(el=>el.value=state[el.dataset.key]);$('#assumptions').open=false;render(true);}});
+// Assumption inputs live outside the rebuilt stage, so typing can update the
+// explanation immediately without replacing the focused field or its caret.
+root.addEventListener('input', (event) => {
+  const el = event.target;
+  if (!el.matches('#assumptions input[type="number"]')) return;
+  const n = Number(el.value);
+  if (el.value.trim() === '' || !Number.isFinite(n)) return;
+  if (n < Number(el.min) || n > Number(el.max)) return;
+  state[el.dataset.key] = n;
+  render();
+});
+root.addEventListener('change',(event)=>{const el=event.target;if(!el.dataset.key)return;const key=el.dataset.key;if(el.type==='number'){const n=Number(el.value);state[key]=el.value.trim()!==''&&Number.isFinite(n)?Math.max(Number(el.min),Math.min(Number(el.max),n)):defaults[key];el.value=state[key];}else state[key]=typeof defaults[key]==='number'?Number(el.value):el.value;const insideStage=!!el.closest('#stage');render();if(insideStage)$(`#stage [data-key="${key}"]`)?.focus({preventScroll:true});});
+const themeTokenProperties = Object.freeze({background:'--bg',surface:'--panel',surfaceRaised:'--panel-2',surfaceInset:'--panel-inset',border:'--line',borderStrong:'--line-strong',text:'--text',body:'--body',muted:'--muted',accent:'--blue',accentSoft:'--blue-soft',accentText:'--blue-text',positive:'--green',positiveSoft:'--green-soft',warning:'--amber',warningSoft:'--amber-soft',danger:'--red',dangerSoft:'--red-soft'});
+function reportHeight(){const height=Math.ceil(demo.getBoundingClientRect().height);window.parent.postMessage({ type: "deepcode:interactive-demo-height", version: 1, height }, '*');}
+window.addEventListener('message',(event)=>{if(event.source !== window.parent || event.data?.type !== "deepcode:interactive-demo-theme" || event.data?.version !== 1)return;root.documentElement.dataset.theme=event.data.theme==='dark'?'dark':'light';Object.entries(themeTokenProperties).forEach(([name,property])=>{const value=event.data.tokens?.[name];if(typeof value==='string'&&value.trim())root.documentElement.style.setProperty(property,value.trim());else root.documentElement.style.removeProperty(property);});window.requestAnimationFrame(reportHeight);});
+if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(demo);
+window.addEventListener('load',reportHeight);
+window.parent.postMessage({ type: "deepcode:interactive-demo-ready", version: 1 }, '*');
+render();
+})();
+</script>
+</body>
 </html>
