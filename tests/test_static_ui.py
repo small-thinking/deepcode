@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 
@@ -461,6 +462,31 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('type !== "deepcode:interactive-demo-theme"', demo_html)
         self.assertIn('type: "deepcode:interactive-demo-height"', demo_html)
         self.assertIn("new ResizeObserver(reportHeight).observe(demo)", demo_html)
+
+    def test_listing_quality_demo_covers_the_full_ml_decision_loop(self):
+        problem = json.loads(
+            Path("problems/349-listing-quality-evaluation-design/problem.json").read_text(encoding="utf-8")
+        )
+        demo = problem["interactive_demos"][0]
+        demo_html = Path("problems/349-listing-quality-evaluation-design") / demo["path"]
+        content = demo_html.read_text(encoding="utf-8")
+
+        self.assertEqual(demo["section"], "reference_answer")
+        self.assertEqual(demo["presentation"]["theme"], "sync")
+        self.assertEqual(demo["presentation"]["height"], "content")
+        self.assertIn("Toy assumptions clearly labeled", content)
+        self.assertIn('data-formulation="multi"', content)
+        self.assertIn('data-horizon="90"', content)
+        self.assertIn('id="leakage-toggle"', content)
+        self.assertIn('data-segment="new"', content)
+        self.assertIn('id="threshold"', content)
+        self.assertIn('data-scenario="appeals"', content)
+        self.assertIn("Point-in-time join", content)
+        self.assertIn("Randomized intervention", content)
+        self.assertIn('event.source !== window.parent', content)
+        self.assertIn('type: "deepcode:interactive-demo-ready"', content)
+        self.assertIn('type: "deepcode:interactive-demo-height"', content)
+        self.assertNotIn("https://", content)
 
     def test_problem_assets_are_rendered_from_problem_scoped_urls(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")

@@ -44,5 +44,21 @@
     "placeholder": "Begin with a time-bound, multi-objective definition of quality; do not collapse every reported outcome into an unexamined label.",
     "reference_answer": "## Assumptions and target\n\nTreat listing quality as a time-bound, multi-objective estimate of guest experience and transaction reliability, not as one universal score. As an exercise assumption, define outcome windows after a completed stay and keep the listed signals separate long enough to inspect their trade-offs. Retention, reviews, cancellations, disputes, refunds, and NPS are source-reported candidate signals, not a fixed formula.\n\n## Labels and features\n\nBuild delayed labels from post-stay outcomes and freeze features as of the decision time. Exclude future reviews, support actions, and any information created after a booking from training inputs. Separate controllable listing attributes from request context and market conditions so a scarce market is not automatically judged low quality. Start with interpretable calibrated component scores or a multi-task model, using structured listing data plus permitted text or image features.\n\n## Validation and use\n\nUse time-based and market-held-out evaluation, then inspect calibration and error by listing age, geography, availability, and outcome completeness. A threshold should correspond to a concrete, reviewable action such as guidance, verification, or additional support; it should not silently become a permanent inventory-suppression rule. Test interventions against an appropriate control to distinguish score accuracy from the effect of acting on the score.\n\n## Monitoring and safeguards\n\nMonitor label delay, missingness, score drift, calibration, action rates, and downstream guest, host, and trust outcomes. Give new listings an uncertainty-aware fallback rather than treating no history as poor quality. Provide a review and appeal path, audit sensitive slices, and roll back an intervention when its guardrails worsen even if the headline score improves."
   },
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "listing-quality-evidence-lab",
+      "kind": "standalone_html",
+      "path": "assets/listing-quality-evidence-lab.html",
+      "title": "Build and validate a listing quality decision system",
+      "section": "reference_answer",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 820
+      }
+    }
+  ],
   "created_at": "2026-09-02"
 }
