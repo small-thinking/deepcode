@@ -149,7 +149,7 @@ Run `git lfs track` only when adding another binary extension, then commit the
 resulting `.gitattributes` change with the asset.
 
 System Design problems may also add a self-contained interactive teaching demo
-inside the collapsed reference answer:
+inside the Reference Answer tab:
 
 ```json
 "interactive_demos": [
@@ -174,6 +174,24 @@ Content Security Policy and embeds them with `sandbox="allow-scripts"` without
 make network requests, and must not depend on CDNs, parent-page storage, or the
 parent DOM. Do not place executable HTML in `response.reference_answer` or add
 `.html` to the static image asset allowlist.
+
+When a walkthrough is taller than its configured fallback height, report the
+rendered canvas height so the Reference Answer tab owns the scrolling instead
+of creating a nested iframe scrollbar:
+
+```js
+const demo = document.querySelector(".demo");
+const reportHeight = () => window.parent.postMessage(
+  { type: "deepcode:interactive-demo-height", height: Math.ceil(demo.getBoundingClientRect().height) },
+  "*"
+);
+new ResizeObserver(reportHeight).observe(demo);
+window.addEventListener("load", reportHeight);
+```
+
+The parent accepts height messages only from the matching iframe and clamps
+the reported canvas to a safe range. Keep a valid metadata `height` as the
+no-JavaScript fallback.
 
 ML coding problems should use the default evaluator:
 

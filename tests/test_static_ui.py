@@ -390,7 +390,7 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".problem-test-case", styles_css)
         self.assertIn(".problem-meta-grid", styles_css)
 
-    def test_system_design_workspace_autosaves_markdown_and_hides_reference_answer_by_default(self):
+    def test_system_design_workspace_uses_full_height_draft_and_reference_tabs(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
@@ -398,23 +398,35 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('deepcode-system-design-answer:${slug}', app_js)
         self.assertIn('id="system-design-answer"', app_js)
         self.assertIn('id="reset-system-design-answer"', app_js)
-        self.assertIn("Show reference answer", app_js)
-        self.assertIn('<details class="reference-answer" id="reference-answer"', app_js)
+        self.assertIn('role="tablist" aria-label="System design workspace"', app_js)
+        self.assertIn('data-system-design-tab="draft"', app_js)
+        self.assertIn('data-system-design-tab="reference"', app_js)
+        self.assertIn('data-system-design-panel="draft"', app_js)
+        self.assertIn('data-system-design-panel="reference"', app_js)
+        self.assertIn('role="tabpanel"', app_js)
+        self.assertIn("systemDesignActiveTab", app_js)
+        self.assertIn("activateSystemDesignTab", app_js)
+        self.assertIn("handleSystemDesignTabKeydown", app_js)
         self.assertIn("renderProblemAssets(problem, \"reference_answer\")", app_js)
-        self.assertIn('data-resize-handle="design-reference"', app_js)
-        self.assertIn('aria-label="Resize draft response and reference answer"', app_js)
-        self.assertIn("systemDesignReferenceRatio", app_js)
-        self.assertIn("handleReferenceAnswerToggle", app_js)
+        self.assertNotIn('data-resize-handle="design-reference"', app_js)
+        self.assertNotIn("systemDesignReferenceRatio", app_js)
+        self.assertNotIn("handleReferenceAnswerToggle", app_js)
         self.assertIn('class="detail-layout ${systemDesign ? "system-design-layout" : ""}"', app_js)
         self.assertIn(".system-design-answer", styles_css)
-        self.assertIn(".reference-answer", styles_css)
+        self.assertIn(".system-design-tabs", styles_css)
+        self.assertIn(".system-design-tab-panel", styles_css)
+        self.assertIn(".system-design-reference-pane", styles_css)
+        self.assertIn("overflow-y: auto", styles_css)
         self.assertIn(".detail-layout.system-design-layout", styles_css)
-        self.assertIn(".system-design-workspace.reference-open", styles_css)
-        self.assertIn(".design-reference-resizer", styles_css)
+        self.assertNotIn(".system-design-workspace.reference-open", styles_css)
+        self.assertNotIn(".design-reference-resizer", styles_css)
 
     def test_system_design_interactive_demos_are_lazy_loaded_in_a_sandbox(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
+        demo_html = Path(
+            "problems/348-cover-photo-conversion-evaluation/assets/cover-photo-decision-loop.html"
+        ).read_text(encoding="utf-8")
 
         self.assertIn("function problemDemoUrl(problem, demo)", app_js)
         self.assertIn("function renderInteractiveDemos(problem, section)", app_js)
@@ -426,7 +438,13 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('loading="lazy"', app_js)
         self.assertIn('data-src="${escapeHtml(problemDemoUrl(problem, demo))}"', app_js)
         self.assertIn('renderInteractiveDemos(problem, "reference_answer")', app_js)
+        self.assertIn("function handleInteractiveDemoResize(event)", app_js)
+        self.assertIn("candidate.contentWindow === event.source", app_js)
+        self.assertIn('window.addEventListener("message", handleInteractiveDemoResize)', app_js)
         self.assertIn(".interactive-demo-frame", styles_css)
+        self.assertIn("height: var(--interactive-demo-height)", styles_css)
+        self.assertIn('type: "deepcode:interactive-demo-height"', demo_html)
+        self.assertIn("new ResizeObserver(reportHeight).observe(demo)", demo_html)
 
     def test_problem_assets_are_rendered_from_problem_scoped_urls(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
