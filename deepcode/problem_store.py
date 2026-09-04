@@ -248,6 +248,12 @@ class ProblemStore:
             raise ValueError(f"{problem_dir}/tests.json must contain a list")
 
         if evaluation_type == "ml_coding":
+            environment = problem["environment"]
+            if not isinstance(environment, dict):
+                raise ValueError(f"{problem_dir}/problem.json field `environment` must be an object")
+            runtime = environment.get("runtime", "python")
+            if runtime not in ("python", "pytorch"):
+                raise ValueError(f"{problem_dir}/problem.json field `environment.runtime` must be python or pytorch")
             for index, test in enumerate(problem["tests"], start=1):
                 for key in ("test", "expected_output"):
                     if key not in test:
@@ -321,9 +327,9 @@ class ProblemStore:
         demos = problem.get("interactive_demos")
         if demos is None:
             return
-        if evaluation_type != "system_design":
+        if evaluation_type not in {"system_design", "ml_coding", "ml_modeling", "ml_torch_modeling", "ml_torch_lab"}:
             raise ValueError(
-                f"{problem_dir}/problem.json field `interactive_demos` is only supported for system_design problems"
+                f"{problem_dir}/problem.json field `interactive_demos` is only supported for system_design and ML coding evaluators"
             )
         if not isinstance(demos, list):
             raise ValueError(f"{problem_dir}/problem.json field `interactive_demos` must be a list")
@@ -371,9 +377,10 @@ class ProblemStore:
                 raise ValueError(f"{problem_dir}/problem.json field `{field}.path` must be a non-empty string")
             if not isinstance(title, str) or not title.strip():
                 raise ValueError(f"{problem_dir}/problem.json field `{field}.title` must be a non-empty string")
-            if section != "reference_answer":
+            expected_section = "reference_answer" if evaluation_type == "system_design" else "interactive_demo"
+            if section != expected_section:
                 raise ValueError(
-                    f"{problem_dir}/problem.json field `{field}.section` must be reference_answer"
+                    f"{problem_dir}/problem.json field `{field}.section` must be {expected_section}"
                 )
             if not isinstance(presentation, dict):
                 raise ValueError(f"{problem_dir}/problem.json field `{field}.presentation` must be an object")

@@ -282,6 +282,32 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertEqual(problem["interactive_demos"][0]["presentation"]["theme"], "sync")
             self.assertEqual(problem["interactive_demos"][0]["presentation"]["fallback_height"], 720)
 
+    def test_coding_demo_mount_accepts_all_ml_evaluators_and_confines_assets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            assets = root / "assets"
+            assets.mkdir()
+            (assets / "demo.html").write_text("<!doctype html><title>Tensors</title>")
+            demo = {
+                "schema_version": 1, "id": "tensor-steps", "kind": "standalone_html",
+                "path": "assets/demo.html", "title": "Trace tensor shapes",
+                "section": "interactive_demo",
+                "presentation": {"theme": "sync", "fallback_theme": "light",
+                                 "height": "content", "fallback_height": 680},
+            }
+            store = ProblemStore(root)
+            for evaluator in ("ml_coding", "ml_modeling", "ml_torch_modeling", "ml_torch_lab"):
+                with self.subTest(evaluator=evaluator):
+                    store._validate_interactive_demos({"interactive_demos": [demo]}, root, evaluator)
+                    with self.assertRaisesRegex(ValueError, "must be interactive_demo"):
+                        store._validate_interactive_demos(
+                            {"interactive_demos": [{**demo, "section": "reference_answer"}]}, root, evaluator)
+                    with self.assertRaisesRegex(ValueError, "under assets/"):
+                        store._validate_interactive_demos(
+                            {"interactive_demos": [{**demo, "path": "../demo.html"}]}, root, evaluator)
+            with self.assertRaisesRegex(ValueError, "only supported"):
+                store._validate_interactive_demos({"interactive_demos": [demo]}, root, "unknown")
+
     def test_rejects_invalid_interactive_demo_contracts(self):
         base_demo = {
             "schema_version": 1,
@@ -327,7 +353,7 @@ class ProblemStoreTest(unittest.TestCase):
                 "fallback_height.*must be between",
                 "system_design",
             ),
-            ({}, "only supported", "ml_coding"),
+            ({}, "must be interactive_demo", "ml_coding"),
         ]
 
         for overrides, error, evaluation_type in invalid_cases:

@@ -50,6 +50,18 @@ From the browser you can:
 
 Submissions and Playground scripts execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. Playground runs are capped at 30 seconds and their captured output is limited. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 
+PyTorch is installed by the normal `uv sync` setup. Stdout-based `ml_coding`
+problems can opt into `"runtime": "pytorch"` in the `problem.json` `environment` object, with an
+explicit `timeout_seconds` (allow time for importing PyTorch, e.g. 10 seconds).
+This runtime uses one native compute thread and exposes
+`DEEPCODE_TORCH_DEVICE=cpu` as the device hint. It keeps the per-test wall timeout,
+a CPU limit derived from that timeout, and a file-size limit, but removes the
+512 MiB virtual-address cap that prevents PyTorch imports on Linux. It does not
+enforce a RAM cap or prohibit code from selecting another device. The default
+`python` runtime retains the existing limits. Assertion-based tensor problems
+can use the existing `ml_torch_modeling` evaluator, while dataset-backed training
+tasks use `ml_torch_lab` with their final local-data harness.
+
 DeepCode creates `.deepcode/user-state.json` on local startup and records personal progress there for full-suite submissions. A passing submission stores a completion event time; a submission that does not pass all tests stores an in-progress event time. The local state is separate from the committed problem definitions and is ignored by git by default. Resetting a problem clears both the editor code and that problem's current completion/in-progress record; it does not erase the historical activity ledger.
 
 The **Progress** page uses a separate append-only local activity ledger at
