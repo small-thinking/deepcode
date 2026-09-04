@@ -85,9 +85,8 @@ const state = {
   layout: {
     problemRatio: 0.46,
     resultsRatio: 0.32,
-    systemDesignReferenceRatio: 0.46,
     resultsCollapsed: false,
-    systemDesignReferenceOpen: false,
+    systemDesignActiveTab: "draft",
   },
 };
 
@@ -529,7 +528,7 @@ function percent(value) {
 function paneLayoutStyle() {
   return `style="--problem-pane-width: ${percent(state.layout.problemRatio)}; --results-pane-height: ${percent(
     state.layout.resultsRatio
-  )}; --system-design-reference-height: ${percent(state.layout.systemDesignReferenceRatio)};"`;
+  )};"`;
 }
 
 function applyPaneSizes() {
@@ -537,12 +536,6 @@ function applyPaneSizes() {
   if (!layout) return;
   layout.style.setProperty("--problem-pane-width", percent(state.layout.problemRatio));
   layout.style.setProperty("--results-pane-height", percent(state.layout.resultsRatio));
-  layout.style.setProperty("--system-design-reference-height", percent(state.layout.systemDesignReferenceRatio));
-  const designReferenceHandle = document.querySelector('[data-resize-handle="design-reference"]');
-  designReferenceHandle?.setAttribute(
-    "aria-valuenow",
-    String(Math.round(state.layout.systemDesignReferenceRatio * 100))
-  );
   codeEditor?.resize();
 }
 
@@ -575,13 +568,6 @@ function updatePaneResize(event) {
     const headerHeight = panel.querySelector(".panel-header")?.getBoundingClientRect().height ?? 0;
     const usableHeight = Math.max(1, rect.height - headerHeight);
     state.layout.resultsRatio = clamp((rect.bottom - event.clientY) / usableHeight, 0.18, 0.62);
-  }
-
-  if (activePaneResize === "design-reference") {
-    const workspace = document.querySelector(".system-design-workspace.reference-open");
-    if (!workspace) return;
-    const rect = workspace.getBoundingClientRect();
-    state.layout.systemDesignReferenceRatio = clamp((rect.bottom - event.clientY) / rect.height, 0.28, 0.72);
   }
 
   applyPaneSizes();
@@ -618,25 +604,6 @@ function handlePaneResizeKeydown(event) {
     }
     if (event.key === "ArrowDown") {
       state.layout.resultsRatio = clamp(state.layout.resultsRatio - step, 0.18, 0.62);
-      handled = true;
-    }
-  }
-
-  if (handle.dataset.resizeHandle === "design-reference") {
-    if (event.key === "ArrowUp") {
-      state.layout.systemDesignReferenceRatio = clamp(
-        state.layout.systemDesignReferenceRatio + step,
-        0.28,
-        0.72
-      );
-      handled = true;
-    }
-    if (event.key === "ArrowDown") {
-      state.layout.systemDesignReferenceRatio = clamp(
-        state.layout.systemDesignReferenceRatio - step,
-        0.28,
-        0.72
-      );
       handled = true;
     }
   }
@@ -706,7 +673,7 @@ async function loadProblem(identifier) {
   state.customTests = [];
   state.dataLink = null;
   state.dataLinkTarget = "";
-  state.layout.systemDesignReferenceOpen = false;
+  state.layout.systemDesignActiveTab = "draft";
   state.loading = true;
   render();
   try {
@@ -3054,31 +3021,94 @@ function loadInteractiveDemos(container) {
   });
 }
 
-function handleReferenceAnswerToggle(event) {
-  const details = event.currentTarget;
-  const workspace = details.closest(".system-design-workspace");
-  const handle = workspace?.querySelector('[data-resize-handle="design-reference"]');
-  state.layout.systemDesignReferenceOpen = details.open;
-  workspace?.classList.toggle("reference-open", details.open);
-  if (handle) handle.hidden = !details.open;
-  if (details.open) loadInteractiveDemos(details);
-  applyPaneSizes();
+function handleInteractiveDemoResize(event) {
+  if (event.data?.type !== "deepcode:interactive-demo-height") return;
+  const frame = [...document.querySelectorAll("iframe.interactive-demo-frame")].find(
+    (candidate) => candidate.contentWindow === event.source
+  );
+  const requestedHeight = Number(event.data.height);
+  if (!frame || !Number.isFinite(requestedHeight)) return;
+  frame.style.setProperty("--interactive-demo-height", `${clamp(Math.ceil(requestedHeight), 320, 4800)}px`);
+}
+
+window.addEventListener("message", handleInteractiveDemoResize);
+
+function activateSystemDesignTab(tabName, focusTab = false) {
+  if (!new Set(["draft", "reference"]).has(tabName)) return;
+  state.layout.systemDesignActiveTab = tabName;
+  document.querySelectorAll("[data-system-design-tab]").forEach((button) => {
+    const active = button.dataset.systemDesignTab === tabName;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+    button.tabIndex = active ? 0 : -1;
+    if (active && focusTab) button.focus();
+  });
+  document.querySelectorAll("[data-system-design-panel]").forEach((panel) => {
+    panel.hidden = panel.dataset.systemDesignPanel !== tabName;
+  });
+  const resetButton = document.querySelector("#reset-system-design-answer");
+  if (resetButton) resetButton.hidden = tabName !== "draft";
+  if (tabName === "reference") {
+    const referencePanel = document.querySelector('[data-system-design-panel="reference"]');
+    if (referencePanel) loadInteractiveDemos(referencePanel);
+  }
+}
+
+function handleSystemDesignTabKeydown(event) {
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  const tabNames = ["draft", "reference"];
+  const currentIndex = tabNames.indexOf(event.currentTarget.dataset.systemDesignTab);
+  let nextIndex = currentIndex;
+  if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabNames.length) % tabNames.length;
+  if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabNames.length;
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = tabNames.length - 1;
+  activateSystemDesignTab(tabNames[nextIndex], true);
+  event.preventDefault();
 }
 
 function renderSystemDesignWorkspace(problem) {
   const answer = currentSystemDesignAnswer(problem);
-  const referenceOpen = state.layout.systemDesignReferenceOpen;
+  const activeTab = state.layout.systemDesignActiveTab === "reference" ? "reference" : "draft";
+  const draftActive = activeTab === "draft";
   return `
     <section class="editor-panel system-design-panel">
       <div class="panel-header">
         <div class="system-design-heading">
           <h3>Your design</h3>
-          <p>Autosaved in this browser as Markdown.</p>
+          <p>Draft your response, then compare it with the walkthrough.</p>
         </div>
-        <button class="ghost-button" id="reset-system-design-answer">Reset</button>
+        <button class="ghost-button system-design-reset" id="reset-system-design-answer" ${draftActive ? "" : "hidden"}>Reset</button>
       </div>
-      <div class="system-design-workspace ${referenceOpen ? "reference-open" : ""}">
-        <div class="system-design-draft-pane" id="system-design-draft">
+      <div class="system-design-tabs" role="tablist" aria-label="System design workspace">
+        <button
+          class="tab system-design-tab ${draftActive ? "active" : ""}"
+          id="system-design-draft-tab"
+          data-system-design-tab="draft"
+          role="tab"
+          aria-selected="${draftActive}"
+          aria-controls="system-design-draft-panel"
+          tabindex="${draftActive ? "0" : "-1"}"
+        >Draft response</button>
+        <button
+          class="tab system-design-tab ${draftActive ? "" : "active"}"
+          id="system-design-reference-tab"
+          data-system-design-tab="reference"
+          role="tab"
+          aria-selected="${!draftActive}"
+          aria-controls="system-design-reference-panel"
+          tabindex="${draftActive ? "-1" : "0"}"
+        >Reference answer</button>
+      </div>
+      <div class="system-design-workspace">
+        <section
+          class="system-design-tab-panel system-design-draft-pane"
+          id="system-design-draft-panel"
+          data-system-design-panel="draft"
+          role="tabpanel"
+          aria-labelledby="system-design-draft-tab"
+          ${draftActive ? "" : "hidden"}
+        >
           <label class="system-design-answer-label" for="system-design-answer">
             <span>Draft response</span>
             <textarea
@@ -3089,30 +3119,24 @@ function renderSystemDesignWorkspace(problem) {
             >${escapeHtml(answer)}</textarea>
           </label>
           <p class="system-design-note">Use Markdown headings and lists to structure requirements, APIs, data model, scale, failure handling, and trade-offs.</p>
-        </div>
-        <div
-          class="pane-resizer design-reference-resizer"
-          data-resize-handle="design-reference"
-          role="separator"
-          aria-orientation="horizontal"
-          aria-label="Resize draft response and reference answer"
-          aria-controls="system-design-draft reference-answer"
-          aria-valuemin="28"
-          aria-valuemax="72"
-          aria-valuenow="${Math.round(state.layout.systemDesignReferenceRatio * 100)}"
+        </section>
+        <section
+          class="system-design-tab-panel system-design-reference-pane"
+          id="system-design-reference-panel"
+          data-system-design-panel="reference"
+          role="tabpanel"
+          aria-labelledby="system-design-reference-tab"
           tabindex="0"
-          ${referenceOpen ? "" : "hidden"}
-        ></div>
-        <details class="reference-answer" id="reference-answer" ${referenceOpen ? "open" : ""}>
-          <summary>Show reference answer</summary>
-          <div class="reference-answer-content" id="reference-answer-content">
+          ${draftActive ? "hidden" : ""}
+        >
+          <div class="reference-answer-content">
             ${renderInteractiveDemos(problem, "reference_answer")}
             <div class="reference-answer-text markdown-content">
               ${markdownLite(problem.response?.reference_answer || "")}
               ${renderProblemAssets(problem, "reference_answer")}
             </div>
           </div>
-        </details>
+        </section>
       </div>
     </section>
   `;
@@ -3653,12 +3677,16 @@ function bindEvents() {
   document.querySelectorAll("[data-company-problem]").forEach((button) => {
     button.addEventListener("click", () => loadProblem(button.dataset.companyProblem));
   });
-  document.querySelectorAll(".tab").forEach((tab) => {
+  document.querySelectorAll(".tab[data-tab]").forEach((tab) => {
     tab.addEventListener("click", () => {
       saveCode(editorCode());
       state.activeTab = tab.dataset.tab;
       render();
     });
+  });
+  document.querySelectorAll("[data-system-design-tab]").forEach((tab) => {
+    tab.addEventListener("click", () => activateSystemDesignTab(tab.dataset.systemDesignTab));
+    tab.addEventListener("keydown", handleSystemDesignTabKeydown);
   });
   document.querySelectorAll("[data-resize-handle]").forEach((handle) => {
     handle.addEventListener("pointerdown", startPaneResize);
@@ -3702,9 +3730,10 @@ function bindEvents() {
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));
   document.querySelector("#system-design-answer")?.addEventListener("input", (event) => saveSystemDesignAnswer(event.target.value));
   document.querySelector("#reset-system-design-answer")?.addEventListener("click", resetSystemDesignAnswer);
-  const referenceAnswer = document.querySelector("#reference-answer");
-  referenceAnswer?.addEventListener("toggle", handleReferenceAnswerToggle);
-  if (referenceAnswer?.open) loadInteractiveDemos(referenceAnswer);
+  if (state.layout.systemDesignActiveTab === "reference") {
+    const referencePanel = document.querySelector('[data-system-design-panel="reference"]');
+    if (referencePanel) loadInteractiveDemos(referencePanel);
+  }
 }
 
 function bootFromHash() {

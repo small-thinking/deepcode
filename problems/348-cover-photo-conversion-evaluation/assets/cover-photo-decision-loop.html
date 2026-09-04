@@ -37,6 +37,7 @@
       body {
         margin: 0;
         min-height: 100%;
+        overflow: hidden;
         background: var(--bg);
         color: var(--text);
         font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -782,6 +783,7 @@
         const simulationStatus = root.querySelector("#simulation-status");
         const stepCount = root.querySelector("#step-count");
         const lessonFooter = root.querySelector("#lesson-footer");
+        const demo = root.querySelector(".demo");
         const choices = [...root.querySelectorAll("[data-unit]")];
 
         const status = [
@@ -857,6 +859,11 @@
           allocationCopy.textContent = `${(percent * 1000).toLocaleString()} of 100,000 qualified impressions enter the experiment.`;
         }
 
+        function reportHeight() {
+          const height = Math.ceil(demo.getBoundingClientRect().height);
+          window.parent.postMessage({ type: "deepcode:interactive-demo-height", height }, "*");
+        }
+
         stageButtons.forEach((button) => {
           button.addEventListener("click", () => setStep(Number(button.dataset.step)));
         });
@@ -877,8 +884,14 @@
           });
         });
 
+        if (window.ResizeObserver) {
+          new ResizeObserver(reportHeight).observe(demo);
+        }
+        window.addEventListener("load", reportHeight);
+
         setStep(0, false);
         updateAllocation();
+        reportHeight();
       })();
     </script>
   </body>
