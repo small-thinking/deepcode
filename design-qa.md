@@ -1,49 +1,54 @@
-# Interactive demo schema and theme bridge QA
+# System Design compact workspace and problem focus QA
 
 ## Evidence
 
-- **Source visual truth path:** current-turn `Browser Comment 1` attachment (the client did not provide a filesystem path), showing the 1099 × 988 dark-theme System Design workspace.
-- **Implementation evidence:** current-turn Codex in-app browser captures in Dark mode plus computed-style reads in both Dark and Light modes.
-- **Route:** `http://127.0.0.1:8848/#/problems/cover-photo-conversion-evaluation` in the Codex in-app browser.
-- **State:** Reference tab with a schema-v1 `sync` / `content` demo; original Dark mode restored after checking both themes.
+- **Source visual truth:** current-turn `Browser Comment 1` screenshot at 1099 × 988 and `Browser Comment 2` screenshot at 1374 × 988. The client did not expose filesystem paths for either annotated source image.
+- **Implementation screenshots:** current-turn Codex in-app browser captures of the split Reference state and full-width Problem state. The browser API returned the captures inline without filesystem paths.
+- **Route:** `http://127.0.0.1:8848/#/problems/cover-photo-conversion-evaluation`.
+- **Normalized comparison:** the primary source and implementation captures are both 1099 × 988 pixels for a 1099 × 988 CSS viewport; no density rescaling was needed. The wider source was used only to confirm the intended full-width behavior.
+- **State:** Light theme; Reference selected for the compact split view; Problem pane expanded for the focus view; split view restored after verification.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+- The removed title/subtitle layer was redundant with the Draft and Reference tabs. Moving Reset to the same toolbar preserves the action without reintroducing the extra vertical region.
+- `Full width` is a text action that reuses the existing button style, so no approximate icon or new visual language was introduced.
 
 ## Comparison history
 
-1. **Source finding — P1:** The visualization architecture needed a reusable contract instead of per-question assumptions, especially for theme ownership and large-canvas sizing.
-2. **Contract:** Added a strict v1 schema with a stable demo ID, local standalone resource, `sync | light | dark` theme policy, pale `fallback_theme`, and `content | fixed` height policy.
-3. **Theme bridge:** A sandbox-safe `postMessage` handshake sends the active theme plus resolved semantic DeepCode color tokens. The iframe accepts the message only from `window.parent` and retains a self-contained light default.
-4. **Sizing bridge:** Only a schema-declared `content` demo can update its iframe height. The parent still source-matches the iframe and clamps the request before applying it.
-5. **Post-fix evidence:** Dark and Light mode both produced exact host/demo background and surface token matches. The content iframe expanded from its 760 px fallback to 1151 px while the 741 px Reference viewport retained one outer scroll over 2162 px of content.
+1. **Source finding — P1:** `Your design` and its explanatory subtitle consumed a full header row without adding navigation or task context.
+2. **Source finding — P1:** the draggable divider could resize the two panes but could not give the Problem pane the entire workspace in one action.
+3. **Fix:** removed the redundant right header, moved Reset beside the tabs but outside the semantic tablist, and added a reversible `Full width` / `Split view` control to the Problem header.
+4. **Post-fix evidence:** the right panel now has only a 51 px tab row plus its workspace; Reference client height increased to 797 px. In focus mode the Problem pane and layout both measured 1055 px, while the right panel and divider computed to `display: none`.
+5. **Restoration evidence:** returning to split view restored the divider and right panel and preserved the selected Reference tab.
 
-## Surface review
+## Required fidelity surfaces
 
 | Surface | Result | Evidence |
 | --- | --- | --- |
-| Fonts and typography | Pass | Existing DeepCode font families, weights, uppercase labels, and body line heights are unchanged. |
-| Spacing and layout rhythm | Pass | The demo remains a full-width canvas inside Reference and keeps the established panel rhythm. |
-| Colors and visual tokens | Pass | Dark host/demo matched `#17191f` background and `#20232b` surface; Light matched `#eef1f5` and `#f7f8fb`. Accent, text, border, status, and soft colors use the same semantic token payload. |
-| Image and asset fidelity | Pass | No source imagery was replaced or added; the existing interactive walkthrough is preserved without scaling or cropping. |
-| Copy and content | Pass | This change does not alter the question's teaching sequence or reference answer; it only makes the existing walkthrough the first schema consumer. |
-| Interaction and accessibility | Pass | The existing controls remain available inside the titled sandbox; theme changes do not reset walkthrough state. |
-| Scrolling and responsiveness | Pass | Desktop Reference uses one vertical scrollbar; the iframe grows to its reported canvas height and has no nested scroll. |
-| Fallback behavior | Pass | The demo's inline palette starts in the schema-declared pale Light style if no parent theme message arrives. |
+| Fonts and typography | Pass | Existing font family, weights, sizes, truncation, and tab typography are unchanged. The new labels use existing button typography. |
+| Spacing and layout rhythm | Pass | Removing one 54 px header layer increases useful right-panel height without changing outer gutters, radii, or panel spacing. Problem header actions remain on one 34 px row at 1099 px. |
+| Colors and visual tokens | Pass | Both controls reuse existing panel, line, text, blue, hover, and pressed-state tokens in Light and Dark compatible styles. |
+| Image quality and asset fidelity | Pass | No image, illustration, logo, or icon asset was added, removed, scaled, or substituted. |
+| Copy and content | Pass | Only the redundant `Your design` title/subtitle were removed. Question content, Draft/Reference labels, walkthrough copy, and reference answer are unchanged. |
+| Interaction and accessibility | Pass | Full-width mode exposes `aria-pressed` and a state-specific label, retains its restore control, and preserves the prior split ratio. Reset remains outside the two-item semantic tablist. |
+| Responsiveness | Pass | The focus control is hidden below the existing 920 px stacked-layout breakpoint, where both panes are already full width; the editor remains visible in that mobile layout. |
 
 ## Browser checks
 
-- Reloaded in Draft and confirmed the iframe had schema data but no `src`; opening Reference lazy-loaded it.
-- Confirmed `data-demo-theme=sync`, `fallbackTheme=light`, and `heightMode=content` reached the rendered iframe.
-- Measured Reference at 741 px viewport height and 2162 px total content height; the iframe expanded to 1151 px.
-- In Dark mode, host and iframe both resolved background `#17191f` and surface `#20232b`.
-- In Light mode, host and iframe both resolved background `#eef1f5` and surface `#f7f8fb`.
-- Restored Dark mode and `scrollTop = 0` after verification.
+- Opened Draft and Reference after a fresh reload.
+- Confirmed the removed header is absent and Reset remains available only in Draft.
+- Confirmed the semantic tablist contains exactly the two navigation tabs, not Reset.
+- Entered full-width mode and verified left width equals layout width, with both right panel and divider hidden.
+- Restored split mode and confirmed Reference selection persisted.
 - Checked browser console errors: none.
 
 ## Focused comparison
 
-The full-view Dark capture was reviewed for the overall two-column composition and the walkthrough header/canvas boundary. Computed styles were used for the theme check because they verify exact token equality more reliably than visual comparison alone.
+The top of the right panel and the left header controls were inspected as focused regions because those are the two annotated targets. The full-view captures were used to verify workspace proportions and the expanded Problem reading state.
 
 ## Follow-up polish
 
-- No P0/P1/P2 findings remain. The next design iteration can change this question's teaching content without changing the host integration contract.
+- No P3 follow-up is required for this scoped change.
 
 final result: passed

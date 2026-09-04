@@ -104,6 +104,7 @@ const state = {
   theme: initialTheme(),
   layout: {
     problemRatio: 0.46,
+    problemPaneFullWidth: false,
     resultsRatio: 0.32,
     resultsCollapsed: false,
     systemDesignActiveTab: "draft",
@@ -634,6 +635,11 @@ function handlePaneResizeKeydown(event) {
   applyPaneSizes();
 }
 
+function toggleProblemPaneFullWidth() {
+  state.layout.problemPaneFullWidth = !state.layout.problemPaneFullWidth;
+  render();
+}
+
 function toggleResultsPanel() {
   state.layout.resultsCollapsed = !state.layout.resultsCollapsed;
   render();
@@ -694,6 +700,7 @@ async function loadProblem(identifier) {
   state.customTests = [];
   state.dataLink = null;
   state.dataLinkTarget = "";
+  state.layout.problemPaneFullWidth = false;
   state.layout.systemDesignActiveTab = "draft";
   state.loading = true;
   render();
@@ -2865,7 +2872,9 @@ function renderDetail() {
           ${themeToggleButton()}
         </div>
       </header>
-      <section class="detail-layout ${systemDesign ? "system-design-layout" : ""}" ${paneLayoutStyle()}>
+      <section class="detail-layout ${systemDesign ? "system-design-layout" : ""} ${
+        state.layout.problemPaneFullWidth ? "problem-pane-full-width" : ""
+      }" ${paneLayoutStyle()}>
         <article class="detail-panel">
           <div class="panel-header">
             <div class="panel-title">
@@ -2873,9 +2882,16 @@ function renderDetail() {
               <p>#${escapeHtml(displayId)} / ${escapeHtml(problem.category)} / ${escapeHtml(problem.difficulty)}</p>
               ${renderProblemProgress(problem)}
             </div>
-            <div class="tabs">
+            <div class="tabs panel-header-tabs">
               ${tabButton("description", "Problem")}
               ${systemDesign ? "" : `${tabButton("tests", "Tests")}${tabButton("environment", "Env")}`}
+              <button
+                class="ghost-button pane-focus-toggle"
+                id="toggle-problem-pane-full-width"
+                type="button"
+                aria-pressed="${state.layout.problemPaneFullWidth}"
+                aria-label="${state.layout.problemPaneFullWidth ? "Restore split view" : "Show problem full width"}"
+              >${state.layout.problemPaneFullWidth ? "Split view" : "Full width"}</button>
             </div>
           </div>
           <div class="problem-body">${renderProblemTab(problem, env)}</div>
@@ -3139,32 +3155,28 @@ function renderSystemDesignWorkspace(problem) {
   const draftActive = activeTab === "draft";
   return `
     <section class="editor-panel system-design-panel">
-      <div class="panel-header">
-        <div class="system-design-heading">
-          <h3>Your design</h3>
-          <p>Draft your response, then compare it with the walkthrough.</p>
+      <div class="system-design-tabs">
+        <div class="system-design-tab-list" role="tablist" aria-label="System design workspace">
+          <button
+            class="tab system-design-tab ${draftActive ? "active" : ""}"
+            id="system-design-draft-tab"
+            data-system-design-tab="draft"
+            role="tab"
+            aria-selected="${draftActive}"
+            aria-controls="system-design-draft-panel"
+            tabindex="${draftActive ? "0" : "-1"}"
+          >Draft response</button>
+          <button
+            class="tab system-design-tab ${draftActive ? "" : "active"}"
+            id="system-design-reference-tab"
+            data-system-design-tab="reference"
+            role="tab"
+            aria-selected="${!draftActive}"
+            aria-controls="system-design-reference-panel"
+            tabindex="${draftActive ? "-1" : "0"}"
+          >Reference answer</button>
         </div>
         <button class="ghost-button system-design-reset" id="reset-system-design-answer" ${draftActive ? "" : "hidden"}>Reset</button>
-      </div>
-      <div class="system-design-tabs" role="tablist" aria-label="System design workspace">
-        <button
-          class="tab system-design-tab ${draftActive ? "active" : ""}"
-          id="system-design-draft-tab"
-          data-system-design-tab="draft"
-          role="tab"
-          aria-selected="${draftActive}"
-          aria-controls="system-design-draft-panel"
-          tabindex="${draftActive ? "0" : "-1"}"
-        >Draft response</button>
-        <button
-          class="tab system-design-tab ${draftActive ? "" : "active"}"
-          id="system-design-reference-tab"
-          data-system-design-tab="reference"
-          role="tab"
-          aria-selected="${!draftActive}"
-          aria-controls="system-design-reference-panel"
-          tabindex="${draftActive ? "-1" : "0"}"
-        >Reference answer</button>
       </div>
       <div class="system-design-workspace">
         <section
@@ -3771,6 +3783,7 @@ function bindEvents() {
   document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
   document.querySelector("#toggle-results")?.addEventListener("click", toggleResultsPanel);
+  document.querySelector("#toggle-problem-pane-full-width")?.addEventListener("click", toggleProblemPaneFullWidth);
   document.querySelectorAll("[data-run-test-index]").forEach((button) => {
     button.addEventListener("click", () => runTests(Number(button.dataset.runTestIndex)));
   });
