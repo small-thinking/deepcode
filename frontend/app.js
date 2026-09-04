@@ -30,6 +30,26 @@ const PROBLEM_SECTION_CLASSES = {
   tests: "problem-section problem-tests-section",
   environment: "problem-section problem-environment-section",
 };
+const INTERACTIVE_DEMO_THEME_TOKEN_MAP = Object.freeze({
+  background: "--bg",
+  surface: "--panel",
+  surfaceRaised: "--panel-2",
+  surfaceInset: "--mini-bg",
+  border: "--line",
+  borderStrong: "--line-bright",
+  text: "--text",
+  body: "--body-copy",
+  muted: "--muted",
+  accent: "--blue",
+  accentSoft: "--blue-soft",
+  accentText: "--primary-text",
+  positive: "--green",
+  positiveSoft: "--green-soft",
+  warning: "--amber",
+  warningSoft: "--amber-soft",
+  danger: "--red",
+  dangerSoft: "--red-soft",
+});
 const initialPlaygroundSessionState = loadPlaygroundSessionState();
 
 const state = {
@@ -116,6 +136,7 @@ function toggleTheme() {
   localStorage.setItem(THEME_KEY, state.theme);
   applyTheme();
   updateThemeToggle();
+  syncInteractiveDemoThemes();
 }
 
 function themeToggleLabel() {
@@ -2992,7 +3013,8 @@ function renderInteractiveDemos(problem, section) {
 
   return demos
     .map((demo) => {
-      const height = clamp(Number(demo.height) || 680, 320, 1000);
+      const presentation = demo.presentation || {};
+      const fallbackHeight = clamp(Number(presentation.fallback_height) || 680, 320, 1000);
       return `
         <section class="interactive-demo">
           <div class="interactive-demo-heading">
@@ -3001,12 +3023,17 @@ function renderInteractiveDemos(problem, section) {
           </div>
           <iframe
             class="interactive-demo-frame"
+            data-demo-id="${escapeHtml(demo.id)}"
+            data-demo-schema-version="${escapeHtml(demo.schema_version)}"
+            data-demo-theme="${escapeHtml(presentation.theme || "light")}"
+            data-demo-fallback-theme="${escapeHtml(presentation.fallback_theme || "light")}"
+            data-demo-height="${escapeHtml(presentation.height || "fixed")}"
             data-src="${escapeHtml(problemDemoUrl(problem, demo))}"
             sandbox="allow-scripts"
             referrerpolicy="no-referrer"
             loading="lazy"
             title="${escapeHtml(demo.title)}"
-            style="--interactive-demo-height: ${height}px"
+            style="--interactive-demo-height: ${fallbackHeight}px"
           ></iframe>
         </section>
       `;
@@ -3014,24 +3041,63 @@ function renderInteractiveDemos(problem, section) {
     .join("");
 }
 
+function interactiveDemoThemeTokens() {
+  const styles = getComputedStyle(document.body);
+  return Object.fromEntries(
+    Object.entries(INTERACTIVE_DEMO_THEME_TOKEN_MAP)
+      .map(([name, property]) => [name, styles.getPropertyValue(property).trim()])
+      .filter(([, value]) => value)
+  );
+}
+
+function postInteractiveDemoTheme(frame) {
+  if (!frame?.contentWindow) return;
+  const configuredTheme = frame.dataset.demoTheme || frame.dataset.demoFallbackTheme || "light";
+  const syncTheme = configuredTheme === "sync";
+  frame.contentWindow.postMessage(
+    {
+      type: "deepcode:interactive-demo-theme",
+      version: Number(frame.dataset.demoSchemaVersion) || 1,
+      theme: syncTheme ? state.theme : configuredTheme,
+      tokens: syncTheme ? interactiveDemoThemeTokens() : {},
+    },
+    "*"
+  );
+}
+
+function syncInteractiveDemoThemes() {
+  document.querySelectorAll("iframe.interactive-demo-frame[src]").forEach(postInteractiveDemoTheme);
+}
+
 function loadInteractiveDemos(container) {
   container.querySelectorAll("iframe.interactive-demo-frame[data-src]").forEach((frame) => {
+    frame.addEventListener("load", () => postInteractiveDemoTheme(frame));
     frame.setAttribute("src", frame.dataset.src);
     frame.removeAttribute("data-src");
   });
 }
 
-function handleInteractiveDemoResize(event) {
-  if (event.data?.type !== "deepcode:interactive-demo-height") return;
-  const frame = [...document.querySelectorAll("iframe.interactive-demo-frame")].find(
-    (candidate) => candidate.contentWindow === event.source
+function interactiveDemoFrameForSource(source) {
+  return [...document.querySelectorAll("iframe.interactive-demo-frame")].find(
+    (candidate) => candidate.contentWindow === source
   );
+}
+
+function handleInteractiveDemoMessage(event) {
+  const frame = interactiveDemoFrameForSource(event.source);
+  if (!frame) return;
+  if (event.data?.version !== Number(frame.dataset.demoSchemaVersion)) return;
+  if (event.data?.type === "deepcode:interactive-demo-ready") {
+    postInteractiveDemoTheme(frame);
+    return;
+  }
+  if (event.data?.type !== "deepcode:interactive-demo-height") return;
   const requestedHeight = Number(event.data.height);
-  if (!frame || !Number.isFinite(requestedHeight)) return;
+  if (frame.dataset.demoHeight !== "content" || !Number.isFinite(requestedHeight)) return;
   frame.style.setProperty("--interactive-demo-height", `${clamp(Math.ceil(requestedHeight), 320, 4800)}px`);
 }
 
-window.addEventListener("message", handleInteractiveDemoResize);
+window.addEventListener("message", handleInteractiveDemoMessage);
 
 function activateSystemDesignTab(tabName, focusTab = false) {
   if (!new Set(["draft", "reference"]).has(tabName)) return;

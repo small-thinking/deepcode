@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from copy import deepcopy
 from datetime import date
 from pathlib import Path
@@ -29,9 +30,19 @@ SUMMARY_FIELDS = (
 PROBLEM_ASSET_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"})
 SYSTEM_DESIGN_ASSET_SECTIONS = frozenset({"prompt", "reference_answer"})
 PROBLEM_DEMO_SUFFIXES = frozenset({".html"})
+PROBLEM_DEMO_SCHEMA_VERSION = 1
+PROBLEM_DEMO_KINDS = frozenset({"standalone_html"})
+PROBLEM_DEMO_THEMES = frozenset({"sync", "light", "dark"})
+PROBLEM_DEMO_FALLBACK_THEMES = frozenset({"light", "dark"})
+PROBLEM_DEMO_HEIGHT_MODES = frozenset({"content", "fixed"})
 PROBLEM_DEMO_MIN_HEIGHT = 320
 PROBLEM_DEMO_MAX_HEIGHT = 1000
-PROBLEM_DEMO_DEFAULT_HEIGHT = 680
+PROBLEM_DEMO_FIELDS = frozenset(
+    {"schema_version", "id", "kind", "path", "title", "section", "presentation"}
+)
+PROBLEM_DEMO_PRESENTATION_FIELDS = frozenset(
+    {"theme", "fallback_theme", "height", "fallback_height"}
+)
 
 # Keep source labels on each problem intact while exposing one selector for the
 # SpaceX/xAI scope that is curated in the Company Hub.
@@ -317,15 +328,44 @@ class ProblemStore:
         if not isinstance(demos, list):
             raise ValueError(f"{problem_dir}/problem.json field `interactive_demos` must be a list")
 
+        demo_ids = set()
         for index, demo in enumerate(demos, start=1):
             field = f"interactive_demos[{index}]"
             if not isinstance(demo, dict):
                 raise ValueError(f"{problem_dir}/problem.json field `{field}` must be an object")
 
+            missing_fields = PROBLEM_DEMO_FIELDS - demo.keys()
+            if missing_fields:
+                missing = ", ".join(sorted(missing_fields))
+                raise ValueError(f"{problem_dir}/problem.json field `{field}` is missing: {missing}")
+            unknown_fields = demo.keys() - PROBLEM_DEMO_FIELDS
+            if unknown_fields:
+                unknown = ", ".join(sorted(unknown_fields))
+                raise ValueError(f"{problem_dir}/problem.json field `{field}` has unsupported fields: {unknown}")
+
+            schema_version = demo.get("schema_version")
+            demo_id = demo.get("id")
+            kind = demo.get("kind")
             path_value = demo.get("path")
             title = demo.get("title")
             section = demo.get("section")
-            height = demo.get("height", PROBLEM_DEMO_DEFAULT_HEIGHT)
+            presentation = demo.get("presentation")
+
+            if schema_version != PROBLEM_DEMO_SCHEMA_VERSION or isinstance(schema_version, bool):
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.schema_version` must be "
+                    f"{PROBLEM_DEMO_SCHEMA_VERSION}"
+                )
+            if not isinstance(demo_id, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", demo_id):
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.id` must be a lowercase kebab-case identifier"
+                )
+            if demo_id in demo_ids:
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.id` must be unique")
+            demo_ids.add(demo_id)
+            if not isinstance(kind, str) or kind not in PROBLEM_DEMO_KINDS:
+                kinds = ", ".join(sorted(PROBLEM_DEMO_KINDS))
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.kind` must be one of: {kinds}")
 
             if not isinstance(path_value, str) or not path_value.strip():
                 raise ValueError(f"{problem_dir}/problem.json field `{field}.path` must be a non-empty string")
@@ -335,11 +375,44 @@ class ProblemStore:
                 raise ValueError(
                     f"{problem_dir}/problem.json field `{field}.section` must be reference_answer"
                 )
-            if isinstance(height, bool) or not isinstance(height, int):
-                raise ValueError(f"{problem_dir}/problem.json field `{field}.height` must be an integer")
-            if not PROBLEM_DEMO_MIN_HEIGHT <= height <= PROBLEM_DEMO_MAX_HEIGHT:
+            if not isinstance(presentation, dict):
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.presentation` must be an object")
+
+            missing_presentation_fields = PROBLEM_DEMO_PRESENTATION_FIELDS - presentation.keys()
+            if missing_presentation_fields:
+                missing = ", ".join(sorted(missing_presentation_fields))
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.presentation` is missing: {missing}")
+            unknown_presentation_fields = presentation.keys() - PROBLEM_DEMO_PRESENTATION_FIELDS
+            if unknown_presentation_fields:
+                unknown = ", ".join(sorted(unknown_presentation_fields))
                 raise ValueError(
-                    f"{problem_dir}/problem.json field `{field}.height` must be between "
+                    f"{problem_dir}/problem.json field `{field}.presentation` has unsupported fields: {unknown}"
+                )
+
+            theme = presentation.get("theme")
+            fallback_theme = presentation.get("fallback_theme")
+            height_mode = presentation.get("height")
+            fallback_height = presentation.get("fallback_height")
+            if not isinstance(theme, str) or theme not in PROBLEM_DEMO_THEMES:
+                themes = ", ".join(sorted(PROBLEM_DEMO_THEMES))
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.presentation.theme` must be one of: {themes}")
+            if not isinstance(fallback_theme, str) or fallback_theme not in PROBLEM_DEMO_FALLBACK_THEMES:
+                themes = ", ".join(sorted(PROBLEM_DEMO_FALLBACK_THEMES))
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.presentation.fallback_theme` must be one of: {themes}"
+                )
+            if not isinstance(height_mode, str) or height_mode not in PROBLEM_DEMO_HEIGHT_MODES:
+                modes = ", ".join(sorted(PROBLEM_DEMO_HEIGHT_MODES))
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.presentation.height` must be one of: {modes}"
+                )
+            if isinstance(fallback_height, bool) or not isinstance(fallback_height, int):
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.presentation.fallback_height` must be an integer"
+                )
+            if not PROBLEM_DEMO_MIN_HEIGHT <= fallback_height <= PROBLEM_DEMO_MAX_HEIGHT:
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.presentation.fallback_height` must be between "
                     f"{PROBLEM_DEMO_MIN_HEIGHT} and {PROBLEM_DEMO_MAX_HEIGHT}"
                 )
 

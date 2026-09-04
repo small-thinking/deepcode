@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/small-thinking/deepcode/blob/main/schemas/interactive-demos-v1.schema.json",
+  "title": "DeepCode interactive_demos v1",
+  "description": "Metadata contract for sandboxed, problem-scoped System Design visualizations.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_version",
+      "id",
+      "kind",
+      "path",
+      "title",
+      "section",
+      "presentation"
+    ],
+    "properties": {
+      "schema_version": {
+        "const": 1
+      },
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
+      "kind": {
+        "const": "standalone_html"
+      },
+      "path": {
+        "type": "string",
+        "pattern": "^assets/(?!\\.\\.(?:/|$))(?!.*\\/\\.\\.(?:/|$)).+\\.[hH][tT][mM][lL]$"
+      },
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "section": {
+        "const": "reference_answer"
+      },
+      "presentation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["theme", "fallback_theme", "height", "fallback_height"],
+        "properties": {
+          "theme": {
+            "enum": ["sync", "light", "dark"]
+          },
+          "fallback_theme": {
+            "enum": ["light", "dark"]
+          },
+          "height": {
+            "enum": ["content", "fixed"]
+          },
+          "fallback_height": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 1000
+          }
+        }
+      }
+    }
+  },
+  "$comment": "ProblemStore additionally requires unique demo ids and verifies that each path resolves to a declared local file."
+}

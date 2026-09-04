@@ -154,19 +154,43 @@ inside the Reference Answer tab:
 ```json
 "interactive_demos": [
   {
+    "schema_version": 1,
+    "id": "decision-loop",
+    "kind": "standalone_html",
     "path": "assets/decision-loop.html",
     "title": "Explore the decision and evaluation loop",
     "section": "reference_answer",
-    "height": 680
+    "presentation": {
+      "theme": "sync",
+      "fallback_theme": "light",
+      "height": "content",
+      "fallback_height": 680
+    }
   }
 ]
 ```
 
+The canonical contract is
+[`schemas/interactive-demos-v1.schema.json`](../schemas/interactive-demos-v1.schema.json).
 Interactive demos are opt-in and separate from Markdown and static image
-assets. The file must be a standalone `.html` document under the same problem's
-`assets/` folder, `title` must describe the iframe for assistive technology,
-`section` must be `reference_answer`, and `height` must be an integer from 320
-through 1000 pixels. Demos are available only on `system_design` problems.
+assets. Each lowercase kebab-case `id` must be unique within the problem. The
+file must be a standalone `.html` document under the same problem's `assets/`
+folder, `title` must describe the iframe for assistive technology, and
+`section` must be `reference_answer`. Demos are available only on
+`system_design` problems.
+
+`presentation.theme` controls the parent-to-demo palette contract:
+
+- `sync` follows DeepCode's active Dark/Light mode and receives the resolved
+  DeepCode color tokens.
+- `light` or `dark` keeps a fixed self-contained palette.
+- `fallback_theme` is the demo's startup/no-message palette. Prefer `light` for
+  a neutral pale fallback.
+
+`presentation.height` is either `content` or `fixed`. `fallback_height` is the
+initial height for either mode and must be an integer from 320 through 1000
+pixels. A `content` demo may grow beyond that fallback through the message
+protocol below; a `fixed` demo's height messages are ignored.
 
 DeepCode serves these files from `/problem-demos/<slug>/...` with a restrictive
 Content Security Policy and embeds them with `sandbox="allow-scripts"` without
@@ -175,23 +199,52 @@ make network requests, and must not depend on CDNs, parent-page storage, or the
 parent DOM. Do not place executable HTML in `response.reference_answer` or add
 `.html` to the static image asset allowlist.
 
-When a walkthrough is taller than its configured fallback height, report the
-rendered canvas height so the Reference Answer tab owns the scrolling instead
-of creating a nested iframe scrollbar:
+The v1 bridge uses `postMessage` because the sandbox intentionally prevents the
+iframe from reading the parent DOM. A demo first announces readiness, then
+accepts theme messages only from `window.parent`:
+
+```js
+window.parent.postMessage({ type: "deepcode:interactive-demo-ready", version: 1 }, "*");
+
+window.addEventListener("message", (event) => {
+  if (
+    event.source !== window.parent ||
+    event.data?.type !== "deepcode:interactive-demo-theme" ||
+    event.data?.version !== 1
+  ) return;
+
+  document.documentElement.dataset.theme = event.data.theme;
+  // Map the allowlisted semantic values in event.data.tokens to local CSS variables.
+});
+```
+
+For `sync` demos the theme payload contains semantic tokens named `background`,
+`surface`, `surfaceRaised`, `surfaceInset`, `border`, `borderStrong`, `text`,
+`body`, `muted`, `accent`, `accentSoft`, `accentText`, `positive`,
+`positiveSoft`, `warning`, `warningSoft`, `danger`, and `dangerSoft`. A fixed
+theme receives an empty token object and owns its local palette.
+
+When a `content` walkthrough is taller than its configured fallback height,
+report the rendered canvas height so the Reference Answer tab owns the scrolling
+instead of creating a nested iframe scrollbar:
 
 ```js
 const demo = document.querySelector(".demo");
 const reportHeight = () => window.parent.postMessage(
-  { type: "deepcode:interactive-demo-height", height: Math.ceil(demo.getBoundingClientRect().height) },
+  {
+    type: "deepcode:interactive-demo-height",
+    version: 1,
+    height: Math.ceil(demo.getBoundingClientRect().height)
+  },
   "*"
 );
 new ResizeObserver(reportHeight).observe(demo);
 window.addEventListener("load", reportHeight);
 ```
 
-The parent accepts height messages only from the matching iframe and clamps
-the reported canvas to a safe range. Keep a valid metadata `height` as the
-no-JavaScript fallback.
+The parent accepts height messages only from the matching `content` iframe and
+clamps the reported canvas to a safe range. Keep a valid
+`presentation.fallback_height` as the no-JavaScript fallback.
 
 ML coding problems should use the default evaluator:
 
