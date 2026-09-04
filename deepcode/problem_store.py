@@ -28,6 +28,10 @@ SUMMARY_FIELDS = (
 
 PROBLEM_ASSET_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"})
 SYSTEM_DESIGN_ASSET_SECTIONS = frozenset({"prompt", "reference_answer"})
+PROBLEM_DEMO_SUFFIXES = frozenset({".html"})
+PROBLEM_DEMO_MIN_HEIGHT = 320
+PROBLEM_DEMO_MAX_HEIGHT = 1000
+PROBLEM_DEMO_DEFAULT_HEIGHT = 680
 
 # Keep source labels on each problem intact while exposing one selector for the
 # SpaceX/xAI scope that is curated in the Company Hub.
@@ -253,6 +257,7 @@ class ProblemStore:
         self._validate_interview_frequency_total(problem, problem_dir)
         self._validate_references(problem, problem_dir)
         self._validate_assets(problem, problem_dir)
+        self._validate_interactive_demos(problem, problem_dir, evaluation_type)
 
     def _validate_system_design_response(self, problem: dict[str, Any], problem_dir: Path) -> None:
         response = problem.get("response")
@@ -295,6 +300,57 @@ class ProblemStore:
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].path` must use one of: {suffixes}")
             if not (problem_dir / asset_path).is_file():
                 raise ValueError(f"{problem_dir}/problem.json asset not found: {path_value}")
+
+    def _validate_interactive_demos(
+        self,
+        problem: dict[str, Any],
+        problem_dir: Path,
+        evaluation_type: str,
+    ) -> None:
+        demos = problem.get("interactive_demos")
+        if demos is None:
+            return
+        if evaluation_type != "system_design":
+            raise ValueError(
+                f"{problem_dir}/problem.json field `interactive_demos` is only supported for system_design problems"
+            )
+        if not isinstance(demos, list):
+            raise ValueError(f"{problem_dir}/problem.json field `interactive_demos` must be a list")
+
+        for index, demo in enumerate(demos, start=1):
+            field = f"interactive_demos[{index}]"
+            if not isinstance(demo, dict):
+                raise ValueError(f"{problem_dir}/problem.json field `{field}` must be an object")
+
+            path_value = demo.get("path")
+            title = demo.get("title")
+            section = demo.get("section")
+            height = demo.get("height", PROBLEM_DEMO_DEFAULT_HEIGHT)
+
+            if not isinstance(path_value, str) or not path_value.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.path` must be a non-empty string")
+            if not isinstance(title, str) or not title.strip():
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.title` must be a non-empty string")
+            if section != "reference_answer":
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.section` must be reference_answer"
+                )
+            if isinstance(height, bool) or not isinstance(height, int):
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.height` must be an integer")
+            if not PROBLEM_DEMO_MIN_HEIGHT <= height <= PROBLEM_DEMO_MAX_HEIGHT:
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `{field}.height` must be between "
+                    f"{PROBLEM_DEMO_MIN_HEIGHT} and {PROBLEM_DEMO_MAX_HEIGHT}"
+                )
+
+            demo_path = Path(path_value)
+            if demo_path.is_absolute() or ".." in demo_path.parts or not demo_path.parts or demo_path.parts[0] != "assets":
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.path` must be under assets/")
+            if demo_path.suffix.casefold() not in PROBLEM_DEMO_SUFFIXES:
+                suffixes = ", ".join(sorted(PROBLEM_DEMO_SUFFIXES))
+                raise ValueError(f"{problem_dir}/problem.json field `{field}.path` must use one of: {suffixes}")
+            if not (problem_dir / demo_path).is_file():
+                raise ValueError(f"{problem_dir}/problem.json interactive demo not found: {path_value}")
 
     def _read_json(self, path: Path) -> Any:
         with path.open(encoding="utf-8") as file:

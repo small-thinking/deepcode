@@ -148,6 +148,33 @@ under `problems/**/assets/` are tracked through Git LFS by `.gitattributes`.
 Run `git lfs track` only when adding another binary extension, then commit the
 resulting `.gitattributes` change with the asset.
 
+System Design problems may also add a self-contained interactive teaching demo
+inside the collapsed reference answer:
+
+```json
+"interactive_demos": [
+  {
+    "path": "assets/decision-loop.html",
+    "title": "Explore the decision and evaluation loop",
+    "section": "reference_answer",
+    "height": 680
+  }
+]
+```
+
+Interactive demos are opt-in and separate from Markdown and static image
+assets. The file must be a standalone `.html` document under the same problem's
+`assets/` folder, `title` must describe the iframe for assistive technology,
+`section` must be `reference_answer`, and `height` must be an integer from 320
+through 1000 pixels. Demos are available only on `system_design` problems.
+
+DeepCode serves these files from `/problem-demos/<slug>/...` with a restrictive
+Content Security Policy and embeds them with `sandbox="allow-scripts"` without
+`allow-same-origin`. Demo files must keep all CSS and JavaScript inline, must not
+make network requests, and must not depend on CDNs, parent-page storage, or the
+parent DOM. Do not place executable HTML in `response.reference_answer` or add
+`.html` to the static image asset allowlist.
+
 ML coding problems should use the default evaluator:
 
 ```json

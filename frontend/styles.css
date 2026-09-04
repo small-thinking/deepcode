@@ -580,6 +580,10 @@ tbody tr:hover {
   min-height: calc(100vh - 104px);
 }
 
+.detail-layout.system-design-layout {
+  height: calc(100vh - 104px);
+}
+
 .detail-panel,
 .editor-panel {
   min-width: 0;
@@ -1082,16 +1086,30 @@ pre {
 
 .system-design-workspace {
   display: grid;
-  align-content: start;
-  gap: 14px;
+  grid-template-rows: minmax(280px, 1fr) auto;
+  flex: 1;
+  gap: 0;
   min-height: 0;
   padding: 16px;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.system-design-workspace.reference-open {
+  grid-template-rows: minmax(200px, 1fr) 12px minmax(180px, var(--system-design-reference-height));
+}
+
+.system-design-draft-pane {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 0;
 }
 
 .system-design-answer-label {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 8px;
+  min-height: 0;
 }
 
 .system-design-answer-label > span {
@@ -1104,8 +1122,9 @@ pre {
 
 .system-design-answer {
   width: 100%;
-  min-height: 360px;
-  resize: vertical;
+  height: 100%;
+  min-height: 0;
+  resize: none;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
@@ -1126,22 +1145,57 @@ pre {
   line-height: 1.5;
 }
 
+.design-reference-resizer {
+  min-height: 12px;
+  cursor: row-resize;
+}
+
+.design-reference-resizer[hidden] {
+  display: none;
+}
+
+.design-reference-resizer::before {
+  width: 18%;
+  min-width: 56px;
+  height: 2px;
+}
+
+.design-reference-resizer:hover::before,
+.design-reference-resizer:focus-visible::before,
+body.is-resizing .design-reference-resizer::before {
+  transform: scaleY(1.8);
+}
+
 .reference-answer {
+  min-height: 0;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--inset-bg);
 }
 
+.reference-answer[open] {
+  display: flex;
+  flex-direction: column;
+}
+
 .reference-answer summary {
+  flex: 0 0 auto;
   padding: 13px 14px;
   color: var(--blue);
   font-weight: 700;
   cursor: pointer;
 }
 
+.reference-answer[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
 .reference-answer-content {
-  padding: 0 14px 14px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px;
+  overflow: auto;
   color: var(--body-copy);
   line-height: 1.6;
 }
@@ -1152,6 +1206,53 @@ pre {
 .reference-answer-content h5,
 .reference-answer-content h6 {
   margin: 18px 0 8px;
+}
+
+.interactive-demo {
+  overflow: hidden;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--mini-bg);
+}
+
+.interactive-demo-heading {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-header-bg);
+}
+
+.interactive-demo-heading span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.interactive-demo-heading h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.interactive-demo-frame {
+  display: block;
+  width: 100%;
+  height: min(var(--interactive-demo-height), 72vh);
+  min-height: 320px;
+  border: 0;
+  background: var(--mini-bg);
+}
+
+body.is-resizing .interactive-demo-frame {
+  pointer-events: none;
+}
+
+.reference-answer-text > :first-child {
+  margin-top: 0;
 }
 
 .editor-actions {
@@ -2880,6 +2981,7 @@ body[data-theme="light"] .progress-page {
   }
 
   .detail-layout {
+    height: auto;
     min-height: auto;
     gap: 14px;
   }
@@ -2892,6 +2994,36 @@ body[data-theme="light"] .progress-page {
     display: flex;
     flex-direction: column;
     min-height: auto;
+  }
+
+  .system-design-workspace,
+  .system-design-workspace.reference-open {
+    grid-template-rows: auto auto;
+    flex: none;
+    gap: 14px;
+    overflow: visible;
+  }
+
+  .system-design-draft-pane {
+    grid-template-rows: auto auto;
+  }
+
+  .system-design-answer-label {
+    grid-template-rows: auto auto;
+  }
+
+  .system-design-answer {
+    height: 360px;
+    min-height: 240px;
+    resize: vertical;
+  }
+
+  .reference-answer[open] {
+    display: block;
+  }
+
+  .reference-answer-content {
+    overflow: visible;
   }
 
   .code-pane {

@@ -44,5 +44,13 @@
     "placeholder": "State the decision and outcome contract first; a historical booking label alone cannot prove that one photo caused conversion.",
     "reference_answer": "## Assumptions and objective\n\nAssume one eligible cover image is selected before a qualified listing impression, and define conversion as a booking after that impression within a fixed attribution window. Keep eligibility, availability, price, and policy filters outside the image ranker. The exact objective and window are product assumptions to validate, not reported Airbnb requirements.\n\n## Data and offline loop\n\nLog the request context, eligible candidates, displayed image and position, model version, and delayed outcomes. Build point-in-time examples only from qualified exposures; post-exposure behavior cannot be an input feature. A practical ranker can combine image representations with listing and request context, but it should be compared against simple image-quality and current-cover baselines. Evaluate ranking quality and calibration by listing type, market, device, and new-listing slices, while recognizing that observational logs are biased by the previous selection policy.\n\n## Causal validation\n\nRun a bounded randomized or interleaved allocation among policy-safe candidate images, with a stable assignment unit chosen to avoid excessive user or host inconsistency. Measure booking conversion and supporting funnel metrics against the current policy, with predeclared stop, rollout, and rollback rules. Analyze confidence intervals and important slices before broadening traffic.\n\n## Guardrails\n\nFilter policy-violating, misleading, inaccessible, or rights-problematic images before selection. Monitor cancellation, guest and host complaints, bounce, coverage, and listing-level concentration alongside conversion. Preserve a fallback image and an auditable reason for every selection so a bad rollout can be reversed without losing the evidence needed to diagnose it."
   },
+  "interactive_demos": [
+    {
+      "path": "assets/cover-photo-decision-loop.html",
+      "title": "Explore the cover photo decision and evaluation loop",
+      "section": "reference_answer",
+      "height": 760
+    }
+  ],
   "created_at": "2026-09-02"
 }

@@ -12,7 +12,7 @@ from deepcode.activity_log import ActivityLogStore
 from deepcode.api import ApiContext, handle_api_request, stream_api_events
 from deepcode.company_store import CompanyStore
 from deepcode.custom_tests import CustomTestStore
-from deepcode.problem_store import PROBLEM_ASSET_SUFFIXES, ProblemStore
+from deepcode.problem_store import PROBLEM_ASSET_SUFFIXES, PROBLEM_DEMO_SUFFIXES, ProblemStore
 from deepcode.user_state import UserStateStore
 
 
@@ -24,6 +24,17 @@ USER_STATE_PATH = Path(os.environ.get("DEEPCODE_USER_STATE_PATH", BASE_DIR / ".d
 CUSTOM_TESTS_PATH = Path(os.environ.get("DEEPCODE_CUSTOM_TESTS_PATH", BASE_DIR / ".deepcode" / "custom-tests.json"))
 ACTIVITY_LOG_PATH = Path(os.environ.get("DEEPCODE_ACTIVITY_LOG_PATH", BASE_DIR / ".deepcode" / "activity-log.json"))
 DEFAULT_PORT = 8848
+PROBLEM_DEMO_CSP = (
+    "default-src 'none'; "
+    "script-src 'unsafe-inline'; "
+    "style-src 'unsafe-inline'; "
+    "img-src data:; "
+    "connect-src 'none'; "
+    "object-src 'none'; "
+    "base-uri 'none'; "
+    "form-action 'none'; "
+    "frame-ancestors 'self'"
+)
 
 
 def resolve_problem_asset(request_path: str, problems_dir: Path = PROBLEMS_DIR) -> Path | None:
@@ -46,6 +57,40 @@ def resolve_problem_asset(request_path: str, problems_dir: Path = PROBLEMS_DIR) 
     problem_dir = Path(problem["_runtime"]["problem_dir"])
     assets_dir = (problem_dir / "assets").resolve()
     file_path = (problem_dir / asset_path).resolve()
+    if not file_path.is_relative_to(assets_dir) or not file_path.is_file():
+        return None
+    return file_path
+
+
+def resolve_problem_demo(request_path: str, problems_dir: Path = PROBLEMS_DIR) -> Path | None:
+    """Resolve one declared interactive demo under its owning problem directory."""
+    parts = [unquote(part) for part in request_path.strip("/").split("/")]
+    if len(parts) < 4 or parts[0] != "problem-demos":
+        return None
+    slug, *demo_parts = parts[1:]
+    if not slug or any(part in {"", ".", ".."} for part in [slug, *demo_parts]):
+        return None
+
+    demo_path = Path(*demo_parts)
+    if demo_path.parts[0] != "assets" or demo_path.suffix.casefold() not in PROBLEM_DEMO_SUFFIXES:
+        return None
+
+    try:
+        problem = ProblemStore(problems_dir).get_problem(slug)
+    except (KeyError, ValueError):
+        return None
+    declared_paths = {
+        demo.get("path")
+        for demo in problem.get("interactive_demos", [])
+        if isinstance(demo, dict) and isinstance(demo.get("path"), str)
+    }
+    normalized_path = demo_path.as_posix()
+    if normalized_path not in declared_paths:
+        return None
+
+    problem_dir = Path(problem["_runtime"]["problem_dir"])
+    assets_dir = (problem_dir / "assets").resolve()
+    file_path = (problem_dir / demo_path).resolve()
     if not file_path.is_relative_to(assets_dir) or not file_path.is_file():
         return None
     return file_path
@@ -82,6 +127,9 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
             return
         if parsed.path.startswith("/problem-assets/"):
             self._handle_problem_asset(parsed.path)
+            return
+        if parsed.path.startswith("/problem-demos/"):
+            self._handle_problem_demo(parsed.path)
             return
         self._handle_static(parsed.path)
 
@@ -153,13 +201,29 @@ class DeepCodeHandler(BaseHTTPRequestHandler):
             return
         self._send_file(file_path)
 
-    def _send_file(self, file_path: Path):
+    def _handle_problem_demo(self, request_path: str):
+        file_path = resolve_problem_demo(request_path)
+        if file_path is None:
+            self.send_error(404, "Problem demo not found")
+            return
+        self._send_file(
+            file_path,
+            {
+                "Content-Security-Policy": PROBLEM_DEMO_CSP,
+                "Cross-Origin-Resource-Policy": "same-origin",
+                "X-Content-Type-Options": "nosniff",
+            },
+        )
+
+    def _send_file(self, file_path: Path, extra_headers: dict[str, str] | None = None):
         data = file_path.read_bytes()
         content_type = mimetypes.guess_type(str(file_path))[0] or "application/octet-stream"
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
+        for header, value in (extra_headers or {}).items():
+            self.send_header(header, value)
         self.end_headers()
         self.wfile.write(data)
 
