@@ -4,6 +4,7 @@ import re
 import shutil
 import subprocess
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import numpy as np
@@ -115,14 +116,65 @@ for (let head=0; head<4; head++) {
 
     def test_network_forward_values_and_step_focus(self):
         rows = self.run_demo(391, """
-for (const input of [-4,0,1,4]) {
+for (let input=-4; input<=4; input+=.25) {
   el('input').value=String(input); render();
-  console.log(JSON.stringify({input, table:el('allvalues').innerHTML}));
+  const data=calculate(input);
+  console.log(JSON.stringify({input, data,
+    contractions:[false,true].map(second=>[0,1].map(j=>contraction(data,second,j))),
+    sigmoid:el('sigmoid').innerHTML, relu:el('relu').innerHTML}));
 }
 """)
+        self.assertEqual(len(rows), 33)
         for data in rows:
             x = np.array([data["input"], -1])
-            hidden = 1 / (1 + np.exp(-(x @ np.array([[1, -1], [.5, 1]]) + [0, .5])))
-            output = np.maximum(hidden @ np.array([[1, -1], [2, .5]]) + [-.5, .25], 0)
-            expected_cells = ''.join(f'<td class="num">{value:.3f}</td>' for value in output)
-            self.assertIn(expected_cells, data["table"])
+            weights = [np.array([[1, -1], [.5, 1]]), np.array([[1, -1], [2, .5]])]
+            biases = [np.array([0, .5]), np.array([-.5, .25])]
+            z1 = x @ weights[0] + biases[0]
+            hidden = 1 / (1 + np.exp(-z1))
+            z2 = hidden @ weights[1] + biases[1]
+            output = np.maximum(z2, 0)
+            for name, expected in dict(x=x, z1=z1, h=hidden, z2=z2, y=output).items():
+                np.testing.assert_allclose(data["data"][name], expected, atol=1e-12)
+            for layer, inputs in enumerate([x, hidden]):
+                for column in range(2):
+                    detail = data["contractions"][layer][column]
+                    expected_products = inputs * weights[layer][:, column]
+                    np.testing.assert_allclose(detail["products"], expected_products, atol=1e-12)
+                    self.assertAlmostEqual(detail["bias"], biases[layer][column])
+                    self.assertAlmostEqual(detail["result"], expected_products.sum() + biases[layer][column])
+
+            # Check the drawn markers, not only helper outputs. In SVG, coordinate
+            # zero is the circle and coordinate one is the square's center.
+            for name, before, after, xlim, ylim in [
+                ("sigmoid", z1, hidden, (-5, 5), (0, 1)),
+                ("relu", z2, output, (-1, 2), (-.12, 2)),
+            ]:
+                svg = ET.fromstring(data[name])
+                ns = "{http://www.w3.org/2000/svg}"
+                circle = svg.find(f"{ns}circle")
+                square = svg.find(f"{ns}rect")
+                actual = [[float(circle.attrib["cx"]), float(circle.attrib["cy"])],
+                          [float(square.attrib["x"]) + 4, float(square.attrib["y"]) + 4]]
+                expected_x = 34 + (before - xlim[0]) / (xlim[1] - xlim[0]) * (195 - 34)
+                expected_y = 163 - (after - ylim[0]) / (ylim[1] - ylim[0]) * (163 - 30)
+                np.testing.assert_allclose(actual, np.column_stack([expected_x, expected_y]), atol=1e-9)
+
+    def test_network_coordinate_steps_and_reset_preserve_focus(self):
+        self.run_demo(391, """
+el('coord1').focus(); el('coord1').onclick();
+assert.equal(document.activeElement, el('coord1'));
+assert.equal(coordinate, 1);
+assert.equal(el('coord1')['aria-pressed'], 'true');
+el('input').value='-4'; el('input').oninput();
+stage=3; render();
+assert.ok(el('equation').innerHTML.includes('z₂[0, 1]'));
+assert.ok(el('matmul').innerHTML.includes('column 1'));
+el('reset').onclick();
+assert.equal(coordinate, 0); assert.equal(stage, 0);
+assert.equal(el('input').value, '1');
+assert.equal(el('prev').disabled, true);
+el('prev').onclick(); assert.equal(stage, 0);
+for(let i=0;i<8;i++) el('next').onclick();
+assert.equal(stage, 4); assert.equal(el('next').disabled, true);
+assert.equal(stableSigmoid(-1000), 0); assert.equal(stableSigmoid(1000), 1);
+""")
