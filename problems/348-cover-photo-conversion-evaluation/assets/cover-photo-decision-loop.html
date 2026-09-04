@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
-<title>封面图选择：从问题定义到上线决策</title>
+<title>Cover Photo Selection: From Problem Framing to Launch</title>
 <style>
 :root {
   color-scheme:light;
@@ -433,27 +433,27 @@ h2 {
 </head>
 <body>
 <main class="demo">
-<header class="header"><div><div class="eyebrow">SENIOR ENGINEER · DECISION WALKTHROUGH</div><h1>先把问题定义清楚，再画系统</h1><p class="muted">为房源选一张封面图。每一步先回答一个设计问题，再保留一项决定；修改假设，观察后续方案如何改变。所有数值都是教学假设，并非 Airbnb 事实。</p></div><button id="reset" type="button">重置推演</button></header>
-<nav class="rail" aria-label="设计推演步骤"></nav>
+<header class="header"><div><div class="eyebrow">SENIOR ENGINEER · DECISION WALKTHROUGH</div><h1>Frame the problem before drawing the system</h1><p class="muted">Choose a cover photo for a listing. Answer one design question at a time and carry each decision forward. Change an assumption to see how the design responds. All numbers are teaching assumptions, not Airbnb facts.</p></div><button id="reset" type="button">Reset walkthrough</button></header>
+<nav class="rail" aria-label="Design walkthrough steps"></nav>
 <div class="layout">
 <section class="panel" id="stage" aria-labelledby="stage-title"></section>
-<aside class="ledger" aria-label="当前设计决策"><h2>随推演保留的决定</h2><dl id="ledger"></dl>
-<details id="assumptions"><summary>修改教学假设</summary><p class="muted">修改后立即重算；切换步骤会保留。</p>
-<label>合格曝光 / 日（百万）<input data-key="traffic" type="number" min="0.1" max="1000" step="0.1" value="10" /></label>
-<label>曝光基准转化率（%）<input data-key="baseline" type="number" min="0.1" max="20" step="0.1" value="2" /></label>
-<label>目标相对提升（%）<input data-key="lift" type="number" min="1" max="20" step="1" value="3" /></label>
-<label>峰值 / 平均流量<input data-key="peak" type="number" min="1" max="20" step="1" value="5" /></label>
-<label>合格候选图 / 房源<input data-key="candidates" type="number" min="2" max="30" step="1" value="8" /></label>
-<label>新增决策延迟预算（ms）<input data-key="latency" type="number" min="5" max="100" step="5" value="20" /></label>
-</details><p class="muted" style="margin-top:14px">这里只展开当前步骤。编号可跳转，返回可重新协商假设。</p></aside>
+<aside class="ledger" aria-label="Current design decisions"><h2>Decisions so far</h2><dl id="ledger"></dl>
+<details id="assumptions"><summary>Edit teaching assumptions</summary><p class="muted">Changes recalculate immediately and persist across steps.</p>
+<label>Eligible exposures / day (millions)<input data-key="traffic" type="number" min="0.1" max="1000" step="0.1" value="10" /></label>
+<label>Baseline conversion per exposure (%)<input data-key="baseline" type="number" min="0.1" max="20" step="0.1" value="2" /></label>
+<label>Target relative lift (%)<input data-key="lift" type="number" min="1" max="20" step="1" value="3" /></label>
+<label>Peak / average traffic<input data-key="peak" type="number" min="1" max="20" step="1" value="5" /></label>
+<label>Eligible photos / listing<input data-key="candidates" type="number" min="2" max="30" step="1" value="8" /></label>
+<label>Added decision latency budget (ms)<input data-key="latency" type="number" min="5" max="100" step="5" value="20" /></label>
+</details><p class="muted" style="margin-top:14px">Only the current step is expanded. Select a step to jump ahead or revisit assumptions.</p></aside>
 </div>
-<footer class="footer"><p id="step-status" role="status" aria-live="polite"></p><div><button id="previous" type="button">上一步</button><button id="next" type="button" class="primary">下一步</button></div></footer>
+<footer class="footer"><p id="step-status" role="status" aria-live="polite"></p><div><button id="previous" type="button">Previous</button><button id="next" type="button" class="primary">Next</button></div></footer>
 </main>
 <script>
 (() => {
 const root = document;
 const demo = root.querySelector('.demo');
-const names = ['问题定义','系统规格','量级与预算','高层设计','组件深挖','评估与上线'];
+const names = ['Problem framing','System requirements','Scale & budgets','High-level design','Component deep dive','Evaluation & launch'];
 const defaults = {traffic:10,baseline:2,lift:3,peak:5,candidates:8,latency:20,mode:'fixed',horizon:7,dive:'data',fault:'healthy',allocation:20,age:5,evidence:'uncertain'};
 let state = {...defaults};
 let step = 0;
@@ -464,76 +464,76 @@ const pct = (n,d=2) => `${f(n,d)}%`;
 const select = (key,label,options) => `<label>${label}<select data-key="${key}">${options.map(([v,l])=>`<option value="${v}" ${String(state[key])===String(v)?'selected':''}>${l}</option>`).join('')}</select></label>`;
 const card = (label,value,copy) => `<article class="card"><span class="tag">${label}</span><strong class="metric">${value}</strong><p>${copy}</p></article>`;
 const flow = (nodes) => `<div class="flow">${nodes.map(([a,b])=>`<div class="node"><b>${a}</b>${b}</div>`).join('<span class="arrow" aria-hidden="true">→</span>')}</div>`;
-const reason = (s) => `<p class="reason"><strong>为什么这样取舍：</strong>${s}</p>`;
-const prompt = (s) => `<div class="prompt"><small>我会先向面试官确认</small>“${s}”</div>`;
+const reason = (s) => `<p class="reason"><strong>Why this tradeoff: </strong>${s}</p>`;
+const prompt = (s) => `<div class="prompt"><small>First, clarify with the interviewer</small>“${s}”</div>`;
 function values(){const daily=state.traffic*1e6,p=state.baseline/100,delta=p*state.lift/100,qps=daily/86400*state.peak;return {daily,p,delta,qps,batch:1e6*.05*state.candidates/3600};}
 function constrained(){return state.mode==='context' && state.latency<15;}
 function body(){const {daily,p,delta,qps,batch}=values();const fixed=state.mode==='fixed';const batchServing=fixed||constrained();
-if(step===0)return `${prompt('我们要提升的是看房兴趣，还是最终预订？封面要对所有人相同，还是允许因访客而异？')}
-<div class="controls">${select('mode','先协商产品决策边界',[['fixed','每个房源固定一张封面'],['context','按访客情境选择封面']])}</div>
-<div class="cards">${card('业务规模 → 收益量级',`${f(daily*p)} / 日`,'按合格曝光计的预订归因事件基线；同一预订去重归因一次。')}${card('目标 → 绝对变化',`+${f(daily*delta)} / 日`,`${pct(state.baseline)} → ${pct(state.baseline*(1+state.lift/100),3)}，相对 +${state.lift}%，绝对 +${f(delta*100,3)} 个百分点；仅为目标情景。`)}</div>
-<div class="contract"><strong>把业务诉求翻译成技术决策</strong><p>${fixed?'在房源封面刷新时，从合格图片集合中选 1 张；对该房源的访客沿用此选择。':'在每次合格房源曝光之前，结合当时可用的访客情境，从合格图片集合中选 1 张。'}预测输出可为候选图的预订概率分数；真正执行的是受约束的选图策略。</p></div>
-<p>优化目标：相对当前封面策略，提高固定窗口内的预订转化。成功标准先约定为：随机实验的收益区间下界超过事先协商的最小收益门槛，且信任与系统护栏通过；目标提升不是上线证据。CTR 只是诊断指标；价格、房源可订状态、展示位置会影响结果，不能把历史高转化直接解释为图片贡献。</p>
-${reason(fixed?'先选固定封面，减少产品不一致与实时依赖；只有发现情境差异带来足够收益，才增加个性化复杂度。':'允许个性化就增加了请求时计算、隐私约束与实验一致性成本；先验证相对固定封面的增量价值。')}
-<details><summary>指标分母与 baseline 的边界</summary><p>教学主指标 = 窗口内去重归因预订数 / 合格曝光数，重复曝光须使用预先固定的归因规则。实验还应报告所有已分配合格单位的意向处理（ITT）结果，防止只分析成功曝光引入选择偏差。当前封面是 baseline；图片质量规则是第一个低复杂度 challenger。</p></details>`;
-if(step===1)return `${prompt('我先定义成功与不能失败的边界：新增延迟能给多少？多久更新一次？标签要等多久？')}
-<div class="controls">${select('horizon','预订归因窗口（也影响标签等待）',[[1,'1 天'],[7,'7 天'],[14,'14 天']])}</div>
-<table><thead><tr><th>规格（均为待协商假设）</th><th>设计含义</th></tr></thead><tbody>
-<tr><td>功能：返回 1 张可用封面 + 选择原因</td><td>候选图先检查版权、误导、政策；无合格图沿用合规兜底，不能让高分越过政策。</td></tr>
-<tr><td>新增 p99 ≤ ${state.latency} ms；可用性 ≥ 99.9%</td><td>指封面决策路径，不含整页与 CDN 下载；超时必须可独立降级。</td></tr>
-<tr><td>${fixed?'封面 24 小时内刷新；下架事件立即失效':'图片表示离线刷新；请求情境在决策时可用'}</td><td>${fixed?'低延迟读取与更新滞后之间取舍；政策撤回不能等每日任务。':'离线图像表示降低时延；缺失情境时退回固定封面。'}</td></tr>
-<tr><td>标签窗口 ${state.horizon} 天 + 迟到宽限 2 天</td><td>未成熟样本不当负例；取消率等长期护栏需要自己的更长观察窗口。</td></tr>
-<tr><td>信任与资源边界</td><td>取消、投诉、房源覆盖及重要切片不得越预设阈值；最小化访客数据，明确访问权限、保留期与删除链路。</td></tr></tbody></table>
-${reason('规格要可测量，也要说明作用域。延迟预算与隐私边界会约束方案；“高可用、实时、低成本”本身不能指导设计。')}`;
-if(step===2)return `${prompt('我只估算会改变方案的量：请求读取、候选打分和日志。图片本体走 CDN，不算进决策服务。')}
-<div class="cards">${card('峰值封面决策读取',`${f(qps)} / 秒`,`${state.traffic}M 曝光 / 日 × ${state.peak} 倍峰值；假设每次房源曝光一次决策读取，不等于页面请求 QPS。`)}${card(batchServing?'离线批次候选打分':'在线候选打分',`${f(batchServing?batch:qps*state.candidates)} / 秒`,batchServing?`额外假设 1M 活跃房源、每日更新 5%、1 小时处理窗口，每房源 ${state.candidates} 张合格图。`:`峰值决策读取 × ${state.candidates} 张候选；图像编码已离线完成。`)}</div>
-<code class="formula">峰值读取 = ${f(daily)} / 86,400 × ${state.peak} = ${f(qps,1)} / s
-${batchServing?`批次打分 = 1,000,000 × 5% × ${state.candidates} / 3,600 = ${f(batch,1)} / s`:`候选打分 = ${f(qps,1)} × ${state.candidates} = ${f(qps*state.candidates,1)} / s`}
-曝光日志 = ${f(daily)} × 1 KB = ${f(daily/1e6,1)} GB / 日（十进制原始载荷）</code>
-<div class="callout">${batchServing?'结论：当前走预计算封面，读取量不等于模型推理量。优先预计算 + 版本化封面存储 + 缓存，按更新流量规划批任务。':'结论：每次请求都打分会放大算力需求。优先离线图片表示 + 轻量在线评分；用实测吞吐和 p99 决定副本数，不能靠 QPS 猜 GPU。'}</div>
-<p>日志还需加复制、索引与保留成本。候选集完整快照超过 1 KB 时重算。当前估算用于选择架构，压测负责确认容量。</p>
-${reason('改右侧流量或候选数会改变吞吐预算；固定封面与情境选图会把打分成本放在不同路径。没有决策影响的容量算式无需铺满白板。')}`;
-if(step===3)return `${prompt('基于前面的产品边界和预算，我先画两条路径：用户请求如何完成，系统如何从结果学习。')}
-<h3>在线路径 · ${batchServing?'读预计算结果':'轻量情境决策'}</h3>${constrained()?'<div class="callout">预算收紧：先服务固定封面，情境评分暂不上请求路径。15 ms 是本演示的教学切换点，不是实际性能基准；压测通过后再启用。</div>':''}
-${flow(batchServing?[['房源曝光请求','分配实验策略'],['版本化封面存储','缓存读取 + 资格复查'],['返回封面','CDN 展示；曝光确认']]:[['房源曝光请求','稳定访客分组 + 情境'],['候选与表示','资格复查 + 轻量评分'],['返回封面','CDN 展示；曝光确认']])}
-<h3>离线路径 · 先把学习闭环接完整</h3>
-${flow([['曝光 + 预订事件','校验、去重、成熟标签'],['点时训练与验证','简单 baseline → challenger'],[batchServing?'预计算版本化封面':'发布评分器 + 图片表示','离线通过后才进受控实验']])}
-<p class="muted">曝光携带策略版本 → 结果回流训练；验证通过的版本 → 在线有界发布。发布与实验分配可独立回滚。</p>
-<div class="contract"><strong>与规格对齐</strong><p>${batchServing?`缓存 / 存储读取预算 ${state.latency} ms；过期缓存优先使用仍合规的上一版本，并触发刷新。`:`新增 ${state.latency} ms 预算包含情境读取、评分和策略处理。${state.latency<15?'预算紧：以缓存的固定封面为默认；情境评分须先压测证明可行。':'把原始图片编码留在线外，超时切固定封面。'}`}</p></div>
-<details><summary>请求 / 返回契约与日志边界</summary><code class="formula">request: decision_id, listing_id, eligible_candidate_version,
+if(step===0)return `${prompt('Are we optimizing interest in a listing or completed bookings? Should every visitor see the same cover, or may it vary by visitor context?')}
+<div class="controls">${select('mode','Agree on the product decision scope',[['fixed','One fixed cover per listing'],['context','Choose a cover by visitor context']])}</div>
+<div class="cards">${card('Business scale → potential value',`${f(daily*p)} / day`,'Baseline daily bookings attributed to eligible exposures; each booking is deduplicated and attributed once.')}${card('Target → absolute change',`+${f(daily*delta)} / day`,`${pct(state.baseline)} → ${pct(state.baseline*(1+state.lift/100),3)}: +${state.lift}% relative, +${f(delta*100,3)} percentage points absolute. A target scenario only.`)}</div>
+<div class="contract"><strong>Translate the business goal into a technical decision</strong><p>${fixed?'At cover refresh time, select one eligible photo and reuse it for all visitors to that listing.':'Before each eligible listing exposure, select one eligible photo using visitor context available at decision time.'} The model may output a booking probability for each candidate; the action is a constrained photo-selection policy.</p></div>
+<p>Objective: improve booking conversion within a fixed window relative to the current cover policy. Agree on success first: the randomized experiment’s benefit interval must have a lower bound above a pre-agreed minimum benefit threshold, with trust and system guardrails passing. Target lift is not launch evidence. CTR is diagnostic; price, availability, and display position affect outcomes, so historical conversion cannot establish a photo’s contribution.</p>
+${reason(fixed?'Start with a fixed cover to reduce product inconsistency and real-time dependencies. Add personalization only when contextual differences justify the added complexity.':'Personalization adds request-time computation, privacy constraints, and experiment-consistency costs. Establish its incremental value over a fixed cover first.')}
+<details><summary>Metric denominator and baseline boundaries</summary><p>Teaching metric = deduplicated attributed bookings within the window / eligible exposures. Repeated exposures require a fixed attribution rule. Also report intent-to-treat (ITT) outcomes for all assigned eligible units to avoid selecting only successful exposures. The current cover is the baseline; photo-quality rules are the first low-complexity challenger.</p></details>`;
+if(step===1)return `${prompt('Let me define success and failure boundaries first: how much added latency is acceptable, how fresh must covers be, and how long do labels take to mature?')}
+<div class="controls">${select('horizon','Booking attribution window (also affects label maturity)',[[1,'1 day'],[7,'7 days'],[14,'14 days']])}</div>
+<table><thead><tr><th>Requirement (assumptions to negotiate)</th><th>Design implication</th></tr></thead><tbody>
+<tr><td>Return one eligible cover + selection reason</td><td>Check rights, misleading content, and policy first. If no candidate qualifies, use a compliant fallback; scores cannot override policy.</td></tr>
+<tr><td>Added p99 ≤ ${state.latency} ms; availability ≥ 99.9%</td><td>Applies to the cover-decision path, excluding the full page and CDN download. Timeouts need an independent fallback.</td></tr>
+<tr><td>${fixed?'Refresh covers within 24 hours; invalidate withdrawals immediately':'Refresh image representations offline; context must be available at decision time'}</td><td>${fixed?'Trade low-latency reads against update lag. Policy withdrawals cannot wait for the daily batch.':'Offline image representations reduce latency. Missing context falls back to the fixed cover.'}</td></tr>
+<tr><td>Label window: ${state.horizon} days + 2 days for late events</td><td>Immature observations are not negatives. Long-term guardrails such as cancellations need their own longer windows.</td></tr>
+<tr><td>Trust and resource boundaries</td><td>Cancellations, complaints, listing coverage, and key slices must stay within agreed thresholds. Minimize visitor data and define access, retention, and deletion.</td></tr></tbody></table>
+${reason('Requirements must be measurable and scoped. Latency and privacy constrain the solution; “high availability, real time, and low cost” alone do not guide a design.')}`;
+if(step===2)return `${prompt('I will estimate only quantities that could change the design: decision reads, candidate scoring, and logs. Image bytes are served by the CDN, outside this decision service.')}
+<div class="cards">${card('Peak cover-decision reads',`${f(qps)} / sec`,`${state.traffic}M exposures / day × ${state.peak} peak factor. Assume one decision read per listing exposure; this is not page-request QPS.`)}${card(batchServing?'Offline candidate scoring':'Online candidate scoring',`${f(batchServing?batch:qps*state.candidates)} / sec`,batchServing?`Additional assumptions: 1M active listings, 5% updated daily, a 1-hour batch window, and ${state.candidates} eligible photos per listing.`:`Peak decision reads × ${state.candidates} candidates. Image encoding is already completed offline.`)}</div>
+<code class="formula">Peak reads = ${f(daily)} / 86,400 × ${state.peak} = ${f(qps,1)} / s
+${batchServing?`Batch scoring = 1,000,000 × 5% × ${state.candidates} / 3,600 = ${f(batch,1)} / s`:`Candidate scoring = ${f(qps,1)} × ${state.candidates} = ${f(qps*state.candidates,1)} / s`}
+Exposure logs = ${f(daily)} × 1 KB = ${f(daily/1e6,1)} GB / day (decimal, raw payload)</code>
+<div class="callout">${batchServing?'Decision: serve precomputed covers. Read volume is not model-inference volume. Start with precomputation, a versioned cover store, and a cache; size batch work for update traffic.':'Decision: scoring every request multiplies compute demand. Start with offline image representations and lightweight online scoring. Size replicas using measured throughput and p99, not a GPU guess from QPS.'}</div>
+<p>Add replication, indexing, and retention costs for logs. Recalculate if full candidate snapshots exceed 1 KB. These estimates guide architecture; load tests establish capacity.</p>
+${reason('Change traffic or candidate count in the assumptions to update throughput budgets. Fixed and contextual covers place scoring costs on different paths. Capacity math belongs on the whiteboard when it changes a decision.')}`;
+if(step===3)return `${prompt('Given the agreed product scope and budgets, I will sketch two paths: how a user request completes, and how the system learns from outcomes.')}
+<h3>Online path · ${batchServing?'Read precomputed results':'Lightweight contextual selection'}</h3>${constrained()?'<div class="callout">Tighter budget: serve the fixed cover first; keep contextual scoring off the request path for now. The 15 ms cutoff is a teaching assumption, not a measured performance limit. Enable contextual scoring after load tests pass.</div>':''}
+${flow(batchServing?[['Listing exposure request','Assign experiment policy'],['Versioned cover store','Cache read + eligibility recheck'],['Return cover','CDN display; confirm exposure']]:[['Listing exposure request','Stable visitor assignment + context'],['Candidates & representations','Eligibility recheck + lightweight scoring'],['Return cover','CDN display; confirm exposure']])}
+<h3>Offline path · Complete the learning loop first</h3>
+${flow([['Exposure + booking events','Validate, deduplicate, mature labels'],['Point-in-time training & validation','Simple baseline → challenger'],[batchServing?'Precompute versioned covers':'Publish scorer + image representations','Pass offline checks before a controlled experiment']])}
+<p class="muted">Exposure carries the policy version → outcomes feed training. Validated versions → bounded online rollout. Deployment and experiment assignment can be rolled back independently.</p>
+<div class="contract"><strong>Check against the requirements</strong><p>${batchServing?`Cache / store read budget: ${state.latency} ms. For a stale cache, prefer a still-compliant previous version and trigger a refresh.`:`The added ${state.latency} ms budget covers context reads, scoring, and policy handling. ${state.latency<15?'Budget is tight: default to the cached fixed cover; contextual scoring must prove feasible in load tests.':'Keep raw image encoding offline; fall back to the fixed cover on timeout.'}`}</p></div>
+<details><summary>Request / response contract and logging boundaries</summary><code class="formula">request: decision_id, listing_id, eligible_candidate_version,
          experiment_assignment, allowed_context (if available)
-response: photo_id, policy_version, reason, fallback_reason</code><p>同一个 decision_id 的重试复用决定；曝光确认另行发送并幂等去重。请求日志不等于成功展示日志。记录实际执行的策略与兜底原因，才能诊断离线与在线偏差。</p></details>
-${reason('先明确在线与离线责任、版本边界及失败路径，再讨论数据库或模型品牌。固定封面不必每次曝光重跑大模型；个性化也不意味着实时编码图片。')}`;
-if(step===4)return `${prompt('高层闭环已经完整。您想继续看数据可信度、服务可靠性，还是因果实验？我会沿最关键的风险深挖。')}
-<div class="choice-row" aria-label="面试官选择的深挖方向">${[['data','数据与标签'],['serving','延迟与降级'],['experiment','实验与干扰']].map(([v,l])=>`<button type="button" data-dive="${v}" aria-pressed="${state.dive===v}">${l}</button>`).join('')}</div>${deepDive(fixed)}${reason('深挖要回答一个会破坏整个方案的风险，不需要逐个介绍所有组件。面试官改变关注点时，保留前面已经协商的规格。')}`;
+response: photo_id, policy_version, reason, fallback_reason</code><p>Retries with the same decision_id reuse the decision. Send exposure confirmation separately and deduplicate it idempotently. A request log does not prove a successful display. Record the executed policy and fallback reason to diagnose offline / online differences.</p></details>
+${reason('Define online and offline responsibilities, version boundaries, and failure paths before choosing databases or model families. Fixed covers do not require a large model per exposure; personalization does not require online image encoding.')}`;
+if(step===4)return `${prompt('The high-level loop is complete. Would you like to explore data validity, serving reliability, or causal experiments? I will go deeper on the most consequential risk.')}
+<div class="choice-row" aria-label="Interviewer-selected deep dive">${[['data','Data & labels'],['serving','Latency & fallback'],['experiment','Experiments & interference']].map(([v,l])=>`<button type="button" data-dive="${v}" aria-pressed="${state.dive===v}">${l}</button>`).join('')}</div>${deepDive(fixed)}${reason('A deep dive should address a risk that could invalidate the design. There is no need to tour every component. Preserve agreed requirements when the interviewer changes focus.')}`;
 return evaluation(fixed);
 }
 function deepDive(fixed){
-if(state.dive==='data')return `<h3>一次曝光，怎样变成可信训练样本？</h3>${flow([['t₀：决策时','记录可用特征、候选集、选中图'],[`t₀ + ${state.horizon} 天`,'归因窗口结束'],[`t₀ + ${state.horizon+2} 天`,'迟到宽限结束；构造标签']])}<code class="formula">decision_id, listing_id, eligible_photo_ids, selected_photo_id,
+if(state.dive==='data')return `<h3>How does one exposure become a trustworthy training example?</h3>${flow([['t₀: decision time','Record available features, candidates, selected photo'],[`t₀ + ${state.horizon} days`,'Attribution window closes'],[`t₀ + ${state.horizon+2} days`,'Late-event grace period ends; build labels']])}<code class="formula">decision_id, listing_id, eligible_photo_ids, selected_photo_id,
 assignment_id, policy_version, feature_version, decision_time,
-exposure_confirmation, outcome_time</code><p>去重后按约定归因规则连接预订；未到成熟时间的是 censored（尚未完整观察），不是负例。训练特征只能来自 t₀ 之前，评估按时间切分并检查同房源泄漏。</p><div class="callout">旧策略只展示过 A，不能给未展示的 B 填“未预订”。离线先检查校准、时序 holdout 与冷启动切片；有已知 propensity 且有覆盖时才讨论反事实评估，仍不能替代在线验证。</div>`;
-if(state.dive==='serving')return `<h3>把失败变成可预测的产品行为</h3><div class="controls">${select('fault','注入一次请求故障',[['healthy','服务正常'],['timeout','决策依赖超时'],['revoked','选中图片已撤回']])}</div><div class="contract"><strong>${state.fault==='healthy'?'返回当前合规策略选择':state.fault==='timeout'?'按预算终止等待 → 合规 baseline':'资格复查失败 → 合规备用图'}</strong><p>${state.fault==='healthy'?((fixed||constrained())?'读取版本化预计算封面，并记录实际返回的版本。':`用预计算表示轻量打分；端到端 p99 须实测满足 ${state.latency} ms。`):state.fault==='timeout'?'使用仍合规的当前 / 上一版本封面；记录 fallback_reason，异步告警。不能在请求里无限重试。':'失效候选不可由旧缓存复活；清缓存并发出失效事件。若没有合格备用图，使用产品允许的占位，不返回违规图片。'}</p></div><p>按 fallback rate、p99、版本覆盖监控；幂等发布与原子版本切换避免部分更新。个性化缓存须含情境与版本，不能只按房源缓存。</p>`;
-return `<h3>随机的是策略；推断单位不能假装独立</h3><div class="contract"><strong>${fixed?'默认：房源级随机分组，实验期固定':'默认：访客级稳定随机分组'}</strong><p>${fixed?'同一房源保持统一封面；按房源聚类分析，先检查足够多的房源及流量集中度。按天换组容易受跨天预订与时间效应污染。':'同一访客保持同一策略；按访客聚类分析。多个访客竞争同一房源库存仍可能产生跨组干扰。'}</p></div><p>Control 使用当前封面，Treatment 使用新策略；记录分配及实际执行（含 fallback），先检查 sample-ratio mismatch 和日志丢失。ITT 保留所有已分配合格单位；成功曝光指标作为额外诊断。</p><div class="callout">稳定分组不能消除 marketplace interference。若库存竞争主导效应，讨论市场集群随机化或带 washout 的 switchback；代价是更少独立单位、更长实验和更弱统计功效。</div>`;
+exposure_confirmation, outcome_time</code><p>Deduplicate and join bookings using the agreed attribution rule. Immature observations are censored, not negative. Features must be available before t₀; split evaluation by time and check for leakage across observations of the same listing.</p><div class="callout">If the old policy showed only A, do not label the unseen B as “not booked.” First check calibration, temporal holdout performance, and cold-start slices. Discuss counterfactual evaluation only with known propensities and sufficient support; it still does not replace online validation.</div>`;
+if(state.dive==='serving')return `<h3>Make failures produce predictable product behavior</h3><div class="controls">${select('fault','Inject a request failure',[['healthy','Healthy service'],['timeout','Decision dependency times out'],['revoked','Selected photo is withdrawn']])}</div><div class="contract"><strong>${state.fault==='healthy'?'Return the current compliant policy choice':state.fault==='timeout'?'Stop waiting at the budget → compliant baseline':'Eligibility recheck fails → compliant backup'}</strong><p>${state.fault==='healthy'?((fixed||constrained())?'Read the versioned precomputed cover and log the version actually returned.':`Score lightweight precomputed representations; measure end-to-end p99 against the ${state.latency} ms budget.`):state.fault==='timeout'?'Use a still-compliant current or previous cover; log fallback_reason and alert asynchronously. Never retry indefinitely within the request.':'An old cache must not revive a withdrawn candidate. Evict it and emit an invalidation event. If no eligible backup exists, use a product-approved placeholder rather than a policy-violating image.'}</p></div><p>Monitor fallback rate, p99, and version coverage. Idempotent deployment and atomic version switches avoid partial updates. Personalized cache keys must include context and version, not just listing ID.</p>`;
+return `<h3>Randomize the policy; do not assume observations are independent</h3><div class="contract"><strong>${fixed?'Default: randomize by listing; keep assignment fixed':'Default: stable randomization by visitor'}</strong><p>${fixed?'Keep each listing’s cover consistent. Cluster analysis by listing; check the number of listings and traffic concentration. Daily reassignment risks contamination from cross-day bookings and time effects.':'Keep each visitor on the same policy and cluster analysis by visitor. Multiple visitors competing for the same listing inventory can still create cross-arm interference.'}</p></div><p>Control uses the current cover; treatment uses the new policy. Log assignment and actual execution, including fallback. Check sample-ratio mismatch and missing logs first. ITT includes all assigned eligible units; successful-exposure metrics are additional diagnostics.</p><div class="callout">Stable assignment does not eliminate marketplace interference. If inventory competition dominates the effect, consider market-cluster randomization or switchbacks with washout. The costs are fewer independent units, longer experiments, and lower statistical power.</div>`;
 }
-function evaluation(fixed){const {daily,p,delta}=values();const perArm=daily*state.allocation/100/2;const n=Math.ceil(2*(1.96+.84)**2*p*(1-p)/delta**2);const mature=state.age>=state.horizon+2;const verdict=state.evidence==='harm'?'停止扩量并回滚':!mature?'等待首批标签成熟':state.evidence==='pass'?'进入下一档受控扩量':'保持实验，尚不足以上线';return `${prompt('什么证据会让我上线、继续观察或主动停止？先把规则说清楚，再看结果。')}
-<div class="controls">${select('allocation','实验总流量（组内 50/50）',[[5,'5%'],[20,'20%'],[50,'50%']])}${select('age','实验已运行',[[5,'5 天'],[10,'10 天'],[21,'21 天']])}${select('evidence','教学证据情景（预设，非模拟估计）',[['uncertain','区间跨 0；护栏通过'],['pass','区间下界超过收益门槛；护栏通过'],['harm','投诉护栏越界']])}</div>
-<div class="cards">${card('每组曝光流量',`${f(perArm)} / 日`,'这是曝光数，不是独立实验单位数。')}${card('首批预订标签成熟',`第 ${state.horizon+2} 天`,`${state.horizon} 天归因 + 2 天迟到宽限；今天第 ${state.age} 天。新近进入的单位仍须排除未成熟窗口或使用有效删失方法。`)}</div>
-<div class="callout ${state.evidence==='harm'?'bad':mature&&state.evidence==='pass'?'good':''}"><strong>当前决策：${verdict}</strong><p>${state.evidence==='harm'?'信任护栏可提前触发停止，不必等待收益显著。':!mature?'即使选择了正向证据情景，标签未成熟也不能通过收益门槛。':state.evidence==='pass'?'假设实验质量、聚类区间、长期护栏及切片审查全部通过；只扩大一个流量档，继续监控并保留回滚。':'正向点估计或离线分数都不等于因果收益。按预先设定的终止 / 序贯规则继续，不能反复偷看直到显著。'}</p></div>
-<table><thead><tr><th>证据层</th><th>上线前的判断</th></tr></thead><tbody><tr><td>离线：是否值得实验</td><td>优于当前封面 / 质量规则 baseline；校准、时序验证和新房源切片合理。不是上线证明。</td></tr><tr><td>在线：是否造成收益</td><td>${fixed?'房源':'访客'}聚类的因果区间；预先定义 MDE、收益门槛、功效、停止规则。检查 SRM / join loss。</td></tr><tr><td>护栏与运营</td><td>取消、投诉、重要市场切片及 p99 / fallback 均在预算内；长期窗口不足时不能宣称通过。</td></tr></tbody></table>
-<details><summary>为什么不能用曝光 QPS 直接估算实验天数？</summary><code class="formula">仅独立 Bernoulli 的粗略规划：
+function evaluation(fixed){const {daily,p,delta}=values();const perArm=daily*state.allocation/100/2;const n=Math.ceil(2*(1.96+.84)**2*p*(1-p)/delta**2);const mature=state.age>=state.horizon+2;const verdict=state.evidence==='harm'?'Stop expansion and roll back':!mature?'Wait for the first labels to mature':state.evidence==='pass'?'Advance one controlled rollout stage':'Continue the experiment; evidence is insufficient';return `${prompt('What evidence would make me launch, keep observing, or stop? Agree on the rules before looking at results.')}
+<div class="controls">${select('allocation','Total experiment traffic (50/50 split)',[[5,'5%'],[20,'20%'],[50,'50%']])}${select('age','Experiment runtime',[[5,'5 days'],[10,'10 days'],[21,'21 days']])}${select('evidence','Teaching evidence scenario (preset, not estimated)',[['uncertain','Interval crosses 0; guardrails pass'],['pass','Lower bound exceeds benefit threshold; guardrails pass'],['harm','Complaint guardrail breached']])}</div>
+<div class="cards">${card('Exposure traffic per arm',`${f(perArm)} / day`,'Exposure count is not the number of independent experimental units.')}${card('First booking labels mature',`Day ${state.horizon+2}`,`${state.horizon} days for attribution + 2 days for late events; today is day ${state.age}. Recent entrants still need immature windows excluded or a valid censoring method.`)}</div>
+<div class="callout ${state.evidence==='harm'?'bad':mature&&state.evidence==='pass'?'good':''}"><strong>Current decision: ${verdict}</strong><p>${state.evidence==='harm'?'A trust-guardrail breach can trigger an early stop without waiting for statistically significant benefit.':!mature?'Even the positive evidence scenario cannot pass the benefit gate before labels mature.':state.evidence==='pass'?'Assume experiment quality, cluster-aware intervals, long-term guardrails, and slice reviews all pass. Expand by one traffic stage, keep monitoring, and retain rollback.':'A positive point estimate or offline score is not causal evidence. Follow predefined stopping or sequential rules; do not keep peeking until significance.'}</p></div>
+<table><thead><tr><th>Evidence layer</th><th>Judgment before launch</th></tr></thead><tbody><tr><td>Offline: worth an experiment?</td><td>Beat the current-cover / quality-rule baseline; check calibration, temporal validation, and new-listing slices. This does not prove launch readiness.</td></tr><tr><td>Online: caused an improvement?</td><td>Causal intervals clustered by ${fixed?'listing':'visitor'}; predefine MDE, benefit threshold, power, and stopping rules. Check SRM / join loss.</td></tr><tr><td>Guardrails & operations</td><td>Cancellations, complaints, key market slices, p99, and fallback stay within budget. Incomplete long-term windows cannot be declared passing.</td></tr></tbody></table>
+<details><summary>Why can’t exposure QPS directly determine experiment duration?</summary><code class="formula">Rough planning for independent Bernoulli observations only:
 n / arm ≈ 2 × (1.96 + 0.84)² × p(1−p) / δ²
-p = ${p}; δ = ${f(delta,6)} → ${f(n)} 独立观测 / arm</code><p>这是双侧 α = 5%、power ≈ 80%、相近两组比例的规划近似，不是本系统有效样本量。实际有重复曝光、${fixed?'房源':'访客'}聚类和库存干扰，须用历史集群方差或随机化仿真规划，并留足完整周期、成熟标签和长期护栏窗口。增加实验流量只增加曝光，不保证按比例缩短实验。</p></details>
-${reason('因果证据、观察窗口和信任护栏共同决定上线。此页的证据选项是教学场景，不由流量生成置信区间；目标 uplift 也不是已实现 uplift。')}`;}
+p = ${p}; δ = ${f(delta,6)} → ${f(n)} independent observations / arm</code><p>This planning approximation uses two-sided α = 5%, power ≈ 80%, and similar group proportions. It is not this system’s effective sample size. Repeated exposures, ${fixed?'listing':'visitor'} clustering, and inventory interference require historical cluster variance or randomization simulation. Allow complete cycles, label maturity, and long-term guardrail windows. More experiment traffic increases exposures; it does not guarantee proportionally shorter experiments.</p></details>
+${reason('Causal evidence, observation windows, and trust guardrails jointly determine launch readiness. Evidence options here are teaching scenarios, not confidence intervals generated from traffic. Target uplift is not realized uplift.')}`;}
 function render(focus=false){
-$('#stage').innerHTML=`<div class="eyebrow">${String(step+1).padStart(2,'0')} / 06 · ${step<3?'先收敛问题':'再收敛方案'}</div><h2 id="stage-title" tabindex="-1">${['什么结果值得做成一个系统？','把模糊期待变成可验证的规格','哪些量级真的会改变架构？','让请求路径与学习闭环各司其职','由面试官选择最值得深挖的风险','证据足够，才迈出下一步'][step]}</h2>${body()}`;
-$('.rail').innerHTML=names.map((name,i)=>`<button type="button" data-step="${i}" ${i===step?'aria-current="step"':''}><span>${String(i+1).padStart(2,'0')}${seen.has(i)?' · 已展开':''}</span>${name}</button>`).join('');
-const {daily,delta}=values();const items=[['决策边界',state.mode==='fixed'?'房源固定封面':'访客情境选图'],['收益目标',`相对 +${state.lift}%（假设 +${f(daily*delta)} 归因事件 / 日）`]];
-if(seen.has(1))items.push(['规格',`新增 p99 ${state.latency} ms；标签 ${state.horizon}+2 天`]);
-if(seen.has(2))items.push(['峰值读取',`${f(values().qps)} / 秒`]);
-if(seen.has(3))items.push(['服务方案',state.mode==='fixed'||constrained()?'离线选图 → 在线读版本':'离线表示 → 在线轻量评分']);
-if(seen.has(4))items.push(['深挖',({data:'数据与标签',serving:'延迟与降级',experiment:'实验与干扰'})[state.dive]]);
+$('#stage').innerHTML=`<div class="eyebrow">${String(step+1).padStart(2,'0')} / 06 · ${step<3?'DEFINE THE PROBLEM':'REFINE THE SOLUTION'}</div><h2 id="stage-title" tabindex="-1">${['What outcome justifies building a system?','Turn expectations into verifiable requirements','Which scale estimates could change the architecture?','Separate request serving from the learning loop','Let the interviewer choose the critical risk','Take the next step only when evidence supports it'][step]}</h2>${body()}`;
+$('.rail').innerHTML=names.map((name,i)=>`<button type="button" data-step="${i}" ${i===step?'aria-current="step"':''}><span>${String(i+1).padStart(2,'0')}${seen.has(i)?' · Viewed':''}</span>${name}</button>`).join('');
+const {daily,delta}=values();const items=[['Decision scope',state.mode==='fixed'?'Fixed cover per listing':'Contextual cover per visitor'],['Benefit target',`+${state.lift}% relative (assumes +${f(daily*delta)} attributed events / day)`]];
+if(seen.has(1))items.push(['Requirements',`Added p99 ${state.latency} ms; labels ${state.horizon}+2 days`]);
+if(seen.has(2))items.push(['Peak reads',`${f(values().qps)} / sec`]);
+if(seen.has(3))items.push(['Serving design',state.mode==='fixed'||constrained()?'Offline selection → online version read':'Offline representations → lightweight online scoring']);
+if(seen.has(4))items.push(['Deep dive',({data:'Data & labels',serving:'Latency & fallback',experiment:'Experiments & interference'})[state.dive]]);
 $('#ledger').innerHTML=items.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('');
-$('#previous').disabled=step===0;$('#next').disabled=step===5;$('#step-status').textContent=`第 ${step+1} / 6 步 · ${names[step]}`;
+$('#previous').disabled=step===0;$('#next').disabled=step===5;$('#step-status').textContent=`Step ${step+1} / 6 · ${names[step]}`;
 const heading = $('#stage-title');
 // Report the new canvas first. The host resizes the frame asynchronously;
 // let that update settle before asking the host to reveal the walkthrough.
