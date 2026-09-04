@@ -8,6 +8,31 @@ from deepcode.problem_store import ProblemStore
 
 
 class ProblemStoreTest(unittest.TestCase):
+    def test_general_only_labels_problems_without_an_employer(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cases = [
+                {}, {"companies": []}, {"companies": None},
+                {"companies": ["General"]},
+                {"companies": ["general", "OpenAI", "Anthropic"]},
+                {"companies": ["OpenAI"]},
+            ]
+            for index, fields in enumerate(cases):
+                self._write_problem(root, str(index), {
+                    "id": str(index), "slug": str(index), "title": "Example",
+                    "category": "Algorithms", "difficulty": "easy",
+                    "prompt": "Return one.", "starter_code": "def solve(): pass",
+                    "example": {"input": "", "output": "1", "reasoning": "One."},
+                    **fields,
+                }, [])
+            store = ProblemStore(root)
+            self.assertEqual([p["slug"] for p in store.list_problems(company="General")],
+                             ["0", "1", "2", "3"])
+            self.assertEqual(store.get_problem("4")["companies"], ["OpenAI", "Anthropic"])
+            self.assertEqual(store.get_problem("0")["companies"], ["General"])
+            self.assertEqual(store.company_counts(), {"Anthropic": 1, "General": 4, "OpenAI": 2})
+            self.assertEqual([p["slug"] for p in store.list_problems(company="OpenAI")], ["4", "5"])
+
     def test_interactive_demo_v1_schema_is_strict_and_versioned(self):
         schema = json.loads(Path("schemas/interactive-demos-v1.schema.json").read_text(encoding="utf-8"))
         item = schema["items"]

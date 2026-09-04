@@ -1,0 +1,131 @@
+{
+  "slug": "spotify",
+  "name": "Spotify",
+  "summary": "Audio streaming platform spanning music, podcasts, and audiobooks, with personalized discovery and creator-facing products.",
+  "stage": {
+    "company_state": "Public · NYSE: SPOT",
+    "funding_stage": "Publicly listed; venture stage not applicable",
+    "source": {
+      "label": "Spotify: NYSE listing announcement",
+      "url": "https://newsroom.spotify.com/2018-04-02/tomorrow/"
+    }
+  },
+  "business_snapshot": {
+    "founded": "2006 (service launched 2008)",
+    "team_size": "Not verified in this profile",
+    "arr_or_revenue": "Not verified in this profile",
+    "valuation": "Current valuation not verified",
+    "latest_financing": "Latest financing not verified",
+    "sources": [
+      {
+        "label": "Spotify: NYSE listing announcement",
+        "url": "https://newsroom.spotify.com/2018-04-02/tomorrow/"
+      },
+      {
+        "label": "Spotify: company timeline",
+        "url": "https://newsroom.spotify.com/spotify-timeline/"
+      },
+      {
+        "label": "About Spotify",
+        "url": "https://newsroom.spotify.com/company-info/"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Careers: start your journey",
+      "url": "https://www.lifeatspotify.com/start-your-journey"
+    },
+    {
+      "label": "Spotify: NYSE listing announcement",
+      "url": "https://newsroom.spotify.com/2018-04-02/tomorrow/"
+    },
+    {
+      "label": "Spotify: company timeline",
+      "url": "https://newsroom.spotify.com/spotify-timeline/"
+    },
+    {
+      "label": "About Spotify",
+      "url": "https://newsroom.spotify.com/company-info/"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Official company hiring guidance; role-specific details vary",
+    "summary": "The official hiring guide describes the following process. Confirm the exact loop for the role and level with the recruiter.",
+    "stages": [
+      {
+        "name": "Recruiter screen",
+        "signal": "A phone or video conversation about the candidate, role, and background.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: start your journey",
+            "url": "https://www.lifeatspotify.com/start-your-journey"
+          }
+        ]
+      },
+      {
+        "name": "Team interview",
+        "signal": "A second conversation with one or two team members.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: start your journey",
+            "url": "https://www.lifeatspotify.com/start-your-journey"
+          }
+        ]
+      },
+      {
+        "name": "Final round",
+        "signal": "Meet multiple colleagues across the business. The public guide does not specify a universal engineering round count or question set.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: start your journey",
+            "url": "https://www.lifeatspotify.com/start-your-journey"
+          }
+        ]
+      },
+      {
+        "name": "Technical format and preparation",
+        "signal": "Most interviews are virtual; role-specific tools can include CoderPad. Prepare examples of ownership, adaptability, collaboration, and the reasoning behind your results.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: start your journey",
+            "url": "https://www.lifeatspotify.com/start-your-journey"
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "label": "Preparation context",
+      "detail": "Preparation inference from the product: recommendation and search systems, streaming delivery, experimentation, and data pipelines. These are study suggestions rather than confirmed question topics."
+    },
+    {
+      "label": "Evidence scope",
+      "detail": "Checked 2026-09-04. Dated figures are historical snapshots. Catalog question associations do not establish a current interview loop."
+    }
+  ],
+  "references": [
+    {
+      "label": "Spotify: NYSE listing announcement",
+      "url": "https://newsroom.spotify.com/2018-04-02/tomorrow/"
+    },
+    {
+      "label": "Spotify: company timeline",
+      "url": "https://newsroom.spotify.com/spotify-timeline/"
+    },
+    {
+      "label": "About Spotify",
+      "url": "https://newsroom.spotify.com/company-info/"
+    },
+    {
+      "label": "Careers: start your journey",
+      "url": "https://www.lifeatspotify.com/start-your-journey"
+    }
+  ],
+  "updated_at": "2026-09-04"
+}

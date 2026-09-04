@@ -1,0 +1,50 @@
+{
+  "slug": "notion",
+  "name": "Notion",
+  "aliases": [],
+  "summary": "Software company building a configurable workspace for documents, knowledge, and projects, with AI search, meeting notes, and agents.",
+  "stage": {
+    "company_state": "Notion Labs, Inc.; ownership status not independently verified",
+    "funding_stage": "Not verified in this profile"
+  },
+  "links": [
+    {
+      "label": "Company website",
+      "url": "https://www.notion.com/about"
+    },
+    {
+      "label": "Careers",
+      "url": "https://www.notion.com/careers"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Official company context; interview process unverified",
+    "summary": "No verified round sequence or evaluation rubric is recorded. Linked practice questions retain their own source provenance and do not establish a standard company interview process.",
+    "stages": []
+  },
+  "notes": [
+    {
+      "label": "Company and product context",
+      "detail": "Notion combines customizable workspace building blocks with documents, projects, and knowledge management. Its product navigation includes AI meeting notes, enterprise search, and agents. The official About page describes a San Francisco base and offices around the world."
+    },
+    {
+      "label": "Hiring context",
+      "detail": "Consult the official careers page for current openings and role-specific requirements."
+    },
+    {
+      "label": "Research boundary",
+      "detail": "Current revenue, headcount, valuation, and latest financing are not verified in this profile."
+    }
+  ],
+  "references": [
+    {
+      "label": "Official company information",
+      "url": "https://www.notion.com/about"
+    },
+    {
+      "label": "Official careers",
+      "url": "https://www.notion.com/careers"
+    }
+  ],
+  "updated_at": "2026-09-04"
+}

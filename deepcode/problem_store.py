@@ -179,6 +179,11 @@ class ProblemStore:
             problem["tests"] = tests
             problem["_runtime"] = self._runtime_paths(problem, problem_dir)
             self._validate(problem, problem_dir)
+            # General is a fallback for unassigned problems, never an employer.
+            problem["companies"] = [
+                company for company in (problem["companies"] or [])
+                if company.strip().casefold() != "general"
+            ] or ["General"]
             problems.append(problem)
 
         sorted_problems = sorted(problems, key=lambda problem: self._id_sort_value(problem.get("id")))

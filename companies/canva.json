@@ -1,0 +1,119 @@
+{
+  "slug": "canva",
+  "name": "Canva",
+  "summary": "Visual communication and collaborative design platform with enterprise workflows and AI-assisted creative tools.",
+  "stage": {
+    "company_state": "Private (official 2025 source; current listing status not independently re-established)",
+    "funding_stage": "Latest funding stage not verified",
+    "source": {
+      "label": "Canva: 2025 Disruptor 50 recognition",
+      "url": "https://www.canva.com/newsroom/news/cnbc-disruptor-50-2025/"
+    }
+  },
+  "business_snapshot": {
+    "founded": "2013 (product launch)",
+    "team_size": "Not verified in this profile",
+    "arr_or_revenue": "$3.5B revenue (company-reported in 2025 year-in-review; not identified here as ARR)",
+    "valuation": "Current valuation not verified",
+    "latest_financing": "Latest financing not verified",
+    "sources": [
+      {
+        "label": "Canva: 2025 Disruptor 50 recognition",
+        "url": "https://www.canva.com/newsroom/news/cnbc-disruptor-50-2025/"
+      },
+      {
+        "label": "Canva: 2025 year in review",
+        "url": "https://www.canva.com/newsroom/news/canva-2025-wrap/"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Careers: how we hire",
+      "url": "https://www.lifeatcanva.com/en/how-we-hire"
+    },
+    {
+      "label": "Canva: 2025 Disruptor 50 recognition",
+      "url": "https://www.canva.com/newsroom/news/cnbc-disruptor-50-2025/"
+    },
+    {
+      "label": "Canva: 2025 year in review",
+      "url": "https://www.canva.com/newsroom/news/canva-2025-wrap/"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Official company hiring guidance; role-specific details vary",
+    "summary": "The official hiring guide describes the following process. Confirm the exact loop for the role and level with the recruiter.",
+    "stages": [
+      {
+        "name": "Recruiter conversation",
+        "signal": "Discuss experience, goals, and the role over Zoom. Engineering candidates also receive technical questions.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: how we hire",
+            "url": "https://www.lifeatcanva.com/en/how-we-hire"
+          }
+        ]
+      },
+      {
+        "name": "First interview",
+        "signal": "Meet a prospective leader or colleague. Engineers have a peer technical interview with a problem-solving challenge.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: how we hire",
+            "url": "https://www.lifeatcanva.com/en/how-we-hire"
+          }
+        ]
+      },
+      {
+        "name": "Role-specific work assessment",
+        "signal": "The general process includes a take-home challenge; engineers are explicitly exempt and receive another opportunity to demonstrate their work, scoped by the recruiter.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: how we hire",
+            "url": "https://www.lifeatcanva.com/en/how-we-hire"
+          }
+        ]
+      },
+      {
+        "name": "Final interview",
+        "signal": "The engineering guide describes a three-hour interview combining technical problem solving and experience questions. Other roles present challenge findings and discuss behavioral examples.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: how we hire",
+            "url": "https://www.lifeatcanva.com/en/how-we-hire"
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "label": "Preparation context",
+      "detail": "Preparation inference from the product: collaborative editing, media handling, search, and reliable user-facing systems. Confirm the engineering assessment format with the recruiter."
+    },
+    {
+      "label": "Evidence scope",
+      "detail": "Checked 2026-09-04. Dated figures are historical snapshots. Catalog question associations do not establish a current interview loop."
+    }
+  ],
+  "references": [
+    {
+      "label": "Canva: 2025 Disruptor 50 recognition",
+      "url": "https://www.canva.com/newsroom/news/cnbc-disruptor-50-2025/"
+    },
+    {
+      "label": "Canva: 2025 year in review",
+      "url": "https://www.canva.com/newsroom/news/canva-2025-wrap/"
+    },
+    {
+      "label": "Careers: how we hire",
+      "url": "https://www.lifeatcanva.com/en/how-we-hire"
+    }
+  ],
+  "updated_at": "2026-09-04"
+}

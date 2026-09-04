@@ -33,13 +33,16 @@ class CompanyStoreTest(unittest.TestCase):
 
         profiles = companies.list_companies(problems)
 
-        self.assertEqual(len(profiles), 22)
+        self.assertEqual(len(profiles), 28)
         self.assertEqual(
             {profile["name"] for profile in profiles},
             {
                 "Abridge",
                 "Airbnb",
                 "Anthropic",
+                "Canva",
+                "Cohere",
+                "Datadog",
                 "Faire",
                 "Glean",
                 "Google DeepMind",
@@ -47,6 +50,8 @@ class CompanyStoreTest(unittest.TestCase):
                 "Harvey",
                 "Luma AI",
                 "Mistral AI",
+                "Microsoft AI",
+                "Notion",
                 "OpenAI",
                 "OpenEvidence",
                 "Plaud",
@@ -55,6 +60,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "Reflection AI",
                 "Runway",
                 "Sierra",
+                "Spotify",
                 "SpaceXAI / xAI-related roles",
                 "Thinking Machines Lab",
                 "Waymo",
@@ -72,7 +78,7 @@ class CompanyStoreTest(unittest.TestCase):
             {"founded", "team_size", "arr_or_revenue", "valuation", "latest_financing", "sources"},
         )
 
-    def test_every_employer_label_with_problems_has_a_company_profile_or_explicit_unprofiled_source(self):
+    def test_every_employer_label_with_problems_has_a_company_profile(self):
         root = Path(__file__).resolve().parents[1]
         companies = CompanyStore(root / "companies")
         problems = ProblemStore(root / "problems").list_problems()
@@ -84,24 +90,26 @@ class CompanyStoreTest(unittest.TestCase):
         }
         company_labels = {company.casefold() for problem in problems for company in problem.get("companies", [])}
 
-        # Canonical interview-bank links can establish a problem/company association
-        # before a separately sourced Company Hub profile is curated.
+        # General is the only non-employer label in the catalog.
         self.assertEqual(
             company_labels
             - profile_identifiers
             - {
                 "general",
-                "microsoftai",
-                # These source-backed question associations have not yet had
-                # Company Hub profiles curated in Opportunity 2026.
-                "canva",
-                "cohere",
-                "datadog",
-                "notion",
-                "spotify",
             },
             set(),
         )
+        for label, slug, count in (
+            ("Canva", "canva", 3), ("Datadog", "datadog", 8),
+            ("Spotify", "spotify", 4), ("Cohere", "cohere", 1),
+            ("Notion", "notion", 3), ("MicrosoftAI", "microsoft-ai", 1),
+        ):
+            with self.subTest(company=label):
+                profile = companies.get_company(label, problems)
+                self.assertEqual(profile["slug"], slug)
+                self.assertEqual(profile["problem_count"], count)
+                self.assertTrue(profile["links"])
+                self.assertTrue(profile["references"])
 
         reddit = companies.get_company("reddit", problems)
         self.assertEqual(reddit["stage"]["company_state"], "Public")
