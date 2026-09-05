@@ -7,19 +7,19 @@ def batched_multihead_attention(query, key, value):
     value = np.asarray(value)
 
     if query.ndim != 4 or key.ndim != 4 or value.ndim != 4:
-        raise ValueError("query, key, and value must be rank-4 tensors")
+        raise AssertionError("query, key, and value must be rank-4 tensors")
 
     batch, heads, query_tokens, key_dim = query.shape
     key_batch, key_heads, key_tokens, key_width = key.shape
     value_batch, value_heads, value_tokens, value_dim = value.shape
     if any(dimension == 0 for dimension in query.shape + key.shape + value.shape):
-        raise ValueError("attention tensor dimensions must be non-empty")
+        raise AssertionError("attention tensor dimensions must be non-empty")
     if (batch, heads) != (key_batch, key_heads) or (batch, heads) != (value_batch, value_heads):
-        raise ValueError("batch and head dimensions must agree")
+        raise AssertionError("batch and head dimensions must agree")
     if key_dim != key_width:
-        raise ValueError("query and key feature widths must agree")
+        raise AssertionError("query and key feature widths must agree")
     if key_tokens != value_tokens:
-        raise ValueError("key and value token counts must agree")
+        raise AssertionError("key and value token counts must agree")
 
     scores = np.einsum("bhqd,bhkd->bhqk", query, key, optimize=True)
     scores = scores / np.sqrt(key_dim)

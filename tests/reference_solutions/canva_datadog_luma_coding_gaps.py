@@ -105,11 +105,11 @@ def grouped_query_attention(query, key, value):
         key = np.asarray(key, dtype=float)
         value = np.asarray(value, dtype=float)
     except (TypeError, ValueError) as error:
-        raise ValueError("attention inputs must be numeric") from error
+        raise AssertionError("attention inputs must be numeric") from error
     if query.ndim != 4 or key.ndim != 4 or value.ndim != 4:
-        raise ValueError("attention inputs must be rank four")
+        raise AssertionError("attention inputs must be rank four")
     if any(dimension == 0 for array in (query, key, value) for dimension in array.shape):
-        raise ValueError("attention dimensions must be non-zero")
+        raise AssertionError("attention dimensions must be non-zero")
     batch, query_heads, query_tokens, width = query.shape
     key_batch, key_heads, key_tokens, key_width = key.shape
     value_batch, value_heads, value_tokens, value_width = value.shape
@@ -122,7 +122,7 @@ def grouped_query_attention(query, key, value):
         or key_tokens != value_tokens
         or query_heads % key_heads != 0
     ):
-        raise ValueError("incompatible grouped-attention shapes")
+        raise AssertionError("incompatible grouped-attention shapes")
     repeat = query_heads // key_heads
     key_value_heads = np.arange(query_heads) // repeat
     selected_key = key[:, key_value_heads, :, :]
