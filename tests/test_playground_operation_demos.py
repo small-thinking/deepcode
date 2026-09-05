@@ -90,7 +90,7 @@ for (let head=0; head<4; head++) {
   }
 }
 """
-        for number, expected_states in ((388, 32), (389, 48), (390, 96)):
+        for number, expected_states in ((389, 48), (390, 96)):
             with self.subTest(problem=number):
                 rows = self.run_demo(number, exercise)
                 self.assertEqual(len(rows), expected_states)
@@ -113,6 +113,52 @@ for (let head=0; head<4; head++) {
                     output = np.einsum("ht,thd->hd", probabilities, values)
                     np.testing.assert_allclose(output[data["head"]], data["out"], atol=1e-12)
                     np.testing.assert_allclose(probabilities[data["head"]], data["p"], atol=1e-12)
+
+    def test_portrait_attention_forward_and_stage_controls(self):
+        path = Path("problems/388-pytorch-projected-multihead-attention/assets/operation-theater.html")
+        script = re.search(r"<script>(.*?)</script>", path.read_text(), re.S).group(1)
+        stub = DOM_STUB + """
+document.createElement = () => {const e=new Element(); e.dataset={}; return e};
+Element.prototype.replaceChildren=function(){this.children=[]};
+Element.prototype.append=function(e){this.children.push(e)};
+const buttons=Array.from({length:5},(_,i)=>{const b=new Element();b.tagName='BUTTON';b.dataset={stage:String(i)};return b});
+document.querySelectorAll=()=>buttons;
+"""
+        exercise = """
+for(const causal of [false,true]) for(let head=0;head<2;head++) for(let token=0;token<4;token++) {
+ Object.assign(state,{causal,head,token});
+ for(const mode of ['forward','backward']) {
+  setMode(mode);
+  for(const button of buttons) {
+   button.focus();button.onclick();
+   assert.equal(document.activeElement,button);
+   assert.equal(button['aria-pressed'],'true');
+   assert.ok(el('scene').innerHTML.includes('<title'));
+  }
+ }
+ console.log(JSON.stringify({causal,x:X,...compute()}));
+}
+el('reset').onclick();assert.equal(state.stage,0);assert.equal(state.token,2);assert.equal(state.mode,'forward');
+"""
+        subprocess.run(["node", "--check", "-"], input=script, text=True, check=True, capture_output=True)
+        result = subprocess.run(["node", "-e", stub + script + exercise], text=True, check=True, capture_output=True)
+        rows = [json.loads(line) for line in result.stdout.splitlines()]
+        self.assertEqual(len(rows), 16)
+        for data in rows:
+            x = np.array(data["x"])
+            # Independently execute the documented packed nn.Linear projection.
+            weight = np.concatenate([np.eye(4), .5 * np.eye(4), np.eye(4)])
+            q, k, v = (x @ weight.T).reshape(4, 3, 2, 2).transpose(1, 2, 0, 3)
+            scores = q @ k.transpose(0, 2, 1) / np.sqrt(2)
+            allowed = np.tril(np.ones((4, 4), dtype=bool)) if data["causal"] else np.ones((4, 4), dtype=bool)
+            masked = np.where(allowed, scores, -np.inf)
+            p = np.exp(masked - masked.max(axis=-1, keepdims=True))
+            p /= p.sum(axis=-1, keepdims=True)
+            output = p @ v
+            h = data["head"]
+            for name, expected in dict(q=q[h], k=k[h], v=v[h], scores=scores[h], p=p[h], outputs=output[h]).items():
+                np.testing.assert_allclose(data[name], expected, atol=1e-12)
+            np.testing.assert_array_equal(data["allowed"], allowed)
 
     def test_network_forward_values_and_step_focus(self):
         rows = self.run_demo(391, """
