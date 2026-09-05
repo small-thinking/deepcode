@@ -6,8 +6,9 @@ from torch import nn
 class MHA(nn.Module):
     def __init__(self, n_heads, dim):
         super().__init__()
-        if n_heads <= 0 or dim <= 0 or dim % n_heads:
-            raise ValueError("positive dim must be divisible by positive n_heads")
+        assert n_heads > 0 and dim > 0 and dim % n_heads == 0, (
+            "positive dim must be divisible by positive n_heads"
+        )
         self.n_heads = n_heads
         self.dim = dim
         self.head_dim = dim // n_heads
