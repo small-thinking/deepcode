@@ -17,6 +17,6 @@
   {
     "name": "rejects incompatible ranks and attention dimensions",
     "input": "rank, batch/head, feature-width, token-count, and empty-dimension mismatches",
-    "test": "import numpy as np\ndef expect_value_error(query, key, value):\n    try:\n        batched_multihead_attention(query, key, value)\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nbase_query = np.ones((1, 2, 3, 4))\nbase_key = np.ones((1, 2, 5, 4))\nbase_value = np.ones((1, 2, 5, 6))\nexpect_value_error(base_query[0], base_key, base_value)\nexpect_value_error(base_query, np.ones((2, 2, 5, 4)), base_value)\nexpect_value_error(base_query, np.ones((1, 2, 5, 3)), base_value)\nexpect_value_error(base_query, base_key, np.ones((1, 2, 4, 6)))\nexpect_value_error(np.ones((1, 2, 0, 4)), base_key, base_value)"
+    "test": "import numpy as np\ndef expect_assertion_error(query, key, value):\n    try:\n        batched_multihead_attention(query, key, value)\n    except AssertionError:\n        return\n    raise AssertionError('expected AssertionError')\nbase_query = np.ones((1, 2, 3, 4))\nbase_key = np.ones((1, 2, 5, 4))\nbase_value = np.ones((1, 2, 5, 6))\nexpect_assertion_error(base_query[0], base_key, base_value)\nexpect_assertion_error(base_query, np.ones((2, 2, 5, 4)), base_value)\nexpect_assertion_error(base_query, np.ones((1, 2, 5, 3)), base_value)\nexpect_assertion_error(base_query, base_key, np.ones((1, 2, 4, 6)))\nexpect_assertion_error(np.ones((1, 2, 0, 4)), base_key, base_value)"
   }
 ]

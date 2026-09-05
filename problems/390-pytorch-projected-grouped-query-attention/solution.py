@@ -6,8 +6,7 @@ from torch import nn
 class GQA(nn.Module):
     def __init__(self, n_heads, dim, n_kv_heads):
         super().__init__()
-        if n_heads <= 0 or dim <= 0 or n_kv_heads <= 0 or dim % n_heads or n_heads % n_kv_heads:
-            raise ValueError("invalid head counts or dimension")
+        assert not (n_heads <= 0 or dim <= 0 or n_kv_heads <= 0 or dim % n_heads or n_heads % n_kv_heads), "invalid head counts or dimension"
         self.n_heads = n_heads
         self.n_kv_heads = n_kv_heads
         self.dim = dim

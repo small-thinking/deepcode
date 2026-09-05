@@ -18,9 +18,9 @@
     "expected_output": "ok"
   },
   {
-    "name": "invalid constructor dimensions raise ValueError",
-    "input": "invalid constructor dimensions raise ValueError",
-    "test": "for args in [(0, 8, 1), (4, 8, 0), (3, 8, 1), (4, 8, 3), (2, -8, 1)]:\n    try:\n        GQA(*args)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('expected ValueError for ' + str(args))\nprint('ok')\n",
+    "name": "invalid constructor dimensions raise AssertionError",
+    "input": "invalid constructor dimensions raise AssertionError",
+    "test": "for args in [(0, 8, 1), (4, 8, 0), (3, 8, 1), (4, 8, 3), (2, -8, 1)]:\n    try:\n        GQA(*args)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('expected AssertionError for ' + str(args))\nprint('ok')\n",
     "expected_output": "ok"
   }
 ]
