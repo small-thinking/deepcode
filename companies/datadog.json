@@ -1,0 +1,131 @@
+{
+  "slug": "datadog",
+  "name": "Datadog",
+  "summary": "Cloud observability and security platform covering infrastructure monitoring, application performance, logs, and user experience.",
+  "stage": {
+    "company_state": "Public · Nasdaq: DDOG",
+    "funding_stage": "Publicly listed; venture stage not applicable",
+    "source": {
+      "label": "Datadog investor FAQ",
+      "url": "https://investors.datadoghq.com/shareholder-services/investor-faqs/"
+    }
+  },
+  "business_snapshot": {
+    "founded": "2010 (incorporated June 2010)",
+    "team_size": "Not verified in this profile",
+    "arr_or_revenue": "Not verified in this profile",
+    "valuation": "Current valuation not verified",
+    "latest_financing": "Latest financing not verified",
+    "sources": [
+      {
+        "label": "Datadog investor FAQ",
+        "url": "https://investors.datadoghq.com/shareholder-services/investor-faqs/"
+      },
+      {
+        "label": "Datadog 2025 Form 10-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026008819/ddog-20251231.htm"
+      },
+      {
+        "label": "Datadog 2026 Q1 Form 10-Q",
+        "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026032328/ddog-20260331.htm"
+      }
+    ]
+  },
+  "links": [
+    {
+      "label": "Careers: candidate experience",
+      "url": "https://careers.datadoghq.com/candidate-experience/"
+    },
+    {
+      "label": "Datadog investor FAQ",
+      "url": "https://investors.datadoghq.com/shareholder-services/investor-faqs/"
+    },
+    {
+      "label": "Datadog 2025 Form 10-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026008819/ddog-20251231.htm"
+    },
+    {
+      "label": "Datadog 2026 Q1 Form 10-Q",
+      "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026032328/ddog-20260331.htm"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Official company hiring guidance; role-specific details vary",
+    "summary": "The official hiring guide describes the following process. Confirm the exact loop for the role and level with the recruiter.",
+    "stages": [
+      {
+        "name": "Initial screen",
+        "signal": "Recruiter or hiring-manager conversation about your background and goals, typically by phone or video.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: candidate experience",
+            "url": "https://careers.datadoghq.com/candidate-experience/"
+          }
+        ]
+      },
+      {
+        "name": "Team interviews",
+        "signal": "One or more interviews or panels with the hiring team. The guide expects one step to happen in person.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: candidate experience",
+            "url": "https://careers.datadoghq.com/candidate-experience/"
+          }
+        ]
+      },
+      {
+        "name": "Role-dependent assessments",
+        "signal": "A take-home project and an executive interview apply to some roles; neither is stated as universal.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: candidate experience",
+            "url": "https://careers.datadoghq.com/candidate-experience/"
+          }
+        ]
+      },
+      {
+        "name": "Decision",
+        "signal": "The interview team reviews candidates and the recruiter communicates an offer if selected.",
+        "evidence_tier": "Official company hiring guidance",
+        "sources": [
+          {
+            "label": "Careers: candidate experience",
+            "url": "https://careers.datadoghq.com/candidate-experience/"
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "label": "Preparation context",
+      "detail": "Preparation inference from the product: data ingestion, metrics and logs, distributed systems, and reliability tradeoffs. These are study suggestions, not verified interview topics."
+    },
+    {
+      "label": "Evidence scope",
+      "detail": "Checked 2026-09-04. Dated figures are historical snapshots. Catalog question associations do not establish a current interview loop."
+    }
+  ],
+  "references": [
+    {
+      "label": "Datadog investor FAQ",
+      "url": "https://investors.datadoghq.com/shareholder-services/investor-faqs/"
+    },
+    {
+      "label": "Datadog 2025 Form 10-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026008819/ddog-20251231.htm"
+    },
+    {
+      "label": "Datadog 2026 Q1 Form 10-Q",
+      "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026032328/ddog-20260331.htm"
+    },
+    {
+      "label": "Careers: candidate experience",
+      "url": "https://careers.datadoghq.com/candidate-experience/"
+    }
+  ],
+  "updated_at": "2026-09-04"
+}

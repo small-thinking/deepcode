@@ -73,7 +73,9 @@ Recommended fields:
 - `tags`: Short searchable labels.
 - `companies`: Optional list of company names associated with the source prompt,
   such as `["OpenAI"]` or `["Anthropic"]`. Use an empty list or omit the field
-  for general concept drills without a company source.
+  for general concept drills without a company source. The catalog displays
+  `General` only when no company is assigned; if company names are present,
+  any legacy `General` entry is omitted from labels, filters, and counts.
 - `interview_frequency`: Optional per-company interview-signal tier. Keep only
   `stars` (`0` through `5`), source-neutral stable record IDs, and `synced_at`;
   do not store raw source counts. A nonzero tier renders as stars beside that
