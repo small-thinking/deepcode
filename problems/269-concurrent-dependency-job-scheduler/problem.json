@@ -6,10 +6,23 @@
   "difficulty": "hard",
   "tags": ["concurrency", "dag", "scheduling", "retries", "conditions"],
   "companies": ["OpenAI"],
-  "prompt": "Implement `Job(job_id, dependencies=(), priority=0, retries=0)`, `ConcurrencyLimiter(limit)`, and `Scheduler(jobs, limiter, run_attempt)`. `Scheduler.run()` returns terminal statuses keyed by job ID. `run_attempt(job, attempt)` is external work and returns truthy on success or may raise. A job with `retries=N` gets at most `N+1` attempts.\n\nOnly jobs whose dependencies succeeded may run. Ready jobs use higher priority first, then lexical job ID. A failed job causes all dependent work to become `skipped`; cycles and their blocked dependents must terminal-skip rather than hang. The limiter must use a condition-loop acquire/release, never exceed its limit, and wake waiters on release. Claim state atomically, run external work outside the scheduler lock, and avoid repeated whole-DAG scans.",
+  "prompt": "Implement `Job(job_id, dependencies=(), priority=0, retries=0)`, `ConcurrencyLimiter(limit)`, and `Scheduler(jobs, limiter, run_attempt)`. `Scheduler.run()` returns terminal statuses keyed by job ID. `run_attempt(job, attempt)` is external work and returns truthy on success or may raise. A job with `retries=N` gets at most `N+1` attempts.\n\nOnly jobs whose dependencies succeeded may run. Ready jobs use higher priority first, then lexical job ID. A failed job causes all dependent work to become `skipped`; cycles and their blocked dependents must terminal-skip rather than hang. The limiter must use a condition-loop acquire/release, never exceed its limit, and wake waiters on release. Claim state atomically, run external work outside the scheduler lock, and avoid repeated whole-DAG scans.\n\n### Practice scope\n\nThis is a practice reconstruction of the reported interview task. The exact original API and detailed scheduling or compatibility semantics were not recovered; the rules above define this exercise and are not claimed as verbatim interviewer requirements.",
   "starter_code": "class Job:\n    pass\n\n\nclass ConcurrencyLimiter:\n    pass\n\n\nclass Scheduler:\n    pass\n",
   "example": {"input": "A(priority=2), B(depends_on=A)", "output": "A succeeds before B may start", "reasoning": "The scheduler's terminal-state graph, not thread timing, enforces dependency semantics."},
   "environment": {"language": "python", "timeout_seconds": 5, "packages": [], "comparator": "assertions"},
   "evaluation": {"type": "ml_modeling"},
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "interview_frequency": {
+    "OpenAI": {
+      "source_record_ids": [
+        "3ca6ce51456d81f9954cc4c2c0bde0c2"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-06"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-06"
+  }
 }

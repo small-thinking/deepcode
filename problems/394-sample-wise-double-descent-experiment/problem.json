@@ -1,0 +1,49 @@
+{
+  "id": "394",
+  "slug": "sample-wise-double-descent-experiment",
+  "title": "Sample-Wise Double-Descent Experiment",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": [
+    "numpy",
+    "linear-regression",
+    "double-descent",
+    "regularization",
+    "experiments"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "3d26ce51456d81809145cb3d853ac0fb"
+      ],
+      "stars": 0,
+      "synced_at": "2026-09-06"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-09-06"
+  },
+  "prompt": "Investigate **sample-wise** double descent: hold the model dimension fixed, vary the number of training examples below, at, and above that dimension, and compare unregularized and ridge fits. This is a full experiment complement to the Sample-Aspect Double-Descent Diagnostic, which only analyzes supplied loss curves. The API, data generator, bounds, and checks below are **practice reconstruction choices**, not a recovered assessment contract.\n\n### Part 1: Controlled experiment\n\nImplement `sample_wise_experiment(feature_dim, sample_counts, ridge_lambdas, seeds, n_test=128, noise_std=0.5)` using NumPy and CPU only. Inputs are valid only when:\n\n- `feature_dim` is an integer in `[2, 64]`; `n_test` is an integer in `[1, 512]`.\n- `sample_counts` is a list, tuple, or one-dimensional NumPy array of 3\u201316 strictly increasing integers in `[1, 256]`, includes `feature_dim`, and has an entry below and above it.\n- `ridge_lambdas` is a list, tuple, or one-dimensional NumPy array of 1\u20138 distinct finite positive real numbers. Preserve supplied order.\n- `seeds` is a list, tuple, or one-dimensional NumPy array of 1\u20138 distinct integers in `[0, 2**32 - 1]`. Preserve supplied order.\n- `noise_std` is a finite real number in `[0, 10]`.\n\nBooleans are not valid numbers for these inputs. Reject invalid inputs with `ValueError`; do not mutate inputs or NumPy's global random state.\n\nUse float64 throughout. Define the same fixed teacher for every seed: `beta = np.ones(feature_dim) / np.sqrt(feature_dim)`. For **each seed independently**, create `rng = np.random.default_rng(seed)` and make these four draws in this exact order:\n\n```python\nX_pool = rng.standard_normal((max(sample_counts), feature_dim))\neps_pool = rng.standard_normal(max(sample_counts))\nX_test = rng.standard_normal((n_test, feature_dim))\neps_test = rng.standard_normal(n_test)\n```\n\nAlways draw both noise arrays, including in the noiseless control. Set `y_pool = X_pool @ beta + noise_std * eps_pool` and `y_test = X_test @ beta + noise_std * eps_test`. For sample count `n`, use the first `n` training rows. Thus training sets are nested within each seed, and every model and sample count for that seed shares one independent heldout set. Different seeds redraw both training and test data. Changing the maximum sample count changes the generated pool and downstream draws, so compare lambda/noise controls on the same sample grid. Do not normalize or center the features, and do not fit an intercept.\n\nFor each training size, fit:\n\n1. The minimum-Euclidean-norm least-squares estimator, using `np.linalg.lstsq(X, y, rcond=None)` or an equivalent stable SVD method. Do not invert a singular Gram matrix.\n2. One ridge estimator for each supplied lambda, minimizing **`mean((X @ w - y)**2) + lambda * sum(w**2)`**. The corresponding normal equation is `(X.T @ X + n * lambda * I) @ w = X.T @ y`. Use a linear solve, augmented least squares, or an equivalent SVD method; no explicit matrix inverse.\n\nReturn a dictionary containing:\n\n- `sample_counts`: an integer NumPy array in input order;\n- `lambdas`: a float64 NumPy array `[0.0, *ridge_lambdas]`, where zero denotes the minimum-norm estimator;\n- `seeds`: an integer NumPy array in input order;\n- `train_mse`, `test_mse`: float64 NumPy arrays shaped `(len(seeds), len(sample_counts), 1 + len(ridge_lambdas))`. Compute the ordinary mean squared residual against the noisy targets on the corresponding training subset or full heldout set. Report **unpenalized MSE**, even for ridge;\n- `train_mean`, `test_mean`, `train_std`, `test_std`: float64 arrays shaped `(len(sample_counts), 1 + len(ridge_lambdas))`, reducing the respective raw errors over the seed axis. Use population standard deviation (`ddof=0`); a single seed has zero standard deviation.\n\n### Part 2: Interpret your measurements\n\nRun a small experiment such as `feature_dim=12`, `sample_counts=[4, 8, 11, 12, 13, 18, 32]`, `ridge_lambdas=[0.001, 0.1, 1.0]`, and `seeds=[0, 1, 2, 3]`. Compare `noise_std=0.5` with a noiseless control using the same grid and seeds. Keep the raw seed curves as well as their means and spreads.\n\nWrite a short interpretation beside your solution (a comment or docstring is sufficient). State the hypothesis and controls; identify any observed peak and its variability; explain why a small singular value near `n = feature_dim` can amplify label noise; explain the scaling of the ridge penalty and its bias/variance tradeoff; distinguish training interpolation from heldout generalization. Discuss the noiseless control, finite test size, seed variability, numerical rank/conditioning, and one next experiment. Do not assert that every seed has a loss peak or that ridge improves every result. The fixtures check the numerical experiment, not the quality of this written discussion. No downloads, plots, or slides are required.",
+  "starter_code": "import numpy as np\n\n\ndef sample_wise_experiment(feature_dim, sample_counts, ridge_lambdas, seeds, n_test=128, noise_std=0.5):\n    # Practice reconstruction: fixed-width sample-count experiment.\n    pass\n\n\n# Experiment interpretation:\n# State your controls, measured results, numerical limits, and next experiment.\n",
+  "example": {
+    "input": "sample_wise_experiment(4, [2, 4, 8], [0.01, 1.0], [0, 7], n_test=32)",
+    "output": "train_mse and test_mse have shape (2, 3, 3); means and standard deviations have shape (3, 3).",
+    "reasoning": "Two independent data seeds, three nested training sizes, and three estimators share a fixed teacher and evaluation protocol."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 8,
+    "packages": [
+      "numpy"
+    ],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-06"
+}
