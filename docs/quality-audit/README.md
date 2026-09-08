@@ -2,7 +2,7 @@
 
 Snapshot: 2026-09-08 UTC / 2026-09-07 America/Los_Angeles, starting from fetched `origin/main` commit `4ffda48`.
 
-This is the first completed batch, not a claim that the full question bank has been audited. [inventory.jsonl](inventory.jsonl) lists all **297 committed questions** with category, audit group, evaluator, test applicability, visible case count, source links, latest prompt commit and per-question progress. Counts of cases are triage hints only, not evidence that a suite is weak or strong.
+This is the first completed batch, not a claim that the full question bank has been audited. [inventory.jsonl](inventory.jsonl) lists all **297 committed questions** with category, audit group, evaluator, test applicability, base and reviewed visible case counts, source links, latest definition-file commit and per-question progress. Counts of cases are triage hints only, not evidence that a suite is weak or strong.
 
 | Audit group | Questions |
 | --- | ---: |
@@ -33,10 +33,14 @@ The primary checkout `/Users/Yexi/source/deepcode` was on `codex/anthropic-inter
 
 1. Recent remaining executable questions: 354–365 and 368–370, focusing on source fidelity and whether tests distinguish behavior rather than merely checking shape.
 2. Current-main 388–391 attention/network family, then older long-form ML descriptions. Preserve the user's separate 389 test changes while reviewing the main version.
-3. Expand across older Coding, ML and design categories using `last_prompt_commit` and `triage_flags`, rather than assuming numeric IDs are chronological.
+3. Expand across older Coding, ML and design categories using `last_definition_commit` and `triage_flags`, rather than assuming numeric IDs are chronological.
 
 Whole-catalog structural triage found no prompt containing the scanned unsupported LaTeX commands/display delimiters or an odd number of triple-backtick fences. ID 313 contains a literal `\n` and is flagged for contextual inspection, not automatically declared broken. These checks do not prove that all formulas or Markdown render correctly; that requires per-question review and actual UI inspection.
 
 To resume, filter rows whose `status` is `not_reviewed`; separately revisit source statuses containing `blank`, `unverified` or `unavailable`. A newly accessible original should update evidence before changing contracts. Preserve explicit, reasonable practice choices where the source is abbreviated. Every additional test needs an independent expected-result argument and a specific plausible mistake it detects.
 
 Structural identity check also found metadata ID `141` reused by `batched-llm-inference-service` and `moderator-list-hierarchy`. Their slugs and UI-generated display IDs are separate. Both remain pending content review; the ledger uses the unique slug/path for identity and flags the duplicate rather than renumbering stable metadata without tracing its consumers.
+
+## Combined verification
+
+A temporary detached checkout combined Coding merge `8a8de36`, ML commit `989352e`, and design commit `65afbf2` without changing shared `main`. `UV_CACHE_DIR=/private/tmp/deepcode-quality-uv-cache UV_PROJECT_ENVIRONMENT=/Users/Yexi/source/deepcode/.venv uv run --no-sync python -m unittest discover -s tests` passed **all 362 tests** in 84.860 seconds with localhost permission. Log: `/private/tmp/deepcode-quality-integrated-tests.log`. Later ledger wording/count-field edits do not change the tested problem or test files. All temporary preview services were stopped.
