@@ -27,12 +27,12 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\")` using NumPy. `labels` and `probabilities` are non-empty array-like values with identical shape. Labels must be exactly 0 or 1, and probabilities must be finite values in `[0, 1]`.\n\nFor each element, use `p_t = p` for a positive label and `1-p` otherwise, and use `alpha_t = alpha` for a positive label and `1-alpha` otherwise. Compute `-alpha_t * (1-p_t)**gamma * log(p_t)`, clipping `p_t` to `[1e-15, 1-1e-15]` before the logarithm. Support reductions `\"none\"` (same-shape ndarray), `\"sum\"`, and `\"mean\"`. Reject invalid inputs, alpha outside `[0,1]`, negative or non-finite gamma, and unknown reductions with `ValueError`. Do not mutate inputs.",
+  "prompt": "Practice reconstruction: the original report names focal loss and GQA as handwritten coding topics, but does not specify a framework, probability/logit API, or detailed constraints. The NumPy interface, validation rules, and clipping convention below are DeepCode practice choices.\n\nImplement `binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\")` using NumPy.\n\n**Inputs**\n- `labels` and `probabilities` are non-empty array-like values with identical shape.\n- Labels are exactly `0` or `1`; probabilities are finite values in `[0, 1]`.\n- `alpha` is in `[0, 1]`; `gamma` is finite and non-negative.\n\n**Loss and return value**\nFor each element, use `p_t = p` for a positive label and `1 - p` otherwise. Clip `p_t` to `[1e-15, 1 - 1e-15]` and use this clipped value throughout the loss. Use `alpha_t = alpha` for a positive label and `1 - alpha` otherwise.\n\n```text\nloss = -alpha_t * (1 - p_t)**gamma * log(p_t)\n```\n\nSupport `\"none\"` (an ndarray with the input shape), `\"sum\"`, and `\"mean\"` reductions. Reject invalid inputs, invalid hyperparameters, and unknown reductions with `ValueError`. Do not mutate inputs.",
   "starter_code": "import numpy as np\n\n\ndef binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\"):\n    pass\n",
   "example": {
     "input": "binary_focal_loss([1, 0], [0.9, 0.2], alpha=0.25, gamma=2.0, reduction='none')",
-    "output": "a length-two NumPy array of per-example focal losses",
-    "reasoning": "The confident positive and confident negative each receive a smaller loss than a difficult misclassified example."
+    "output": "array([0.0002634013, 0.0066943065]) (approximately)",
+    "reasoning": "The positive example uses weight 0.25 and p_t=0.9; the negative uses weight 0.75 and p_t=0.8."
   },
   "environment": {
     "language": "python",
