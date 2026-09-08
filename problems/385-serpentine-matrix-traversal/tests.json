@@ -10,8 +10,8 @@
     "test": "matrix = [[1], [2], [3]]\nsnapshot = [row[:] for row in matrix]\nassert zigzag_matrix_rows(matrix) == [1, 2, 3]\nassert matrix == snapshot\nassert zigzag_matrix_rows([[4, 5, 6]]) == [4, 5, 6]"
   },
   {
-    "name": "reverses the complete second row",
+    "name": "reverses the complete second row without mutating the matrix",
     "input": "a two-row rectangular matrix",
-    "test": "assert zigzag_matrix_rows([['a', 'b', 'c', 'd'], ['e', 'f', 'g', 'h']]) == ['a', 'b', 'c', 'd', 'h', 'g', 'f', 'e']"
+    "test": "matrix = [['a', 'b', 'c', 'd'], ['e', 'f', 'g', 'h']]\nsnapshot = [row[:] for row in matrix]\nassert zigzag_matrix_rows(matrix) == ['a', 'b', 'c', 'd', 'h', 'g', 'f', 'e']\nassert matrix == snapshot"
   }
 ]

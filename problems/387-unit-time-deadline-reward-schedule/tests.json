@@ -2,7 +2,7 @@
   {
     "name": "maximizes reward under inclusive one-day deadlines",
     "input": "five tasks with a collision on day one",
-    "test": "tasks = [\n    {'id': 'a', 'deadline': 4, 'reward': 70},\n    {'id': 'b', 'deadline': 1, 'reward': 80},\n    {'id': 'c', 'deadline': 1, 'reward': 30},\n    {'id': 'd', 'deadline': 2, 'reward': 100},\n    {'id': 'e', 'deadline': 3, 'reward': 40},\n]\nassert deadline_reward_schedule(tasks) == (['b', 'd', 'e', 'a'], 290)"
+    "test": "tasks = [\n    {'id': 'a', 'deadline': 4, 'reward': 70},\n    {'id': 'b', 'deadline': 1, 'reward': 80},\n    {'id': 'c', 'deadline': 1, 'reward': 30},\n    {'id': 'd', 'deadline': 2, 'reward': 100},\n    {'id': 'e', 'deadline': 3, 'reward': 40},\n]\nsnapshot = [task.copy() for task in tasks]\nassert deadline_reward_schedule(tasks) == (['b', 'd', 'e', 'a'], 290)\nassert tasks == snapshot"
   },
   {
     "name": "places a task on its deadline and breaks equal rewards by task ID",
