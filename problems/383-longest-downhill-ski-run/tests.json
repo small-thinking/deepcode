@@ -1,6 +1,6 @@
 [
   {
-    "name": "shares a memoized descending snake across multiple skiers",
+    "name": "returns descending-snake scores for multiple skiers",
     "input": "a nine-cell descending snake and three start positions",
     "test": "elevations = [[9, 8, 7], [2, 1, 6], [3, 4, 5]]\nassert downhill_run_scores(elevations, [(0, 0), (2, 0), (1, 1)]) == [9, 3, 1]\nassert elevations == [[9, 8, 7], [2, 1, 6], [3, 4, 5]]"
   },

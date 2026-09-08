@@ -13,5 +13,15 @@
     "name": "returns no solution when local capacity is insufficient",
     "input": "only one undersized listing in the requested neighborhood",
     "test": "listings = [{'id': 'a', 'neighborhood': 'north', 'capacity': 3}]\nsnapshot = [listing.copy() for listing in listings]\nassert select_group_listings(listings, 4, 'north') == []\nassert listings == snapshot"
+  },
+  {
+    "name": "minimizes capacity among feasible multi-listing subsets",
+    "input": "capacities 8, 7, 6, 4 for a group of 12",
+    "test": "listings = [{'id': name, 'neighborhood': 'north', 'capacity': capacity} for name, capacity in [('eight', 8), ('seven', 7), ('six', 6), ('four', 4)]]\nsnapshot = [listing.copy() for listing in listings]\nassert select_group_listings(listings, 12, 'north') == ['eight', 'four']\nassert listings == snapshot"
+  },
+  {
+    "name": "uses input positions for tied multi-listing subsets and keeps neighborhoods separate",
+    "input": "two capacity-5 listings tie; an ineligible listing could fill the whole group",
+    "test": "listings = [\n    {'id': 'z-first', 'neighborhood': 'north', 'capacity': 5},\n    {'id': 'outside', 'neighborhood': 'south', 'capacity': 10},\n    {'id': 'a-second', 'neighborhood': 'north', 'capacity': 5},\n    {'id': 'four', 'neighborhood': 'north', 'capacity': 4},\n]\nassert select_group_listings(listings, 9, 'north') == ['z-first', 'four']\nassert select_group_listings(listings, 15, 'north') == []"
   }
 ]
