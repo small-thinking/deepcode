@@ -2,7 +2,7 @@
   "id": "305",
   "slug": "capacity-utilization-rollup",
   "title": "Capacity Utilization Rollup",
-  "category": "SQL",
+  "category": "General Coding",
   "difficulty": "medium",
   "tags": ["sql", "aggregation", "group-by", "filtering", "capacity-planning"],
   "companies": ["Anthropic"],

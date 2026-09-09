@@ -27,7 +27,7 @@ Example:
   "id": "14",
   "slug": "mean-baseline-regressor",
   "title": "Mean Baseline Regressor",
-  "category": "Machine Learning",
+  "category": "ML Coding",
   "difficulty": "easy",
   "tags": ["baseline", "regression"],
   "companies": ["General"],

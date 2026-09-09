@@ -2,7 +2,7 @@
   "id": "1",
   "slug": "matrix-vector-dot-product",
   "title": "Matrix-Vector Dot Product",
-  "category": "Linear Algebra",
+  "category": "ML Coding",
   "difficulty": "easy",
   "tags": ["matrix", "vectors"],
   "companies": ["OpenAI"],
