@@ -55,5 +55,21 @@
       "url": "https://en.wikipedia.org/wiki/Backpropagation"
     }
   ],
-  "created_at": "2026-06-15"
+  "created_at": "2026-06-15",
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "backprop-walkthrough",
+      "kind": "standalone_html",
+      "path": "assets/backprop-walkthrough.html",
+      "title": "Two layers, one gradient at a time",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 900
+      }
+    }
+  ]
 }
