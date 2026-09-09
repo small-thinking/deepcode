@@ -464,3 +464,5 @@ Good current-scope problems are deterministic and fast:
 - Data splitting, batching, token counting, padding, masking, and top-k selection.
 
 Avoid hidden randomness, long training loops, external downloads, large datasets, and undeclared dependencies until the runner explicitly supports those evaluation modes.
+
+Portrait images may opt into `"fit": "viewport"` on an `assets` entry. The renderer contains the full image within 68% of viewport height and links to the original in a new tab. Omit this field for the existing full-width layout. Store raster problem images through the repository Git LFS rules.

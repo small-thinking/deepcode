@@ -309,6 +309,9 @@ class ProblemStore:
             if "caption" in asset and not isinstance(asset["caption"], str):
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].caption` must be a string")
 
+            if "fit" in asset and asset["fit"] != "viewport":
+                raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].fit` must be viewport")
+
             asset_path = Path(path_value)
             if asset_path.is_absolute() or ".." in asset_path.parts or not asset_path.parts or asset_path.parts[0] != "assets":
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].path` must be under assets/")

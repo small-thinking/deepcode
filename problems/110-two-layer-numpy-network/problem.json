@@ -56,20 +56,20 @@
     }
   ],
   "created_at": "2026-06-15",
-  "interactive_demos": [
+  "assets": [
     {
-      "schema_version": 1,
-      "id": "backprop-walkthrough",
-      "kind": "standalone_html",
-      "path": "assets/backprop-walkthrough.html",
-      "title": "Two layers, one gradient at a time",
-      "section": "interactive_demo",
-      "presentation": {
-        "theme": "sync",
-        "fallback_theme": "light",
-        "height": "content",
-        "fallback_height": 900
-      }
+      "path": "assets/forward-backprop-portrait.png",
+      "alt": "Two-layer network forward pass, tensor shapes, mean loss, backpropagation and parameter update",
+      "caption": "1 / 2 \u00b7 Forward pass and backpropagation. Click for full size.",
+      "section": "prompt",
+      "fit": "viewport"
+    },
+    {
+      "path": "assets/gradient-derivation-portrait.png",
+      "alt": "Step-by-step softmax cross-entropy derivative, batch averaging, affine gradients and ReLU mask",
+      "caption": "2 / 2 \u00b7 Gradient derivation. Click for full size.",
+      "section": "prompt",
+      "fit": "viewport"
     }
   ]
 }
