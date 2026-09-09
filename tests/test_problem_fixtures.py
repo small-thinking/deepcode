@@ -1598,18 +1598,36 @@ class TwoLayerNet:
         return self.loss(X, y)
 """
 
-        result = evaluate_submission(
-            EvaluationRequest(
-                code=solution,
-                problem=problem,
-                tests=problem["tests"],
-                environment=problem["environment"],
-                runtime=problem.get("_runtime", {}),
-            )
-        )
+        variants = {
+            "original optional constructor": solution,
+            "private names and minimal constructor": solution.replace(
+                ", seed=0, weight_scale=0.1", ""
+            ).replace("default_rng(seed)", "default_rng(17)").replace(
+                "0.0, weight_scale", "0.0, 0.2"
+            ).replace("self.W1", "self.W_1").replace("self.W2", "self.W_2").replace(
+                "self.b1", "self.b_1"
+            ).replace("self.b2", "self.b_2"),
+        }
+        for label, code in variants.items():
+            with self.subTest(label=label):
+                result = evaluate_submission(EvaluationRequest(
+                    code=code, problem=problem, tests=problem["tests"],
+                    environment=problem["environment"], runtime=problem.get("_runtime", {}),
+                ))
+                self.assertEqual(result["status"], "passed", result)
+                self.assertEqual(result["passed"], len(problem["tests"]))
 
-        self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["passed"], len(problem["tests"]))
+        for label, code in {
+            "fixed divisor": solution.replace("grad_logits /= n", "grad_logits /= 2"),
+            "no update": solution.replace("learning_rate *", "0.0 *"),
+            "sum loss": solution.replace("np.mean(np.log", "np.sum(np.log"),
+        }.items():
+            with self.subTest(mutant=label):
+                result = evaluate_submission(EvaluationRequest(
+                    code=code, problem=problem, tests=problem["tests"],
+                    environment=problem["environment"], runtime=problem.get("_runtime", {}),
+                ))
+                self.assertNotEqual(result["status"], "passed", result)
 
     def test_extra_tree_classifier_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("extra-tree-classifier")

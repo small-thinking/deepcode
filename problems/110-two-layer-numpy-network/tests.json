@@ -2,21 +2,31 @@
   {
     "name": "forward returns normalized probabilities",
     "input": "two samples, three output classes",
-    "test": "import numpy as np\nnet = TwoLayerNet(input_dim=2, hidden_dim=5, output_dim=3, seed=7)\nprobs = net.forward(np.array([[1.0, -1.0], [0.5, 2.0]]))\nassert probs.shape == (2, 3)\nassert np.allclose(probs.sum(axis=1), np.ones(2))\nassert np.all(probs >= 0.0)"
+    "test": "import numpy as np\nnet = TwoLayerNet(input_dim=2, hidden_dim=5, output_dim=3)\nprobs = net.forward(np.array([[1.0, -1.0], [0.5, 2.0]]))\nassert probs.shape == (2, 3)\nassert np.allclose(probs.sum(axis=1), np.ones(2))\nassert np.all(probs >= 0.0)"
   },
   {
     "name": "softmax is stable for large activations",
     "input": "large input values",
-    "test": "import numpy as np\nnet = TwoLayerNet(input_dim=2, hidden_dim=4, output_dim=2, seed=1, weight_scale=5.0)\nprobs = net.forward(np.array([[1000.0, -1000.0], [-1200.0, 900.0]]))\nassert np.isfinite(probs).all()\nassert np.allclose(probs.sum(axis=1), np.ones(2))"
+    "test": "import numpy as np\nnet = TwoLayerNet(input_dim=2, hidden_dim=4, output_dim=2)\nprobs = net.forward(np.array([[1000.0, -1000.0], [-1200.0, 900.0]]))\nassert np.isfinite(probs).all()\nassert np.allclose(probs.sum(axis=1), np.ones(2))"
   },
   {
-    "name": "one training step updates parameters and returns finite loss",
+    "name": "one training step changes predictions and returns updated loss",
     "input": "small separable dataset",
-    "test": "import numpy as np\nX = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])\ny = np.array([0, 1, 1, 0])\nnet = TwoLayerNet(input_dim=2, hidden_dim=6, output_dim=2, seed=4, weight_scale=0.3)\nold_W1 = net.W1.copy()\nold_loss = net.loss(X, y)\nnew_loss = net.train_step(X, y, learning_rate=0.5)\nassert np.isfinite(old_loss)\nassert np.isfinite(new_loss)\nassert not np.allclose(old_W1, net.W1)"
+    "test": "import numpy as np\nX = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])\ny = np.array([0, 1, 1, 0])\nnet = TwoLayerNet(input_dim=2, hidden_dim=6, output_dim=2)\nold_probs = net.forward(X).copy()\nold_loss = net.loss(X, y)\nnew_loss = net.train_step(X, y, learning_rate=0.5)\nassert np.isfinite(old_loss)\nassert np.isfinite(new_loss)\nassert not np.allclose(old_probs, net.forward(X), rtol=1e-8, atol=1e-10)\nassert np.isclose(new_loss, net.loss(X, y))"
   },
   {
     "name": "training reduces loss over repeated steps",
     "input": "linearly separable labels",
-    "test": "import numpy as np\nX = np.array([[-2.0], [-1.0], [1.0], [2.0]])\ny = np.array([0, 0, 1, 1])\nnet = TwoLayerNet(input_dim=1, hidden_dim=4, output_dim=2, seed=2, weight_scale=0.4)\nstart = net.loss(X, y)\nfor _ in range(80):\n    net.train_step(X, y, learning_rate=0.1)\nend = net.loss(X, y)\nassert end < start"
+    "test": "import numpy as np\nX = np.array([[-2.0], [-1.0], [1.0], [2.0]])\ny = np.array([0, 0, 1, 1])\nnet = TwoLayerNet(input_dim=1, hidden_dim=4, output_dim=2)\nstart = net.loss(X, y)\nfor _ in range(80):\n    net.train_step(X, y, learning_rate=0.1)\nend = net.loss(X, y)\nassert end < start"
+  },
+  {
+    "name": "loss matches mean cross-entropy",
+    "input": "five samples and three classes",
+    "test": "import numpy as np\nnet = TwoLayerNet(2, 8, 3)\nX = np.array([[0.2, -0.3], [0.4, 0.1], [-0.1, 0.5], [0.3, 0.2], [-0.4, -0.2]])\ny = np.array([0, 1, 2, 1, 0])\np = net.forward(X)\nexpected = -np.mean(np.log(p[np.arange(len(y)), y]))\nassert np.isclose(net.loss(X, y), expected, rtol=1e-6, atol=1e-8)\n"
+  },
+  {
+    "name": "mean gradient is invariant to batch duplication",
+    "input": "same model with a batch of three versus nine samples",
+    "test": "import copy\nimport numpy as np\nnet = TwoLayerNet(2, 8, 3)\nreplica = copy.deepcopy(net)\nX = np.array([[0.2, -0.3], [0.4, 0.1], [-0.1, 0.5]])\ny = np.array([0, 0, 1])\nnet.train_step(X, y, learning_rate=0.1)\nreplica.train_step(np.tile(X, (3, 1)), np.tile(y, 3), learning_rate=0.1)\nassert np.allclose(net.forward(X), replica.forward(X), rtol=1e-7, atol=1e-9), 'Average gradients over the batch size'\n"
   }
 ]
