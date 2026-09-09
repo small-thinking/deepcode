@@ -2,7 +2,7 @@
   "id": "15",
   "slug": "classification-accuracy",
   "title": "Classification Accuracy",
-  "category": "Machine Learning",
+  "category": "ML Coding",
   "difficulty": "easy",
   "tags": ["metrics", "classification"],
   "companies": ["OpenAI"],

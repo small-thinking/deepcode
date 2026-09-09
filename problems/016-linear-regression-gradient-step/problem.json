@@ -2,7 +2,7 @@
   "id": "16",
   "slug": "linear-regression-gradient-step",
   "title": "Linear Regression Gradient Step",
-  "category": "Machine Learning",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": ["numpy", "regression", "optimization"],
   "companies": ["OpenAI"],

@@ -2,7 +2,7 @@
   "id": "109",
   "slug": "vectorized-1nn-distance-network",
   "title": "Vectorized 1-NN Distance Network",
-  "category": "ML Numerics",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
     "numpy",

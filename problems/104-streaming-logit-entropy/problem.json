@@ -2,7 +2,7 @@
   "id": "104",
   "slug": "streaming-logit-entropy",
   "title": "Streaming Logit Entropy",
-  "category": "ML Numerics",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
     "logits",

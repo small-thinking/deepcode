@@ -2,7 +2,7 @@
   "id": "131",
   "slug": "sharded-matrix-multiplication",
   "title": "Sharded Matrix Multiplication",
-  "category": "Machine Learning",
+  "category": "ML Coding",
   "difficulty": "hard",
   "tags": [
     "numpy",

@@ -2,7 +2,7 @@
   "id": "108",
   "slug": "mnist-torch-classifier",
   "title": "MNIST Torch Classifier",
-  "category": "Computer Vision",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": ["torch", "mnist", "training"],
   "companies": ["General"],

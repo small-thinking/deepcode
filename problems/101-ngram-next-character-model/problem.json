@@ -2,7 +2,7 @@
   "id": "101",
   "slug": "ngram-next-character-model",
   "title": "N-Gram Next-Character Model",
-  "category": "Modeling",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
     "language-modeling",
