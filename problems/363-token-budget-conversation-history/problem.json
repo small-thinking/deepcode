@@ -2,7 +2,7 @@
   "id": "363",
   "slug": "token-budget-conversation-history",
   "title": "Keep Recent Conversation History Within a Token Budget",
-  "category": "Data Structures",
+  "category": "General Coding",
   "difficulty": "medium",
   "tags": [
     "prefix-sum",

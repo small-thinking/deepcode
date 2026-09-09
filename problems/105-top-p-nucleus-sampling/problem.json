@@ -2,7 +2,7 @@
   "id": "105",
   "slug": "top-p-nucleus-sampling",
   "title": "Top-p Nucleus Sampling",
-  "category": "LLM Decoding",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
     "llm",
