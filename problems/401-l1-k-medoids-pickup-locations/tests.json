@@ -1,0 +1,20 @@
+[
+  {
+    "name": "medoid restriction and ties",
+    "input": "medoid restriction and ties",
+    "test": "assert k_medoids([(0,0),(2,0),(1,3)],1) == ([0],6)\nassert k_medoids([(0,0),(0,0),(10,0)],1) == ([0],10)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "clusters duplicates and boundaries",
+    "input": "clusters duplicates and boundaries",
+    "test": "p=[(0,0),(1,0),(9,0),(10,0)]\nassert k_medoids(p,2)==([1,2],2)\nassert p==[(0,0),(1,0),(9,0),(10,0)]\nassert k_medoids([],1)==([],0)\nassert k_medoids([(2,3),(2,3)],5)==([0,1],0)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "swap improves greedy initialization",
+    "input": "swap improves greedy initialization",
+    "test": "assert k_medoids([(0,0),(1,0),(2,0),(5,0),(6,0)],2)==([1,3],3)\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]

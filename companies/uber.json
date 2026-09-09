@@ -1,0 +1,26 @@
+{
+  "slug": "uber",
+  "name": "Uber",
+  "summary": "Interview practice covering general coding, ML implementation, and marketplace ML system design.",
+  "stage": {
+    "company_state": "Not independently verified",
+    "funding_stage": "Not independently verified"
+  },
+  "links": [
+    {
+      "label": "Company website",
+      "url": "https://www.uber.com/"
+    }
+  ],
+  "interview_process": {
+    "summary": "The practice topics do not establish a guaranteed role-specific interview loop.",
+    "stages": []
+  },
+  "notes": [
+    {
+      "label": "Practice scope",
+      "detail": "Includes reconstructed coding contracts and open-ended design prompts. Confirm role-specific expectations with the recruiter."
+    }
+  ],
+  "updated_at": "2026-09-08"
+}

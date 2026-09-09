@@ -1,0 +1,26 @@
+[
+  {
+    "name": "constructed example",
+    "input": "constructed example",
+    "test": "assert find_robots(['EEE','EOX','EEE'],[2,2,2,1])==[[1,1]]\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "boundary and transparent robots",
+    "input": "boundary and transparent robots",
+    "test": "assert find_robots(['O'],[1,1,1,1])==[[0,0]]\nassert find_robots(['OO'],[1,1,1,2])==[[0,0]]\nassert find_robots(['OO'],[2,1,1,1])==[[0,1]]\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "multiple results and empty",
+    "input": "multiple results and empty",
+    "test": "g=['XOXOX']\nassert find_robots(g,[1,1,1,1])==[[0,1],[0,3]]\nassert g==['XOXOX']\nassert find_robots([], [1,1,1,1])==[]\nassert find_robots([''], [1,1,1,1])==[]\nassert find_robots(['EOE'],[1,1,1,1])==[]\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "direction ordering",
+    "input": "direction ordering",
+    "test": "assert find_robots(['EEEE','EOEE','EXEE'],[2,2,1,3])==[[1,1]]\nprint(\"ok\")",
+    "expected_output": "ok"
+  }
+]

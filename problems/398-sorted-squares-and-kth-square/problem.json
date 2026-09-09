@@ -1,0 +1,44 @@
+{
+  "id": "398",
+  "slug": "sorted-squares-and-kth-square",
+  "title": "Sorted Squares and K-th Smallest Square",
+  "category": "Algorithms",
+  "difficulty": "easy",
+  "tags": [
+    "two-pointers",
+    "binary-search"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "### Part 1\n\nImplement `sorted_squares(nums) -> list[int]` for an integer array sorted in nondecreasing order. Return its squares in nondecreasing order in `O(n)` time, without calling a sorting operation. Preserve duplicates and do not mutate the input. Empty input returns `[]`.\n\n### Part 2\n\nImplement `kth_smallest_square(nums, k) -> int`, with one-based `k` and `1 <= k <= len(nums)`. Target `O(log n + k)` time and `O(1)` auxiliary space: locate the split between negative and nonnegative values, then merge outward by magnitude until the k-th value. Do not build all sorted squares.\n\nPractice reconstruction: one-based rank, valid-input assumptions, and follow-up complexity are explicit conventions. Emitting `k` values from the two outer endpoints yields the k-th largest square, so that source suggestion must be adapted for the smallest-square follow-up.",
+  "starter_code": "def sorted_squares(nums):\n    pass\n\ndef kth_smallest_square(nums, k):\n    pass\n",
+  "example": {
+    "input": "nums=[-4,-1,0,3,10], k=3",
+    "output": "sorted squares: [0,1,9,16,100]; k-th: 9",
+    "reasoning": "Rank counts duplicate values separately."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-09-08",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3d66ce51456d8179ac80e29bfc6f3b92"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-08"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-08"
+  }
+}

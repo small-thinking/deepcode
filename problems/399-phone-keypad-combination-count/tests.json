@@ -1,0 +1,26 @@
+[
+  {
+    "name": "reported counts",
+    "input": "reported counts",
+    "test": "assert count_keypad_combinations('2345')==81\nassert count_keypad_combinations('777777777')==4**9\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "empty and all keypad digits",
+    "input": "empty and all keypad digits",
+    "test": "assert count_keypad_combinations('')==0\nfor d in '234568':\n    assert count_keypad_combinations(d)==3\nfor d in '79':\n    assert count_keypad_combinations(d)==4\nassert count_keypad_combinations('279')==48\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "invalid ASCII and non-ASCII characters",
+    "input": "invalid ASCII and non-ASCII characters",
+    "test": "for s in ['1','20','2a','2 3','\uff12','23\\n']:\n    try:\n        count_keypad_combinations(s)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(s)\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "exact large result",
+    "input": "exact large result",
+    "test": "assert count_keypad_combinations('9'*100)==4**100\nprint(\"ok\")",
+    "expected_output": "ok"
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "id": "400",
+  "slug": "static-and-streaming-islands",
+  "title": "Count Static and Streaming Islands",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "grid",
+    "breadth-first-search",
+    "union-find"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "### Part 1\n\nImplement `count_islands(grid) -> int` for a rectangular list of integer rows containing only `0` (water) and `1` (land). An island connects land through the four orthogonal directions; diagonals do not connect. Empty grids return `0`. Do not mutate `grid`. Target `O(R*C)` time; use iterative traversal to avoid recursion-depth limits.\n\n### Part 2\n\nImplement `streaming_islands(rows, cols, positions) -> list[int]`. Start with an all-water grid and add land at each `[row, column]` in `positions`. Return the island count after every operation. Repeated additions do nothing. Dimensions are nonnegative integers; every supplied position is valid and zero-indexed. If a dimension is zero, positions is empty. Inputs are not mutated.\n\nUse sparse union-find: allocate storage only for added cells, not `rows*cols`. Target `O(k * alpha(k))` amortized time and `O(k)` space for `k` operations. Decrement the count only on merging two distinct roots; touching multiple neighbors in one existing island must not over-decrement.\n\nPractice reconstruction: static representation, coordinate order, valid-input scope and mutation policy are explicit conventions. Both parts share the same four-neighbor island definition.",
+  "starter_code": "def count_islands(grid):\n    pass\n\ndef streaming_islands(rows, cols, positions):\n    pass\n",
+  "example": {
+    "input": "streaming_islands(2,2,[[0,0],[1,1],[0,1],[0,1]])",
+    "output": "[1,2,1,1]",
+    "reasoning": "Diagonal cells begin separately; the bridge joins them; a duplicate is a no-op."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-09-08",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3d66ce51456d81d88c81e129f4d27b01"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-08"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-08"
+  }
+}

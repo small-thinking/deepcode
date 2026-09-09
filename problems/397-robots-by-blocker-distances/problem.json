@@ -1,0 +1,44 @@
+{
+  "id": "397",
+  "slug": "robots-by-blocker-distances",
+  "title": "Find Robots by Directional Blocker Distances",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "grid",
+    "directional-scans"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Implement `find_robots(grid, query) -> list[list[int]]`. `grid` is a rectangular list of equal-length strings containing `O` (robot), `E` (empty), and `X` (blocker). `query` contains four positive integers in `[left, top, bottom, right]` order. Return every matching robot as `[row, column]`, zero-indexed in row-major order. Other robots do not block sight.\n\nDistance is the number of unit steps from the robot to the first blocker cell in that direction, including the final step into the blocker. The exterior just beyond each grid edge counts as a blocker: a robot on an edge has distance 1 toward that edge. Return `[]` for an empty grid or no matches; do not mutate inputs. Target `O(R*C)` time with four directional scans, even when many robots are present.\n\nPractice reconstruction: coordinates, boundary distance, output order, and input representation are explicit conventions. The source mentions a 5-by-5 example without supplying its grid; the example below is independently constructed.",
+  "starter_code": "def find_robots(grid, query):\n    pass\n",
+  "example": {
+    "input": "find_robots(['EEE','EOX','EEE'], [2,2,2,1])",
+    "output": "[[1, 1]]",
+    "reasoning": "Left, top and bottom boundaries are two steps away; the right blocker is adjacent."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-09-08",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3d66ce51456d816eb77fe2a7be51e4f4"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-08"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-08"
+  }
+}

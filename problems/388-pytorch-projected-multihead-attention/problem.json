@@ -9,8 +9,10 @@
     "attention",
     "autograd"
   ],
-  "companies": [],
-  "prompt": "Implement `MHA(n_heads, dim)` with `forward(x, mask=None) -> output`. Project x once to concatenated Q, K, V with `W_qkv: dim \u2192 3 * dim`, divide each into n_heads heads, perform scaled dot-product attention, merge heads in original order, and apply `W_o: dim \u2192 dim`. Output shape is `(B, T, dim)`; scores have shape `(B, n_heads, T, T)`.\n\nUse PyTorch on CPU. Preserve the public API and expose biased `nn.Linear` layers named `W_qkv` and `W_o`. Inputs are floating tensors `x: (B, T, dim)` with positive dimensions. Preserve dtype/device and autograd; do not mutate inputs or parameters. No dropout, residual connection, layer normalization, positional encoding, or implicit causal mask is required. `mask` is either None or a boolean tensor broadcastable to attention scores; True means allowed. Every query row has at least one allowed key. Apply the mask before softmax over keys, and scale scores by `1 / sqrt(head_dim)`. Reject nonpositive or nondivisible constructor head/dimension values with AssertionError. Input shapes, mask dtype, and mask rows otherwise satisfy this contract.",
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Implement `MHA(n_heads, dim)` with `forward(x, mask=None) -> output`. Project x once to concatenated Q, K, V with `W_qkv: dim \u2192 3 * dim`, divide each into n_heads heads, perform scaled dot-product attention, merge heads in original order, and apply `W_o: dim \u2192 dim`. Output shape is `(B, T, dim)`; scores have shape `(B, n_heads, T, T)`.\n\nUse PyTorch on CPU. Preserve the public API and expose biased `nn.Linear` layers named `W_qkv` and `W_o`. Inputs are floating tensors `x: (B, T, dim)` with positive dimensions. Preserve dtype/device and autograd; do not mutate inputs or parameters. No dropout, residual connection, layer normalization, positional encoding, or implicit causal mask is required. `mask` is either None or a boolean tensor broadcastable to attention scores; True means allowed. Every query row has at least one allowed key. Apply the mask before softmax over keys, and scale scores by `1 / sqrt(head_dim)`. Reject nonpositive or nondivisible constructor head/dimension values with AssertionError. Input shapes, mask dtype, and mask rows otherwise satisfy this contract.\n\nDo not call nn.MultiheadAttention or functional scaled_dot_product_attention. For a padding mask of shape (B, T), expand it to (B, 1, 1, T) before passing it as the broadcastable mask; raw (B, T) is not the padding-mask API here.",
   "starter_code": "import torch\nfrom torch import nn\n\n\nclass MHA(nn.Module):\n    def __init__(self, n_heads, dim):\n        super().__init__()\n        # Define W_qkv and W_o.\n        pass\n\n    def forward(self, x, mask=None):\n        pass\n",
   "example": {
     "input": "model = MHA(2, 8); x = torch.randn(2, 3, 8); out = model(x, torch.ones(3, 3, dtype=torch.bool).tril())",
@@ -45,5 +47,18 @@
       }
     }
   ],
-  "created_at": "2026-09-04"
+  "created_at": "2026-09-04",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3d66ce51456d81848fd7d34e9a1a4ec6"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-08"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-08"
+  }
 }

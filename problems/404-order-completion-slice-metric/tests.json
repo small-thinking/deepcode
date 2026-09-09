@@ -1,0 +1,14 @@
+[
+  {
+    "name": "slice denominator includes pending and unknown",
+    "input": "slice denominator includes pending and unknown",
+    "test": "rows=[{'city':'SF','order_type':'food','status':s} for s in ['completed','pending','cancelled','mystery']]\nrows += [{'city':'NY','order_type':'food','status':'completed'},{'city':'SF','order_type':'ride','status':'completed'}]\nassert completion_rate(iter(rows),'SF','food')==.25\nassert len(rows)==6 and rows[1]['status']=='pending'\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "empty all none duplicates and exact matching",
+    "input": "empty all none duplicates and exact matching",
+    "test": "assert completion_rate([],'SF','food')==0.0\nr={'city':'SF','order_type':'food','status':'completed'}\nassert completion_rate((r for _ in range(3)),'SF','food')==1.0\nassert completion_rate([r],'sf','food')==0.0\nassert completion_rate([dict(r,status='Completed')],'SF','food')==0.0\nassert completion_rate([dict(r,status='cancelled')],'SF','food')==0.0\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]

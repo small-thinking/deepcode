@@ -1,0 +1,26 @@
+[
+  {
+    "name": "linear convergence and input preservation",
+    "input": "linear convergence and input preservation",
+    "test": "import numpy as np\nX=np.array([[1.],[2.],[3.]])\ny=np.array([2.,4.,6.])\nw,b,h=train_regression(X,y,epochs=3000)\nnp.testing.assert_allclose(w,[2.],atol=1e-6)\nassert abs(b)<1e-6 and h[-1]<1e-12 and len(h)==3001\nnp.testing.assert_array_equal(X,[[1.],[2.],[3.]])\nnp.testing.assert_array_equal(y,[2.,4.,6.])\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "logistic fit and stable extremes",
+    "input": "logistic fit and stable extremes",
+    "test": "import numpy as np\nw,b,h=train_regression([[-2.],[-1.],[1.],[2.]],[0,0,1,1],kind='logistic',epochs=500)\nassert w[0]>2 and abs(b)<1e-12 and h[-1]<.1\nwith np.errstate(over='raise',invalid='raise'):\n w,b,h=train_regression([[-1000.],[1000.]],[0,1],kind='logistic',lr=1,epochs=3)\nassert np.isfinite(h).all()\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "regularization gradients and loss history",
+    "input": "regularization gradients and loss history",
+    "test": "import numpy as np\nw,b,h=train_regression([[1.]],[2.],lr=.1,epochs=2,l2=2)\nnp.testing.assert_allclose(w,[.56]); assert abs(b-.64)<1e-12\nnp.testing.assert_allclose(h,[4,1.6,.9536])\nw,b,h=train_regression([[1.]],[1.],kind='logistic',lr=1,epochs=1,l2=2)\nnp.testing.assert_allclose(w,[.5]); assert b==.5\nnp.testing.assert_allclose(h,[np.log(2),np.logaddexp(0,1)-1+.25])\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "constant features zero epochs and early stopping",
+    "input": "constant features zero epochs and early stopping",
+    "test": "import numpy as np\nw,b,h=train_regression([[0.],[0.]],[3.,3.],epochs=300)\nassert w[0]==0 and abs(b-3)<1e-10\nw,b,h=train_regression([[2.,3.]],[1.],epochs=0)\nassert list(w)==[0,0] and b==0 and h==[1.]\nw,b,h=train_regression([[0.]],[0.],epochs=10,tol=0)\nassert h==[0.,0.]\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]

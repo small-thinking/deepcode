@@ -1,0 +1,20 @@
+[
+  {
+    "name": "frequency beats lexical order and ties are lexical",
+    "input": "frequency beats lexical order and ties are lexical",
+    "test": "assert transition_counts('a c a b a c')=={'a':{'c':2,'b':1},'c':{'a':1},'b':{'a':1}}\nassert generate_text('a c a b a c','a',3)=='a c a c'\nassert generate_text('a c a b','a',3)=='a b'\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "apostrophes punctuation and casing",
+    "input": "apostrophes punctuation and casing",
+    "test": "assert transition_counts(\"It's its! IT'S, good42day\")=={\"it's\":{'its':1,'good':1},'its':{\"it's\":1},'good':{'day':1}}\nassert generate_text('Hello, WORLD!','HELLO!',5)=='hello world'\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "empty unseen terminal and zero steps",
+    "input": "empty unseen terminal and zero steps",
+    "test": "assert transition_counts('123 !!!')=={}\nassert generate_text('', 'Start',10)=='start'\nassert generate_text('a b','c',5)=='c'\nassert generate_text('a b','b',5)=='b'\nassert generate_text('a b','a',0)=='a'\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]
