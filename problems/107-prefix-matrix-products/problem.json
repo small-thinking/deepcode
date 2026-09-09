@@ -2,7 +2,7 @@
   "id": "107",
   "slug": "prefix-matrix-products",
   "title": "Prefix Matrix Products",
-  "category": "Differentiable Programming",
+  "category": "General Coding",
   "difficulty": "hard",
   "tags": [
     "torch",

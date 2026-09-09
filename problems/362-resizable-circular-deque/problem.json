@@ -2,7 +2,7 @@
   "id": "362",
   "slug": "resizable-circular-deque",
   "title": "Implement a Resizable Circular Deque",
-  "category": "Data Structures",
+  "category": "General Coding",
   "difficulty": "medium",
   "tags": [
     "deque",
