@@ -1,0 +1,45 @@
+{
+  "id": "395",
+  "slug": "bounded-convex-minimization",
+  "title": "Minimize a Bounded Convex Function",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "optimization",
+    "convexity",
+    "golden-section-search"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Implement `minimize_convex(f, a, b, tol=1e-6) -> float` for a finite-valued continuous convex function on a closed interval. Return a point within `tol` of at least one minimizer. Inputs satisfy `a <= b` and `tol > 0`; plateaus and endpoint minima are allowed. If `a == b`, return `a` without evaluating `f`. No derivatives are available.\n\nUse golden-section search to reuse expensive evaluations. For a nondegenerate interval let `N = max(0, ceil(log((b-a)/tol) / log((1+sqrt(5))/2)))`. Use at most `N + 2` calls to `f`; do not depend on hidden attributes of the callable. Assume finite bounds and a tolerance resolvable by floating-point arithmetic.\n\nThis is a practice reconstruction: the accuracy contract and evaluation budget make the reported continuous problem executable. Integer and 2D extensions are discussion follow-ups, not required APIs. For integers compare adjacent objective values; a 2D nested search requires justified convexity of the projected objective, not arbitrary coordinate descent.",
+  "starter_code": "def minimize_convex(f, a, b, tol=1e-6):\n    pass\n",
+  "example": {
+    "input": "minimize_convex(lambda x: (x-2)**2+1, -10, 10)",
+    "output": "approximately 2.0",
+    "reasoning": "The quadratic attains its minimum at 2."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-09-08",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3d66ce51456d81319399c204b4f712e7"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-08"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-08"
+  }
+}

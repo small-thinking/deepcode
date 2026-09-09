@@ -1,0 +1,26 @@
+[
+  {
+    "name": "reported examples",
+    "input": "reported examples",
+    "test": "assert longest_bounded_subarray([8,2,4,7],4)==2\nassert longest_bounded_subarray([10,1,2,4,7,2],5)==4\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "empty duplicates and zero limit",
+    "input": "empty duplicates and zero limit",
+    "test": "assert longest_bounded_subarray([],0)==0\nassert longest_bounded_subarray([4,2,2,2,4,4,2],0)==3\nassert longest_bounded_subarray([7],0)==1\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "wide values and shrinking windows",
+    "input": "wide values and shrinking windows",
+    "test": "a=[-10**12,0,10**12,10**12]\nb=a[:]\nassert longest_bounded_subarray(a,0)==2\nassert a==b\nassert longest_bounded_subarray([1,5,6,7,8,10,6,5,6],4)==5\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "deterministic brute force oracle",
+    "input": "deterministic brute force oracle",
+    "test": "import random\nrng=random.Random(41)\nfor _ in range(80):\n    a=[rng.randrange(-8,9) for _ in range(rng.randrange(15))]\n    limit=rng.randrange(8)\n    expected=max([0]+[j-i for i in range(len(a)) for j in range(i+1,len(a)+1) if max(a[i:j])-min(a[i:j])<=limit])\n    assert longest_bounded_subarray(a,limit)==expected\nprint(\"ok\")",
+    "expected_output": "ok"
+  }
+]

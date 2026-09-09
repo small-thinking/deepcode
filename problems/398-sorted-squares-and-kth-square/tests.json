@@ -1,0 +1,26 @@
+[
+  {
+    "name": "[Part 1] mixed signs and empty",
+    "input": "[Part 1] mixed signs and empty",
+    "test": "assert sorted_squares([-4,-1,0,3,10])==[0,1,9,16,100]\nassert sorted_squares([])==[]\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Part 1] duplicates and one-sided arrays",
+    "input": "[Part 1] duplicates and one-sided arrays",
+    "test": "for a,expected in [([-5,-3,-1],[1,9,25]),([0,1,2],[0,1,4]),([-2,-2,0,2],[0,4,4,4])]:\n    before=a[:]\n    assert sorted_squares(a)==expected\n    assert a==before\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Part 2] boundary ranks and duplicates",
+    "input": "[Part 2] boundary ranks and duplicates",
+    "test": "for a in [[-4,-1,0,3,10],[-5,-3,-1],[0,1,2],[-2,-2,0,2],[0]]:\n    before=a[:]\n    for k,v in enumerate(sorted(x*x for x in a),1):\n        assert kth_smallest_square(a,k)==v\n    assert a==before\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Part 1/2] deterministic oracle",
+    "input": "[Part 1/2] deterministic oracle",
+    "test": "import random\nrng=random.Random(12)\nfor _ in range(50):\n    a=sorted(rng.randrange(-20,21) for _ in range(rng.randrange(1,25)))\n    expected=sorted(x*x for x in a)\n    assert sorted_squares(a)==expected\n    k=rng.randrange(1,len(a)+1)\n    assert kth_smallest_square(a,k)==expected[k-1]\nprint(\"ok\")",
+    "expected_output": "ok"
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "id": "396",
+  "slug": "longest-bounded-difference-subarray",
+  "title": "Longest Subarray with Bounded Difference",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "sliding-window",
+    "monotonic-deque"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Implement `longest_bounded_subarray(nums, limit) -> int`. Return the maximum length of a contiguous nonempty subarray whose maximum minus minimum is at most `limit`. `nums` contains integers; `limit` is a nonnegative integer. Return `0` for an empty input. Do not mutate `nums`. Target `O(n)` time using monotonic deques and `O(n)` auxiliary space.\n\nPractice reconstruction: the return value is a length, and empty input is explicitly defined. Under the nonnegative-limit contract, every singleton is valid; the source's \u201call-invalid single values\u201d case cannot occur.",
+  "starter_code": "def longest_bounded_subarray(nums, limit):\n    pass\n",
+  "example": {
+    "input": "[8,2,4,7], limit=4",
+    "output": "2",
+    "reasoning": "[2,4] and [4,7] are valid length-two windows."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-09-08",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3d66ce51456d8140a8cce384e48c16b7"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-08"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-08"
+  }
+}

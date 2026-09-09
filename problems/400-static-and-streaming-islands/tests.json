@@ -1,0 +1,32 @@
+[
+  {
+    "name": "[Part 1] connected and diagonal components",
+    "input": "[Part 1] connected and diagonal components",
+    "test": "g=[[1,1,0],[0,1,0],[1,1,1]]\nassert count_islands(g)==1\nassert g==[[1,1,0],[0,1,0],[1,1,1]]\nassert count_islands([[1,0],[0,1]])==2\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Part 1] empty water and long island",
+    "input": "[Part 1] empty water and long island",
+    "test": "assert count_islands([])==0\nassert count_islands([[]])==0\nassert count_islands([[0,0]])==0\nassert count_islands([[1]*2000])==1\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Part 2] bridge duplicate and shared roots",
+    "input": "[Part 2] bridge duplicate and shared roots",
+    "test": "p=[[0,0],[1,1],[0,1],[0,1],[1,0]]\nassert streaming_islands(2,2,p)==[1,2,1,1,1]\nassert p==[[0,0],[1,1],[0,1],[0,1],[1,0]]\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Part 2] sparse large dimensions and empty",
+    "input": "[Part 2] sparse large dimensions and empty",
+    "test": "assert streaming_islands(10**9,10**9,[[0,0],[999999999,999999999],[0,1]])==[1,2,2]\nassert streaming_islands(0,5,[])==[]\nassert streaming_islands(1,1,[[0,0],[0,0]])==[1,1]\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Part 2] four distinct neighboring islands",
+    "input": "[Part 2] four distinct neighboring islands",
+    "test": "assert streaming_islands(3,3,[[0,1],[1,0],[1,2],[2,1],[1,1]])==[1,2,3,4,1]\nprint(\"ok\")",
+    "expected_output": "ok"
+  }
+]

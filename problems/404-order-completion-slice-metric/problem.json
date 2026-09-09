@@ -1,0 +1,44 @@
+{
+  "id": "404",
+  "slug": "order-completion-slice-metric",
+  "title": "Order Completion Rate by Slice",
+  "category": "ML Coding",
+  "difficulty": "easy",
+  "tags": [
+    "metrics"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Implement `completion_rate(orders, city, order_type)`. Each row is a mapping with string keys `city`, `order_type`, and `status`. Filter by exact, case-sensitive equality of city and order_type. Return completed rows divided by all rows in that slice, or 0.0 when the slice is empty. A row is completed only if status equals \"completed\". Pending, cancelled, and unknown statuses all remain in the denominator. Count duplicate rows separately. Accept any iterable of rows, including a one-pass generator, without mutating rows. Use O(N) time and O(1) extra space.\n\nReconstruction assumption: each row is one observed order; the source did not specify deduplication or terminal-only eligibility. This exercise fixes an all-observed-orders denominator. Explain how pending orders and observation-window maturity affect interpretation, then outline slices and evidence you would inspect before attributing a low rate to dispatch, ETA, supply, fraud rules, or operations.",
+  "starter_code": "def completion_rate(orders, city, order_type):\n    pass\n",
+  "example": {
+    "input": "completion_rate([{ \"city\": \"SF\", \"order_type\": \"food\", \"status\": \"pending\" }], \"SF\", \"food\")",
+    "output": "0.0",
+    "reasoning": "The pending order contributes to the denominator but not the numerator."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "python",
+    "timeout_seconds": 15,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-09-08",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3d66ce51456d81d284dadb6bd7837e01"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-08"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-08"
+  }
+}

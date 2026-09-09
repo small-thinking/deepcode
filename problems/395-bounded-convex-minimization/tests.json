@@ -1,0 +1,26 @@
+[
+  {
+    "name": "interior minimum and evaluation budget",
+    "input": "interior minimum and evaluation budget",
+    "test": "import math\ncalls = []\ndef f(x):\n    assert -10 <= x <= 10\n    calls.append(x)\n    return (x-2)**2\nx = minimize_convex(f, -10, 10, 1e-5)\nassert abs(x-2) <= 1e-5\nassert len(calls) <= math.ceil(math.log(20/1e-5)/math.log((1+math.sqrt(5))/2))+2\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "endpoint minima",
+    "input": "endpoint minima",
+    "test": "assert abs(minimize_convex(lambda x: x, -3, 7, 1e-5)+3) <= 1e-5\nassert abs(minimize_convex(lambda x: -x, -3, 7, 1e-5)-7) <= 1e-5\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "plateau and nonsmooth minimum",
+    "input": "plateau and nonsmooth minimum",
+    "test": "x = minimize_convex(lambda x: max(0, abs(x)-2), -9, 8)\nassert -2-1e-6 <= x <= 2+1e-6\nassert abs(minimize_convex(lambda x: abs(x-0.25), -1, 1)-0.25) <= 1e-6\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "degenerate and already narrow interval",
+    "input": "degenerate and already narrow interval",
+    "test": "def forbidden(x):\n    raise AssertionError(\"unnecessary evaluation\")\nassert minimize_convex(forbidden, 3, 3) == 3\nx = minimize_convex(lambda x: x*x, 0, 1e-8)\nassert 0 <= x <= 1e-8\nprint(\"ok\")",
+    "expected_output": "ok"
+  }
+]
