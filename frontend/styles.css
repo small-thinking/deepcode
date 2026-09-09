@@ -3145,3 +3145,12 @@ body[data-theme="light"] .progress-page {
     grid-template-columns: 1fr;
   }
 }
+
+/* Opt-in portrait figures: keep the whole image visible; open for detail. */
+.problem-asset-viewport img {
+  width: 100%;
+  height: min(68dvh, 900px);
+  object-fit: contain;
+}
+.problem-asset-viewport a { display: block; }
+.problem-asset-viewport a:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }

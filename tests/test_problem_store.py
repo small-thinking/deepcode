@@ -197,6 +197,7 @@ class ProblemStoreTest(unittest.TestCase):
                             "path": "assets/architecture.svg",
                             "alt": "Counter architecture",
                             "caption": "Reference diagram.",
+                            "fit": "viewport",
                             "section": "reference_answer",
                         }
                     ],
@@ -213,6 +214,14 @@ class ProblemStoreTest(unittest.TestCase):
             self.assertEqual(problem["evaluation"]["type"], "system_design")
             self.assertEqual(problem["response"]["reference_answer"], "## A reference")
             self.assertEqual(problem["assets"][0]["path"], "assets/architecture.svg")
+
+            self.assertEqual(problem["assets"][0]["fit"], "viewport")
+            metadata = root / "milestone-counter" / "problem.json"
+            payload = json.loads(metadata.read_text())
+            payload["assets"][0]["fit"] = "invalid"
+            metadata.write_text(json.dumps(payload))
+            with self.assertRaisesRegex(ValueError, "fit.*must be viewport"):
+                ProblemStore(root).get_problem("milestone-counter")
 
     def test_rejects_system_design_asset_outside_its_assets_folder(self):
         with tempfile.TemporaryDirectory() as tmp:

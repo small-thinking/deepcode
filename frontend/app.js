@@ -3051,8 +3051,10 @@ function renderProblemAssets(problem, section) {
   const figures = assets
     .map(
       (asset) => `
-        <figure class="problem-asset">
+        <figure class="problem-asset${asset.fit === "viewport" ? " problem-asset-viewport" : ""}">
+          ${asset.fit === "viewport" ? `<a href="${escapeHtml(problemAssetUrl(problem, asset))}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(`Open full-size image: ${asset.alt}`)}">` : ""}
           <img src="${escapeHtml(problemAssetUrl(problem, asset))}" alt="${escapeHtml(asset.alt)}" loading="lazy" />
+          ${asset.fit === "viewport" ? "</a>" : ""}
           ${asset.caption ? `<figcaption>${escapeHtml(asset.caption)}</figcaption>` : ""}
         </figure>
       `
