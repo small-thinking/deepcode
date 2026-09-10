@@ -1,25 +1,32 @@
 {
   "id": "406",
   "slug": "ml-system-conflict-resolution",
-  "title": "Resolve Conflicts in an ML System",
-  "category": "ML System Design",
+  "title": "Resolve a Cross-Functional Disagreement",
+  "category": "Behavioral",
   "difficulty": "medium",
   "tags": [
-    "debugging",
-    "experimentation",
-    "data-quality"
+    "conflict-resolution",
+    "cross-functional",
+    "communication",
+    "decision-making"
   ],
   "companies": [
     "Uber"
   ],
-  "prompt": "Choose an ML system you know and explain how you identify and resolve inconsistent labels, competing model decisions, offline/online metric mismatch, noisy experiments, or cross-team disagreement. Define a concrete example, evidence required, decision owner, immediate mitigation, validation plan, and rollback. The source describes a discussion topic rather than a fixed product or rubric; this exercise provides a practice structure. This is a writing exercise.",
+  "prompt": "Describe a real disagreement or conflict with a teammate, cross-functional partner, or stakeholder on an ML or engineering project. Explain the stakes, the competing viewpoints, how you diagnosed the underlying issue, what evidence or decision criteria you used, how you aligned on a decision, and what happened afterward. Include how you handled escalation or an outcome that was not your preferred choice. Use only truthful experience. This is a writing exercise.\n\nSource correction: the interview evidence describes a behavioral conflict/disagreement prompt, not a hypothetical ML system-design exercise about inconsistent labels or metrics.",
   "evaluation": {
     "type": "system_design"
   },
   "response": {
-    "placeholder": "Start with the decision, assumptions, and evidence needed before choosing an architecture.",
-    "reference_answer": "## Scope a concrete conflict\n\nFor a marketplace ranking launch, suppose offline conversion prediction improves but completed orders decline online. This is an illustrative scenario, not a reported outcome. Name an accountable launch owner and distinguish disagreement about evidence from disagreement about objectives. Align on completed-order value and guardrails such as cancellation, latency, and marketplace balance before comparing proposals.\n\n## Establish reproducible facts\n\nFreeze model versions, feature definitions, evaluation data, experiment assignments, and metric queries. Verify denominators, event deduplication, label maturity, logging changes, sample-ratio mismatch, and exposure eligibility. Check point-in-time joins and training/serving skew. Reproduce the offline result on the same cohort and time period; quantify uncertainty rather than treating one noisy run as proof.\n\nBreak results down by market, tenure, supply level, merchant, and latency. A stale offline sample, policy-induced feedback, serving fallback, and marketplace interference are separate hypotheses. Give each a discriminating check: fresh holdout, policy-aware analysis, request traces, and an interference-aware experiment respectively.\n\n## Resolve by conflict type\n\nFor inconsistent labels, establish a written definition, independent adjudication, provenance, and an ambiguity category; do not force uncertain examples into the majority class. For competing model decisions, compare calibrated outputs against the same business objective and constraints. An ensemble is an option only if its incremental quality and latency are measured.\n\nFor offline/online mismatch, correct measurement defects first, then test whether offline metrics represent the deployed decision and population. For cross-team disagreement, document alternatives, costs, uncertainty, and who makes the final call. A short bounded experiment with a predeclared decision rule can resolve empirical disagreement; product priority still requires an owner.\n\n## Mitigate and validate\n\nPause rollout or revert if a predeclared guardrail is crossed. Preserve traces and affected versions before changing anything. Fix one suspected cause at a time where feasible, replay representative cases, and run a powered controlled experiment. Use clustered or switchback assignment only when interference and carryover justify it; respect the randomization unit in confidence intervals.\n\nRecord the decision, rejected alternatives, residual uncertainty, success/stop criteria, and follow-up owner. Monitor both leading operational signals and mature business outcomes. A rollback that restores outcomes is useful evidence, but by itself may not isolate which changed component was causal.\n\n## Progressive Hints\n\n1. Separate an empirical disagreement from a priority decision.\n2. Reproduce the exact versions and metric definitions.\n3. Write competing hypotheses and distinct checks.\n4. Assign one decision owner and explicit guardrails.\n5. Preserve uncertainty when evidence is inconclusive."
+    "placeholder": "Use one truthful conflict. Make the competing views, your evidence, the alignment process, the decision, and the result concrete.",
+    "reference_answer": "## Choose and frame the story\n\nUse a real disagreement with material stakes, not a personality complaint. State the shared goal, your scope, the other person's or team's scope, and why reasonable people preferred different paths. Separate facts from your interpretation and describe the other view fairly.\n\n## Explain the decision process\n\nUse STAR, but spend most of the answer on the conflict and resolution. Name the competing options and explicit criteria: user or business impact, technical risk, evidence quality, delivery cost, reversibility, and ownership. Explain what you did to understand the underlying concern before advocating a solution.\n\nWhen the disagreement is empirical, propose the smallest useful analysis, prototype, or bounded experiment and agree in advance on what result changes the decision. When it is a priority or values decision, identify the accountable owner and surface trade-offs instead of pretending more data will settle it. Escalation should clarify ownership or unblock risk, not punish a colleague.\n\n## Close with execution and reflection\n\nState the final decision, including when it was not your preference, and how you committed to executing it. Report the outcome with a comparison point and any limitation. Explain what you learned about communication, incentives, or decision design and what you would change next time. Do not manufacture consensus, impact, or a lesson the real story does not support.\n\n## Progressive Hints\n\n1. Pick a conflict where both sides had a defensible rationale.\n2. State the shared goal before the disagreement.\n3. Distinguish evidence disputes from ownership or priority decisions.\n4. Show how you listened and changed the decision process.\n5. End with execution, measurable outcome, and honest reflection."
   },
+  "references": [
+    {"label": "Notion: Conflict Resolution / Cross-Functional Disagreement", "url": "https://app.notion.com/p/3d66ce51456d814ab567e94ece12a1cf"},
+    {"label": "LeetCode Discuss: recent Uber L5A MLE behavioral and past-experience round", "url": "https://leetcode.com/discuss/post/7037470/"},
+    {"label": "LinkedIn: Uber MLE-2 coworker-conflict behavioral interview", "url": "https://www.linkedin.com/posts/nitindas230202_interviewexperience-mle-sde-activity-7497360304184418304-lOd0"},
+    {"label": "1Point3Acres: Uber MLE full loop with conflict and disagreement questions", "url": "https://www.1point3acres.com/interview/thread/1167901"}
+  ],
   "created_at": "2026-09-08",
   "interview_frequency": {
     "Uber": {
@@ -27,11 +34,11 @@
         "3d66ce51456d814ab567e94ece12a1cf"
       ],
       "stars": 1,
-      "synced_at": "2026-09-08"
+      "synced_at": "2026-09-10"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-08"
+    "synced_at": "2026-09-10"
   }
 }

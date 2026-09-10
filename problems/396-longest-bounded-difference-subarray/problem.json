@@ -27,6 +27,10 @@
   "evaluation": {
     "type": "ml_coding"
   },
+  "references": [
+    {"label": "Notion: Longest Subarray With Bounded Difference", "url": "https://app.notion.com/p/3d66ce51456d8140a8cce384e48c16b7"},
+    {"label": "1Point3Acres: Uber longest bounded-difference subarray problem", "url": "https://www.1point3acres.com/interview/problems/company/uber/phone-screen-longest-stable-subarray"}
+  ],
   "created_at": "2026-09-08",
   "interview_frequency": {
     "Uber": {
@@ -34,11 +38,11 @@
         "3d66ce51456d8140a8cce384e48c16b7"
       ],
       "stars": 1,
-      "synced_at": "2026-09-08"
+      "synced_at": "2026-09-10"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-08"
+    "synced_at": "2026-09-10"
   }
 }

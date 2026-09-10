@@ -27,6 +27,11 @@
   "evaluation": {
     "type": "ml_coding"
   },
+  "references": [
+    {"label": "Notion: Find Robot by Distance to Blockers", "url": "https://app.notion.com/p/3d66ce51456d816eb77fe2a7be51e4f4"},
+    {"label": "1Point3Acres: Uber MLE robot-distance phone screen, August 2026", "url": "https://www.1point3acres.com/interview/thread/1187778"},
+    {"label": "1Point3Acres: Uber MLE full loop, March 2026", "url": "https://www.1point3acres.com/interview/thread/1167901"}
+  ],
   "created_at": "2026-09-08",
   "interview_frequency": {
     "Uber": {
@@ -34,11 +39,11 @@
         "3d66ce51456d816eb77fe2a7be51e4f4"
       ],
       "stars": 2,
-      "synced_at": "2026-09-08"
+      "synced_at": "2026-09-10"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-08"
+    "synced_at": "2026-09-10"
   }
 }

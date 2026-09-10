@@ -1,0 +1,38 @@
+{
+  "id": "410",
+  "slug": "uber-eats-search-ml-system",
+  "title": "Design Uber Eats Search",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": ["search", "retrieval", "ranking", "marketplace", "online-inference"],
+  "companies": ["Uber"],
+  "prompt": "Design an end-to-end ML search system for Uber Eats. A user enters a food, cuisine, dish, or restaurant query and expects relevant, deliverable results within a few hundred milliseconds. Cover query understanding, restaurant and menu-item retrieval, delivery and availability filtering, personalized ranking, fresh online features, serving fallbacks, feedback logging, training data, offline evaluation, online experiments, and marketplace guardrails. Clarify whether the result surface includes restaurants, dishes, sponsored content, or autocomplete before fixing the architecture. This is a writing exercise.\n\nThe source describes a distinct Uber MLE search-design family but exposes only month-level recency, so no exact interview date is claimed.",
+  "evaluation": {"type": "system_design"},
+  "response": {
+    "placeholder": "Define the search surface and feasible-result contract first, then separate retrieval, hard eligibility filtering, ranking, and feedback.",
+    "reference_answer": "## Scope and success\n\nAssume the main results page mixes eligible restaurants and menu items but labels their types. A result must be textually relevant and fulfillable at the user's location now. Completed orders are the primary outcome; query success, reformulation, cancellation, ETA accuracy, merchant exposure, latency, and sponsored-policy compliance are guardrails. Clarify whether autocomplete and ads are in scope rather than quietly mixing their objectives.\n\n## Query understanding and retrieval\n\nNormalize language and spelling, identify brand, dish, cuisine, dietary, and time intent, and retain the original tokens for exact matching. Retrieve separately from a lexical index and a semantic two-tower index trained on query-item interactions and content. Add explicit popular-nearby and new-merchant fallbacks, merge by stable entity ID, and measure candidate recall before tuning the ranker. Keep restaurant and menu-item identities linked so availability can be enforced correctly.\n\n## Eligibility and ranking\n\nApply hard constraints for service area, open state, menu availability, policy restrictions, and a defensible delivery-time ceiling before expensive ranking. Use a lightweight first-stage model, then a personalized reranker over relevance, order probability, price, quality, ETA, user context, and marketplace signals. Treat sponsored eligibility and placement as a separate policy-aware stage. Do not allow conversion optimization to bury exact high-intent matches; retain relevance thresholds and query-type guardrails.\n\n## Data and evaluation\n\nLog the query, parsed intent, retrieved candidates, eligibility reasons, model and index versions, positions, scores, clicks, carts, orders, cancellations, and propensities for randomized exposure. Build point-in-time features and mature order outcomes. Correct for position and selection bias with controlled exploration or debiased objectives, and keep temporal holdouts. Evaluate retrieval recall, NDCG or MRR, calibration, zero-result rate, reformulation, latency, and slices by locale, query type, new users, and new merchants.\n\nOnline experiments measure completed orders and query success with cancellation, ETA, latency, merchant concentration, and user-retention guardrails. Marketplace interference may require geographic clusters or switchbacks rather than a naive user-level test.\n\n## Serving and operations\n\nRoute query understanding to parallel lexical and vector retrieval under deadlines, merge and filter candidates, then run bounded ranking stages. Cache only location- and freshness-compatible results. When embeddings, feature storage, or a ranker is unavailable, degrade to lexical relevance plus fresh popularity and availability, never stale closed merchants. Monitor freshness, index coverage, retrieval overlap, feature missingness, score drift, zero-result rate, p50/p99 latency, fallback usage, and mature outcomes. Shadow new indices and models, canary by market, and keep independent rollback for index, model, features, and policy.\n\n## Progressive Hints\n\n1. A semantically relevant restaurant can still be impossible to deliver from.\n2. Measure candidate recall before diagnosing ranking.\n3. Keep relevance and business objectives separately observable.\n4. Log every eligibility decision and model/index version.\n5. Design a freshness-safe fallback, not only a happy path."
+  },
+  "references": [
+    {
+      "label": "Notion: Uber Eats Search ML System Design",
+      "url": "https://app.notion.com/p/3d76ce51456d8100b0affddec99b1d3e"
+    },
+    {
+      "label": "1Point3Acres: Uber Eats Search interview problem",
+      "url": "https://www.1point3acres.com/interview/problems/post/7100324"
+    },
+    {
+      "label": "1Point3Acres: Uber interview question bank",
+      "url": "https://www.1point3acres.com/interview/problems/company/uber"
+    }
+  ],
+  "created_at": "2026-09-10",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": ["3d76ce51456d8100b0affddec99b1d3e"],
+      "stars": 1,
+      "synced_at": "2026-09-10"
+    }
+  },
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-10"}
+}
