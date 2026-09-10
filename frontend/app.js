@@ -2885,7 +2885,7 @@ function renderDetail() {
             </div>
             <div class="tabs panel-header-tabs" role="tablist" aria-label="Problem information">
               ${tabButton("description", "Problem")}
-              ${systemDesign ? "" : `${tabButton("tests", "Tests")}${tabButton("environment", "Env")}${hasCodingInteractiveDemos(problem) ? tabButton("demo", "Interactive Demo") : ""}`}
+              ${systemDesign ? "" : `${tabButton("tests", "Tests")}${tabButton("environment", "Env")}${hasCodingInteractiveContent(problem) ? tabButton("demo", "Interactive Demo") : ""}`}
             </div>
           </div>
           <div class="problem-body">${renderProblemPanels(problem, env)}</div>
@@ -2938,10 +2938,10 @@ function renderDetail() {
   `;
 }
 
-function hasCodingInteractiveDemos(problem) {
-  return !isSystemDesignProblem(problem) && (problem.interactive_demos || []).some(
-    (demo) => demo.section === "interactive_demo"
-  );
+function hasCodingInteractiveContent(problem) {
+  if (isSystemDesignProblem(problem)) return false;
+  return (problem.assets || []).some((asset) => asset.section === "interactive_demo")
+    || (problem.interactive_demos || []).some((demo) => demo.section === "interactive_demo");
 }
 
 function tabButton(tab, label) {
@@ -2952,7 +2952,7 @@ function tabButton(tab, label) {
 
 function renderProblemPanels(problem, env) {
   const tabs = isSystemDesignProblem(problem) ? ["description"] : ["description", "tests", "environment"];
-  if (hasCodingInteractiveDemos(problem)) tabs.push("demo");
+  if (hasCodingInteractiveContent(problem)) tabs.push("demo");
   return tabs.map((tab) => `<section id="problem-${tab}-panel" data-problem-panel="${tab}"
     role="tabpanel" aria-labelledby="problem-${tab}-tab" tabindex="0" ${state.activeTab === tab ? "" : "hidden"}>
     ${renderProblemTab(problem, env, tab)}</section>`).join("");
@@ -2996,8 +2996,11 @@ function renderProblemTab(problem, env, tab = state.activeTab) {
   if (tab === "environment") {
     return [renderProblemEnvironment(env), renderDataLinkSetup(problem)].join("");
   }
-  if (tab === "demo" && hasCodingInteractiveDemos(problem)) {
-    return renderInteractiveDemos(problem, "interactive_demo");
+  if (tab === "demo" && hasCodingInteractiveContent(problem)) {
+    return [
+      renderProblemAssets(problem, "interactive_demo"),
+      renderInteractiveDemos(problem, "interactive_demo"),
+    ].join("");
   }
   return renderProblemDescription(problem);
 }

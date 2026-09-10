@@ -246,6 +246,72 @@ class ProblemStoreTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must be under assets/"):
                 ProblemStore(root).get_problem("unsafe-system-design")
 
+    def test_loads_ml_problem_with_static_interactive_demo_assets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "visual-ml-coding",
+                {
+                    "id": "142",
+                    "slug": "visual-ml-coding",
+                    "title": "Visual ML Coding",
+                    "category": "ML Coding",
+                    "difficulty": "easy",
+                    "prompt": "Implement one.",
+                    "starter_code": "def one():\n    pass\n",
+                    "example": {"input": "one()", "output": "1", "reasoning": "Return one."},
+                    "assets": [
+                        {
+                            "path": "assets/walkthrough.png",
+                            "alt": "A visual walkthrough",
+                            "section": "interactive_demo",
+                        }
+                    ],
+                    "evaluation": {"type": "ml_coding"},
+                },
+                [{"name": "basic", "test": "print(one())", "expected_output": "1"}],
+            )
+            asset_dir = root / "visual-ml-coding" / "assets"
+            asset_dir.mkdir()
+            (asset_dir / "walkthrough.png").write_bytes(b"png")
+
+            problem = ProblemStore(root).get_problem("visual-ml-coding")
+
+            self.assertEqual(problem["assets"][0]["section"], "interactive_demo")
+
+    def test_rejects_static_interactive_demo_assets_for_system_design(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "visual-system-design",
+                {
+                    "id": "143",
+                    "slug": "visual-system-design",
+                    "title": "Visual System Design",
+                    "category": "System Design",
+                    "difficulty": "medium",
+                    "prompt": "Design safely.",
+                    "response": {"placeholder": "Start.", "reference_answer": "## Reference"},
+                    "assets": [
+                        {
+                            "path": "assets/walkthrough.png",
+                            "alt": "A visual walkthrough",
+                            "section": "interactive_demo",
+                        }
+                    ],
+                    "evaluation": {"type": "system_design"},
+                },
+                [],
+            )
+            asset_dir = root / "visual-system-design" / "assets"
+            asset_dir.mkdir()
+            (asset_dir / "walkthrough.png").write_bytes(b"png")
+
+            with self.assertRaisesRegex(ValueError, "interactive_demo only for ML coding evaluators"):
+                ProblemStore(root).get_problem("visual-system-design")
+
     def test_loads_system_design_problem_with_interactive_demo(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

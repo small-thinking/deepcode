@@ -28,7 +28,10 @@ SUMMARY_FIELDS = (
 )
 
 PROBLEM_ASSET_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"})
-SYSTEM_DESIGN_ASSET_SECTIONS = frozenset({"prompt", "reference_answer"})
+PROBLEM_ASSET_SECTIONS = frozenset({"prompt", "reference_answer", "interactive_demo"})
+ML_INTERACTIVE_DEMO_EVALUATORS = frozenset(
+    {"ml_coding", "ml_modeling", "ml_torch_modeling", "ml_torch_lab"}
+)
 PROBLEM_DEMO_SUFFIXES = frozenset({".html"})
 PROBLEM_DEMO_SCHEMA_VERSION = 1
 PROBLEM_DEMO_KINDS = frozenset({"standalone_html"})
@@ -273,7 +276,7 @@ class ProblemStore:
         self._validate_interview_frequency(problem, problem_dir)
         self._validate_interview_frequency_total(problem, problem_dir)
         self._validate_references(problem, problem_dir)
-        self._validate_assets(problem, problem_dir)
+        self._validate_assets(problem, problem_dir, evaluation_type)
         self._validate_interactive_demos(problem, problem_dir, evaluation_type)
 
     def _validate_system_design_response(self, problem: dict[str, Any], problem_dir: Path) -> None:
@@ -285,7 +288,7 @@ class ProblemStore:
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{problem_dir}/problem.json field `response.{key}` must be a non-empty string")
 
-    def _validate_assets(self, problem: dict[str, Any], problem_dir: Path) -> None:
+    def _validate_assets(self, problem: dict[str, Any], problem_dir: Path, evaluation_type: str) -> None:
         assets = problem.get("assets")
         if assets is None:
             return
@@ -302,9 +305,15 @@ class ProblemStore:
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].path` must be a non-empty string")
             if not isinstance(alt, str) or not alt.strip():
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].alt` must be a non-empty string")
-            if section not in SYSTEM_DESIGN_ASSET_SECTIONS:
+            if section not in PROBLEM_ASSET_SECTIONS:
                 raise ValueError(
-                    f"{problem_dir}/problem.json field `assets[{index}].section` must be prompt or reference_answer"
+                    f"{problem_dir}/problem.json field `assets[{index}].section` must be prompt, reference_answer, "
+                    "or interactive_demo"
+                )
+            if section == "interactive_demo" and evaluation_type not in ML_INTERACTIVE_DEMO_EVALUATORS:
+                raise ValueError(
+                    f"{problem_dir}/problem.json field `assets[{index}].section` may be interactive_demo only "
+                    "for ML coding evaluators"
                 )
             if "caption" in asset and not isinstance(asset["caption"], str):
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].caption` must be a string")
@@ -330,7 +339,7 @@ class ProblemStore:
         demos = problem.get("interactive_demos")
         if demos is None:
             return
-        if evaluation_type not in {"system_design", "ml_coding", "ml_modeling", "ml_torch_modeling", "ml_torch_lab"}:
+        if evaluation_type not in {"system_design", *ML_INTERACTIVE_DEMO_EVALUATORS}:
             raise ValueError(
                 f"{problem_dir}/problem.json field `interactive_demos` is only supported for system_design and ML coding evaluators"
             )
