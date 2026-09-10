@@ -3,7 +3,7 @@
   "slug": "serpentine-matrix-traversal",
   "title": "Serpentine Matrix Traversal (Alternating Rows)",
   "category": "Algorithms",
-  "difficulty": "medium",
+  "difficulty": "easy",
   "tags": [
     "matrix",
     "traversal",
@@ -26,7 +26,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `zigzag_matrix_rows(matrix) -> list[object]`. `matrix` is a rectangular list of rows. Visit every cell row by row: visit row 0 from left to right, row 1 from right to left, row 2 from left to right, and so on. Return the visited values as one flat list. This is an alternating-row (serpentine) traversal, not the diagonal zigzag traversal sometimes used in matrix problems.\n\nAssume that the input matrix is rectangular. Do not print values or mutate the input. Aim for O(rows * cols) time and O(rows * cols) space for the returned list. This is a practice reconstruction of a reported Airbnb coding prompt; it supplies a return value so the interview idea can be run and verified.",
+  "prompt": "Implement `zigzag_matrix_rows(matrix) -> list[object]`. `matrix` is a rectangular list of rows. Visit every cell row by row: visit row 0 from left to right, row 1 from right to left, row 2 from left to right, and so on. Return the visited values as one flat list. This is an alternating-row (serpentine) traversal, not the diagonal zigzag traversal sometimes used in matrix problems.\n\nAssume that the input matrix is rectangular. Do not print values or mutate the input. Aim for O(rows * cols) time and O(rows * cols) space for the returned list. This is a practice reconstruction associated with Airbnb in the linked Notion record; no exact original interview-report URL has been verified. The function returns a list so the practice version can be run and checked.",
   "starter_code": "def zigzag_matrix_rows(matrix):\n    # Return the alternating-row traversal as a flat list.\n    pass\n",
   "example": {
     "input": "zigzag_matrix_rows([[1, 2, 3], [4, 5, 6], [7, 8, 9]])",
@@ -39,6 +39,16 @@
     "packages": [],
     "comparator": "assertions"
   },
+  "references": [
+    {
+      "label": "Notion: Airbnb serpentine traversal record (original report not verified)",
+      "url": "https://app.notion.com/p/3d06ce51456d80bb90e2da11f5cb26fa"
+    },
+    {
+      "label": "GeeksforGeeks: Print matrix in snake pattern (equivalent public problem; not Airbnb provenance)",
+      "url": "https://www.geeksforgeeks.org/dsa/print-matrix-snake-pattern/"
+    }
+  ],
   "evaluation": {
     "type": "ml_modeling"
   },
