@@ -19,12 +19,12 @@
     "stars": 2,
     "synced_at": "2026-09-10"
   },
-  "prompt": "Implement `min_exact_items(durations, target) -> int`. Each duration and the target has at most one decimal place. Select durations with unlimited reuse and return the fewest selections whose sum is exactly `target`.\n\nThe source says that an impossible target should result in booking no experiences, but it does not specify a numeric sentinel. For this executable version, return `0` when no exact selection exists; `target == 0` also returns `0`. Treat values exactly at their stated one-decimal precision. Duplicate duration values do not change what totals are reachable, and one duration may be selected more than once. Assume every duration is positive and the target is nonnegative.",
+  "prompt": "You have a layover in Paris with `target` hours remaining and a list of Airbnb experiences, represented by their durations in hours. Each duration and `target` has at most one decimal place.\n\nYou want to minimize context switching, so book as few experiences as possible while using exactly all `target` hours. You may book the same experience more than once. If no combination fills the time exactly, book nothing and stay at the airport.\n\nImplement `min_exact_items(durations, target) -> int`. Return the minimum number of bookings, or `0` when no exact booking is possible. A zero-hour target also returns `0`. Treat the stated one-decimal values exactly. Assume every duration is positive and `target` is nonnegative.",
   "starter_code": "def min_exact_items(durations, target):\n    # Return the fewest reusable durations that sum to target exactly, or 0.\n    pass\n",
   "example": {
-    "input": "min_exact_items([2.5, 1.5], 6.5)",
+    "input": "min_exact_items([3.0, 2.0], 7.0)",
     "output": "3",
-    "reasoning": "Two 2.5 durations and one 1.5 duration make 6.5 with three selections."
+    "reasoning": "Book the 2-hour experience twice and the 3-hour experience once: 2 + 2 + 3 = 7 hours."
   },
   "environment": {
     "language": "python",
