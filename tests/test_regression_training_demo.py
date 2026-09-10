@@ -33,21 +33,22 @@ class RegressionTrainingDemoTests(unittest.TestCase):
         content = demo_path.read_text(encoding="utf-8")
 
         for required in (
-            "One loop. Two models.",
+            "Forward → backward, one step at a time.",
             'data-model="linear"',
             'data-model="logistic"',
-            'id="learning-rate"',
-            'id="feature-scale"',
-            'id="l2"',
-            "np.logaddexp(0.0, z) - y * z",
-            "dz = 2.0 * (z - y)",
-            "dz = stable_sigmoid(z) - y",
-            "grad_w = X.T @ dz / N + l2 * w",
-            "grad_b = np.mean(dz)",
+            "Why does logistic become p − y?",
+            "z = np.clip(z, -500, 500)",
+            "p = np.clip(p, 1e-12, 1 - 1e-12)",
+            "data_loss = -np.mean(",
+            "dz = 2 * (z - y)",
+            "dz = sigmoid(z) - y",
+            "dw = X.T @ dz / N + l2 * w",
+            "db = np.mean(dz)",
+            "w -= lr * dw",
+            "b -= lr * db",
             "rng = np.random.default_rng(0)",
-            "w = rng.normal(0.0, 0.01, D)",
+            "w = rng.normal(0, 0.1, size=D)",
             "Bias is not regularized",
-            "Toy data",
             "type: 'deepcode:interactive-demo-ready'",
             "type: 'deepcode:interactive-demo-height'",
             "event.source !== window.parent",
@@ -57,6 +58,10 @@ class RegressionTrainingDemoTests(unittest.TestCase):
 
         self.assertNotIn("https://", content)
         self.assertNotIn("localStorage", content)
+        self.assertNotIn("Watch optimization react", content)
+        self.assertNotIn('id="learning-rate"', content)
+        self.assertNotIn('id="feature-scale"', content)
+        self.assertNotIn('id="loss-chart"', content)
 
 
 if __name__ == "__main__":
