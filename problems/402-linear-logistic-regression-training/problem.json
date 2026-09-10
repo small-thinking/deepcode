@@ -30,6 +30,22 @@
   "evaluation": {
     "type": "ml_coding"
   },
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "gradient-descent-studio",
+      "kind": "standalone_html",
+      "path": "assets/gradient-descent-studio.html",
+      "title": "Linear and logistic regression gradient descent studio",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 760
+      }
+    }
+  ],
   "references": [
     {"label": "Notion: Linear and Logistic Regression From Scratch", "url": "https://app.notion.com/p/3d66ce51456d8192b499fe7f55f6285b"},
     {"label": "1Point3Acres: Uber MLE full loop, March 2026", "url": "https://www.1point3acres.com/interview/thread/1167901"},
