@@ -36,7 +36,7 @@
       "id": "gradient-descent-studio",
       "kind": "standalone_html",
       "path": "assets/gradient-descent-studio.html",
-      "title": "Linear and logistic regression gradient descent studio",
+      "title": "Linear and logistic regression forward and backward walkthrough",
       "section": "interactive_demo",
       "presentation": {
         "theme": "sync",
