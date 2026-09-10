@@ -1,17 +1,22 @@
 [
   {
-    "name": "maximizes reward under inclusive one-day deadlines",
-    "input": "five tasks with a collision on day one",
-    "test": "tasks = [\n    {'id': 'a', 'deadline': 4, 'reward': 70},\n    {'id': 'b', 'deadline': 1, 'reward': 80},\n    {'id': 'c', 'deadline': 1, 'reward': 30},\n    {'id': 'd', 'deadline': 2, 'reward': 100},\n    {'id': 'e', 'deadline': 3, 'reward': 40},\n]\nsnapshot = [task.copy() for task in tasks]\nassert deadline_reward_schedule(tasks) == (['b', 'd', 'e', 'a'], 290)\nassert tasks == snapshot"
+    "name": "matches the reported Airbnb example and accepts either optimal order",
+    "input": "the four tasks from the 2025-02 interview report",
+    "test": "tasks = [('a', 2, 8), ('b', 1, 3), ('c', 2, 5), ('d', 3, 3)]\nsnapshot = list(tasks)\norder, total_reward = deadline_reward_schedule(tasks)\nassert total_reward == 16\nassert order in (['c', 'a', 'd'], ['a', 'c', 'd'])\nassert tasks == snapshot"
   },
   {
-    "name": "places a task on its deadline and breaks equal rewards by task ID",
-    "input": "two equal-reward tasks for a single day plus a later task",
-    "test": "tasks = [\n    {'id': 'b', 'deadline': 1, 'reward': 5},\n    {'id': 'a', 'deadline': 1, 'reward': 5},\n    {'id': 'later', 'deadline': 2, 'reward': 1},\n]\nassert deadline_reward_schedule(tasks) == (['a', 'later'], 6)"
+    "name": "accepts either equal-reward optimum without an invented ID tie-break",
+    "input": "two equal-reward tasks competing for day one plus a later task",
+    "test": "tasks = [('b', 1, 5), ('a', 1, 5), ('later', 2, 1)]\norder, total_reward = deadline_reward_schedule(tasks)\nassert total_reward == 6\nassert order in (['a', 'later'], ['b', 'later'])"
   },
   {
-    "name": "does not mutate the input task records",
-    "input": "a single valid task",
-    "test": "tasks = [{'id': 'keep', 'deadline': 1, 'reward': 2}]\nsnapshot = [task.copy() for task in tasks]\nassert deadline_reward_schedule(tasks) == (['keep'], 2)\nassert tasks == snapshot"
+    "name": "selects the unique optimal subset under deadline collisions",
+    "input": "five tuple tasks with a collision on day one",
+    "test": "tasks = [('a', 4, 70), ('b', 1, 80), ('c', 1, 30), ('d', 2, 100), ('e', 3, 40)]\nsnapshot = list(tasks)\norder, total_reward = deadline_reward_schedule(tasks)\nassert total_reward == 290\nassert set(order) == {'a', 'b', 'd', 'e'}\nassert len(order) == 4\ndeadlines = {task_id: deadline for task_id, deadline, _ in tasks}\nassert all(day <= deadlines[task_id] for day, task_id in enumerate(order, start=1))\nassert tasks == snapshot"
+  },
+  {
+    "name": "returns the empty schedule for no tasks",
+    "input": "an empty task list",
+    "test": "assert deadline_reward_schedule([]) == ([], 0)"
   }
 ]

@@ -46,14 +46,15 @@ class CodingQualityAuditTest(unittest.TestCase):
     def test_schedule_reward_matches_exhaustive_feasible_orders(self):
         schedule = runpy.run_path(str(REFERENCE_PATH))['deadline_reward_schedule']
         for deadlines in itertools.product((1, 2, 4), repeat=3):
-            tasks = [dict(id=str(i), deadline=d, reward=r) for i, (d, r) in enumerate(zip(deadlines, (2, 5, 5)))]
-            optimal = max(sum(task['reward'] for task in order)
+            tasks = [(str(i), d, r) for i, (d, r) in enumerate(zip(deadlines, (2, 5, 5)))]
+            optimal = max(sum(task[2] for task in order)
                           for count in range(4) for order in itertools.permutations(tasks, count)
-                          if all(day <= task['deadline'] for day, task in enumerate(order, 1)))
+                          if all(day <= task[1] for day, task in enumerate(order, 1)))
             order, reward = schedule(tasks)
+            by_id = {task_id: (deadline, task_reward) for task_id, deadline, task_reward in tasks}
             self.assertEqual(reward, optimal)
-            self.assertEqual(reward, sum(tasks[int(i)]['reward'] for i in order))
-            self.assertTrue(all(day <= tasks[int(i)]['deadline'] for day, i in enumerate(order, 1)))
+            self.assertEqual(reward, sum(by_id[task_id][1] for task_id in order))
+            self.assertTrue(all(day <= by_id[task_id][0] for day, task_id in enumerate(order, 1)))
 
     def test_visible_cases_reject_typical_wrong_implementations(self):
         variants = [
@@ -80,10 +81,13 @@ def select_group_listings(listings, group_size, neighborhood):
     return _original_select(sorted(listings, key=lambda x: x['id']), group_size, neighborhood)
 '''),
             ('unit-time-deadline-reward-schedule', 0, '''
-_original_schedule = deadline_reward_schedule
 def deadline_reward_schedule(tasks):
-    tasks.sort(key=lambda x: (-x['reward'], x['id']))
-    return _original_schedule(tasks)
+    ordered = sorted(tasks, key=lambda task: task[1])
+    selected = []
+    for task in ordered:
+        if len(selected) < task[1]:
+            selected.append(task)
+    return [task_id for task_id, _, _ in selected], sum(reward for _, _, reward in selected)
 '''),
         ]
         for slug, index, mutation in variants:
