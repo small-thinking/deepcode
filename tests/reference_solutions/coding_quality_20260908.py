@@ -6,8 +6,12 @@ def zigzag_matrix_rows(matrix):
     return [value for index, row in enumerate(matrix) for value in (row if index % 2 == 0 else row[::-1])]
 
 
-def select_group_listings(listings, group_size, neighborhood):
-    eligible = [index for index, listing in enumerate(listings) if listing['neighborhood'] == neighborhood]
+def select_group_listings(listings, group_size, target_neighborhood):
+    eligible = [
+        index
+        for index, listing in enumerate(listings)
+        if listing['neighborhood'] == target_neighborhood
+    ]
     for count in range(len(eligible) + 1):
         feasible = []
         for indices in combinations(eligible, count):

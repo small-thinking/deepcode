@@ -63,9 +63,9 @@ def zigzag_matrix_rows(matrix):
         row.reverse()
     return [value for row in matrix for value in row]
 '''),
-            ('minimum-listing-count-capacity', 3, '''
-def select_group_listings(listings, group_size, neighborhood):
-    candidates = sorted((x for x in listings if x['neighborhood'] == neighborhood), key=lambda x: -x['capacity'])
+            ('minimum-listing-count-capacity', 4, '''
+def select_group_listings(listings, group_size, target_neighborhood):
+    candidates = sorted((x for x in listings if x['neighborhood'] == target_neighborhood), key=lambda x: -x['capacity'])
     chosen, total = [], 0
     for item in candidates:
         chosen.append(item['id'])
@@ -74,10 +74,10 @@ def select_group_listings(listings, group_size, neighborhood):
             return [item['id'] for item in listings if item['id'] in chosen]
     return []
 '''),
-            ('minimum-listing-count-capacity', 4, '''
+            ('minimum-listing-count-capacity', 5, '''
 _original_select = select_group_listings
-def select_group_listings(listings, group_size, neighborhood):
-    return _original_select(sorted(listings, key=lambda x: x['id']), group_size, neighborhood)
+def select_group_listings(listings, group_size, target_neighborhood):
+    return _original_select(sorted(listings, key=lambda x: x['id']), group_size, target_neighborhood)
 '''),
             ('unit-time-deadline-reward-schedule', 0, '''
 _original_schedule = deadline_reward_schedule

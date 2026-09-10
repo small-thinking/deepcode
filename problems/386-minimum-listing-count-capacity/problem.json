@@ -27,8 +27,8 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `select_group_listings(listings, group_size, neighborhood) -> list[str]`. Each listing is a mapping with a unique string `id`, a `neighborhood`, and a nonnegative integer `capacity`. Consider only listings whose neighborhood equals the requested `neighborhood`. Return the IDs of a subset whose total capacity is at least `group_size`.\n\nRank feasible subsets by `(listing_count, total_capacity, original_index_tuple)`: first minimize the number of selected listings, then minimize their combined capacity, then use original input positions only as a deterministic final tie-breaker. Return the selected IDs in original input order. Return `[]` when no eligible subset is feasible. Assume all inputs satisfy the stated shape. Do not mutate the input. This is a practice reconstruction of a reported Airbnb prompt; the tie-break makes its stated two-level objective executable.",
-  "starter_code": "def select_group_listings(listings, group_size, neighborhood):\n    # Return the highest-ranked feasible listing IDs in input order.\n    pass\n",
+  "prompt": "Implement `select_group_listings(listings, group_size, target_neighborhood) -> list[object]`. Each item in `listings` is a mapping with three fields: a unique `id`, a string `neighborhood`, and a nonnegative integer `capacity`. `group_size` is a positive integer.\n\nChoose a subset using these rules, in order:\n\n1. Only listings whose `neighborhood` equals `target_neighborhood` are eligible.\n2. The selected listings must have total capacity at least `group_size`.\n3. Minimize the number of selected listings.\n4. Among selections with that minimum count, minimize total capacity.\n5. If a tie still remains, choose the selection whose tuple of original input positions is lexicographically smallest. This last rule is a DeepCode convention that makes the output deterministic.\n\nReturn the selected IDs in their original input order. Return `[]` if the eligible listings do not have enough combined capacity. Do not mutate the input.\n\nThe order of the objectives matters: for a group of 10, one capacity-11 listing is preferred to two listings with capacities 6 and 4.",
+  "starter_code": "def select_group_listings(listings, group_size, target_neighborhood):\n    # Return the IDs chosen by the count-first, then capacity-first rules.\n    pass\n",
   "example": {
     "input": "select_group_listings([{'id': 'a', 'neighborhood': 'Mission', 'capacity': 6}, {'id': 'b', 'neighborhood': 'Mission', 'capacity': 4}, {'id': 'c', 'neighborhood': 'Mission', 'capacity': 11}], 10, 'Mission')",
     "output": "['c']",
@@ -40,6 +40,20 @@
     "packages": [],
     "comparator": "assertions"
   },
+  "references": [
+    {
+      "label": "PracHub: count-first Airbnb property-selection prompt",
+      "url": "https://prachub.com/interview-questions/find-minimal-property-set-in-neighborhood"
+    },
+    {
+      "label": "Atomeocean Job Compass: count-first Airbnb interview write-up and follow-ups",
+      "url": "https://jobcompass.atomeocean.com/interview-experience/airbnb/0105yy.html"
+    },
+    {
+      "label": "LeetCode Discuss: related capacity-first variant",
+      "url": "https://leetcode.com/discuss/post/6717917/"
+    }
+  ],
   "evaluation": {
     "type": "ml_modeling"
   },
