@@ -11,12 +11,12 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None)` using NumPy without sklearn, autograd, or optimizer helpers. Inputs are finite array-like X of shape (N,D) and y of shape (N,), with N,D > 0; logistic labels are 0 or 1. kind is \"linear\" or \"logistic\"; lr > 0, epochs is a nonnegative integer, l2 >= 0, and tol is None or nonnegative. Return `(weights, bias, losses)` with weights shape (D,), scalar bias, and a list containing the initial loss followed by loss after each update. Start weights and bias at zero; do not mutate inputs.\n\nLinear loss is mean((Xw+b-y)^2) + (l2/2)*sum(w^2). Logistic loss is mean(logaddexp(0,z)-y*z) + (l2/2)*sum(w^2), z=Xw+b. Derive and implement simultaneous full-batch gradient updates. The intercept is not regularized. Use a stable sigmoid without overflow, including logits of magnitude 1000. After each update, if tol is provided and the absolute difference between consecutive losses is <= tol, stop; otherwise perform exactly epochs updates. epochs=0 returns the initial state and one loss.\n\nReconstructed executable contract: the source requests full training plus L2 and early stopping but does not specify initialization, defaults, or loss-history timing; these are fixed above for reproducibility. Explain how learning rate and feature scale affect convergence.",
+  "prompt": "Implement `train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None)` using NumPy. Train either linear regression with mean squared error or binary logistic regression with binary cross-entropy using full-batch gradient descent.\n\nInitialize the weights to small random values and the bias to zero. Add optional L2 regularization to the weights (not the bias), and stop early when consecutive losses differ by at most `tol`. Return `(weights, bias, losses)`, where `losses` contains the initial loss and the loss after every update.\n\nDerive the gradients and implement backpropagation yourself—do not use sklearn, autograd, or optimizer helpers. Keep the logistic loss and sigmoid numerically stable.",
   "starter_code": "import numpy as np\n\n\ndef train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None):\n    pass\n",
   "example": {
-    "input": "train_regression([[1.]], [2.], lr=0.1, epochs=1)",
-    "output": "(array([0.4]), 0.4, [4.0, 1.44])",
-    "reasoning": "Both weight and bias gradients are -4 at initialization."
+    "input": "w, b, losses = train_regression([[1.]], [2.], epochs=0); (w.shape, b, len(losses))",
+    "output": "((1,), 0.0, 1)",
+    "reasoning": "Before training, the function returns one small randomly initialized weight, a zero bias, and the initial loss."
   },
   "environment": {
     "language": "python",

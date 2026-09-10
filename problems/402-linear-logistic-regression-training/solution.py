@@ -3,7 +3,8 @@ import numpy as np
 
 def train_regression(X, y, kind="linear", lr=0.05, epochs=1000, l2=0.0, tol=None):
     X, y = np.asarray(X, dtype=float), np.asarray(y, dtype=float)
-    w, b = np.zeros(X.shape[1]), 0.0
+    rng = np.random.default_rng(0)
+    w, b = rng.normal(0.0, 0.01, X.shape[1]), 0.0
     def loss():
         z = X @ w + b
         data = np.mean((z-y)**2) if kind == "linear" else np.mean(np.logaddexp(0,z)-y*z)
