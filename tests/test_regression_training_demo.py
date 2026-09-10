@@ -8,6 +8,16 @@ PROBLEM_DIR = ROOT / "problems" / "402-linear-logistic-regression-training"
 
 
 class RegressionTrainingDemoTests(unittest.TestCase):
+    def test_problem_uses_an_interview_style_random_initialization_contract(self):
+        problem = json.loads((PROBLEM_DIR / "problem.json").read_text(encoding="utf-8"))
+        prompt = problem["prompt"]
+
+        self.assertIn("Initialize the weights to small random values", prompt)
+        self.assertIn("implement backpropagation yourself", prompt)
+        self.assertNotIn("Reconstructed executable contract", prompt)
+        self.assertNotIn("Inputs are finite array-like", prompt)
+        self.assertNotIn("Explain how learning rate and feature scale", prompt)
+
     def test_demo_is_mounted_with_the_ml_coding_contract(self):
         problem = json.loads((PROBLEM_DIR / "problem.json").read_text(encoding="utf-8"))
         demo = problem["interactive_demos"][0]
@@ -34,6 +44,8 @@ class RegressionTrainingDemoTests(unittest.TestCase):
             "dz = stable_sigmoid(z) - y",
             "grad_w = X.T @ dz / N + l2 * w",
             "grad_b = np.mean(dz)",
+            "rng = np.random.default_rng(0)",
+            "w = rng.normal(0.0, 0.01, D)",
             "Bias is not regularized",
             "Toy data",
             "type: 'deepcode:interactive-demo-ready'",
