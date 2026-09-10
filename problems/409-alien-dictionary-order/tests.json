@@ -1,0 +1,17 @@
+[
+  {
+    "name": "returns a complete order satisfying all adjacent constraints",
+    "input": "['wrt', 'wrf', 'er', 'ett', 'rftt']",
+    "test": "words=['wrt','wrf','er','ett','rftt']\norder=alien_order(words)\nassert set(order)==set('wertf') and len(order)==5\npos={c:i for i,c in enumerate(order)}\nassert pos['w']<pos['e']<pos['r']<pos['t']<pos['f']"
+  },
+  {
+    "name": "detects cycles and invalid prefix ordering",
+    "input": "cyclic constraints and a longer word before its prefix",
+    "test": "assert alien_order(['z','x','z'])==''\nassert alien_order(['abc','ab'])==''"
+  },
+  {
+    "name": "includes unconstrained characters and ignores duplicate edges",
+    "input": "independent letters plus repeated precedence evidence",
+    "test": "for words in [['za','zb','ca','cb'],['abc'],['a','a']]:\n order=alien_order(words)\n assert len(order)==len(set(''.join(words))) and set(order)==set(''.join(words))\n pos={c:i for i,c in enumerate(order)}\n for first,second in zip(words,words[1:]):\n  for a,b in zip(first,second):\n   if a!=b:\n    assert pos[a]<pos[b]; break"
+  }
+]

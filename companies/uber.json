@@ -1,7 +1,7 @@
 {
   "slug": "uber",
   "name": "Uber",
-  "summary": "Interview practice covering general coding, ML implementation, and marketplace ML system design.",
+  "summary": "Interview practice covering general coding, ML implementation, marketplace search and ranking design, and behavioral project discussions.",
   "stage": {
     "company_state": "Not independently verified",
     "funding_stage": "Not independently verified"
@@ -22,5 +22,5 @@
       "detail": "Includes reconstructed coding contracts and open-ended design prompts. Confirm role-specific expectations with the recruiter."
     }
   ],
-  "updated_at": "2026-09-08"
+  "updated_at": "2026-09-10"
 }

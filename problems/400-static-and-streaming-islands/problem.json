@@ -28,6 +28,11 @@
   "evaluation": {
     "type": "ml_coding"
   },
+  "references": [
+    {"label": "Notion: Number of Islands / Streaming Union-Find Variant", "url": "https://app.notion.com/p/3d66ce51456d81d88c81e129f4d27b01"},
+    {"label": "1Point3Acres: Uber MLE full loop, March 2026", "url": "https://www.1point3acres.com/interview/thread/1167901"},
+    {"label": "1Point3Acres: Uber static and streaming islands problem", "url": "https://www.1point3acres.com/interview/problems/company/uber/phone-screen-number-of-islands"}
+  ],
   "created_at": "2026-09-08",
   "interview_frequency": {
     "Uber": {
@@ -35,11 +40,11 @@
         "3d66ce51456d81d88c81e129f4d27b01"
       ],
       "stars": 1,
-      "synced_at": "2026-09-08"
+      "synced_at": "2026-09-10"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-08"
+    "synced_at": "2026-09-10"
   }
 }

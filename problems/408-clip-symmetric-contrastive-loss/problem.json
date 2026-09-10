@@ -1,0 +1,43 @@
+{
+  "id": "408",
+  "slug": "clip-symmetric-contrastive-loss",
+  "title": "CLIP-Style Symmetric Contrastive Loss",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": ["pytorch", "contrastive-learning", "clip", "cross-entropy"],
+  "companies": ["Uber"],
+  "prompt": "Implement `clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True)` in PyTorch. Both inputs are floating tensors with identical shape `(B, D)`, where `B,D > 0`, and row `i` in each tensor is a positive image-text pair. When `normalize` is true, L2-normalize every row before computing logits. Form the complete in-batch similarity matrix `image @ text.T / temperature`; use diagonal indices as targets; and return the scalar mean of image-to-text and text-to-image cross-entropy losses. Preserve dtype, device, and autograd, and do not mutate either input. Require a positive finite temperature and matching rank-2 input shapes.\n\nPractice reconstruction: the source gives the symmetric CLIP loss formula but does not specify a function API, validation behavior, normalization, or a default temperature. Those conventions are fixed here for reproducible practice.",
+  "starter_code": "import torch\nimport torch.nn.functional as F\n\n\ndef clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True):\n    # Return the symmetric image-to-text/text-to-image cross-entropy loss.\n    pass\n",
+  "example": {
+    "input": "images = torch.eye(3); texts = torch.eye(3); clip_contrastive_loss(images, texts, temperature=1.0)",
+    "output": "a scalar tensor near 0.5514",
+    "reasoning": "Matching rows occupy the diagonal, and the loss averages cross-entropy in both retrieval directions."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": ["torch"],
+    "comparator": "exact"
+  },
+  "evaluation": {"type": "ml_coding"},
+  "references": [
+    {
+      "label": "Notion: CLIP-Style Symmetric Contrastive Loss",
+      "url": "https://app.notion.com/p/3d76ce51456d819fbf16f5b4950fcf03"
+    },
+    {
+      "label": "1Point3Acres: Uber MLE technical phone screen, May 2026",
+      "url": "https://www.1point3acres.com/bbs/thread-1176190-1-1.html"
+    }
+  ],
+  "created_at": "2026-09-10",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": ["3d76ce51456d819fbf16f5b4950fcf03"],
+      "stars": 1,
+      "synced_at": "2026-09-10"
+    }
+  },
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-10"}
+}

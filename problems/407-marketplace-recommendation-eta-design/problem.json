@@ -21,18 +21,25 @@
     "placeholder": "Start with the decision, assumptions, and evidence needed before choosing an architecture.",
     "reference_answer": "## Choose a decision and target\n\nFor restaurant recommendation, rank eligible restaurants to improve completed orders or long-term value, with cancellations, latency, diversity, and supply health as guardrails. CTR is a useful diagnostic but not the entire objective. For ETA, instead predict a duration or arrival-time distribution at a defined request timestamp; define whether the label ends at pickup or delivery. ETA is a supervised prediction service and does not inherently require retrieval and ranking.\n\n## Recommendation architecture\n\nLog impressions, eligibility, positions, clicks, orders, cancellations, and policy versions. Use event-time feature snapshots and mature outcomes. Retrieve eligible candidates using geography, availability, popularity, and learned user/item representations; rank them with a calibrated tabular model before considering a heavier sequence model. Apply hard availability constraints and explicit business rules after scoring. Address new users with context/popularity and new restaurants with content and regional priors.\n\nMeasure retrieval recall separately from ranking quality. Offline metrics can include NDCG and calibration, but logged exposure and position bias limit what they prove. Keep temporal holdouts, inspect slices, and validate changes with online outcomes. Log exploration propensities when using randomized exposure; do not invent propensities for deterministic historical policies.\n\n## ETA alternative\n\nBuild a point-in-time dataset from request, assignment, pickup, and delivery events, checking missing events and censored/cancelled trips. Include route distance, traffic available at prediction time, hour, location, preparation and queue signals. Compare a historical segment baseline with a tabular model. Use MAE for typical absolute error, tail absolute errors for reliability, and quantile loss plus interval coverage for uncertainty. Slice by geography, congestion, weather availability, and trip length. A realized trip duration cannot be a prediction-time feature.\n\nServe a single model or a justified stage decomposition. Combining component quantiles by addition does not generally yield the quantile of total time; calibrate end-to-end uncertainty. Fall back to regional historical estimates when live features are stale, and expose an appropriate uncertainty interval.\n\n## Shared production and experimentation\n\nEvents feed offline and streaming feature pipelines, versioned training snapshots, a model registry, online feature storage, and a deadline-aware serving API. Budget latency across dependencies, cache only with valid freshness rules, and record model/feature versions for replay. Shadow, canary, and roll back with explicit guardrails. Monitor feature freshness, coverage, drift, inference latency, business outcomes, and delayed-label completeness.\n\nChoose randomization based on interference. A user-level A/B may be adequate with limited shared-resource effects; clustered or switchback experiments can help when demand shifts shared supply. Consider carryover, washout, market heterogeneity, and cluster-level uncertainty. Predeclare primary metrics and duration and avoid repeated uncorrected significance peeking.\n\n## Progressive Hints\n\n1. Pick one surface and define its decision.\n2. ETA does not require a recommendation funnel.\n3. Match features to the prediction timestamp.\n4. Separate operational freshness from model drift.\n5. Let interference determine the experiment unit."
   },
+  "references": [
+    {"label": "Notion: Recommendation / Feed Ranking / ETA ML System Design", "url": "https://app.notion.com/p/3d66ce51456d819e96f4fdb72083dc76"},
+    {"label": "1Point3Acres: Uber MLE full loop, March 2026", "url": "https://www.1point3acres.com/interview/thread/1167901"},
+    {"label": "1Point3Acres: Uber MLE system-design question bank", "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-system-design"},
+    {"label": "Reddit: Uber MLE2 onsite ETA with RL/RLHF", "url": "https://www.reddit.com/r/leetcode/comments/1sls6ic/interview_for_uber_mle_2/"},
+    {"label": "LinkedIn: Uber MLE-2 real-time ETA design experience", "url": "https://www.linkedin.com/posts/nitindas230202_interviewexperience-mle-sde-activity-7497360304184418304-lOd0"}
+  ],
   "created_at": "2026-09-08",
   "interview_frequency": {
     "Uber": {
       "source_record_ids": [
         "3d66ce51456d819e96f4fdb72083dc76"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-08"
+      "stars": 2,
+      "synced_at": "2026-09-10"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
-    "synced_at": "2026-09-08"
+    "stars": 2,
+    "synced_at": "2026-09-10"
   }
 }

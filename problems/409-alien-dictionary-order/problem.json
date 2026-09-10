@@ -1,0 +1,50 @@
+{
+  "id": "409",
+  "slug": "alien-dictionary-order",
+  "title": "Infer an Alien Dictionary Order",
+  "category": "Algorithms",
+  "difficulty": "hard",
+  "tags": ["graphs", "topological-sort", "strings", "cycle-detection"],
+  "companies": ["Uber"],
+  "prompt": "Implement `alien_order(words) -> str`. `words` is a non-empty list of non-empty lowercase strings already sorted according to an unknown alphabet. Return any string containing every distinct character exactly once in an order consistent with the input. Return `\"\"` when no such order exists because of a precedence cycle or because a longer word appears immediately before its own prefix, such as `[\"abc\", \"ab\"]`. Characters that never participate in a precedence edge must still appear. Ignore duplicate edges. Target `O(C + V + E)` time, where `C` is the total input size.\n\nEvidence boundary: a recent Uber L5A MLE report confirms only a topological-sort question family. A separate Uber MLE-2 report identifies Alien Dictionary as the concrete variant, so this exercise does not claim the recent report used this exact prompt.",
+  "starter_code": "def alien_order(words):\n    # Return one valid character order, or an empty string when impossible.\n    pass\n",
+  "example": {
+    "input": "alien_order(['wrt', 'wrf', 'er', 'ett', 'rftt'])",
+    "output": "'wertf'",
+    "reasoning": "Adjacent first differences imply w before e, e before r, r before t, and t before f."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {"type": "ml_modeling"},
+  "references": [
+    {
+      "label": "Notion: Alien Dictionary / Topological Sort",
+      "url": "https://app.notion.com/p/3d76ce51456d81d8a273e693d8720eaa"
+    },
+    {
+      "label": "LeetCode Discuss: recent Uber L5A MLE loop with a topological-sort question",
+      "url": "https://leetcode.com/discuss/post/7037470/"
+    },
+    {
+      "label": "LinkedIn: Uber MLE-2 Alien Dictionary interview experience",
+      "url": "https://www.linkedin.com/posts/nitindas230202_interviewexperience-mle-sde-activity-7497360304184418304-lOd0"
+    },
+    {
+      "label": "1Point3Acres: Uber Alien Dictionary question-bank entry",
+      "url": "https://www.1point3acres.com/interview/problems/company/uber/phone-screen-alien-dictionary"
+    }
+  ],
+  "created_at": "2026-09-10",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": ["3d76ce51456d81d8a273e693d8720eaa"],
+      "stars": 1,
+      "synced_at": "2026-09-10"
+    }
+  },
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-10"}
+}

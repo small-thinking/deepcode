@@ -20,6 +20,10 @@
     "placeholder": "Start with the decision, assumptions, and evidence needed before choosing an architecture.",
     "reference_answer": "## Decision and requirements\n\nSeparate the fraud probability from the action: approve, challenge, hold for review, or reject. Clarify transaction volume, p99 decision latency, review capacity, and the cost of blocking legitimate users versus allowing fraud. These values are assumptions until agreed. Establish a rules-only baseline and define success as reduced expected loss with approval-rate, latency, and review-load guardrails.\n\n## Labels and point-in-time data\n\nJoin authorization-time events with later disputes and investigation outcomes using stable transaction IDs. A transaction without a dispute yet is not automatically a mature negative. Use a label maturity window and report coverage; separate confirmed fraud from suspected cases. Blocking and manual review change which outcomes are observed, so log action policy and selection context.\n\nBuild velocity, account/device history, merchant, amount, and location features using only information available when the transaction is scored. Prevent future chargeback leakage. Use time-based splits with a label gap, fit transformations on training data, and slice by new accounts, region, merchant, and transaction value. Deduplicate retries by event ID.\n\n## Model and operating point\n\nStart with logistic regression or a gradient-boosted tree. Compare a more complex model only against a reproducible baseline. Use class weighting or sampled negatives carefully; sampling can distort probability estimates, so recalibrate on a representative holdout. Report PR-AUC, recall at a fixed false-positive or review budget, calibration, and amount-weighted expected loss. Overall accuracy is misleading for a rare target.\n\nChoose thresholds on validation data with explicit costs and review capacity. A review band lets uncertain cases receive a second decision. Monitor score and action distributions separately: a threshold change can move approval rate without any change in ranking quality.\n\n## Serving and feedback\n\nThe request path is transaction intake -> idempotency lookup -> online features -> versioned model -> policy -> durable decision. Keep expensive historical aggregation off the synchronous path. Set deadlines for feature retrieval and scoring; choose a documented fallback policy using cached features or vetted rules when dependencies fail. Record feature timestamps, model/policy versions, score, action, and reason for replay.\n\nStream outcomes into the label store, retrain with reproducible snapshots, and gate model promotion on temporal holdouts and important slices. Shadow first, then canary with exposure limits. Provide policy and model rollback independently. Monitor p99 latency, missing/stale features, score drift, approval/challenge rates, review backlog, and mature-label loss and calibration. Compare early proxies with eventual outcomes before declaring success.\n\n## Progressive Hints\n\n1. Define the action and business cost before the model.\n2. A recent undisputed payment may have an unknown label.\n3. Every feature must exist at authorization time.\n4. Evaluate recall under an operational budget.\n5. Design dependency failures and rollback as part of serving."
   },
+  "references": [
+    {"label": "Notion: Fraud Detection ML System Design", "url": "https://app.notion.com/p/3d66ce51456d8119874ddea74757dea5"},
+    {"label": "1Point3Acres: Uber fraud-detection system-design problem", "url": "https://www.1point3acres.com/interview/problems/company/uber/fraud-detection-design"}
+  ],
   "created_at": "2026-09-08",
   "interview_frequency": {
     "Uber": {
@@ -27,11 +31,11 @@
         "3d66ce51456d8119874ddea74757dea5"
       ],
       "stars": 1,
-      "synced_at": "2026-09-08"
+      "synced_at": "2026-09-10"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-08"
+    "synced_at": "2026-09-10"
   }
 }
