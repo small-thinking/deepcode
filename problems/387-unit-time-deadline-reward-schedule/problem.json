@@ -27,12 +27,12 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `deadline_reward_schedule(tasks) -> tuple[list[str], int]`. Each task is a mapping with a unique string `id`, a positive integer `deadline`, and a positive integer `reward`. Every task takes one day. A selected task with deadline `d` must be assigned to a distinct integer day from 1 through `d`, inclusive.\n\nReturn `(order, total_reward)`, where `order` lists the selected task IDs in execution-day order with no empty-day placeholders, and `total_reward` is the maximum achievable reward. **Practice convention for deterministic output:** use descending reward order (lexicographically smaller ID first for equal rewards), with accepted tasks assigned to their latest available valid day; return them in assigned-day order. This deterministic schedule is a DeepCode exercise convention; it is not a verified requirement of the original interview report. Assume all inputs satisfy the stated shape. Do not mutate the input.",
+  "prompt": "Implement `deadline_reward_schedule(tasks) -> tuple[list[str], int]`. Each task is a tuple `(task_id, deadline, reward)` with a unique string ID, a positive integer deadline, and a positive integer reward. Every task takes one day, only one task can run per day, and each task can be completed at most once. A task with deadline `d` must finish on some integer day from 1 through `d`, inclusive.\n\nReturn `(order, total_reward)`, where `order` lists the selected task IDs in execution-day order and `total_reward` is the maximum achievable reward. Multiple optimal schedules may exist; return any execution order that attains the maximum reward and meets every selected task's deadline. Return `([], 0)` when `tasks` is empty. Assume all inputs satisfy the stated shape. Do not mutate the input.",
   "starter_code": "def deadline_reward_schedule(tasks):\n    # Return (task IDs in execution order, maximum total reward).\n    pass\n",
   "example": {
-    "input": "deadline_reward_schedule([{'id': 'a', 'deadline': 4, 'reward': 70}, {'id': 'b', 'deadline': 1, 'reward': 80}, {'id': 'c', 'deadline': 1, 'reward': 30}, {'id': 'd', 'deadline': 2, 'reward': 100}, {'id': 'e', 'deadline': 3, 'reward': 40}])",
-    "output": "(['b', 'd', 'e', 'a'], 290)",
-    "reasoning": "The selected tasks fit on days 1 through 4 before their inclusive deadlines; the lower-reward task c is skipped."
+    "input": "deadline_reward_schedule([('a', 2, 8), ('b', 1, 3), ('c', 2, 5), ('d', 3, 3)])",
+    "output": "(['c', 'a', 'd'], 16)",
+    "reasoning": "Tasks c, a, and d can finish on days 1, 2, and 3 for reward 16. `(['a', 'c', 'd'], 16)` is also valid; the reported interview example accepted both orders."
   },
   "environment": {
     "language": "python",
@@ -43,5 +43,19 @@
   "evaluation": {
     "type": "ml_modeling"
   },
+  "references": [
+    {
+      "label": "1Point3Acres: 2025-02 Airbnb Senior SWE onsite report (reported example and heap follow-up)",
+      "url": "https://www.1point3acres.com/bbs/thread-1110511-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: 2025-05 Airbnb tech screen report (order plus max-profit return contract)",
+      "url": "https://www.1point3acres.com/bbs/thread-1128701-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: 2024-11 Airbnb phone-screen report (max-profit-by-horizon variant)",
+      "url": "https://www.1point3acres.com/bbs/thread-1096177-1-1.html"
+    }
+  ],
   "created_at": "2026-09-03"
 }

@@ -73,6 +73,11 @@ class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
             "minimum-number-all-digits": {
                 "https://www.1point3acres.com/home/thread/604924",
             },
+            "unit-time-deadline-reward-schedule": {
+                "https://www.1point3acres.com/bbs/thread-1096177-1-1.html",
+                "https://www.1point3acres.com/bbs/thread-1110511-1-1.html",
+                "https://www.1point3acres.com/bbs/thread-1128701-1-1.html",
+            },
         }
 
         store = ProblemStore(ROOT / "problems")
@@ -96,6 +101,26 @@ class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
 
     def test_minimum_number_all_digits_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("minimum-number-all-digits")
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=REFERENCE_SOLUTION,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+        self.assertEqual(result["status"], "passed", result)
+        self.assertEqual(result["passed"], len(problem["tests"]))
+
+    def test_deadline_reward_schedule_uses_the_reported_contract(self):
+        problem = ProblemStore(ROOT / "problems").get_problem(
+            "unit-time-deadline-reward-schedule"
+        )
+        self.assertIn("(task_id, deadline, reward)", problem["prompt"])
+        self.assertIn("Multiple optimal schedules may exist", problem["prompt"])
+        self.assertNotIn("lexicographically smaller ID", problem["prompt"])
+
         result = evaluate_submission(
             EvaluationRequest(
                 code=REFERENCE_SOLUTION,

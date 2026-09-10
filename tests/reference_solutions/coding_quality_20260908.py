@@ -1,4 +1,5 @@
 """Small reference implementations for the audited Coding contracts."""
+import heapq
 from itertools import combinations
 
 
@@ -21,12 +22,12 @@ def select_group_listings(listings, group_size, neighborhood):
 
 
 def deadline_reward_schedule(tasks):
-    occupied = {}
-    for task in sorted(tasks, key=lambda task: (-task['reward'], task['id'])):
-        day = task['deadline']
-        while day in occupied:
-            day -= 1
-        if day > 0:
-            occupied[day] = task
-    selected = [occupied[day] for day in sorted(occupied)]
-    return [task['id'] for task in selected], sum(task['reward'] for task in selected)
+    selected = []
+    for task_id, deadline, reward in sorted(tasks, key=lambda task: task[1]):
+        heapq.heappush(selected, (reward, task_id, deadline))
+        if len(selected) > deadline:
+            heapq.heappop(selected)
+    scheduled = sorted(selected, key=lambda task: (task[2], task[1]))
+    return [task_id for _, task_id, _ in scheduled], sum(
+        reward for reward, _, _ in scheduled
+    )

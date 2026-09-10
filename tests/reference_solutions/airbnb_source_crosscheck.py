@@ -1,3 +1,19 @@
+import heapq
+
+
+def deadline_reward_schedule(tasks):
+    selected = []
+    for task_id, deadline, reward in sorted(tasks, key=lambda task: task[1]):
+        heapq.heappush(selected, (reward, task_id, deadline))
+        if len(selected) > deadline:
+            heapq.heappop(selected)
+
+    scheduled = sorted(selected, key=lambda task: (task[2], task[1]))
+    return [task_id for _, task_id, _ in scheduled], sum(
+        reward for reward, _, _ in scheduled
+    )
+
+
 def minimum_number(digits):
     counts = [0] * 10
     for digit in digits:
