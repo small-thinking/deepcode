@@ -50,9 +50,11 @@ class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
             "account-contact-components": {
                 "https://www.1point3acres.com/interview/thread/1169233",
             },
+            "decimal-exact-fill-min-items": {
+                "https://www.1point3acres.com/interview/thread/1171020",
+            },
             "exact-target-purchase-plan": {
                 "https://www.1point3acres.com/interview/thread/1171020",
-                "https://www.1point3acres.com/interview/thread/1162688",
             },
             "cover-photo-conversion-evaluation": {
                 "https://www.1point3acres.com/interview/thread/1162688",
@@ -88,6 +90,7 @@ class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
 
     def test_consolidated_airbnb_questions_expose_synced_frequency_tiers(self):
         expected_tiers = {
+            "decimal-exact-fill-min-items": 2,
             "minimum-cost-bundle-cover": 3,
             "reactive-sum-key-store": 2,
         }
