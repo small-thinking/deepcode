@@ -3,10 +3,23 @@
   "slug": "decimal-exact-fill-min-items",
   "title": "Decimal Exact-Fill Minimum Items",
   "category": "Algorithms",
-  "difficulty": "hard",
+  "difficulty": "medium",
   "tags": ["dynamic-programming", "unbounded-knapsack", "integer-scaling"],
   "companies": ["Airbnb"],
-  "prompt": "Implement `min_exact_items(durations, target) -> int`. Each duration and the target has at most one decimal place. Select durations with unlimited reuse and return the fewest selections whose sum is exactly `target`. Return `0` when no exact selection exists; `target == 0` also returns `0`.\n\nTreat values exactly at their stated one-decimal precision. Duplicate duration values do not change what totals are reachable, and one duration may be selected more than once. Assume every duration is positive and the target is nonnegative.",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3cf6ce51456d81599929d5d1f175d1ed"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-10"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-10"
+  },
+  "prompt": "Implement `min_exact_items(durations, target) -> int`. Each duration and the target has at most one decimal place. Select durations with unlimited reuse and return the fewest selections whose sum is exactly `target`.\n\nThe source says that an impossible target should result in booking no experiences, but it does not specify a numeric sentinel. For this executable version, return `0` when no exact selection exists; `target == 0` also returns `0`. Treat values exactly at their stated one-decimal precision. Duplicate duration values do not change what totals are reachable, and one duration may be selected more than once. Assume every duration is positive and the target is nonnegative.",
   "starter_code": "def min_exact_items(durations, target):\n    # Return the fewest reusable durations that sum to target exactly, or 0.\n    pass\n",
   "example": {
     "input": "min_exact_items([2.5, 1.5], 6.5)",
@@ -19,6 +32,12 @@
     "packages": [],
     "comparator": "assertions"
   },
+  "references": [
+    {
+      "label": "1Point3Acres: Airbnb MLE onsite coding report",
+      "url": "https://www.1point3acres.com/interview/thread/1171020"
+    }
+  ],
   "evaluation": {
     "type": "ml_modeling"
   },
