@@ -49,6 +49,45 @@ class ApiTest(unittest.TestCase):
             self.assertEqual([problem["slug"] for problem in payload["problems"]], ["airbnb-openai"])
             self.assertEqual(payload["company_counts"], {"Airbnb": 2, "OpenAI": 1})
 
+    def test_company_counts_follow_other_filters_and_live_catalog_changes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            context = ApiContext(store=ProblemStore(root))
+            self._write_problem(root, "matching", "1", {
+                "title": "Gradient update", "category": "ML Coding", "difficulty": "easy",
+                "companies": ["OpenAI", "OpenAI", "Airbnb"],
+            })
+            self._write_problem(root, "other-category", "2", {
+                "title": "Gradient update", "category": "General Coding", "companies": ["OpenAI"],
+            })
+            self._write_problem(root, "other-difficulty", "3", {
+                "title": "Gradient update", "category": "ML Coding", "difficulty": "hard",
+                "companies": ["OpenAI"],
+            })
+            self._write_problem(root, "other-search", "4", {
+                "title": "Matrix product", "category": "ML Coding", "companies": ["OpenAI"],
+            })
+            query = {"category": ["ML Coding"], "difficulty": ["easy"],
+                     "search": ["Gradient"], "company": ["Airbnb"]}
+
+            def counts():
+                status, payload = handle_api_request(context, "GET", "/api/problems", query, None)
+                self.assertEqual(status, 200)
+                return payload["company_counts"]
+
+            self.assertEqual(counts(), {"Airbnb": 1, "OpenAI": 1})
+            self._write_problem(root, "added", "5", {
+                "title": "Gradient step", "category": "ML Coding", "companies": ["OpenAI"],
+            })
+            self.assertEqual(counts(), {"Airbnb": 1, "OpenAI": 2})
+            added_path = root / "added" / "problem.json"
+            added = json.loads(added_path.read_text())
+            added["companies"] = ["Airbnb"]
+            added_path.write_text(json.dumps(added))
+            self.assertEqual(counts(), {"Airbnb": 2, "OpenAI": 1})
+            (root / "added" / "problem.json").unlink()
+            self.assertEqual(counts(), {"Airbnb": 1, "OpenAI": 1})
+
     def test_lists_a_merged_spacex_xai_company_facet(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -128,7 +128,11 @@ def _handle_api_request(
             "categories": context.store.categories(),
             "difficulties": context.store.difficulties(),
             "companies": context.store.companies(),
-            "company_counts": context.store.company_counts(),
+            "company_counts": context.store.company_counts(
+                category=_first(query, "category"),
+                difficulty=_first(query, "difficulty"),
+                search=_first(query, "search"),
+            ),
             "company_profiles": _company_profile_summaries(context),
             "total": len(problems),
         }

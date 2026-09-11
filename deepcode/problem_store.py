@@ -126,13 +126,18 @@ class ProblemStore:
             key=str.casefold,
         )
 
-    def company_counts(self) -> dict[str, int]:
-        """Return each display company label and its total number of catalog problems."""
+    def company_counts(
+        self,
+        category: str | None = None,
+        difficulty: str | None = None,
+        search: str | None = None,
+    ) -> dict[str, int]:
+        """Count current matching problems per company, independently of company selection."""
         labels = self.companies()
         labels_by_key = {label.casefold(): label for label in labels}
         counts = {label: 0 for label in labels}
 
-        for problem in self._load_all():
+        for problem in self.list_problems(category=category, difficulty=difficulty, search=search):
             seen = set()
             for company in problem.get("companies", []):
                 if not isinstance(company, str) or not company.strip():
