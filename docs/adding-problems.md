@@ -141,8 +141,10 @@ Each problem folder may add diagrams under `assets/`, including several images:
 ]
 ```
 
-`section` must be `prompt` or `reference_answer`; `path` must remain under the
-same problem's `assets/` folder. DeepCode serves those files from
+`section` must be `prompt` or `reference_answer`. ML coding evaluators may also
+use `interactive_demo` to place static diagrams in the **Interactive Demo** tab
+without wrapping them in HTML. `path` must remain under the same problem's
+`assets/` folder. DeepCode serves those files from
 `/problem-assets/<slug>/...` and rejects path traversal. PNG and JPEG assets
 under `problems/**/assets/` are tracked through Git LFS by `.gitattributes`.
 Run `git lfs track` only when adding another binary extension, then commit the
@@ -172,10 +174,11 @@ inside the Reference Answer tab:
 
 The canonical contract is
 [`schemas/interactive-demos-v1.schema.json`](../schemas/interactive-demos-v1.schema.json).
-Interactive demos are opt-in and separate from Markdown and static image
-assets. Each lowercase kebab-case `id` must be unique within the problem. The
-file must be a standalone `.html` document under the same problem's `assets/`
-folder, `title` must describe the iframe for assistive technology, and
+HTML interactive demos are opt-in and separate from Markdown and static image
+assets. Static images can share the coding **Interactive Demo** tab by using the
+asset section described above. Each lowercase kebab-case `id` must be unique
+within the problem. The file must be a standalone `.html` document under the
+same problem's `assets/` folder, `title` must describe the iframe for assistive technology, and
 `section` must match the evaluator: `reference_answer` for `system_design`,
 or `interactive_demo` for `ml_coding`, `ml_modeling`, `ml_torch_modeling`, and
 `ml_torch_lab`. System Design keeps its Reference answer placement. Coding
