@@ -1,0 +1,48 @@
+{
+  "id": "415",
+  "slug": "notion-calendar-search",
+  "title": "Calendar Search — Backend System Design",
+  "category": "System Design",
+  "difficulty": "hard",
+  "tags": [
+    "search",
+    "indexing",
+    "system-design",
+    "permissions"
+  ],
+  "companies": [
+    "Notion"
+  ],
+  "prompt": "## Reported question\n\nDesign calendar search. Focus on backend system design rather than ranking algorithms.\n\n## Source scope\n\nA Notion ML full-time onsite candidate reported this design question. Enterprise-search ranking described the recruiting team, not the actual design task; the candidate also reported no separate model-design round.\n\nThe report does not provide a concrete query API, event schema, scale, latency target, permission model or recurrence requirements. Clarifying these is part of this open-ended exercise. Do not present any chosen assumption as an original interview constraint.\n\n## Practice response\n\nChoose and state a coherent search use case, then explain ingestion and indexing, the query path, source updates/deletions, access control, failure handling and operational tradeoffs. Sketch an API and walk through one query and one event update. These are preparation prompts, not a recovered interviewer rubric. Explain which requirements you would confirm before adding recurrence, cross-calendar sharing, semantic search or complex ranking.\n\nThis is a writing exercise. The reference answer illustrates one scoped solution, not the only acceptable design.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Clarify what calendar search means, state your assumptions, then design the backend and walk through query, update, deletion and access changes.",
+    "reference_answer": "## Clarify the question before designing\n\nThe original evidence establishes calendar search and a backend emphasis only. First ask what users search: event text, participants, locations, time ranges, or availability? Are calendars internal or connected to external providers? Is the search limited to one's own events or shared calendars? Ask about scale, update freshness, latency, recurrence, deleted events and permission changes. Distinguish finding existing events from finding a free meeting slot; they are different workloads.\n\nFor the remainder, assume authenticated users search event title/description using keywords and optional time filters over authorized calendars. Assume eventual indexing freshness is acceptable, but unauthorized results must not be returned. These assumptions are illustrative, not source requirements. Begin with keyword retrieval and deterministic ordering; a model or semantic vector index is unnecessary until product requirements justify it.\n\n## Data and ingestion\n\nKeep an authoritative event store containing event ID, calendar ID, title/description, start/end timestamps, source version and deletion state. Calendar membership/ACLs live in an authoritative access-control store. Normalize timestamps while preserving the source time zone needed for display and calendar semantics. Index searchable fields plus time/calendar filters in a secondary inverted index.\n\nSend versioned event changes through a durable log or transactional outbox. Idempotent indexers apply only newer versions, record tombstones for deletion, and expose ingestion lag. A retry or out-of-order update must not resurrect a deleted event. If ingesting external calendars, persist provider cursors and handle expired tokens with a documented resync strategy; do not silently assume every provider offers ordered exactly-once change events.\n\n## Query API and read path\n\nAn illustrative endpoint is `GET /calendar-search?q=...&from=...&to=...&cursor=...`. The authenticated identity comes from the session, never a caller-supplied user ID. Define whether time filters mean start-time inclusion or interval overlap, how missing filters behave and what a page cursor represents.\n\nResolve permitted calendars, retrieve candidates using text and time filters, then hydrate event records. Recheck access and deletion state before returning results or snippets. Coarse index-side ACL filtering improves efficiency; an authoritative authorization check prevents a lagging index from exposing revoked data. If authorization cannot be checked, fail closed. Search results, previews, totals and cached responses all need the same isolation boundary.\n\nUse a stable ordering such as text relevance followed by event start and unique ID. Define cursor/version behavior when the index changes during pagination. Return a bounded page and explain whether changing data can cause duplicates or omissions. Avoid claiming snapshot-consistent pagination without a snapshot mechanism. Cache only with identity or an equivalent permission-scope key; invalidate or revalidate after access changes.\n\n## Updates, deletion and failure handling\n\nAn event edit increments its source version and emits a change; indexers update the document idempotently. During index lag, decide explicitly whether to show the old version, hydrate the newest version or offer a limited recent-write overlay. A tombstone plus source-state check prevents stale deleted hits from being returned. Permission revocation must be enforced at serving time rather than waiting for all index replicas and caches to converge.\n\nOn indexing failure, retain changes for replay and monitor lag. On search-index failure, return an explicit unavailable response or a narrowly bounded authorized database fallback; do not launch an unbounded full-table scan. Rebuild an index from a consistent baseline plus replayed changes, validate it and switch traffic with rollback available. Partition by calendar or tenant when that fits access patterns, and discuss hot tenants and cross-partition fan-out rather than promising one shard per tenant at every scale.\n\n## Extensions to negotiate\n\nRecurrence is optional in this proposed scope. If required, choose bounded occurrence materialization versus query-time expansion, accounting for exceptions, daylight-saving changes and far-future queries. Shared-calendar search requires clear event/calendar visibility rules. Availability search needs interval reasoning and should not be smuggled into a text-search design. Semantic retrieval and model-based ranking are separate product choices, not confirmed requirements of this interview.\n\n## Check the design\n\nWalk through a new event, a repeated/out-of-order update, a deletion, revoked sharing while a page cursor is active, index unavailability and a time-zone boundary. Verify that an event cannot leak through a title, snippet, count or cache after access is revoked under the chosen authorization consistency contract. Measure query latency, error rate, index lag, empty-result rate and search usefulness. Explain latency/freshness/cost tradeoffs without inventing numerical SLOs.\n\nA successful answer is internally consistent about scope, permissions and freshness, and makes the data path and recovery behavior concrete. It need not reproduce this reference architecture."
+  },
+  "references": [
+    {
+      "label": "Notion: Calendar Search Backend System Design (ML Onsite)",
+      "url": "https://app.notion.com/p/3d76ce51456d8157a94dfbad6c52d93e"
+    },
+    {
+      "label": "1Point3Acres: original Notion ML onsite report (December 2025)",
+      "url": "https://www.1point3acres.com/interview/thread/1157681"
+    }
+  ],
+  "created_at": "2026-09-12",
+  "interview_frequency": {
+    "Notion": {
+      "stars": 1,
+      "source_record_ids": [
+        "3d76ce51456d8157a94dfbad6c52d93e"
+      ],
+      "synced_at": "2026-09-12"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-12"
+  }
+}

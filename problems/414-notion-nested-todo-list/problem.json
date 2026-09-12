@@ -1,0 +1,63 @@
+{
+  "id": "414",
+  "slug": "notion-nested-todo-list",
+  "title": "Nested Todo List",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "trees",
+    "stateful",
+    "object-oriented-design"
+  ],
+  "companies": [
+    "Notion"
+  ],
+  "prompt": "## Problem\n\nImplement an in-memory `NestedTodoList` that supports nested items and marking an item done or undone.\n\n## Practice API\n\nThe original interview reports establish nesting and done/undone, but do not specify an API or propagation rules. The following is a minimal local practice contract, not a recovered verbatim interview specification. Aim for a 30-minute implementation.\n\n- `NestedTodoList()` creates an empty list.\n- `add(item_id, text, parent_id=None)` adds an initially undone item. With `parent_id=None`, the item is a root; otherwise its parent must already exist. Multiple roots are allowed. Raise `ValueError` if the ID already exists or the parent is unknown. Return `None` on success.\n- `set_done(item_id, done)` sets exactly that item's completion flag and returns `None`. Raise `ValueError` for an unknown ID. Completion is independent per node: changing a parent does not change children, and changing a child does not change its ancestors. This is a local practice convention; the reports do not settle propagation semantics.\n- `list_items()` returns a detached flat list of tuples `(item_id, text, done, depth)` in pre-order: visit a parent before its descendants, preserving insertion order among roots and among siblings. Root depth is zero. Previously returned snapshots must remain unchanged after later operations, and changing a returned list must not change internal state.\n\nAssume IDs are nonempty strings, text is a string, and `done` is a boolean. Text may be empty or repeated. Invalid operations must leave the list unchanged. Adding only new items under existing parents prevents cycles; no move or delete API is required. Choose a representation and briefly explain operation costs. An iterative traversal can avoid dependence on Python's recursion limit.\n\n## Background\n\nThree candidate reports support this nested-todo question family. The June 2026 phone-screen report mentions nested items and done/undone; the earlier onsite report mentions nested lists, and the December 2025 MLE report links back to it. Concrete command syntax, completion propagation and numeric limits in the curated question's AI Insights were not verified as candidate requirements and are not used here.\n\nThis exercise is separate from the generic September 2026 “Implement Lists Functionality” record: the source audit did not establish that they are the same question.",
+  "starter_code": "# PROVIDED: public class and method signatures for the local practice contract.\nclass NestedTodoList:\n    def __init__(self):\n        # TODO: initialize your representation.\n        raise NotImplementedError\n\n    def add(self, item_id, text, parent_id=None):\n        # TODO: validate the relationship and add an initially undone item.\n        raise NotImplementedError\n\n    def set_done(self, item_id, done):\n        # TODO: update only the specified item.\n        raise NotImplementedError\n\n    def list_items(self):\n        # TODO: return a detached pre-order snapshot.\n        raise NotImplementedError\n",
+  "example": {
+    "input": "todos = NestedTodoList(); todos.add('work', 'Work'); todos.add('review', 'Review', 'work'); todos.set_done('work', True); todos.list_items()",
+    "output": "[('work', 'Work', True, 0), ('review', 'Review', False, 1)]",
+    "reasoning": "Pre-order lists the parent first. Under the local practice convention, completing the parent leaves its child undone."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Notion question record: Nested Todo List",
+      "url": "https://app.notion.com/p/3d96ce51456d8199bdceec363a097d2b"
+    },
+    {
+      "label": "1Point3Acres: June 2026 Notion phone screen — nesting and done/undone",
+      "url": "https://www.1point3acres.com/interview/thread/1179482"
+    },
+    {
+      "label": "1Point3Acres: Notion onsite — nested todo lists (original report)",
+      "url": "https://www.1point3acres.com/bbs/thread-1074719-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: December 2025 Notion MLE onsite — nested todo encounter",
+      "url": "https://www.1point3acres.com/interview/thread/1157681"
+    }
+  ],
+  "created_at": "2026-09-12",
+  "interview_frequency": {
+    "Notion": {
+      "source_record_ids": [
+        "3d96ce51456d8199bdceec363a097d2b"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-12"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-12"
+  }
+}

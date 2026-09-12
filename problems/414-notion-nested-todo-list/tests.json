@@ -1,0 +1,32 @@
+[
+  {
+    "name": "empty lists and independent instances",
+    "input": "two empty instances with later independent updates",
+    "test": "a = NestedTodoList()\nb = NestedTodoList()\nassert a.list_items() == []\nassert b.list_items() == []\nassert a.add('same', '') is None\nb.add('same', 'other instance')\na.set_done('same', True)\nassert a.list_items() == [('same', '', True, 0)]\nassert b.list_items() == [('same', 'other instance', False, 0)]"
+  },
+  {
+    "name": "pre-order preserves root and sibling insertion order",
+    "input": "roots and descendants added in interleaved, non-lexicographic order",
+    "test": "todos = NestedTodoList()\ntodos.add('z', 'root')\ntodos.add('b', 'another root')\ntodos.add('y', 'child', 'z')\ntodos.add('x', 'child', 'z')\ntodos.add('a', 'grandchild', 'y')\ntodos.add('c', 'child', 'b')\ntodos.add('q', 'grandchild', 'x')\nassert todos.list_items() == [('z', 'root', False, 0), ('y', 'child', False, 1), ('a', 'grandchild', False, 2), ('x', 'child', False, 1), ('q', 'grandchild', False, 2), ('b', 'another root', False, 0), ('c', 'child', False, 1)]"
+  },
+  {
+    "name": "completion remains independent in both directions",
+    "input": "mark parent done, complete child, undo parent, undo child",
+    "test": "todos = NestedTodoList()\ntodos.add('p', 'parent')\ntodos.add('c', 'child', 'p')\ntodos.add('g', 'grandchild', 'c')\nassert todos.set_done('p', True) is None\nassert todos.list_items() == [('p', 'parent', True, 0), ('c', 'child', False, 1), ('g', 'grandchild', False, 2)]\ntodos.set_done('c', True)\ntodos.set_done('p', False)\nassert todos.list_items() == [('p', 'parent', False, 0), ('c', 'child', True, 1), ('g', 'grandchild', False, 2)]\ntodos.set_done('c', False)\ntodos.set_done('g', True)\ntodos.set_done('g', True)\nassert todos.list_items() == [('p', 'parent', False, 0), ('c', 'child', False, 1), ('g', 'grandchild', True, 2)]"
+  },
+  {
+    "name": "new children start undone under completed parents",
+    "input": "add a child after setting its parent done",
+    "test": "todos = NestedTodoList()\ntodos.add('p', 'same text')\ntodos.set_done('p', True)\ntodos.add('c', 'same text', 'p')\nassert todos.list_items() == [('p', 'same text', True, 0), ('c', 'same text', False, 1)]"
+  },
+  {
+    "name": "invalid operations raise ValueError without mutations",
+    "input": "duplicate IDs, unknown parent and unknown update target",
+    "test": "todos = NestedTodoList()\ntodos.add('p', 'parent')\ntodos.add('c', 'child', 'p')\ntodos.set_done('c', True)\nexpected = todos.list_items()\nfor operation in (lambda: todos.add('p', 'replacement'), lambda: todos.add('c', 'replacement', 'p'), lambda: todos.add('new', 'orphan', 'missing'), lambda: todos.set_done('missing', True)):\n    try:\n        operation()\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('expected ValueError')\n    assert todos.list_items() == expected\n# A failed add must not reserve the new ID or damage sibling order.\ntodos.add('new', 'valid child', 'p')\nassert todos.list_items() == expected + [('new', 'valid child', False, 1)]"
+  },
+  {
+    "name": "snapshots are detached in both directions",
+    "input": "mutate returned lists and update the original list afterward",
+    "test": "todos = NestedTodoList()\ntodos.add('p', 'parent')\nold = todos.list_items()\nview = todos.list_items()\nview[0] = ('tampered', 'changed', True, 99)\nview.append(('extra', 'extra', False, 0))\nassert todos.list_items() == [('p', 'parent', False, 0)]\ntodos.set_done('p', True)\ntodos.add('c', 'child', 'p')\nassert old == [('p', 'parent', False, 0)]\nassert todos.list_items() == [('p', 'parent', True, 0), ('c', 'child', False, 1)]\nview = todos.list_items()\nview.clear()\nassert len(todos.list_items()) == 2"
+  }
+]
