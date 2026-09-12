@@ -1,0 +1,60 @@
+{
+  "id": "413",
+  "slug": "notion-extend-task-queue",
+  "title": "Extend a Task Queue with Coordinated Subtasks",
+  "category": "System Design",
+  "difficulty": "hard",
+  "tags": [
+    "task-queue",
+    "workflow-orchestration",
+    "distributed-systems",
+    "reliability"
+  ],
+  "companies": [
+    "Notion"
+  ],
+  "prompt": "## Problem\n\nYou maintain distributed infrastructure that schedules asynchronous work. Some application jobs have grown to run for hours. Extend the existing task queue so application teams can split a large job into smaller, coordinated subtasks and improve reliability. Your team owns the queue infrastructure; other teams own the job handlers.\n\nRepresentative jobs include importing a large external wiki, exporting a workspace, copying a large content tree, and deleting all pages belonging to a user. Explain a reusable design and demonstrate how an application team would adapt a workspace-export handler.\n\n## Existing interface (source API, summarized for readability)\n\n```typescript\ntype Task = {\n  uuid: string;\n  handlerName: string; // selects a registered task handler\n  payload: unknown;\n  scheduleAt?: Date; // earliest start time; defaults to now\n};\nfunction enqueueTask(task: Task): void;\nfunction getStatus(uuid: string):\n  \"unstarted\" | \"running\" | \"success\" | \"failure\";\n\nfunction exportWorkspaceHandler(\n  uuid: string,\n  payload: { workspace_id: string }\n): Promise<void>;\n```\n\n## Source assumptions\n\n- Assume an unlimited number of queue workers.\n- You may change `Task`, `enqueueTask`, and `getStatus` freely; use any clear notation.\n- The extension must support multiple kinds of jobs owned by multiple teams.\n\nDiscuss orchestration, durable execution state, recovery, the handler integration model, and how callers understand overall progress. State your choices for dependencies, retries, idempotency and failure propagation: the source leaves these open. There is no prescribed storage backend, throughput target, DAG format or exact-output coding test. This is a writing exercise.\n\n## Background\n\nThe detailed prompt was recovered from the candidate-shared `Extend_Task_Queue.pdf` linked in the October 2025 Notion interview report. Its footer identifies the original Notion-hosted exercise. The source establishes a system-design problem; the reference answer below proposes one solution rather than adding requirements to the original prompt.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Define the workflow and ownership boundary, extend the API, then walk through export and crash recovery. Make proposed guarantees explicit.",
+    "reference_answer": "## Scope and proposed guarantees\n\nThe source asks for reusable, coordinated subtasks on an existing distributed queue. It permits changes to the API and assumes unlimited workers. Everything below is a proposed design, including at-least-once execution, durable orchestration, dependency rules and retry limits. Clarify whether jobs need only independent batches plus a finalizer or arbitrary dependencies. Start with fan-out/fan-in; support a bounded DAG only when teams need it. Unlimited workers do not imply unlimited database or downstream API capacity.\n\n## Separate scheduling, orchestration and application logic\n\nKeep the queue as delivery transport. Add a durable workflow store and an orchestrator that makes ready work available to workers. Teams register versioned handlers and own partitioning, business logic and external side effects. Infrastructure owns durable step state, dependency scheduling, retries, visibility and quotas. Store large inputs/results in object storage and pass references, rather than placing an entire workspace in each message.\n\nPersist a workflow ID, tenant/team owner, handler version and status. For each step, record a stable step ID, handler and payload reference, dependency IDs, earliest start, state, attempt number, lease expiry and result/error reference. Suggested internal states are blocked, ready, running, retry-wait, succeeded, failed and skipped. Freeze or validate dependency edges before scheduling; reject cycles and enforce per-workflow size limits. A closed child manifest is essential: temporarily having no unfinished children must not complete a parent that can still create more children.\n\n## Proposed API and export walkthrough\n\n```typescript\ntype StepSpec = {\n  stepId: string;\n  handlerName: string;\n  payload: unknown;\n  dependsOn?: string[];\n  scheduleAt?: Date;\n};\ncreateWorkflow({ workflowId, owner, handlerVersion }): void;\nappendSteps(workflowId: string, steps: StepSpec[]): void;\nsealWorkflow(workflowId: string): void;\ngetWorkflowStatus(workflowId: string): WorkflowStatus;\n```\n\nThese signatures are an illustrative extension, not the source API. Creation and appending are idempotent on stable IDs; reject reuse of an ID with conflicting content. Persist step creation and an outbox notification in the same transaction. Publishing the outbox may repeat; delivery duplicates must not create duplicate logical steps.\n\nFor export, first create a durable export manifest. A team-owned planner enumerates bounded partitions using a consistent snapshot or explicitly documented consistency policy. For a large manifest, checkpoint the enumeration cursor and append deterministic chunk IDs in batches. Each export-chunk handler writes an artifact under its workflow/step identity. After enumeration closes, define a finalizer depending on every required chunk and seal the workflow. The finalizer publishes one manifest or downloadable artifact when all chunks succeed. The orchestrator releases dependencies; a worker should not remain occupied waiting for all children.\n\nDynamic discovery needs its own contract. A coordinator may atomically append children and checkpoint its cursor, but cannot mark discovery complete before the final child manifest is durable. Replaying a planner then safely repeats the same IDs. Once sealed, reject late children unless the API explicitly creates a new workflow generation.\n\n## Durable scheduling and failure recovery\n\nSchedule a step only when every required dependency succeeds and its earliest-start time has arrived. Workers claim ready steps using a conditional state update and time-bounded lease. Heartbeats extend leases. Record completion conditionally on the current attempt token; a stale worker cannot overwrite a newer attempt's state. On lease expiry, make the work eligible for another attempt. A reconciliation loop repairs missed scheduling notifications from durable state.\n\nAssume at-least-once delivery and possible overlapping attempts. An attempt token protects orchestration metadata, not arbitrary external writes. Handlers need stable idempotency keys at the effect destination, transactional writes where available, or an effect ledger and reconciliation. If the destination provides neither deduplication nor a transaction boundary, do not promise exactly-once effects. A crash after writing an export chunk but before reporting success must yield a safe replay, not a second published artifact.\n\nRetry transient errors with backoff, jitter and a finite policy; retain checkpoints so retrying a long chunk does not always restart hours of work. Permanent validation errors fail immediately. Keep error categories and diagnostic references, and allow controlled retry of failed steps. Pin handler versions so retries do not silently execute incompatible code after deployment.\n\n## Status, failures and reuse\n\nExpose workflow status plus counts of blocked/running/retrying/succeeded/failed steps, whether planning is closed, the latest useful error and result reference. Avoid a misleading percentage while the denominator is growing. Report overall success only after the manifest is closed and every required step, including finalization, succeeds. In this proposal, exhausted retries make the workflow fail and prevent dependent steps from running; independent branches may finish. Mark skipped dependents explicitly. Cancellation and compensation are optional policies to agree with teams; cancelling a job does not undo side effects already committed.\n\nWorkspace export, copy, import and delete reuse the same lifecycle while providing different handlers and partitioning logic. Enforce ownership checks, per-team concurrency and downstream rate limits even with unlimited workers. Observe queue age, workflow duration, stuck dependencies, retry rates, lease expiry and orphaned artifacts. Retain enough state for diagnosis, then garbage-collect workflow metadata and artifacts under a retention policy.\n\n## Failure walkthrough and tradeoffs\n\n- Queue publish lost: the outbox or reconciler republishes committed ready work.\n- Delivery duplicated or worker crashes: stable step IDs, leases and idempotent effects make replay safe.\n- Planner crashes mid-enumeration: its checkpoint and deterministic child IDs avoid missing or duplicating partitions; the unsealed workflow cannot falsely succeed.\n- One chunk permanently fails: surface its error, block finalization and expose partial progress rather than reporting success.\n- Orchestrator restarts: reconstruct ready dependencies from durable state; do not rely on an in-memory child counter.\n- A stale worker finishes late: reject its completion token and ensure destination-side effect deduplication or fencing separately.\n\nA simpler batch barrier is easier to operate than arbitrary DAG execution. Small chunks improve recovery but increase coordination/storage cost. Explain those tradeoffs before adding nested workflows, priorities, compensation or a new queue backend. Existing workflow engines may provide these primitives; compare migration and ownership costs against extending the current queue."
+  },
+  "references": [
+    {
+      "label": "Notion question record: Extend Task Queue with Coordinated Subtasks",
+      "url": "https://app.notion.com/p/3d76ce51456d81398b16fd3a2de26002"
+    },
+    {
+      "label": "1Point3Acres: Notion interview report with Extend Task Queue attachment (October 2025)",
+      "url": "https://www.1point3acres.com/interview/thread/1150323"
+    },
+    {
+      "label": "Candidate-shared Extend_Task_Queue.pdf attachment landing page",
+      "url": "https://www.1point3acres.com/bbs/plugin.php?id=attachcenter:page&aid=605006"
+    },
+    {
+      "label": "Original Notion exercise URL identified in the PDF footer (live page not separately verified)",
+      "url": "https://notion.notion.site/Extend-Task-Queue-b37929a3109d4f1f90be169b5e67b76f"
+    },
+    {
+      "label": "Notion engineering: Redis queue observability (background, not interview requirements)",
+      "url": "https://www.notion.com/blog/observability-for-notions-redis-queue"
+    }
+  ],
+  "created_at": "2026-09-12",
+  "interview_frequency": {
+    "Notion": {
+      "source_record_ids": [
+        "3d76ce51456d81398b16fd3a2de26002"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-12"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-12"
+  }
+}
