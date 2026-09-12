@@ -66,9 +66,8 @@ def masked_kl(policy_logits, reference_logits, response_mask):
 def grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):
     advantages = group_relative_advantages(rewards, group_size)
     selected = gather_response_logprobs(logits, sequences, response_mask)
-    weights = response_mask.to(selected.dtype)
     policy_term = -((selected.sum(dim=1) * advantages).mean())
-    return policy_term + beta * masked_kl(logits, reference_logits, response_mask)
+    return policy_term + beta * masked_kl(logits[:, :-1], reference_logits[:, :-1], response_mask[:, 1:])
 
 
 def _sum_to_shape(gradient, shape):
