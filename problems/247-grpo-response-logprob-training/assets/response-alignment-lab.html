@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Causal response alignment lab</title>
+<style>
+:root{color-scheme:light;--background:#f8fafc;--surface:#fff;--surfaceInset:#eef2f6;--border:#d4dbe5;--text:#182235;--muted:#536379;--accent:#3264b5;--accentSoft:#e8effc;--positive:#19724c;--warning:#9b531b;--danger:#b43336}*{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--text);font:15px/1.5 system-ui,sans-serif}.demo{max-width:560px;margin:auto;padding:20px}.canvas{min-height:860px;display:flex;flex-direction:column;gap:16px}h1{font-size:24px;line-height:1.2;margin:3px 0 9px}h2{font-size:16px;margin:0 0 8px}p{margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.muted,small{color:var(--muted)}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:flex;flex-direction:column;gap:4px;font-size:13px}select,button{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:9px;width:100%;min-width:0}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.wide{grid-column:1/-1}.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}.figure{padding:8px}svg{display:block;width:100%;height:auto}svg text{font-family:system-ui,sans-serif;fill:var(--text)}.state{border-left:3px solid var(--accent);padding-left:12px}.numbers{display:grid;grid-template-columns:1fr 1fr;gap:12px}.value{font-size:21px;font-variant-numeric:tabular-nums}.code{font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.line{display:block;padding:2px 5px}.active{background:var(--accentSoft);border-left:3px solid var(--accent)}summary{cursor:pointer;font-weight:600}details p{margin:10px 0}table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}td,th{text-align:left;padding:6px 3px;border-bottom:1px solid var(--border)}.foot{font-size:12px;margin-top:14px}#status{min-height:64px}@media(max-width:380px){.demo{padding:12px}.controls{grid-template-columns:1fr}.wide{grid-column:auto}.numbers{grid-template-columns:1fr}.value{font-size:19px}}
+</style></head><body><main class="demo">
+<div class="canvas"><header><div class="eyebrow">GRPO components · deterministic toy example</div><h1>One token, one prediction position</h1><p class="muted">For response token <b>t</b>, both its log probability and its KL penalty must come from logits <b>t − 1</b>.</p></header>
+<div class="controls">
+<label>Inspect response token<select id="token"><option value="2">t = 2 · A</option><option value="3">t = 3 · B</option><option value="4">t = 4 · END</option></select></label>
+<label>Response mask<select id="mask"><option value="response">A, B, END</option><option value="last">END only</option><option value="none">No tokens</option><option value="zero">Position 0 only</option></select></label>
+<label class="wide">KL alignment<select id="alignment"><option value="correct">Correct · logits[t − 1]</option><option value="old">Old bug · logits[t]</option></select></label>
+</div>
+<div class="card figure"><svg id="diagram" viewBox="0 0 440 365" role="img" aria-labelledby="figtitle figdesc"></svg></div>
+<div class="state" id="status" aria-live="polite"></div>
+<div class="numbers card"><div><small>Selected log probability · response 0</small><div class="value" id="logprob"></div></div><div><small>Selected full-vocabulary KL</small><div class="value" id="kl"></div></div></div>
+<div class="card"><h2>Aligned computation <small>· simplified code</small></h2><pre class="code" id="code"></pre></div>
+<div class="card"><h2>Batch loss · N = 2, β = 0.1</h2><p id="loss" class="value"></p><p id="reduction" class="muted"></p></div>
+</div>
+<details class="card"><summary>Inspect the numbers and group reduction</summary><p>Two responses share one prompt. Rewards [1, 3] give mean 2 and population standard deviation 1. Detached advantages are [−0.999999, +0.999999] with ε = 10⁻⁶. Constant groups, including singletons, instead give zero advantages.</p><p>Both responses use sequence IDs [0, 0, 0, 1, 2]. Only positions 2–4 are normally responses. The diagram inspects response 0; both responses contribute to the batch loss below.</p><p>Each row contains policy probabilities for [A, B, END]. Reference probabilities are [⅓, ⅓, ⅓] everywhere. Logits are the natural logarithms of these probabilities.</p><table><thead><tr><th>Logit row</th><th>Response 0 policy</th><th>Response 1 policy</th></tr></thead><tbody id="data"></tbody></table><p id="terms"></p><p>KL(reference || policy) = Σᵥ p_ref(v) log(p_ref(v) / p_policy(v)). This is the exercise's stated direction; it is not a claim about the usual GRPO KL direction. This component exercise has no old-policy ratio or clipping.</p><p id="empty"></p></details>
+<p class="foot">Toy probabilities illustrate indexing and reductions, not an interview transcript or measured training results. Only policy logits receive gradients; rewards and reference logits are detached.</p>
+</main><script>
+'use strict';
+const p=[[[.6,.3,.1],[.7,.2,.1],[.2,.6,.2],[.1,.2,.7],[.8,.1,.1]],[[.5,.3,.2],[.4,.4,.2],[.3,.5,.2],[.2,.3,.5],[.2,.7,.1]]];
+const ids=[0,0,0,1,2],names=['START','prompt','A','B','END'];
+const $=id=>document.getElementById(id), fmt=x=>(Math.abs(x)<5e-10?0:x).toFixed(6);
+const divergence=row=>row.reduce((s,v)=>s+Math.log((1/3)/v)/3,0);
+const advantages=[-1/(1+1e-6),1/(1+1e-6)];
+function render(){
+ const t=Number($('token').value),old=$('alignment').value==='old',mode=$('mask').value;
+ const raw=Array.from({length:5},(_,i)=>mode==='response'?i>=2:mode==='last'?i===4:mode==='zero'?i===0:false);
+ const included=raw[t], kpos=old?t:t-1;
+ let svg='<title id="figtitle">Causal token alignment, response 0</title><desc id="figdesc">Log probability always uses the preceding logit row. The KL arrow switches between the preceding row and the incorrect current row. The mask controls included response tokens.</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="var(--accent)"/></marker><marker id="bad" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="var(--danger)"/></marker></defs><text x="18" y="23" font-size="14">Logits [T = 5, V = 3]</text><text x="255" y="23" font-size="14">Sequence [T = 5]</text>';
+ for(let i=0;i<5;i++){
+  const y=45+i*52,src=i===t-1||i===kpos;
+  svg+=`<rect x="18" y="${y}" width="130" height="38" rx="6" fill="${src?'var(--accentSoft)':'var(--surfaceInset)'}" stroke="${src?'var(--accent)':'var(--border)'}"/><text x="30" y="${y+24}" font-size="14">logits[${i}]</text><rect x="262" y="${y}" width="155" height="38" rx="6" fill="${i===t?'var(--accentSoft)':'var(--surfaceInset)'}" stroke="${i===t?'var(--accent)':'var(--border)'}"/><text x="272" y="${y+24}" font-size="14">${i}: ${names[i]}</text><text x="384" y="${y+24}" font-size="13">${i===0&&raw[i]?'×':raw[i]?'✓':'—'}</text>`;
+ }
+ const target=64+t*52,source=64+(t-1)*52,ksource=64+kpos*52;
+ svg+=`<path d="M148 ${source-5} L254 ${target-5}" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#arrow)"/><path d="M148 ${ksource+6} L254 ${target+7}" fill="none" stroke="${old?'var(--danger)':'var(--accent)'}" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#${old?'bad':'arrow'})"/><text x="18" y="329" font-size="13">Solid: token logprob · Dashed: full-vocabulary KL</text><text x="18" y="350" font-size="13">✓ selected · — masked · × no previous predictor</text>`;
+ $('diagram').innerHTML=svg;
+ const lp=included?Math.log(p[0][t-1][ids[t]]):0, kl=included?divergence(p[0][kpos]):0;
+ $('logprob').textContent=fmt(lp);$('kl').textContent=fmt(kl);
+ $('status').textContent=!included?`Token ${names[t]} is masked out: both displayed contributions are zero. Arrows show its candidate source rows.`:old?`Mismatch: logprob predicts ${names[t]} from row ${t-1}, but KL penalizes row ${t}, which predicts the next token. The dashed arrow is one row too late.`:`Matched: logprob and KL both use row ${t-1}, the distribution predicting ${names[t]}. KL compares all 3 vocabulary probabilities, not just the sampled token.`;
+ let sums=[0,0],kls=[];
+ for(let n=0;n<2;n++){for(let i=1;i<5;i++)if(raw[i])sums[n]+=Math.log(p[n][i-1][ids[i]]);for(let i=old?0:1;i<5;i++)if(raw[i])kls.push(divergence(p[n][old?i:i-1]));}
+ const pg=-(advantages[0]*sums[0]+advantages[1]*sums[1])/2,km=kls.length?kls.reduce((s,v)=>s+v,0)/kls.length:0;
+ $('loss').textContent=`${fmt(pg)} + 0.1 × ${fmt(km)} = ${fmt(pg+.1*km)}`;
+ $('reduction').textContent=`Policy: sum tokens, average 2 responses. KL: average ${kls.length} selected positions.${old?' The KL component currently demonstrates the old bug.':''}`;
+ const lines=['token_lp = log_softmax(logits[:, :-1], -1)','selected = token_lp.gather(-1, sequences[:, 1:, None])','selected = selected.squeeze(-1) * response_mask[:, 1:]',old?'kl = masked_kl(logits, ref.detach(), response_mask)  # BUG':'kl = masked_kl(logits[:, :-1], ref[:, :-1].detach(),','               response_mask[:, 1:])', 'loss = -(adv.detach() * selected.sum(-1)).mean() + beta * kl'];
+ if(old)lines.splice(4,1);
+ $('code').replaceChildren(...lines.map((line,i)=>{const s=document.createElement('span');s.className='line'+(i===3||(!old&&i===4)?' active':'');s.textContent=line;return s;}));
+ $('terms').textContent=`Token sums: [${sums.map(fmt).join(', ')}]. Policy loss: −(A₀ × sum₀ + A₁ × sum₁) / 2 = ${fmt(pg)}. KL mean = ${fmt(km)}.`;
+ $('empty').textContent=mode==='zero'?'Position 0 cannot be predicted from an earlier row. Correct alignment excludes it and returns zero. Old alignment incorrectly includes row 0 in the KL mean and creates a nonzero loss; this is an additional consequence of the bug.':mode==='none'?'With no selected tokens, both components return a differentiable scalar zero, with zero policy gradients.':'The standalone masked_kl helper does not shift indices; its caller must slice logits and mask together. An all-empty batch must retain a differentiable zero.';
+}
+$('data').innerHTML=p[0].map((row,i)=>`<tr><td>${i}</td><td>[${row.join(', ')}]</td><td>[${p[1][i].join(', ')}]</td></tr>`).join('');
+for(const id of ['token','mask','alignment'])$(id).addEventListener('change',render);
+const root=document.querySelector('.demo');
+function reportHeight(){parent.postMessage({type:'deepcode:interactive-demo-height',version:1,height:Math.ceil(root.getBoundingClientRect().height)},'*');}
+window.addEventListener('message',event=>{if(event.source!==parent||event.data?.type!=='deepcode:interactive-demo-theme'||event.data?.version!==1)return;const data=event.data;document.documentElement.dataset.theme=data.theme;document.documentElement.style.colorScheme=data.theme==='dark'?'dark':'light';for(const name of ['background','surface','surfaceInset','border','text','muted','accent','accentSoft','positive','warning','danger'])if(typeof data.tokens?.[name]==='string')document.documentElement.style.setProperty('--'+name,data.tokens[name]);});
+render();new ResizeObserver(reportHeight).observe(root);window.addEventListener('load',reportHeight);parent.postMessage({type:'deepcode:interactive-demo-ready',version:1},'*');
+</script></body></html>
