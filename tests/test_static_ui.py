@@ -517,8 +517,20 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("function problemAssetUrl(problem, asset)", app_js)
         self.assertIn("/problem-assets/${encodeURIComponent(problem.slug)}", app_js)
         self.assertIn("function renderProblemAssets(problem, section)", app_js)
+        self.assertIn("function hasCodingInteractiveContent(problem)", app_js)
+        self.assertIn('(asset) => asset.section === "interactive_demo"', app_js)
+        self.assertIn('renderProblemAssets(problem, "interactive_demo")', app_js)
         self.assertIn("loading=\"lazy\"", app_js)
         self.assertIn(".problem-asset", styles_css)
+
+    def test_two_layer_walkthrough_images_are_hidden_from_the_problem_prompt(self):
+        problem = json.loads(
+            Path("problems/110-two-layer-numpy-network/problem.json").read_text(encoding="utf-8")
+        )
+
+        self.assertEqual(len(problem["assets"]), 3)
+        self.assertTrue(all(asset["section"] == "interactive_demo" for asset in problem["assets"]))
+        self.assertFalse(any(asset["section"] == "prompt" for asset in problem["assets"]))
 
     def test_problem_example_is_omitted_when_a_non_coding_problem_has_no_example(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")

@@ -61,19 +61,19 @@
       "path": "assets/forward-backprop-portrait.png",
       "alt": "Two-layer network forward pass, tensor shapes, mean loss, backpropagation and parameter update",
       "caption": "1 / 3 \u00b7 Forward pass and backpropagation.",
-      "section": "prompt"
+      "section": "interactive_demo"
     },
     {
       "path": "assets/softmax-derivation-portrait.png",
       "alt": "Complete step-by-step expansion and differentiation of softmax cross-entropy, followed by batch averaging",
       "caption": "2 / 3 \u00b7 Softmax and cross-entropy: every derivative step.",
-      "section": "prompt"
+      "section": "interactive_demo"
     },
     {
       "path": "assets/affine-derivation-portrait.png",
       "alt": "Local derivatives, chain-rule sums and matrix gradients for both affine layers and the ReLU gate",
       "caption": "3 / 3 \u00b7 Both affine layers and ReLU: local derivative, chain rule, matrix form.",
-      "section": "prompt"
+      "section": "interactive_demo"
     }
   ]
 }
