@@ -1,0 +1,56 @@
+{
+  "id": "417",
+  "slug": "replay-buffer-debugging",
+  "title": "Debug a Bounded Replay Buffer",
+  "category": "General Coding",
+  "difficulty": "medium",
+  "tags": [
+    "python",
+    "debugging",
+    "code-review",
+    "replay-buffer"
+  ],
+  "companies": [
+    "Mistral AI"
+  ],
+  "interview_frequency": {
+    "Mistral AI": {
+      "source_record_ids": [
+        "35c6ce51456d8141b414e6ed51f79326"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-15"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-15"
+  },
+  "prompt": "Repair the buggy `ReplayBuffer` implementation while preserving its public API. The source interview used this as a functional code-review exercise; it did not ask for a deque, recency policy, or performance optimization.\n\n`ReplayBuffer(buffer_size)` stores at most `buffer_size` experiences. Each experience contains `state`, `action`, `reward`, `next_state`, `done`, and an internal `sample_count` that starts at zero. `add(...)` records one experience. If the buffer is already full, the new experience replaces one randomly selected stored experience instead of growing the buffer. `add_batch(states, actions, rewards, next_states, dones)` records the zipped experiences with the same behavior as repeated calls to `add`. `get_last_state()` returns the state from the most recently added experience, including one added through `add_batch`.\n\n`sample()` randomly selects one stored experience and returns `(state, action, reward, next_state, done)`. Persist that experience's incremented `sample_count`; once it reaches `MAX_SAMPLE_COUNT`, remove the experience after producing the return value.\n\nSource boundary and local test choices: the report preserves the class shape and functional bugs but no examples or edge-case rules. The tests below locally formalize batch insertion as repeated `add` calls in input order and keep `last_state` as the most recently added state even if that experience is later sampled or evicted. Empty-buffer sampling, invalid capacities, mismatched batch lengths, concurrency, and alternative eviction policies are not judged.",
+  "starter_code": "import random\n\n\nMAX_SAMPLE_COUNT = 2\n\n\nclass ReplayBuffer:\n    def __init__(self, buffer_size):\n        self.buffer = []\n        self.buffer_size = buffer_size\n\n    def add(self, state, action, reward, next_state, done):\n        self.last_state = state\n        experience = {\n            \"state\": state,\n            \"action\": action,\n            \"reward\": reward,\n            \"next_state\": next_state,\n            \"done\": done,\n            \"sample_count\": 0,\n        }\n        if len(self.buffer) > self.buffer_size:\n            self.buffer[random.randint(0, self.buffer_size)] = experience\n        else:\n            self.buffer.append(experience)\n\n    def add_batch(self, states, actions, rewards, next_states, dones):\n        batch = [\n            {\n                \"state\": state,\n                \"action\": action,\n                \"reward\": reward,\n                \"next_state\": next_state,\n                \"done\": done,\n                \"sample_count\": 0,\n            }\n            for state, action, next_state, reward, done in zip(\n                states, actions, rewards, next_states, dones\n            )\n        ]\n        for item in batch:\n            self.add(*item.values()[:-1])\n\n    def sample(self):\n        index = random.sample(range(len(self.buffer)), 1)[0]\n        state, action, reward, next_state, done, sample_count = self.buffer[index].values()\n        sample_count += 1\n        if sample_count > MAX_SAMPLE_COUNT:\n            self.buffer.pop(index)\n        return state, action, reward, next_state, done\n\n    def get_last_state(self):\n        return self.last_state\n",
+  "example": {
+    "input": "buffer = ReplayBuffer(2); buffer.add(\"s0\", 1, 0.5, \"s1\", False); buffer.sample()",
+    "output": "('s0', 1, 0.5, 's1', False)",
+    "reasoning": "With one stored experience, sampling returns that transition and persists its first sample count."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "references": [
+    {
+      "label": "Opportunity 2026: Mistral replay-buffer code review",
+      "url": "https://app.notion.com/p/35c6ce51456d8141b414e6ed51f79326"
+    },
+    {
+      "label": "1Point3Acres: Mistral AI Scientist interview report",
+      "url": "https://www.1point3acres.com/bbs/thread-1144453-1-1.html"
+    }
+  ],
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-15"
+}
