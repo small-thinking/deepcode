@@ -432,18 +432,8 @@ def streaming_entropy(blocks):
         solution = r"""import numpy as np
 
 
-def top_p_sample(logits, p, u, temperature=1.0):
-    if not 0 < p <= 1:
-        raise ValueError("p must be in (0, 1]")
-    if not 0 <= u < 1:
-        raise ValueError("u must be in [0, 1)")
-    if temperature <= 0:
-        raise ValueError("temperature must be positive")
-
+def top_p_sample(logits, top_p, temperature=1.0):
     values = np.asarray(logits, dtype=np.float64)
-    if values.ndim != 1 or values.size == 0:
-        raise ValueError("logits must be a non-empty 1D sequence")
-
     scaled = values / temperature
     shifted = scaled - scaled.max()
     probs = np.exp(shifted)
@@ -455,16 +445,11 @@ def top_p_sample(logits, p, u, temperature=1.0):
     for index in ordered:
         kept.append(index)
         mass += float(probs[index])
-        if mass >= p:
+        if mass >= top_p:
             break
 
-    threshold = u * mass
-    cumulative = 0.0
-    for index in kept:
-        cumulative += float(probs[index])
-        if threshold <= cumulative:
-            return int(index)
-    return int(kept[-1])
+    kept_probs = probs[kept] / mass
+    return int(np.random.choice(kept, p=kept_probs))
 """
 
         result = run_submission(
