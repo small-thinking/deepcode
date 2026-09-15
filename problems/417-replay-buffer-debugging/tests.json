@@ -1,0 +1,22 @@
+[
+  {
+    "name": "add respects the capacity and keeps the newest state",
+    "input": "three additions to a capacity-two buffer",
+    "test": "import random\nrandom.seed(7)\nbuffer = ReplayBuffer(2)\nbuffer.add('s0', 'a0', 0.0, 's1', False)\nbuffer.add('s1', 'a1', 1.0, 's2', False)\nbuffer.add('s2', 'a2', 2.0, 's3', True)\nassert len(buffer.buffer) == 2\nassert 's2' in {item['state'] for item in buffer.buffer}\nassert all(item['sample_count'] == 0 for item in buffer.buffer)\nassert buffer.get_last_state() == 's2'"
+  },
+  {
+    "name": "add_batch preserves transition fields and behaves like ordered adds",
+    "input": "two aligned transition batches",
+    "test": "buffer = ReplayBuffer(4)\nbuffer.add_batch(\n    ['s0', 's1'],\n    ['left', 'right'],\n    [0.25, 0.75],\n    ['s1', 's2'],\n    [False, True],\n)\nassert buffer.buffer == [\n    {'state': 's0', 'action': 'left', 'reward': 0.25, 'next_state': 's1', 'done': False, 'sample_count': 0},\n    {'state': 's1', 'action': 'right', 'reward': 0.75, 'next_state': 's2', 'done': True, 'sample_count': 0},\n]\nassert buffer.get_last_state() == 's1'"
+  },
+  {
+    "name": "sample persists counts and evicts exactly at the limit",
+    "input": "sample the only stored transition twice",
+    "test": "buffer = ReplayBuffer(1)\ntransition = ('s0', 'act', 1.5, 's1', False)\nbuffer.add(*transition)\nassert buffer.sample() == transition\nassert len(buffer.buffer) == 1\nassert buffer.buffer[0]['sample_count'] == 1\nassert buffer.sample() == transition\nassert buffer.buffer == []\nassert buffer.get_last_state() == 's0'"
+  },
+  {
+    "name": "overflowing add_batch remains bounded",
+    "input": "a four-item batch added to capacity two",
+    "test": "import random\nrandom.seed(11)\nbuffer = ReplayBuffer(2)\nbuffer.add_batch(\n    ['s0', 's1', 's2', 's3'],\n    [0, 1, 2, 3],\n    [0.0, 1.0, 2.0, 3.0],\n    ['s1', 's2', 's3', 's4'],\n    [False, False, False, True],\n)\nassert len(buffer.buffer) == 2\nassert 's3' in {item['state'] for item in buffer.buffer}\nassert buffer.get_last_state() == 's3'"
+  }
+]

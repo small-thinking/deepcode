@@ -1,0 +1,22 @@
+[
+  {
+    "name": "adds unequal lengths and propagates carries",
+    "input": "'999' + '1' and '123' + '9876'",
+    "test": "assert add_decimal_strings('999', '1') == '1000'\nassert add_decimal_strings('123', '9876') == '9999'"
+  },
+  {
+    "name": "normalizes zero and leading zeros",
+    "input": "'0000' + '000' and '0012' + '0008'",
+    "test": "assert add_decimal_strings('0000', '000') == '0'\nassert add_decimal_strings('0012', '0008') == '20'"
+  },
+  {
+    "name": "handles ordinary values without a final carry",
+    "input": "'314159' + '271828'",
+    "test": "assert add_decimal_strings('314159', '271828') == '585987'\nassert add_decimal_strings('0', '7') == '7'"
+  },
+  {
+    "name": "supports inputs too long for direct Python integer parsing",
+    "input": "five thousand nines plus one",
+    "test": "a = '9' * 5000\nassert add_decimal_strings(a, '1') == '1' + '0' * 5000"
+  }
+]
