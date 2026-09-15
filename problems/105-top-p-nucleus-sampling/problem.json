@@ -1,7 +1,7 @@
 {
   "id": "105",
   "slug": "top-p-nucleus-sampling",
-  "title": "Top-p Nucleus Sampling",
+  "title": "Top-p (Nucleus) Sampling",
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
@@ -35,12 +35,12 @@
     "stars": 2,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `top_p_sample(logits, p, u, temperature=1.0)` for one LLM decoding step.\n\nInputs:\n- `logits`: a non-empty 1D list or NumPy array of token logits.\n- `p`: the nucleus threshold, with `0 < p <= 1`.\n- `u`: a deterministic draw in `[0, 1)` used instead of calling randomness.\n- `temperature`: a positive scalar. Apply it by dividing logits by temperature before softmax.\n\nCompute a stable softmax, sort tokens by descending probability, and break ties by lower original token index. Keep the smallest sorted prefix whose cumulative probability is at least `p`. Renormalize implicitly by sampling inside that kept probability mass: if the kept mass is `M`, choose the first kept token whose cumulative kept probability is at least `u * M`. Return the selected original token index as an `int`.\n\nRaise `ValueError` for invalid `p`, `u`, `temperature`, or empty logits.",
-  "starter_code": "import numpy as np\n\n\ndef top_p_sample(logits, p, u, temperature=1.0):\n    # Return the selected original token index after top-p filtering.\n    pass\n",
+  "prompt": "Implement `top_p_sample(logits, top_p, temperature=1.0) -> int` for one LLM decoding step.\n\n`logits` is a non-empty one-dimensional list or NumPy array, `top_p` is in `(0, 1]`, and `temperature` is positive. Apply temperature scaling and softmax, keep the smallest set of highest-probability tokens whose cumulative probability reaches `top_p`, then sample from the renormalized probabilities of those tokens. Return the sampled token's original index as a Python `int`.\n\nYou may use NumPy, but implement the top-p logic yourself. Assume the inputs are valid. Top-k filtering and the full autoregressive decoding loop are outside this exercise.",
+  "starter_code": "import numpy as np\n\n\ndef top_p_sample(logits, top_p, temperature=1.0):\n    pass\n",
   "example": {
-    "input": "logits = [3.0, 2.0, 1.0, 0.0], p = 0.8, u = 0.8",
-    "output": "1",
-    "reasoning": "The top two tokens form the nucleus. After renormalizing that kept mass, draw `u = 0.8` lands on the second kept token, whose original index is 1."
+    "input": "logits = [3.0, 1.0, 0.0], top_p = 0.6, temperature = 1.0",
+    "output": "0",
+    "reasoning": "Token 0 alone has more than 0.6 of the probability mass, so it is the entire nucleus and must be sampled."
   },
   "environment": {
     "language": "python",
@@ -52,12 +52,28 @@
   },
   "references": [
     {
+      "label": "Notion: canonical interview-question record",
+      "url": "https://app.notion.com/p/35c6ce51456d814f94a3dc188e7c6089"
+    },
+    {
+      "label": "Mistral AI Scientist interview experience (1Point3Acres)",
+      "url": "https://www.1point3acres.com/bbs/thread-1135040-1-1.html"
+    },
+    {
+      "label": "PracHub: Mistral AI Scientist interview experience",
+      "url": "https://prachub.com/interview-experiences/mistral-ai-scientist-interview-experience-three-technical-rounds-in-one-day-after-the-initial-screen"
+    },
+    {
       "label": "Holtzman et al.: The Curious Case of Neural Text Degeneration",
       "url": "https://arxiv.org/abs/1904.09751"
     },
     {
-      "label": "NumPy: exp",
-      "url": "https://numpy.org/doc/stable/reference/generated/numpy.exp.html"
+      "label": "Hugging Face: generation parameters",
+      "url": "https://huggingface.co/docs/transformers/main_classes/text_generation"
+    },
+    {
+      "label": "NumPy: Generator.random",
+      "url": "https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.random.html"
     }
   ],
   "evaluation": {
