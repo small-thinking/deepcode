@@ -28,7 +28,7 @@ PROBLEM_DEMO_CSP = (
     "default-src 'none'; "
     "script-src 'unsafe-inline'; "
     "style-src 'unsafe-inline'; "
-    "img-src data:; "
+    "img-src 'self' data:; "
     "connect-src 'none'; "
     "object-src 'none'; "
     "base-uri 'none'; "

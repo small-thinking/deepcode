@@ -485,6 +485,23 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('type: "deepcode:interactive-demo-height"', demo_html)
         self.assertIn("new ResizeObserver(reportHeight).observe(demo)", demo_html)
 
+    def test_top_p_poster_uses_the_responsive_interactive_demo_mount(self):
+        problem = json.loads(
+            Path("problems/105-top-p-nucleus-sampling/problem.json").read_text(encoding="utf-8")
+        )
+        demo = problem["interactive_demos"][0]
+        demo_html = (
+            Path("problems/105-top-p-nucleus-sampling") / demo["path"]
+        ).read_text(encoding="utf-8")
+
+        self.assertEqual(demo["section"], "interactive_demo")
+        self.assertEqual(demo["presentation"]["height"], "content")
+        self.assertEqual(problem["assets"][0]["section"], "interactive_demo")
+        self.assertIn("width: 100%", demo_html)
+        self.assertIn("height: auto", demo_html)
+        self.assertIn("margin-left: 0", demo_html)
+        self.assertIn("new ResizeObserver(reportHeight).observe(demo)", demo_html)
+
     def test_listing_quality_demo_covers_the_full_ml_decision_loop(self):
         problem = json.loads(
             Path("problems/349-listing-quality-evaluation-design/problem.json").read_text(encoding="utf-8")

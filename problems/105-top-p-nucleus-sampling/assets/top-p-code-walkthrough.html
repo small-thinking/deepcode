@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Top-p sampling: probability mass to code</title>
+<style>
+:root {
+  color-scheme: light;
+  --background: #faf9f6;
+  --surface: #ffffff;
+  --text: #17212d;
+  --body: #344151;
+  --muted: #627080;
+  --border: #d9dfe5;
+  --accent: #385bd7;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; overflow-x: hidden; }
+body { background: var(--background); color: var(--text); font: 14px/1.5 system-ui, sans-serif; }
+.demo { width: 100%; padding: 12px; }
+.poster-frame {
+  margin: 0;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+}
+.poster {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  margin-left: 0;
+}
+figcaption {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 520px) {
+  .demo { padding: 8px; }
+  .poster-frame { border-radius: 8px; }
+}
+</style>
+</head>
+<body>
+<main class="demo" id="demo">
+  <figure class="poster-frame">
+    <img
+      class="poster"
+      src="/problem-assets/top-p-nucleus-sampling/assets/top-p-nucleus-sampling-poster.png"
+      alt="Six-step Top-p sampling walkthrough with matching NumPy code: scale logits, apply softmax, sort probabilities, accumulate through the threshold, renormalize the nucleus, and randomly sample one retained token."
+    >
+    <figcaption>
+      With top_p = 0.80, the nucleus keeps A, B, and C because their cumulative probability first reaches the threshold at 0.83.
+    </figcaption>
+  </figure>
+</main>
+<script>
+const demo = document.getElementById('demo');
+function reportHeight() {
+  parent.postMessage({
+    type: 'deepcode:interactive-demo-height',
+    version: 1,
+    height: Math.ceil(demo.getBoundingClientRect().height),
+  }, '*');
+}
+window.addEventListener('message', (event) => {
+  if (event.source !== window.parent || event.data?.type !== 'deepcode:interactive-demo-theme' || event.data?.version !== 1) return;
+  const data = event.data;
+  document.documentElement.dataset.theme = data.theme;
+  document.documentElement.style.colorScheme = data.theme === 'dark' ? 'dark' : 'light';
+  for (const key of ['background', 'surface', 'text', 'body', 'muted', 'border', 'accent']) {
+    if (typeof data.tokens?.[key] === 'string') document.documentElement.style.setProperty(`--${key}`, data.tokens[key]);
+  }
+  reportHeight();
+});
+new ResizeObserver(reportHeight).observe(demo);
+window.addEventListener('load', reportHeight);
+parent.postMessage({type: 'deepcode:interactive-demo-ready', version: 1}, '*');
+</script>
+</body>
+</html>

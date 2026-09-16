@@ -84,8 +84,23 @@
       "path": "assets/top-p-nucleus-sampling-poster.png",
       "alt": "Six-step Top-p sampling walkthrough with matching NumPy code: scale logits, apply softmax, sort probabilities, accumulate through the threshold, renormalize the nucleus, and randomly sample one retained token.",
       "caption": "Code-synchronized example with top_p = 0.80. The nucleus keeps A, B, and C because their cumulative probability first reaches the threshold at 0.83.",
-      "section": "prompt",
-      "fit": "viewport"
+      "section": "interactive_demo"
+    }
+  ],
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "top-p-code-walkthrough",
+      "kind": "standalone_html",
+      "path": "assets/top-p-code-walkthrough.html",
+      "title": "Top-p sampling: probability mass to code",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 900
+      }
     }
   ],
   "created_at": "2026-06-13"

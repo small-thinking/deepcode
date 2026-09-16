@@ -317,6 +317,50 @@ class ProblemStoreTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "only supported"):
                 store._validate_interactive_demos({"interactive_demos": [demo]}, root, "unknown")
 
+    def test_interactive_demo_assets_are_declared_without_rendering_in_prompt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(
+                root,
+                "top-p-demo",
+                {
+                    "id": "105",
+                    "slug": "top-p-demo",
+                    "title": "Top-p Demo",
+                    "category": "ML Coding",
+                    "difficulty": "medium",
+                    "prompt": "Implement top-p.",
+                    "starter_code": "def solve(): pass",
+                    "example": {
+                        "input": "solve()",
+                        "output": "None",
+                        "reasoning": "Placeholder contract.",
+                    },
+                    "environment": {
+                        "language": "python",
+                        "timeout_seconds": 2,
+                        "packages": [],
+                        "comparator": "exact",
+                    },
+                    "assets": [
+                        {
+                            "path": "assets/poster.png",
+                            "alt": "Top-p walkthrough",
+                            "section": "interactive_demo",
+                        }
+                    ],
+                    "evaluation": {"type": "ml_coding"},
+                },
+                [{"test": "solve()", "expected_output": ""}],
+            )
+            asset_dir = root / "top-p-demo" / "assets"
+            asset_dir.mkdir()
+            (asset_dir / "poster.png").write_bytes(b"poster")
+
+            problem = ProblemStore(root).get_problem("top-p-demo")
+
+            self.assertEqual(problem["assets"][0]["section"], "interactive_demo")
+
     def test_rejects_invalid_interactive_demo_contracts(self):
         base_demo = {
             "schema_version": 1,

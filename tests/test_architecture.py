@@ -121,6 +121,7 @@ class ArchitectureTest(unittest.TestCase):
                 self.assertEqual(response.headers.get_content_type(), "text/html")
                 self.assertEqual(response.headers["Cache-Control"], "no-store")
                 self.assertEqual(response.headers["Content-Security-Policy"], server.PROBLEM_DEMO_CSP)
+                self.assertIn("img-src 'self' data:", server.PROBLEM_DEMO_CSP)
                 self.assertEqual(response.headers["Cross-Origin-Resource-Policy"], "same-origin")
                 self.assertEqual(response.headers["X-Content-Type-Options"], "nosniff")
                 demo_path = ROOT / "problems/348-cover-photo-conversion-evaluation/assets/cover-photo-decision-loop.html"
