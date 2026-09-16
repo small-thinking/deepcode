@@ -353,6 +353,7 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('!normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt")', app_js)
         self.assertIn("hasPreviousBlankGenerateStarter", app_js)
         self.assertIn("hasPreviousAlphaTopKStarter", app_js)
+        self.assertIn("hasPreviousDatasetTopKStarter", app_js)
         self.assertIn("hasPreviousInitializedStarter", app_js)
 
     def test_problem_numbers_use_dynamic_display_ids(self):
