@@ -28,7 +28,7 @@ SUMMARY_FIELDS = (
 )
 
 PROBLEM_ASSET_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"})
-SYSTEM_DESIGN_ASSET_SECTIONS = frozenset({"prompt", "reference_answer"})
+PROBLEM_ASSET_SECTIONS = frozenset({"prompt", "reference_answer", "interactive_demo"})
 PROBLEM_DEMO_SUFFIXES = frozenset({".html"})
 PROBLEM_DEMO_SCHEMA_VERSION = 1
 PROBLEM_DEMO_KINDS = frozenset({"standalone_html"})
@@ -307,9 +307,10 @@ class ProblemStore:
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].path` must be a non-empty string")
             if not isinstance(alt, str) or not alt.strip():
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].alt` must be a non-empty string")
-            if section not in SYSTEM_DESIGN_ASSET_SECTIONS:
+            if section not in PROBLEM_ASSET_SECTIONS:
                 raise ValueError(
-                    f"{problem_dir}/problem.json field `assets[{index}].section` must be prompt or reference_answer"
+                    f"{problem_dir}/problem.json field `assets[{index}].section` must be prompt, "
+                    "reference_answer, or interactive_demo"
                 )
             if "caption" in asset and not isinstance(asset["caption"], str):
                 raise ValueError(f"{problem_dir}/problem.json field `assets[{index}].caption` must be a string")
