@@ -8,7 +8,7 @@
   {
     "name": "preserves patch raster order independently from channel order",
     "input": "position-encoded pixels split into multiple patch rows and columns",
-    "test": "import numpy as np\nimage = np.empty((4, 6, 2), dtype=np.int32)\nfor row in range(4):\n    for col in range(6):\n        for channel in range(2):\n            image[row, col, channel] = 100 * row + 10 * col + channel\nresult = patchify_channels_first(image, 2, 2)\nassert result.shape == (2, 3, 2, 2, 2)\nassert np.array_equal(result[0, 1, 0], np.array([[20, 30], [120, 130]]))\nassert np.array_equal(result[1, 2, 1], np.array([[241, 251], [341, 351]]))\nassert np.array_equal(result[:, :, 1, 0, 0], np.array([[1, 21, 41], [201, 221, 241]]))",
+    "test": "import numpy as np\nimage = np.empty((4, 6, 2), dtype=np.int32)\nfor row in range(4):\n    for col in range(6):\n        for channel in range(2):\n            image[row, col, channel] = 100 * row + 10 * col + channel\nresult = patchify_channels_first(image, 2, 2)\nassert result.shape == (2, 3, 2, 2, 2)\nassert np.array_equal(result[0, 1, 0], np.array([[20, 30], [120, 130]]))\nassert np.array_equal(result[1, 2, 1], np.array([[241, 251], [341, 351]]))\nassert np.array_equal(result[:, :, 1, 0, 0], np.array([[1, 21, 41], [201, 221, 241]]))\npatch_origins_in_raster_order = result[:, :, 0, 0, 0].reshape(-1)\nassert np.array_equal(patch_origins_in_raster_order, np.array([0, 20, 40, 200, 220, 240]))",
     "expected_output": ""
   },
   {
