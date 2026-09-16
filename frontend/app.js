@@ -881,6 +881,10 @@ function isLegacyNGramStarterDraft(code) {
     normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
     normalized.includes("def __init__(self, n=3, alpha=1.0):\n        pass") &&
     !normalized.includes("self.alpha");
+  const hasPreviousDatasetTopKStarter =
+    hasTopKStubs &&
+    normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
+    normalized.includes("def __init__(self, n=3):\n        pass");
   const hasPreviousInitializedStarter =
     hasGenerateEvaluateStubs &&
     normalized.includes("DEEPCODE_DATA_PATH/tiny_shakespeare.txt") &&
@@ -895,6 +899,7 @@ function isLegacyNGramStarterDraft(code) {
     hasOldBlankInitStarter ||
     hasPreviousBlankGenerateStarter ||
     hasPreviousAlphaTopKStarter ||
+    hasPreviousDatasetTopKStarter ||
     hasPreviousInitializedStarter
   );
 }

@@ -115,66 +115,45 @@ import random
 
 class NGramCharModel:
     def __init__(self, n=3):
-        if n < 1:
-            raise ValueError("n must be at least 1")
+        self.transitions = defaultdict(Counter)
+        self.context_totals = defaultdict(int)
         self.n = n
-        self._pseudocount = 1.0
-        self.counts = defaultdict(Counter)
-        self.vocab = set()
-        self._trained = False
-
-    def _context_size(self):
-        return self.n - 1
-
-    def _normalize_context(self, context):
-        size = self._context_size()
-        return "" if size == 0 else str(context)[-size:]
-
-    def _events(self, text):
-        padding = "^" * self._context_size()
-        padded = padding + text
-        for index in range(self._context_size(), len(padded)):
-            yield padded[index - self._context_size():index], padded[index]
 
     def train(self, text):
-        if not isinstance(text, str) or not text:
-            raise ValueError("text must be a non-empty string")
-        self.counts = defaultdict(Counter)
-        self.vocab = set(text)
-        for context, char in self._events(text):
-            self.counts[context][char] += 1
-        self._trained = True
-        return self
+        for i in range(len(text) - self.n + 1):
+            context = text[i:i + self.n - 1]
+            ch = text[i + self.n - 1]
+            self.transitions[context][ch] += 1
+            self.context_totals[context] += 1
 
     def prob(self, context, ch):
-        if not self._trained or ch not in self.vocab:
+        context_len = self.n - 1
+        context = "" if context_len == 0 else context[-context_len:]
+        entries = self.transitions.get(context)
+        if not entries:
             return 0.0
-        counts = self.counts.get(self._normalize_context(context), Counter())
-        denominator = sum(counts.values()) + self._pseudocount * len(self.vocab)
-        return (counts[ch] + self._pseudocount) / denominator
+        return entries.get(ch, 0) / self.context_totals[context]
 
     def perplexity(self, text):
-        if not self._trained or not text:
+        num_predictions = len(text) - self.n + 1
+        if num_predictions <= 0:
             return float("inf")
-        log_prob = 0.0
-        for context, char in self._events(text):
-            probability = self.prob(context, char)
-            if probability <= 0:
+        nll = 0.0
+        for i in range(self.n - 1, len(text)):
+            context = "" if self.n == 1 else text[i - (self.n - 1):i]
+            probability = self.prob(context, text[i])
+            if probability == 0:
                 return float("inf")
-            log_prob += math.log(probability)
-        return math.exp(-log_prob / len(text))
+            nll -= math.log(probability)
+        return math.exp(nll / num_predictions)
 
     def sample_top_k(self, context, k=5):
-        if not self._trained:
-            raise ValueError("model must be trained before sampling")
-        if k < 1:
-            raise ValueError("k must be at least 1")
-        candidates = sorted(
-            ((char, self.prob(context, char)) for char in self.vocab),
-            key=lambda item: (-item[1], item[0]),
-        )[: min(k, len(self.vocab))]
-        chars, weights = zip(*candidates)
-        return random.choices(chars, weights=weights, k=1)[0]
+        context = "" if self.n == 1 else context[-(self.n - 1):]
+        entries = self.transitions.get(context)
+        top_k = entries.most_common(k)
+        chars = [ch for ch, _ in top_k]
+        counts = [count for _, count in top_k]
+        return random.choices(chars, weights=counts, k=1)[0]
 """
 
         with tempfile.TemporaryDirectory() as tmp:

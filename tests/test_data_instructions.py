@@ -1,3 +1,4 @@
+import ast
 import json
 import unittest
 from pathlib import Path
@@ -40,12 +41,12 @@ class DataInstructionTest(unittest.TestCase):
                     if data.get(key):
                         self.assertLessEqual(len(data[key]), 160)
 
-    def test_ngram_starter_code_matches_original_api_and_dataset_hint(self):
+    def test_ngram_starter_code_matches_original_api(self):
         problem = json.loads((PROBLEMS / "101-ngram-next-character-model" / "problem.json").read_text(encoding="utf-8"))
         starter_code = problem["starter_code"]
 
         self.assertIn("def __init__(self, n=3):", starter_code)
-        self.assertIn("DEEPCODE_DATA_PATH/tiny_shakespeare.txt", starter_code)
+        self.assertNotIn("DEEPCODE_DATA_PATH", starter_code)
         self.assertIn("def prob(self, context, ch):", starter_code)
         self.assertIn("def perplexity(self, text):", starter_code)
         self.assertIn("def sample_top_k(self, context, k=5):", starter_code)
@@ -72,6 +73,23 @@ class DataInstructionTest(unittest.TestCase):
         ]
         for fragment in overly_specific_fragments:
             self.assertNotIn(fragment, problem["prompt"])
+
+    def test_ngram_checks_use_only_the_public_api(self):
+        checks_path = PROBLEMS / "101-ngram-next-character-model" / "tests.json"
+        checks = json.loads(checks_path.read_text(encoding="utf-8"))
+        public_methods = {"train", "prob", "perplexity", "sample_top_k"}
+
+        for check in checks:
+            with self.subTest(check=check["name"]):
+                tree = ast.parse(check["test"])
+                accessed_model_attributes = {
+                    node.attr
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.Attribute)
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id == "model"
+                }
+                self.assertLessEqual(accessed_model_attributes, public_methods)
 
 
 if __name__ == "__main__":

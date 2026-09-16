@@ -26,10 +26,10 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Hand-write `NGramCharModel`, a character-level n-gram model for next-character prediction.\n\nImplement the core interview API:\n- `__init__(n=3)` configures the n-gram order.\n- `train(text)` fits the model from text by collecting character-transition statistics.\n- `prob(context, ch)` returns the probability of a next character.\n- `perplexity(text)` scores text under the fitted model.\n- `sample_top_k(context, k=5)` samples from the top-k likely next characters.\n\nHandle reasonable edge cases such as unigram models, unseen contexts, invalid arguments, and empty or out-of-vocabulary evaluation text.",
-  "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n# Hidden dataset checks set DEEPCODE_DATA_PATH.\n# To inspect the file locally: DEEPCODE_DATA_PATH/tiny_shakespeare.txt\n\n\nclass NGramCharModel:\n    def __init__(self, n=3):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
+  "prompt": "Hand-write `NGramCharModel`, a character-level n-gram model for next-character prediction.\n\nImplement the core interview API:\n- `__init__(n=3)` configures the n-gram order.\n- `train(text)` collects character-transition counts.\n- `prob(context, ch)` estimates the next-character probability from those counts.\n- `perplexity(text)` scores text under the fitted model.\n- `sample_top_k(context, k=5)` samples from the top-k likely next characters.\n\nFocus on the basic count-based model. Smoothing, fluent method chaining, repeated-training reset semantics, and additional argument validation are optional and are not required by the checks.",
+  "starter_code": "from collections import Counter, defaultdict\nimport math\nimport random\n\n\nclass NGramCharModel:\n    def __init__(self, n=3):\n        pass\n\n    def train(self, text):\n        pass\n\n    def prob(self, context, ch):\n        pass\n\n    def perplexity(self, text):\n        pass\n\n    def sample_top_k(self, context, k=5):\n        pass\n",
   "example": {
-    "input": "model = NGramCharModel(n=2).train(\"ababa\")",
+    "input": "model = NGramCharModel(n=2); model.train(\"ababa\")",
     "output": "model.prob(\"a\", \"b\") > model.prob(\"a\", \"a\")",
     "reasoning": "After fitting on a short alternating string, `b` should be more likely than `a` after context `a`."
   },
@@ -55,12 +55,6 @@
   },
   "evaluation": {
     "type": "ml_modeling"
-  },
-  "data": {
-    "path": "data",
-    "required": true,
-    "format": "Contains tiny_shakespeare.txt for the hidden held-out check.",
-    "note": "Visible checks do not need local data; the starter code shows the hidden-check path."
   },
   "artifacts": {
     "results_path": "eval-results"

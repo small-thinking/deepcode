@@ -1,38 +1,37 @@
 [
   {
-    "name": "smoothed bigram probability ordering",
-    "input": "model = NGramCharModel(n=2).train(\"ababa\")",
-    "test": "import math\nmodel = NGramCharModel(n=2).train(\"ababa\")\nprob_b = model.prob(\"a\", \"b\")\nprob_a = model.prob(\"a\", \"a\")\nassert prob_b > prob_a > 0.0\nassert math.isclose(prob_a + prob_b, 1.0, rel_tol=1e-9)\nassert model.prob(\"z\", \"a\") > 0.0\nassert model.prob(\"z\", \"b\") > 0.0\nassert math.isclose(model.prob(\"z\", \"a\") + model.prob(\"z\", \"b\"), 1.0, rel_tol=1e-9)\nassert model.prob(\"a\", \"z\") == 0.0"
+    "name": "bigram probability ordering",
+    "input": "model = NGramCharModel(n=2); model.train(\"ababa\")",
+    "test": "import math\nmodel = NGramCharModel(n=2)\nmodel.train(\"ababa\")\nprob_b = model.prob(\"a\", \"b\")\nprob_a = model.prob(\"a\", \"a\")\nassert prob_b > prob_a >= 0.0\nassert math.isclose(prob_a + prob_b, 1.0, rel_tol=1e-9)\nunseen_total = model.prob(\"z\", \"a\") + model.prob(\"z\", \"b\")\nassert math.isclose(unseen_total, 0.0, abs_tol=1e-9) or math.isclose(unseen_total, 1.0, rel_tol=1e-9)"
   },
   {
     "name": "unigram probabilities and perplexity",
-    "input": "model = NGramCharModel(n=1).train(\"aab\")",
-    "test": "import math\nmodel = NGramCharModel(n=1).train(\"aab\")\nprob_a = model.prob(\"ignored\", \"a\")\nprob_b = model.prob(\"ignored\", \"b\")\nassert prob_a > prob_b > 0.0\nassert math.isclose(prob_a + prob_b, 1.0, rel_tol=1e-9)\nscore = model.perplexity(\"ab\")\nassert math.isfinite(score)\nassert score >= 1.0\nassert math.isinf(model.perplexity(\"\"))"
+    "input": "model = NGramCharModel(n=1); model.train(\"aab\")",
+    "test": "import math\nmodel = NGramCharModel(n=1)\nmodel.train(\"aab\")\nprob_a = model.prob(\"ignored\", \"a\")\nprob_b = model.prob(\"ignored\", \"b\")\nassert prob_a > prob_b > 0.0\nassert math.isclose(prob_a + prob_b, 1.0, rel_tol=1e-9)\nscore = model.perplexity(\"ab\")\nassert math.isfinite(score)\nassert score >= 1.0"
   },
   {
-    "name": "train resets previous state",
-    "input": "model.train(\"aaaa\"); model.train(\"bb\")",
-    "test": "model = NGramCharModel(n=2)\nassert model.train(\"aaaa\") is model\nassert model.prob(\"a\", \"a\") == 1.0\nmodel.train(\"bb\")\nassert model.prob(\"b\", \"b\") == 1.0\nassert model.prob(\"a\", \"a\") == 0.0\nassert model.prob(\"a\", \"b\") == 1.0"
+    "name": "uses the last n minus one context characters",
+    "input": "model = NGramCharModel(n=3); model.train(\"ababa\")",
+    "test": "model = NGramCharModel(n=3)\nmodel.train(\"ababa\")\nassert model.prob(\"xxab\", \"a\") > model.prob(\"xxab\", \"b\")\nassert model.prob(\"ba\", \"b\") > model.prob(\"ba\", \"a\")"
   },
   {
     "name": "seeded top-k sampling excludes lower-ranked characters",
-    "input": "model = NGramCharModel(n=1).train(\"aaabbc\")",
-    "test": "import random\nmodel = NGramCharModel(n=1).train(\"aaabbc\")\nrandom.seed(7)\nsamples = [model.sample_top_k(\"\", k=2) for _ in range(300)]\nassert set(samples) <= {\"a\", \"b\"}\nassert \"a\" in samples\nassert \"b\" in samples"
+    "input": "model = NGramCharModel(n=1); model.train(\"aaabbc\")",
+    "test": "import random\nmodel = NGramCharModel(n=1)\nmodel.train(\"aaabbc\")\nrandom.seed(7)\nsamples = [model.sample_top_k(\"\", k=2) for _ in range(300)]\nassert set(samples) <= {\"a\", \"b\"}\nassert \"a\" in samples\nassert \"b\" in samples"
   },
   {
     "name": "k larger than vocabulary samples from all known characters",
-    "input": "model = NGramCharModel(n=1).train(\"ab\")",
-    "test": "import random\nmodel = NGramCharModel(n=1).train(\"ab\")\nrandom.seed(11)\nsamples = [model.sample_top_k(\"\", k=10) for _ in range(50)]\nassert set(samples) <= {\"a\", \"b\"}\nassert set(samples) == {\"a\", \"b\"}"
+    "input": "model = NGramCharModel(n=1); model.train(\"ab\")",
+    "test": "import random\nmodel = NGramCharModel(n=1)\nmodel.train(\"ab\")\nrandom.seed(11)\nsamples = [model.sample_top_k(\"\", k=10) for _ in range(50)]\nassert set(samples) <= {\"a\", \"b\"}\nassert set(samples) == {\"a\", \"b\"}"
   },
   {
-    "name": "invalid arguments and untrained behavior",
-    "input": "n = 0, empty train text, untrained sampling",
-    "test": "import math\n\ndef expect_value_error(callable_obj):\n    try:\n        callable_obj()\n    except ValueError:\n        return\n    raise AssertionError(\"expected ValueError\")\n\nexpect_value_error(lambda: NGramCharModel(n=0))\nmodel = NGramCharModel()\nexpect_value_error(lambda: model.train(\"\"))\nexpect_value_error(lambda: model.sample_top_k(\"\", k=1))\nassert model.prob(\"\", \"a\") == 0.0\nassert math.isinf(model.perplexity(\"abc\"))\nmodel.train(\"abc\")\nexpect_value_error(lambda: model.sample_top_k(\"\", k=0))\nassert math.isinf(model.perplexity(\"az\"))"
+    "name": "untrained and out-of-vocabulary behavior",
+    "input": "untrained model and an unseen next character",
+    "test": "import math\nmodel = NGramCharModel(n=2)\nassert model.prob(\"\", \"a\") == 0.0\nassert math.isinf(model.perplexity(\"abc\"))\nmodel.train(\"abc\")\nscore = model.perplexity(\"abc\")\nassert math.isfinite(score)\nassert score >= 1.0\nassert math.isinf(model.perplexity(\"az\"))"
   },
   {
-    "name": "tiny Shakespeare held-out probability workflow",
-    "input": "DEEPCODE_DATA_PATH/tiny_shakespeare.txt",
-    "timeout_seconds": 12,
-    "test": "import math\nimport os\nimport random\nfrom pathlib import Path\n\ndata_root = os.environ.get(\"DEEPCODE_DATA_PATH\")\nassert data_root, \"DEEPCODE_DATA_PATH must point to a directory containing tiny_shakespeare.txt\"\ntext = (Path(data_root) / \"tiny_shakespeare.txt\").read_text(encoding=\"utf-8\").replace(\"\\r\\n\", \"\\n\")\nassert len(text) >= 1000, \"tiny_shakespeare.txt is unexpectedly small for a held-out split\"\ncut = int(len(text) * 0.8)\ntrain_text = text[:cut]\nvalidation_text = text[cut:]\nassert len(validation_text) >= 200, \"validation split is too small\"\ntraining_vocab = set(train_text)\nheldout = \"\".join(ch for ch in validation_text if ch in training_vocab)[:1000]\nassert len(heldout) >= 200, \"held-out split has too little known-vocabulary text\"\nmodel = NGramCharModel(n=4).train(train_text)\nscore = model.perplexity(heldout)\nassert math.isfinite(score)\nassert 1.0 <= score <= max(100.0, len(training_vocab) * 2.5)\nrandom.seed(13)\nsamples = [model.sample_top_k(heldout[:20], k=10) for _ in range(50)]\nassert set(samples) <= training_vocab"
+    "name": "end-to-end character model workflow",
+    "input": "train and evaluate a small repeated corpus",
+    "test": "import math\nimport random\ntext = \"to be or not to be, that is the question. \" * 20\nmodel = NGramCharModel(n=4)\nmodel.train(text)\nscore = model.perplexity(text)\nassert math.isfinite(score)\nassert score >= 1.0\nrandom.seed(13)\nsamples = [model.sample_top_k(\"to be\", k=10) for _ in range(50)]\nassert set(samples) <= set(text)"
   }
 ]

@@ -393,8 +393,8 @@ For `ml_modeling`, use assertions directly in `test`:
 [
   {
     "name": "seeded top-k sampling",
-    "input": "model = NGramCharModel(n=1).train(\"aaabbc\")",
-    "test": "import random\nmodel = NGramCharModel(n=1).train(\"aaabbc\")\nrandom.seed(7)\nsamples = [model.sample_top_k('', k=2) for _ in range(300)]\nassert set(samples) <= {'a', 'b'}"
+    "input": "model = NGramCharModel(n=1); model.train(\"aaabbc\")",
+    "test": "import random\nmodel = NGramCharModel(n=1)\nmodel.train(\"aaabbc\")\nrandom.seed(7)\nsamples = [model.sample_top_k('', k=2) for _ in range(300)]\nassert set(samples) <= {'a', 'b'}"
   }
 ]
 ```
