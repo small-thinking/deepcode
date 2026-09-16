@@ -3,6 +3,7 @@ from pathlib import Path
 
 from deepcode.evaluators import get_evaluator
 from deepcode.problem_store import ProblemStore
+from scripts.check_lfs_media import MEDIA_SUFFIXES
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,14 +19,15 @@ class CiQualityGateTest(unittest.TestCase):
         self.assertIn("repository-hygiene:", text)
         self.assertIn("git diff --check", text)
         self.assertIn("git ls-files .DS_Store", text)
-        self.assertIn("git check-attr filter -- docs/assets/deepcode-local-architecture.png", text)
+        self.assertIn("python3 scripts/check_lfs_media.py", text)
 
-    def test_problem_image_extensions_are_tracked_with_lfs(self):
+    def test_media_extensions_are_tracked_with_lfs(self):
         attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
 
-        self.assertIn("problems/**/assets/*.png filter=lfs", attributes)
-        self.assertIn("problems/**/assets/*.jpg filter=lfs", attributes)
-        self.assertIn("problems/**/assets/*.jpeg filter=lfs", attributes)
+        self.assertTrue({".png", ".svg", ".mp3", ".mp4", ".pdf"} <= MEDIA_SUFFIXES)
+        for suffix in MEDIA_SUFFIXES:
+            extension = suffix.removeprefix(".")
+            self.assertIn(f"*.{extension} filter=lfs diff=lfs merge=lfs -text", attributes)
 
     def test_committed_problem_catalog_loads(self):
         store = ProblemStore(ROOT / "problems")

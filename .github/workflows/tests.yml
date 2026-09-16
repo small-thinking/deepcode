@@ -36,11 +36,8 @@ jobs:
             exit 1
           fi
 
-      - name: Verify architecture image is stored with Git LFS
-        run: |
-          git check-attr filter -- docs/assets/deepcode-local-architecture.png
-          git check-attr filter -- docs/assets/deepcode-local-architecture.png | grep 'filter: lfs'
-          test "$(git cat-file -s HEAD:docs/assets/deepcode-local-architecture.png)" -lt 1000
+      - name: Verify tracked media use Git LFS
+        run: python3 scripts/check_lfs_media.py
 
       - name: Verify README architecture image target exists
         run: test -f docs/assets/deepcode-local-architecture.png
