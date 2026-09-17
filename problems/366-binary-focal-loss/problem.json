@@ -27,12 +27,12 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\")` using NumPy. `labels` and `probabilities` are non-empty array-like values with identical shape. Labels must be exactly 0 or 1, and probabilities must be finite values in `[0, 1]`.\n\nFor each element, use `p_t = p` for a positive label and `1-p` otherwise, and use `alpha_t = alpha` for a positive label and `1-alpha` otherwise. Compute `-alpha_t * (1-p_t)**gamma * log(p_t)`, clipping `p_t` to `[1e-15, 1-1e-15]` before the logarithm. Support reductions `\"none\"` (same-shape ndarray), `\"sum\"`, and `\"mean\"`. Reject invalid inputs, alpha outside `[0,1]`, negative or non-finite gamma, and unknown reductions with `ValueError`. Do not mutate inputs.",
+  "prompt": "Implement `binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\")` using NumPy.\n\nYou may assume `labels` and `probabilities` are non-empty numeric arrays with the same shape; labels are 0 or 1, probabilities are strictly between 0 and 1, `0 < alpha < 1`, and `gamma > 0`. `reduction` is one of `\"none\"`, `\"sum\"`, or `\"mean\"`. Input validation is not required.\n\nFor each element, let `p_t = p` and `alpha_t = alpha` when the label is 1; otherwise let `p_t = 1-p` and `alpha_t = 1-alpha`. Return the focal loss `-alpha_t * (1-p_t)**gamma * log(p_t)`. With `reduction=\"none\"`, return the same-shape array of per-element losses. With `\"sum\"` or `\"mean\"`, return the corresponding scalar reduction.",
   "starter_code": "import numpy as np\n\n\ndef binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\"):\n    pass\n",
   "example": {
     "input": "binary_focal_loss([1, 0], [0.9, 0.2], alpha=0.25, gamma=2.0, reduction='none')",
     "output": "a length-two NumPy array of per-example focal losses",
-    "reasoning": "The confident positive and confident negative each receive a smaller loss than a difficult misclassified example."
+    "reasoning": "For each label, select its probability and class weight before applying the focal scaling factor."
   },
   "environment": {
     "language": "python",

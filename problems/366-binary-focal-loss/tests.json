@@ -5,13 +5,13 @@
     "test": "import numpy as np\nlabels = np.array([1, 0])\nprobabilities = np.array([0.9, 0.2])\nnone = binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction='none')\nexpected = np.array([-0.25 * 0.1**2 * np.log(0.9), -0.75 * 0.2**2 * np.log(0.8)])\nassert none.shape == (2,)\nassert np.allclose(none, expected, atol=1e-15)\nassert np.isclose(binary_focal_loss(labels, probabilities, 0.25, 2.0, 'sum'), expected.sum())\nassert np.isclose(binary_focal_loss(labels, probabilities, 0.25, 2.0, 'mean'), expected.mean())"
   },
   {
-    "name": "gamma zero becomes alpha-balanced binary cross entropy and endpoints remain finite",
-    "input": "a two-by-two label array with probabilities at zero and one",
-    "test": "import numpy as np\nlabels = np.array([[1, 0], [1, 0]])\nprobabilities = np.array([[0.8, 0.3], [0.0, 1.0]])\nactual = binary_focal_loss(labels, probabilities, alpha=0.2, gamma=0.0, reduction='none')\npt = np.clip(np.where(labels == 1, probabilities, 1 - probabilities), 1e-15, 1 - 1e-15)\nalpha_t = np.where(labels == 1, 0.2, 0.8)\nexpected = -alpha_t * np.log(pt)\nassert actual.shape == labels.shape\nassert np.allclose(actual, expected)\nassert np.isfinite(actual).all()"
+    "name": "uses the correct label-dependent probability, weight, and focal factor",
+    "input": "easy and hard positive and negative examples",
+    "test": "import numpy as np\nlabels = np.array([1, 1, 0, 0])\nprobabilities = np.array([0.95, 0.15, 0.05, 0.85])\nalpha = 0.25\ngamma = 2.0\nactual = binary_focal_loss(labels, probabilities, alpha=alpha, gamma=gamma, reduction='none')\npt = np.array([0.95, 0.15, 0.95, 0.15])\nalpha_t = np.array([alpha, alpha, 1 - alpha, 1 - alpha])\nexpected = -alpha_t * (1 - pt) ** gamma * np.log(pt)\nassert np.allclose(actual, expected, atol=1e-15)\nassert actual[0] < actual[1]\nassert actual[2] < actual[3]"
   },
   {
-    "name": "rejects invalid values and does not mutate arrays",
-    "input": "mismatched shapes, invalid labels/probabilities, and invalid hyperparameters",
-    "test": "import numpy as np\nlabels = np.array([1, 0])\nprobabilities = np.array([0.2, 0.7])\nbefore = probabilities.copy()\n_ = binary_focal_loss(labels, probabilities)\nassert np.array_equal(probabilities, before)\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nmust_raise(lambda: binary_focal_loss([], []))\nmust_raise(lambda: binary_focal_loss([1], [0.5, 0.5]))\nmust_raise(lambda: binary_focal_loss([2], [0.5]))\nmust_raise(lambda: binary_focal_loss([1], [-0.1]))\nmust_raise(lambda: binary_focal_loss([1], [float('nan')]))\nmust_raise(lambda: binary_focal_loss([1], [0.5], alpha=1.1))\nmust_raise(lambda: binary_focal_loss([1], [0.5], gamma=-1))\nmust_raise(lambda: binary_focal_loss([1], [0.5], reduction='median'))"
+    "name": "preserves batch shape and reduces every element",
+    "input": "a two-dimensional batch with a non-default alpha and gamma",
+    "test": "import numpy as np\nlabels = np.array([[1, 0, 1], [0, 1, 0]])\nprobabilities = np.array([[0.2, 0.2, 0.8], [0.8, 0.55, 0.45]])\nalpha = 0.6\ngamma = 1.5\nactual = binary_focal_loss(labels, probabilities, alpha=alpha, gamma=gamma, reduction='none')\npt = np.where(labels == 1, probabilities, 1 - probabilities)\nalpha_t = np.where(labels == 1, alpha, 1 - alpha)\nexpected = -alpha_t * (1 - pt) ** gamma * np.log(pt)\nassert actual.shape == labels.shape\nassert np.allclose(actual, expected, atol=1e-15)\nassert np.isclose(binary_focal_loss(labels, probabilities, alpha, gamma, 'sum'), expected.sum())\nassert np.isclose(binary_focal_loss(labels, probabilities, alpha, gamma, 'mean'), expected.mean())"
   }
 ]
