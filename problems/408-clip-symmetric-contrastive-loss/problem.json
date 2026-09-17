@@ -6,8 +6,8 @@
   "difficulty": "medium",
   "tags": ["pytorch", "contrastive-learning", "clip", "cross-entropy"],
   "companies": ["Uber"],
-  "prompt": "An interviewer gives you a batch of paired image and text embeddings and asks you to implement the CLIP-style symmetric contrastive loss. Row `i` in the image tensor matches row `i` in the text tensor. Build the full in-batch similarity matrix, treat its diagonal as the positive pairs, compute image-to-text and text-to-image cross-entropy losses, and average them. Be ready to explain why the loss is symmetric, how off-diagonal entries become in-batch negatives, and what normalization and temperature do.\n\nFor this executable practice version, implement `clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True)` in PyTorch. Both inputs are floating rank-2 tensors with identical non-empty shape `(B, D)`. When `normalize` is true, L2-normalize every row, then compute `image @ text.T / temperature`. Preserve dtype, device, and autograd; do not mutate either input; and reject non-positive or non-finite temperatures and invalid shapes.\n\nSource boundary: the interview report confirms the paired-batch setup and the two cross-entropy terms over the similarity matrix and its transpose. The function signature, default temperature, optional normalization flag, and validation behavior are DeepCode conventions added to make the exercise reproducible.",
-  "starter_code": "import torch\nimport torch.nn.functional as F\n\n\ndef clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True):\n    # Return the symmetric image-to-text/text-to-image cross-entropy loss.\n    pass\n",
+  "prompt": "An interviewer gives you a batch of paired image and text embeddings and asks you to implement the CLIP-style symmetric contrastive loss. Row `i` in the image tensor matches row `i` in the text tensor. Build the full in-batch similarity matrix, treat its diagonal as the positive pairs, compute image-to-text and text-to-image cross-entropy losses, and average them. Be ready to explain why the loss is symmetric, how off-diagonal entries become in-batch negatives, and what normalization and temperature do.\n\nFor this executable practice version, implement `clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True)` in PyTorch. Both inputs are floating rank-2 tensors with matching shape `(B, D)`; assume `B > 0` and `D > 0`. When `normalize` is true, L2-normalize every row, then compute `image @ text.T / temperature`. Preserve dtype, device, and autograd; do not mutate either input. Reject rank or shape mismatches and a non-positive or non-finite temperature. The evaluator does not require a redundant empty-batch check because positive dimensions are a stated precondition.\n\nSource boundary: the interview report confirms the paired-batch setup and the two cross-entropy terms over the similarity matrix and its transpose. The function signature, default temperature, optional normalization flag, and defensive validation are DeepCode conventions added to make the exercise reproducible.",
+  "starter_code": "import math\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True):\n    # Return the symmetric image-to-text/text-to-image cross-entropy loss.\n    pass\n",
   "example": {
     "input": "images = torch.eye(3); texts = torch.eye(3); clip_contrastive_loss(images, texts, temperature=1.0)",
     "output": "a scalar tensor near 0.5514",
@@ -39,13 +39,20 @@
       "url": "https://github.com/openai/CLIP/blob/main/clip/model.py"
     }
   ],
-  "assets": [
+  "interactive_demos": [
     {
-      "path": "assets/clip-symmetric-loss-interview-poster.svg",
-      "alt": "Interview-ready CLIP symmetric contrastive loss walkthrough showing paired embeddings, the batch similarity matrix with diagonal positives, image-to-text and text-to-image cross-entropy, the averaged loss, and a minimal PyTorch implementation.",
-      "caption": "A 9:16 answer path: clarify the contract, build the B by B logits, read both retrieval directions, average the two losses, and explain the follow-ups.",
-      "section": "prompt",
-      "fit": "viewport"
+      "schema_version": 1,
+      "id": "symmetric-loss-operation-theater",
+      "kind": "standalone_html",
+      "path": "assets/symmetric-loss-operation-theater.html",
+      "title": "Explore CLIP-style symmetric contrastive loss",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 760
+      }
     }
   ],
   "created_at": "2026-09-10",
