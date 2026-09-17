@@ -503,6 +503,19 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("margin-left: 0", demo_html)
         self.assertIn("new ResizeObserver(reportHeight).observe(demo)", demo_html)
 
+    def test_clip_loss_poster_is_a_portrait_prompt_asset_with_the_symmetric_core(self):
+        problem_dir = Path("problems/408-clip-symmetric-contrastive-loss")
+        problem = json.loads((problem_dir / "problem.json").read_text(encoding="utf-8"))
+        poster = problem["assets"][0]
+        poster_svg = (problem_dir / poster["path"]).read_text(encoding="utf-8")
+
+        self.assertEqual(poster["section"], "prompt")
+        self.assertEqual(poster["fit"], "viewport")
+        self.assertIn('viewBox="0 0 1080 1920"', poster_svg)
+        self.assertIn("L_i = CE(S, arange(B))", poster_svg)
+        self.assertIn("L_t = CE(S.T, arange(B))", poster_svg)
+        self.assertIn("F.cross_entropy(logits.T, labels)", poster_svg)
+
     def test_listing_quality_demo_covers_the_full_ml_decision_loop(self):
         problem = json.loads(
             Path("problems/349-listing-quality-evaluation-design/problem.json").read_text(encoding="utf-8")
