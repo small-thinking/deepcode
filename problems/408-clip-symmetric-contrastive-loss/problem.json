@@ -6,7 +6,7 @@
   "difficulty": "medium",
   "tags": ["pytorch", "contrastive-learning", "clip", "cross-entropy"],
   "companies": ["Uber"],
-  "prompt": "Implement `clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True)` in PyTorch. Both inputs are floating tensors with identical shape `(B, D)`, where `B,D > 0`, and row `i` in each tensor is a positive image-text pair. When `normalize` is true, L2-normalize every row before computing logits. Form the complete in-batch similarity matrix `image @ text.T / temperature`; use diagonal indices as targets; and return the scalar mean of image-to-text and text-to-image cross-entropy losses. Preserve dtype, device, and autograd, and do not mutate either input. Require a positive finite temperature and matching rank-2 input shapes.\n\nPractice reconstruction: the source gives the symmetric CLIP loss formula but does not specify a function API, validation behavior, normalization, or a default temperature. Those conventions are fixed here for reproducible practice.",
+  "prompt": "An interviewer gives you a batch of paired image and text embeddings and asks you to implement the CLIP-style symmetric contrastive loss. Row `i` in the image tensor matches row `i` in the text tensor. Build the full in-batch similarity matrix, treat its diagonal as the positive pairs, compute image-to-text and text-to-image cross-entropy losses, and average them. Be ready to explain why the loss is symmetric, how off-diagonal entries become in-batch negatives, and what normalization and temperature do.\n\nFor this executable practice version, implement `clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True)` in PyTorch. Both inputs are floating rank-2 tensors with identical non-empty shape `(B, D)`. When `normalize` is true, L2-normalize every row, then compute `image @ text.T / temperature`. Preserve dtype, device, and autograd; do not mutate either input; and reject non-positive or non-finite temperatures and invalid shapes.\n\nSource boundary: the interview report confirms the paired-batch setup and the two cross-entropy terms over the similarity matrix and its transpose. The function signature, default temperature, optional normalization flag, and validation behavior are DeepCode conventions added to make the exercise reproducible.",
   "starter_code": "import torch\nimport torch.nn.functional as F\n\n\ndef clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True):\n    # Return the symmetric image-to-text/text-to-image cross-entropy loss.\n    pass\n",
   "example": {
     "input": "images = torch.eye(3); texts = torch.eye(3); clip_contrastive_loss(images, texts, temperature=1.0)",
@@ -29,6 +29,23 @@
     {
       "label": "1Point3Acres: Uber MLE technical phone screen, May 2026",
       "url": "https://www.1point3acres.com/bbs/thread-1176190-1-1.html"
+    },
+    {
+      "label": "OpenAI: Learning Transferable Visual Models From Natural Language Supervision",
+      "url": "https://arxiv.org/abs/2103.00020"
+    },
+    {
+      "label": "OpenAI CLIP: normalized image-text logits and learnable logit scale",
+      "url": "https://github.com/openai/CLIP/blob/main/clip/model.py"
+    }
+  ],
+  "assets": [
+    {
+      "path": "assets/clip-symmetric-loss-interview-poster.svg",
+      "alt": "Interview-ready CLIP symmetric contrastive loss walkthrough showing paired embeddings, the batch similarity matrix with diagonal positives, image-to-text and text-to-image cross-entropy, the averaged loss, and a minimal PyTorch implementation.",
+      "caption": "A 9:16 answer path: clarify the contract, build the B by B logits, read both retrieval directions, average the two losses, and explain the follow-ups.",
+      "section": "prompt",
+      "fit": "viewport"
     }
   ],
   "created_at": "2026-09-10",
