@@ -503,18 +503,26 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("margin-left: 0", demo_html)
         self.assertIn("new ResizeObserver(reportHeight).observe(demo)", demo_html)
 
-    def test_clip_loss_poster_is_a_portrait_prompt_asset_with_the_symmetric_core(self):
+    def test_clip_loss_uses_the_responsive_interactive_demo_mount(self):
         problem_dir = Path("problems/408-clip-symmetric-contrastive-loss")
         problem = json.loads((problem_dir / "problem.json").read_text(encoding="utf-8"))
-        poster = problem["assets"][0]
+        demo = problem["interactive_demos"][0]
+        demo_html = (problem_dir / demo["path"]).read_text(encoding="utf-8")
 
-        self.assertEqual(poster["section"], "prompt")
-        self.assertEqual(poster["fit"], "viewport")
-        self.assertEqual(poster["path"], "assets/clip-symmetric-loss-interview-poster.svg")
-        self.assertIn("image-to-text and text-to-image cross-entropy", poster["alt"])
-        self.assertIn("9:16 answer path", poster["caption"])
+        self.assertNotIn("assets", problem)
+        self.assertEqual(demo["section"], "interactive_demo")
+        self.assertEqual(demo["presentation"]["height"], "content")
+        self.assertEqual(demo["path"], "assets/symmetric-loss-operation-theater.html")
+        self.assertIn("width:100%", demo_html)
+        self.assertIn('id="temperature"', demo_html)
+        self.assertIn('id="normalize"', demo_html)
+        self.assertIn('data-direction="i2t"', demo_html)
+        self.assertIn('data-direction="t2i"', demo_html)
+        self.assertIn('type:\'deepcode:interactive-demo-ready\'', demo_html)
+        self.assertIn('type:\'deepcode:interactive-demo-height\'', demo_html)
         self.assertIn("Source boundary", problem["prompt"])
         self.assertIn("two cross-entropy terms", problem["prompt"])
+        self.assertIn("does not require a redundant empty-batch check", problem["prompt"])
 
     def test_listing_quality_demo_covers_the_full_ml_decision_loop(self):
         problem = json.loads(
