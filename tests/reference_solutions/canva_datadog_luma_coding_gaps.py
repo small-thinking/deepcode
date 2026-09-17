@@ -70,26 +70,9 @@ class ImagePredictionService:
 
 def binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction="mean"):
     labels = np.asarray(labels)
-    try:
-        probabilities = np.asarray(probabilities, dtype=float)
-    except (TypeError, ValueError) as error:
-        raise ValueError("probabilities must be numeric") from error
-    if labels.size == 0 or labels.shape != probabilities.shape:
-        raise ValueError("labels and probabilities must have the same non-empty shape")
-    if not np.isin(labels, [0, 1]).all():
-        raise ValueError("labels must be zero or one")
-    if not np.isfinite(probabilities).all() or (probabilities < 0).any() or (probabilities > 1).any():
-        raise ValueError("probabilities must be finite values in [0, 1]")
-    if isinstance(alpha, bool) or not isinstance(alpha, numbers.Real) or not 0 <= alpha <= 1:
-        raise ValueError("alpha must be in [0, 1]")
-    if isinstance(gamma, bool) or not isinstance(gamma, numbers.Real) or not math.isfinite(gamma) or gamma < 0:
-        raise ValueError("gamma must be a non-negative finite number")
-    if reduction not in {"none", "sum", "mean"}:
-        raise ValueError("unknown reduction")
-
+    probabilities = np.asarray(probabilities, dtype=float)
     positive = labels == 1
     p_t = np.where(positive, probabilities, 1.0 - probabilities)
-    p_t = np.clip(p_t, 1e-15, 1.0 - 1e-15)
     alpha_t = np.where(positive, float(alpha), 1.0 - float(alpha))
     losses = -alpha_t * (1.0 - p_t) ** float(gamma) * np.log(p_t)
     if reduction == "none":
