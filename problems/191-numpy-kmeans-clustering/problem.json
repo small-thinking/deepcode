@@ -19,7 +19,7 @@
   "example": {
     "input": "kmeans([[1.0, 1.0], [2.0, 2.0], [8.0, 8.0], [9.0, 9.0]], k=2, n_iter=20, seed=42)",
     "output": "two centroids near [1.5, 1.5] and [8.5, 8.5], with one label per row",
-    "reasoning": "Each iteration alternates nearest-centroid assignment with a vectorized grouped mean update."
+    "reasoning": "The returned centers represent the two visible groups, and each row is assigned to a nearest center."
   },
   "environment": {
     "language": "python",
