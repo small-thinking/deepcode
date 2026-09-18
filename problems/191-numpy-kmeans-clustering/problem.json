@@ -1,12 +1,20 @@
 {
   "id": "191",
   "slug": "numpy-kmeans-clustering",
-  "title": "NumPy K-Means Clustering",
+  "title": "K-Means Clustering from Scratch",
   "category": "ML Coding",
   "difficulty": "medium",
-  "tags": ["numpy", "clustering", "vectorization", "k-means"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `kmeans(X, k, n_iter, seed=None)` using NumPy only. `X` is a non-empty numeric array-like value with shape `(n_samples, n_features)`, and `1 <= k <= n_samples`. Return `(centroids, labels)`, where `centroids` has shape `(k, n_features)` and `labels` has shape `(n_samples,)`.\n\nInitialize centroids by sampling `k` distinct input rows with a local `np.random.default_rng(seed)` generator. Each iteration must assign every input point to its nearest current centroid by squared Euclidean distance, then recompute every non-empty centroid as the mean of its assigned points. An empty cluster keeps its previous centroid. Stop after `n_iter` iterations or earlier when the labels do not change or the centroid Frobenius-norm drift is below `1e-6`.\n\nVectorize the assignment and grouped centroid update: do not loop over individual samples or cluster IDs. Break ties through NumPy's normal `argmin` behavior, which selects the lower centroid index. Before returning, assign labels once more against the returned centroids so the two outputs describe the same final model. Do not mutate the caller's input.",
+  "tags": ["numpy", "clustering", "k-means"],
+  "companies": ["Waymo", "Uber"],
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": ["3df6ce51456d81b68bf1cb300ebece77"],
+      "stars": 2,
+      "synced_at": "2026-09-18"
+    }
+  },
+  "interview_frequency_total": {"stars": 2, "synced_at": "2026-09-18"},
+  "prompt": "An interviewer asks you to implement K-means clustering from scratch. Given `N` points in `D` dimensions and an integer `K`, initialize `K` centroids, repeatedly assign each point to its nearest centroid using Euclidean distance, and update every represented centroid to the mean of its assigned points. Stop when the clustering converges or after a maximum number of iterations. Return the final centroids and one cluster assignment per input point. You may use NumPy, but do not call an existing K-means implementation. Be ready to discuss how you would handle an empty cluster.\n\nFor this executable practice version, implement `kmeans(X, k, n_iter, seed=None)`. `X` is a non-empty numeric array-like value with shape `(n_samples, n_features)`, `1 <= k <= n_samples`, and `n_iter` is a non-negative integer. Return `(centroids, labels)` with shapes `(k, n_features)` and `(n_samples,)`. Use `seed` to make repeated calls reproducible, keep every centroid finite, do not mutate the caller's input, and ensure each returned label identifies a nearest returned centroid. You may choose the initialization, convergence check, and empty-cluster strategy.\n\nSource boundary: public Uber reports confirm a from-scratch K-means implementation and suggest that candidates could define their own input/output and sketch the main structure without running the code. The exact function signature, output shapes, reproducibility rule, and defensive constraints above are DeepCode conventions for automated evaluation, not verified wording from the original interview.",
   "starter_code": "import numpy as np\n\n\ndef kmeans(X, k, n_iter, seed=None):\n    # Return final centroids and the nearest-centroid label for each input row.\n    pass\n",
   "example": {
     "input": "kmeans([[1.0, 1.0], [2.0, 2.0], [8.0, 8.0], [9.0, 9.0]], k=2, n_iter=20, seed=42)",
@@ -22,5 +30,27 @@
   "evaluation": {
     "type": "ml_modeling"
   },
+  "references": [
+    {
+      "label": "Notion: K-Means Clustering from Scratch",
+      "url": "https://app.notion.com/p/3df6ce51456d81b68bf1cb300ebece77"
+    },
+    {
+      "label": "Glassdoor: Uber Senior MLE K-means from scratch",
+      "url": "https://www.glassdoor.com/Interview/write-K-means-clustering-algorithm-from-scratch-QTN_7809696.htm"
+    },
+    {
+      "label": "Glassdoor: Uber MLE implement K-means",
+      "url": "https://www.glassdoor.com/Interview/Question-on-resume-implement-k-means-algorithm-QTN_4255800.htm"
+    },
+    {
+      "label": "1Point3Acres: Uber MLE K-means phone screen discussion",
+      "url": "https://www.1point3acres.com/bbs/thread-1077638-1-1.html"
+    },
+    {
+      "label": "Jointaro: Uber Senior MLE interview experience, 2024-11-01",
+      "url": "https://www.jointaro.com/interviews/companies/uber/experiences/senior-machine-learning-engineer-united-states-november-1-2024-no-offer-negative-692a6aa6/"
+    }
+  ],
   "created_at": "2026-08-17"
 }

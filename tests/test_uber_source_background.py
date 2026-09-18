@@ -7,6 +7,7 @@ from deepcode.problem_store import ProblemStore
 ROOT = Path(__file__).resolve().parents[1]
 
 NOTION_TO_SLUG = {
+    "3df6ce51456d81b68bf1cb300ebece77": "numpy-kmeans-clustering",
     "3d76ce51456d819fbf16f5b4950fcf03": "clip-symmetric-contrastive-loss",
     "3d66ce51456d8116a8e8f796e2e5f158": "l1-k-medoids-pickup-locations",
     "3d66ce51456d81848fd7d34e9a1a4ec6": "pytorch-projected-multihead-attention",
