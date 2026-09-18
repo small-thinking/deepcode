@@ -3028,8 +3028,8 @@ function renderProblemDescription(problem) {
     ),
     renderProblemAssets(problem, "prompt"),
     renderProblemDataInfo(problem.data),
-    renderProblemMetadata(problem),
     renderProblemExample(problem.example),
+    renderProblemMetadata(problem),
     renderReferences(problem.references),
   ].join("");
 }
