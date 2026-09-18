@@ -1,7 +1,7 @@
 {
   "id": "403",
   "slug": "deterministic-markov-text-generator",
-  "title": "Markov-Chain Text Generator",
+  "title": "Markov-Chain Sentence Generator",
   "category": "ML Coding",
   "difficulty": "easy",
   "tags": [
@@ -10,12 +10,12 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement a deterministic bigram text generator.\n\n`build_frequency_map(corpus)` should return a nested dictionary that records how often each normalized word is immediately followed by another word. A final word has no outgoing entry.\n\n`generate_text(transition_map, start_word, steps)` should begin with the normalized start word and generate up to `steps` more words. At each step, choose the most frequent next word; break ties alphabetically. Stop early when the current word has no outgoing transition. Return the generated words as one space-separated string.\n\nTreat words case-insensitively and ignore punctuation when normalizing text.",
-  "starter_code": "def build_frequency_map(corpus):\n    pass\n\n\ndef generate_text(transition_map, start_word, steps):\n    pass\n",
+  "prompt": "Implement `generate_sentence(corpus, k, rng=None)`, a Markov-chain sentence generator.\n\nReturn a space-separated sequence of `k` words from `corpus`. The first word may be any word in the corpus. Each subsequent word must be chosen at random from words that immediately follow the current word somewhere in the corpus. Consequently, every adjacent pair in the result must also occur adjacently in the corpus.\n\nUse a simple whitespace tokenization; case and punctuation handling are out of scope. For reproducible tests, `rng` is optional: when supplied, it provides `choice(sequence)`; otherwise use Python's `random` module. Choose uniformly among the observed successor occurrences. Test inputs provide enough continuations to generate `k` words.",
+  "starter_code": "def generate_sentence(corpus, k, rng=None):\n    pass\n",
   "example": {
-    "input": "transition_map = build_frequency_map(\"a c a b\")\ngenerate_text(transition_map, \"a\", 4)",
-    "output": "\"a b\"",
-    "reasoning": "b and c are tied after a, so b is chosen alphabetically; b has no outgoing transition."
+    "input": "generate_sentence(\"a b a c a\", 4, rng)",
+    "output": "A valid four-word sequence, such as \"a b a c\"",
+    "reasoning": "Every adjacent pair in the output was observed in the corpus; different random choices can produce a different valid sequence."
   },
   "environment": {
     "language": "python",
@@ -29,6 +29,7 @@
   },
   "references": [
     {"label": "Notion: Markov-Chain Text Generator From Scratch", "url": "https://app.notion.com/p/3d66ce51456d81b19c75c15c265079fc"},
+    {"label": "1Point3Acres: Uber MLE onsite report (2021)", "url": "https://www.1point3acres.com/bbs/thread-713789-1-1.html"},
     {"label": "1Point3Acres: Uber MLE coding from scratch question bank", "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-coding-from-scratch"}
   ],
   "created_at": "2026-09-08",

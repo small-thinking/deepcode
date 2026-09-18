@@ -1,20 +1,20 @@
 [
   {
-    "name": "frequency map and deterministic generation",
-    "input": "frequency beats lexical order and ties are lexical",
-    "test": "transition_map = build_frequency_map('a c a b a c')\nassert transition_map == {'a': {'c': 2, 'b': 1}, 'c': {'a': 1}, 'b': {'a': 1}}\nassert generate_text(transition_map, 'a', 3) == 'a c a c'\nassert generate_text(build_frequency_map('a c a b'), 'a', 3) == 'a b'\nprint('ok')\n",
+    "name": "generated pairs are observed in the corpus",
+    "input": "every generated bigram must be observed",
+    "test": "class PickFirst:\n    def choice(self, sequence):\n        return list(sequence)[0]\n\ncorpus = 'a b a c a b a c a'\nsentence = generate_sentence(corpus, 4, PickFirst())\nwords = sentence.split()\nobserved_pairs = set(zip(corpus.split(), corpus.split()[1:]))\nassert len(words) == 4\nassert all(pair in observed_pairs for pair in zip(words, words[1:]))\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
-    "name": "punctuation and casing are normalized",
-    "input": "apostrophes punctuation and casing",
-    "test": "transition_map = build_frequency_map('Hello, WORLD! hello.')\nassert transition_map == {'hello': {'world': 1}, 'world': {'hello': 1}}\nassert generate_text(transition_map, 'HELLO!', 3) == 'hello world hello world'\nprint('ok')\n",
+    "name": "the supplied random source controls generation",
+    "input": "different RNG choices produce different valid paths",
+    "test": "class PickFirst:\n    def choice(self, sequence):\n        return list(sequence)[0]\n\nclass PickLast:\n    def choice(self, sequence):\n        return list(sequence)[-1]\n\ncorpus = 'a b a c a b a c a'\nfirst = generate_sentence(corpus, 4, PickFirst())\nlast = generate_sentence(corpus, 4, PickLast())\nassert first != last\nassert len(first.split()) == len(last.split()) == 4\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
-    "name": "empty unseen terminal and zero steps",
-    "input": "empty unseen terminal and zero steps",
-    "test": "assert build_frequency_map('123 !!!') == {}\ntransition_map = build_frequency_map('a b')\nassert generate_text({}, 'Start', 10) == 'start'\nassert generate_text(transition_map, 'c', 5) == 'c'\nassert generate_text(transition_map, 'b', 5) == 'b'\nassert generate_text(transition_map, 'a', 0) == 'a'\nprint('ok')\n",
+    "name": "one-word generation chooses a corpus word",
+    "input": "k equals one",
+    "test": "class PickLast:\n    def choice(self, sequence):\n        return list(sequence)[-1]\n\nassert generate_sentence('red blue green red', 1, PickLast()) == 'red'\nprint('ok')\n",
     "expected_output": "ok"
   }
 ]
