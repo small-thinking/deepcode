@@ -10,12 +10,12 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `k_medoids(points, k)` for a small list of 2D integer rider coordinates. Return `(medoid_indices, total_cost)`, where cost is the sum of each rider's Manhattan distance to its nearest selected rider. Each rider, including duplicates, contributes separately. Indices must be sorted. For nonempty input, k is a positive integer; select min(k, N) distinct indices. Empty input returns ([], 0).\n\nUse this deterministic greedy-plus-swap heuristic: start with no medoids; repeatedly add the candidate minimizing total cost, breaking ties by smallest index. Then examine every one-medoid-for-one-nonmedoid swap and choose the lowest-cost strictly improving replacement; tied replacement sets use lexicographically smallest sorted indices. Repeat until no strict improvement exists. Do not mutate points. This is a local optimum, not a guarantee of the global optimum for K > 1.\n\nReconstruction assumption: pickup locations MUST be rider coordinates (medoids). An arbitrary coordinate-wise L1 median need not be a rider, so the unrestricted facility-location variant is different. For K = 1 choose the best rider, with index tie-breaking. Explain the objective and why unrestricted coordinate-wise medians cannot simply solve this contract.",
+  "prompt": "Implement `k_medoids(points, k)` for a list of at most 12 two-dimensional integer rider coordinates. Pickup locations must be chosen from the riders themselves. Return `(medoid_indices, total_cost)`, where `medoid_indices` is a sorted list of selected input indices and `total_cost` is the minimum possible sum of each rider's Manhattan distance to its nearest selected rider.\n\nFor nonempty input, `k` is a positive integer and the function should select `min(k, len(points))` distinct indices. If several selections have the same minimum cost, return the lexicographically smallest index list. Duplicate coordinates still represent separate riders. Empty input returns `([], 0)`. Do not mutate `points`.",
   "starter_code": "def k_medoids(points, k):\n    pass\n",
   "example": {
     "input": "k_medoids([(0,0),(1,0),(9,0),(10,0)], 2)",
-    "output": "([1, 2], 2)",
-    "reasoning": "Greedy initialization chooses index 1, then index 2. Each pair contributes distance 1 and no swap strictly improves cost."
+    "output": "([0, 2], 2)",
+    "reasoning": "Several pairs have total cost 2, so the lexicographically smallest optimal index list is returned."
   },
   "environment": {
     "language": "python",
