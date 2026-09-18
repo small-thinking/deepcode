@@ -5,6 +5,11 @@
     "test": "listings = [\n    {'id': 'north-six', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'north-four', 'neighborhood': 'north', 'capacity': 4},\n    {'id': 'north-eleven', 'neighborhood': 'north', 'capacity': 11},\n    {'id': 'south-ten', 'neighborhood': 'south', 'capacity': 10},\n]\nassert select_group_listings(listings, 10, 'north') == ['north-eleven']"
   },
   {
+    "name": "matches the source-shaped downtown examples",
+    "input": "downtown capacities 5, 3, and 1; an unrelated uptown listing",
+    "test": "listings = [\n    {'id': 1, 'neighborhood': 'downtown', 'capacity': 5},\n    {'id': 2, 'neighborhood': 'downtown', 'capacity': 3},\n    {'id': 3, 'neighborhood': 'downtown', 'capacity': 1},\n    {'id': 4, 'neighborhood': 'uptown', 'capacity': 20},\n]\nassert select_group_listings(listings, group_size=6, target_neighborhood='downtown') == [1, 3]\nassert select_group_listings(listings, 3, 'downtown') == [2]\nassert select_group_listings(listings, 10, 'downtown') == []"
+  },
+  {
     "name": "uses capacity and then input position within the minimum-count tier",
     "input": "several feasible singleton listings and equal-capacity ties",
     "test": "listings = [\n    {'id': 'first-eleven', 'neighborhood': 'north', 'capacity': 11},\n    {'id': 'ten', 'neighborhood': 'north', 'capacity': 10},\n    {'id': 'second-ten', 'neighborhood': 'north', 'capacity': 10},\n]\nassert select_group_listings(listings, 10, 'north') == ['ten']"
