@@ -10,10 +10,10 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `generate_sentence(corpus, k, rng=None)`, a Markov-chain sentence generator.\n\nReturn a space-separated sequence of `k` words from `corpus`. The first word may be any word in the corpus. Each subsequent word must be chosen at random from words that immediately follow the current word somewhere in the corpus. Consequently, every adjacent pair in the result must also occur adjacently in the corpus.\n\nUse a simple whitespace tokenization; case and punctuation handling are out of scope. For reproducible tests, `rng` is optional: when supplied, it provides `choice(sequence)`; otherwise use Python's `random` module. Choose uniformly among the observed successor occurrences. Test inputs provide enough continuations to generate `k` words.",
-  "starter_code": "def generate_sentence(corpus, k, rng=None):\n    pass\n",
+  "prompt": "Implement `generate_sentence(corpus, k)`, a Markov-chain sentence generator.\n\nReturn a space-separated sequence of `k` words from `corpus`. The first word may be any word in the corpus. Each subsequent word must be chosen at random from words that immediately follow the current word somewhere in the corpus. Consequently, every adjacent pair in the result must also occur adjacently in the corpus.\n\nUse a simple whitespace tokenization; case and punctuation handling are out of scope. Choose uniformly among the observed successor occurrences. Test inputs provide enough continuations to generate `k` words.",
+  "starter_code": "def generate_sentence(corpus, k):\n    pass\n",
   "example": {
-    "input": "generate_sentence(\"a b a c a\", 4, rng)",
+    "input": "generate_sentence(\"a b a c a\", 4)",
     "output": "A valid four-word sequence, such as \"a b a c\"",
     "reasoning": "Every adjacent pair in the output was observed in the corpus; different random choices can produce a different valid sequence."
   },

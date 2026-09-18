@@ -1,7 +1,7 @@
 import random
 
 
-def generate_sentence(corpus, k, rng=None):
+def generate_sentence(corpus, k):
     tokens = corpus.split()
     if k <= 0:
         return ""
@@ -10,8 +10,7 @@ def generate_sentence(corpus, k, rng=None):
     for current, next_word in zip(tokens, tokens[1:]):
         transitions.setdefault(current, []).append(next_word)
 
-    chooser = rng or random
-    result = [chooser.choice(tokens)]
+    result = [random.choice(tokens)]
     for _ in range(k - 1):
-        result.append(chooser.choice(transitions[result[-1]]))
+        result.append(random.choice(transitions[result[-1]]))
     return " ".join(result)
