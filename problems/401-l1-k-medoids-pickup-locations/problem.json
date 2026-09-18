@@ -1,21 +1,23 @@
 {
   "id": "401",
   "slug": "l1-k-medoids-pickup-locations",
-  "title": "L1 K-Medoids Pickup Locations",
+  "title": "L1 K-Medians Shuttle Pickup Locations",
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
-    "clustering"
+    "clustering",
+    "k-medians",
+    "facility-location"
   ],
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `k_medoids(points, k)` for a list of at most 12 two-dimensional integer rider coordinates. Pickup locations must be chosen from the riders themselves. Return `(medoid_indices, total_cost)`, where `medoid_indices` is a sorted list of selected input indices and `total_cost` is the minimum possible sum of each rider's Manhattan distance to its nearest selected rider.\n\nFor nonempty input, `k` is a positive integer and the function should select `min(k, len(points))` distinct indices. If several selections have the same minimum cost, return the lexicographically smallest index list. Duplicate coordinates still represent separate riders. Empty input returns `([], 0)`. Do not mutate `points`.",
-  "starter_code": "def k_medoids(points, k):\n    pass\n",
+  "prompt": "Given the coordinates of `N` people, choose `K` shuttle pickup locations so the total L1 distance from each person to their nearest pickup location is minimized. This is the k-medians objective under Manhattan distance, where the best center of a fixed cluster is the coordinate-wise median.\n\nImplement `k_medians(points, k)`. `points` is a nonempty list of two-dimensional integer coordinates and `1 <= k <= len(points)`. Return `(pickup_locations, total_cost)`, with pickup locations sorted lexicographically. A pickup location is a coordinate and does not have to be one of the input points. Each person, including people at duplicate coordinates, contributes separately to the cost. For `k = 1`, return a coordinate-wise median. For larger `k`, a deterministic clustering heuristic is acceptable; you do not need to guarantee the global optimum. The returned cost must match the returned locations. Do not mutate `points`.",
+  "starter_code": "def k_medians(points, k):\n    pass\n",
   "example": {
-    "input": "k_medoids([(0,0),(1,0),(9,0),(10,0)], 2)",
-    "output": "([0, 2], 2)",
-    "reasoning": "Several pairs have total cost 2, so the lexicographically smallest optimal index list is returned."
+    "input": "k_medians([(0,0),(1,0),(9,0),(10,0)], 2)",
+    "output": "for example, ([(0, 0), (9, 0)], 2)",
+    "reasoning": "The two pickup locations represent the two visible groups. Other deterministic locations with the same cost are also valid."
   },
   "environment": {
     "language": "python",
