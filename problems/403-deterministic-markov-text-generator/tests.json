@@ -2,19 +2,19 @@
   {
     "name": "generated pairs are observed in the corpus",
     "input": "every generated bigram must be observed",
-    "test": "import random\n\ncorpus = 'a b a c a b a c a'\nrandom.seed(0)\nsentence = generate_sentence(corpus, 4)\nwords = sentence.split()\nobserved_pairs = set(zip(corpus.split(), corpus.split()[1:]))\nassert len(words) == 4\nassert all(pair in observed_pairs for pair in zip(words, words[1:]))\nprint('ok')\n",
+    "test": "corpus = 'a b a c a b a c a'\nsentence = generate_sentence(corpus, 4)\nwords = sentence.split()\nobserved_pairs = set(zip(corpus.split(), corpus.split()[1:]))\nassert len(words) == 4\nassert all(pair in observed_pairs for pair in zip(words, words[1:]))\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
-    "name": "different random choices can produce different paths",
-    "input": "different random seeds",
-    "test": "import random\n\ncorpus = 'a b a c a b a c a'\nrandom.seed(1)\nfirst = generate_sentence(corpus, 4)\nrandom.seed(5)\nsecond = generate_sentence(corpus, 4)\nassert first != second\nassert len(first.split()) == len(second.split()) == 4\nprint('ok')\n",
+    "name": "longer generation preserves observed pairs",
+    "input": "a longer Markov walk",
+    "test": "corpus = 'red blue red green red blue red green red'\nsentence = generate_sentence(corpus, 7)\nwords = sentence.split()\nobserved_pairs = set(zip(corpus.split(), corpus.split()[1:]))\nassert len(words) == 7\nassert all(pair in observed_pairs for pair in zip(words, words[1:]))\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
     "name": "one-word generation chooses a corpus word",
     "input": "k equals one",
-    "test": "import random\n\ncorpus = 'red blue green red'\nrandom.seed(0)\nassert generate_sentence(corpus, 1) in corpus.split()\nprint('ok')\n",
+    "test": "corpus = 'red blue green red'\nassert generate_sentence(corpus, 1) in corpus.split()\nprint('ok')\n",
     "expected_output": "ok"
   }
 ]
