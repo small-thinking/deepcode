@@ -1,7 +1,7 @@
 {
   "id": "403",
   "slug": "deterministic-markov-text-generator",
-  "title": "Deterministic Markov Text Generator",
+  "title": "Markov-Chain Text Generator",
   "category": "ML Coding",
   "difficulty": "easy",
   "tags": [
@@ -10,12 +10,12 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `transition_counts(corpus)` and `generate_text(corpus, start, steps)`. Tokenize the corpus with the regex `[a-z]+(?:'[a-z]+)*` after lowercasing; thus \"It's\" becomes \"it's\" and differs from \"its\". Punctuation and digits separate tokens. Count each adjacent token pair over the entire corpus, including across punctuation. Return a dict mapping words with outgoing edges to dicts of next-word counts.\n\nGeneration normalizes start with the same tokenizer; start is guaranteed to contain exactly one token and steps is a nonnegative integer. Return a space-joined string starting with that token, followed by at most steps transitions. Choose the most frequent next word, breaking ties lexicographically. Stop at a word with no outgoing edge, including an unseen start or empty corpus. Do not sample randomly.\n\nReconstruction assumptions: tokenization, punctuation boundary behavior, and lexical tie-breaking were unspecified in the source and are explicitly fixed here. Discuss how a sampled Markov model would differ.",
-  "starter_code": "def transition_counts(corpus):\n    pass\n\n\ndef generate_text(corpus, start, steps):\n    pass\n",
+  "prompt": "Implement a deterministic bigram text generator.\n\n`build_frequency_map(corpus)` should return a nested dictionary that records how often each normalized word is immediately followed by another word. A final word has no outgoing entry.\n\n`generate_text(transition_map, start_word, steps)` should begin with the normalized start word and generate up to `steps` more words. At each step, choose the most frequent next word; break ties alphabetically. Stop early when the current word has no outgoing transition. Return the generated words as one space-separated string.\n\nTreat words case-insensitively and ignore punctuation when normalizing text.",
+  "starter_code": "def build_frequency_map(corpus):\n    pass\n\n\ndef generate_text(transition_map, start_word, steps):\n    pass\n",
   "example": {
-    "input": "generate_text(\"a c a b\", \"a\", 4)",
+    "input": "transition_map = build_frequency_map(\"a c a b\")\ngenerate_text(transition_map, \"a\", 4)",
     "output": "\"a b\"",
-    "reasoning": "b and c tie after a; b is lexically first and terminal."
+    "reasoning": "b and c are tied after a, so b is chosen alphabetically; b has no outgoing transition."
   },
   "environment": {
     "language": "python",

@@ -5,7 +5,7 @@ def _tokens(text):
     return re.findall(r"[a-z]+(?:'[a-z]+)*", text.lower())
 
 
-def transition_counts(corpus):
+def build_frequency_map(corpus):
     tokens = _tokens(corpus)
     counts = {}
     for a, b in zip(tokens, tokens[1:]):
@@ -14,11 +14,10 @@ def transition_counts(corpus):
     return counts
 
 
-def generate_text(corpus, start, steps):
-    counts = transition_counts(corpus)
-    result = _tokens(start)
+def generate_text(transition_map, start_word, steps):
+    result = _tokens(start_word)
     for _ in range(steps):
-        choices = counts.get(result[-1], {})
+        choices = transition_map.get(result[-1], {})
         if not choices:
             break
         result.append(min(choices, key=lambda word: (-choices[word], word)))
