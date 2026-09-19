@@ -1,25 +1,16 @@
-import re
+import random
 
 
-def _tokens(text):
-    return re.findall(r"[a-z]+(?:'[a-z]+)*", text.lower())
+def generate_sentence(corpus, k):
+    tokens = corpus.split()
+    if k <= 0:
+        return ""
 
+    transitions = {}
+    for current, next_word in zip(tokens, tokens[1:]):
+        transitions.setdefault(current, []).append(next_word)
 
-def transition_counts(corpus):
-    tokens = _tokens(corpus)
-    counts = {}
-    for a, b in zip(tokens, tokens[1:]):
-        row = counts.setdefault(a, {})
-        row[b] = row.get(b, 0) + 1
-    return counts
-
-
-def generate_text(corpus, start, steps):
-    counts = transition_counts(corpus)
-    result = _tokens(start)
-    for _ in range(steps):
-        choices = counts.get(result[-1], {})
-        if not choices:
-            break
-        result.append(min(choices, key=lambda word: (-choices[word], word)))
+    result = [random.choice(tokens)]
+    for _ in range(k - 1):
+        result.append(random.choice(transitions[result[-1]]))
     return " ".join(result)

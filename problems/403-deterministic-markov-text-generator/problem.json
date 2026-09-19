@@ -1,7 +1,7 @@
 {
   "id": "403",
   "slug": "deterministic-markov-text-generator",
-  "title": "Deterministic Markov Text Generator",
+  "title": "Markov-Chain Sentence Generator",
   "category": "ML Coding",
   "difficulty": "easy",
   "tags": [
@@ -10,12 +10,12 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `transition_counts(corpus)` and `generate_text(corpus, start, steps)`. Tokenize the corpus with the regex `[a-z]+(?:'[a-z]+)*` after lowercasing; thus \"It's\" becomes \"it's\" and differs from \"its\". Punctuation and digits separate tokens. Count each adjacent token pair over the entire corpus, including across punctuation. Return a dict mapping words with outgoing edges to dicts of next-word counts.\n\nGeneration normalizes start with the same tokenizer; start is guaranteed to contain exactly one token and steps is a nonnegative integer. Return a space-joined string starting with that token, followed by at most steps transitions. Choose the most frequent next word, breaking ties lexicographically. Stop at a word with no outgoing edge, including an unseen start or empty corpus. Do not sample randomly.\n\nReconstruction assumptions: tokenization, punctuation boundary behavior, and lexical tie-breaking were unspecified in the source and are explicitly fixed here. Discuss how a sampled Markov model would differ.",
-  "starter_code": "def transition_counts(corpus):\n    pass\n\n\ndef generate_text(corpus, start, steps):\n    pass\n",
+  "prompt": "Implement `generate_sentence(corpus, k)`, a Markov-chain sentence generator.\n\nReturn a space-separated sequence of `k` words from `corpus`. The first word may be any word in the corpus. Each subsequent word must be chosen at random from words that immediately follow the current word somewhere in the corpus. Consequently, every adjacent pair in the result must also occur adjacently in the corpus.\n\nUse a simple whitespace tokenization; case and punctuation handling are out of scope. Choose uniformly among the observed successor occurrences. Test inputs provide enough continuations to generate `k` words.",
+  "starter_code": "def generate_sentence(corpus, k):\n    pass\n",
   "example": {
-    "input": "generate_text(\"a c a b\", \"a\", 4)",
-    "output": "\"a b\"",
-    "reasoning": "b and c tie after a; b is lexically first and terminal."
+    "input": "generate_sentence(\"a b a c a\", 4)",
+    "output": "A valid four-word sequence, such as \"a b a c\"",
+    "reasoning": "Every adjacent pair in the output was observed in the corpus; different random choices can produce a different valid sequence."
   },
   "environment": {
     "language": "python",
@@ -29,6 +29,7 @@
   },
   "references": [
     {"label": "Notion: Markov-Chain Text Generator From Scratch", "url": "https://app.notion.com/p/3d66ce51456d81b19c75c15c265079fc"},
+    {"label": "1Point3Acres: Uber MLE onsite report (2021)", "url": "https://www.1point3acres.com/bbs/thread-713789-1-1.html"},
     {"label": "1Point3Acres: Uber MLE coding from scratch question bank", "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-coding-from-scratch"}
   ],
   "created_at": "2026-09-08",
