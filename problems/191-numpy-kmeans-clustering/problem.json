@@ -1,17 +1,25 @@
 {
   "id": "191",
   "slug": "numpy-kmeans-clustering",
-  "title": "NumPy K-Means Clustering",
+  "title": "K-Means Clustering from Scratch",
   "category": "ML Coding",
   "difficulty": "medium",
-  "tags": ["numpy", "clustering", "vectorization", "k-means"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `kmeans(X, k, n_iter, seed=None)` using NumPy only. `X` is a non-empty numeric array-like value with shape `(n_samples, n_features)`, and `1 <= k <= n_samples`. Return `(centroids, labels)`, where `centroids` has shape `(k, n_features)` and `labels` has shape `(n_samples,)`.\n\nInitialize centroids by sampling `k` distinct input rows with a local `np.random.default_rng(seed)` generator. Each iteration must assign every input point to its nearest current centroid by squared Euclidean distance, then recompute every non-empty centroid as the mean of its assigned points. An empty cluster keeps its previous centroid. Stop after `n_iter` iterations or earlier when the labels do not change or the centroid Frobenius-norm drift is below `1e-6`.\n\nVectorize the assignment and grouped centroid update: do not loop over individual samples or cluster IDs. Break ties through NumPy's normal `argmin` behavior, which selects the lower centroid index. Before returning, assign labels once more against the returned centroids so the two outputs describe the same final model. Do not mutate the caller's input.",
+  "tags": ["numpy", "clustering", "k-means"],
+  "companies": ["Waymo", "Uber"],
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": ["3df6ce51456d81b68bf1cb300ebece77"],
+      "stars": 2,
+      "synced_at": "2026-09-18"
+    }
+  },
+  "interview_frequency_total": {"stars": 2, "synced_at": "2026-09-18"},
+  "prompt": "Implement K-means clustering from scratch using NumPy. Do not use an existing K-means implementation.\n\n**Input**\n\nImplement `kmeans(X, k, n_iter, seed=None)`, where:\n- `X` is a non-empty numeric array with shape `(n_samples, n_features)`;\n- `k` is the number of clusters, with `1 <= k <= n_samples`;\n- `n_iter` is the maximum number of iterations;\n- `seed` is an optional random seed.\n\n**Output**\n\nReturn `(centroids, labels)`, where `centroids` has shape `(k, n_features)` and `labels` has shape `(n_samples,)` with one cluster assignment per input point.",
   "starter_code": "import numpy as np\n\n\ndef kmeans(X, k, n_iter, seed=None):\n    # Return final centroids and the nearest-centroid label for each input row.\n    pass\n",
   "example": {
     "input": "kmeans([[1.0, 1.0], [2.0, 2.0], [8.0, 8.0], [9.0, 9.0]], k=2, n_iter=20, seed=42)",
     "output": "two centroids near [1.5, 1.5] and [8.5, 8.5], with one label per row",
-    "reasoning": "Each iteration alternates nearest-centroid assignment with a vectorized grouped mean update."
+    "reasoning": "The returned centers represent the two visible groups, and each row is assigned to a nearest center."
   },
   "environment": {
     "language": "python",
@@ -22,5 +30,27 @@
   "evaluation": {
     "type": "ml_modeling"
   },
+  "references": [
+    {
+      "label": "Notion: K-Means Clustering from Scratch",
+      "url": "https://app.notion.com/p/3df6ce51456d81b68bf1cb300ebece77"
+    },
+    {
+      "label": "Glassdoor: Uber Senior MLE K-means from scratch",
+      "url": "https://www.glassdoor.com/Interview/write-K-means-clustering-algorithm-from-scratch-QTN_7809696.htm"
+    },
+    {
+      "label": "Glassdoor: Uber MLE implement K-means",
+      "url": "https://www.glassdoor.com/Interview/Question-on-resume-implement-k-means-algorithm-QTN_4255800.htm"
+    },
+    {
+      "label": "1Point3Acres: Uber MLE K-means phone screen discussion",
+      "url": "https://www.1point3acres.com/bbs/thread-1077638-1-1.html"
+    },
+    {
+      "label": "Jointaro: Uber Senior MLE interview experience, 2024-11-01",
+      "url": "https://www.jointaro.com/interviews/companies/uber/experiences/senior-machine-learning-engineer-united-states-november-1-2024-no-offer-negative-692a6aa6/"
+    }
+  ],
   "created_at": "2026-08-17"
 }
