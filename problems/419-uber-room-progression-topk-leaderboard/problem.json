@@ -1,0 +1,26 @@
+{
+  "id": "419",
+  "slug": "uber-room-progression-topk-leaderboard",
+  "title": "Track Room Progression and a Top-K Leaderboard",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": ["simulation", "heaps", "leaderboard", "lazy-deletion"],
+  "companies": ["Uber"],
+  "prompt": "People complete tasks in an ordered sequence of rooms. Implement `solution(operations)`, which processes operations and returns the outputs from query operations in order. A player starts in room `0` with total score `0`. Scores earned in a player's current room accumulate across every room they have visited.\n\nInput: `operations` is a list of operation tuples. Each operation is one of:\n\n- `('addPlayer', player_id)`: register a player. Re-adding an existing player changes nothing.\n- `('recordTask', player_id, room_id, points)`: add `points` only when the player exists and `room_id` is that player's current room.\n- `('moveToNextRoom', player_id)`: advance an existing player by one room.\n- `('getPlayerState', player_id)`: produce `{'room': room, 'score': total_score}` for an existing player, otherwise produce `None`.\n- `('topK', k)`: produce up to `k` player IDs ordered by descending total score, breaking ties by smaller player ID.\n\nOutput: return the values produced by `getPlayerState` and `topK`, in the order those query operations occur.\n\nConstraints: player IDs and room IDs are non-negative integers; `points` is an integer; and `k` is a non-negative integer. Operations may reference unknown players; their updates and moves have no effect. Return all players when fewer than `k` exist.",
+  "starter_code": "def solution(operations):\n    # Return query outputs in the order they occur.\n    pass\n",
+  "example": {
+    "input": "solution([('addPlayer', 1), ('addPlayer', 2), ('recordTask', 1, 0, 50), ('recordTask', 2, 0, 30), ('getPlayerState', 1), ('topK', 2)])",
+    "output": "[{'room': 0, 'score': 50}, [1, 2]]",
+    "reasoning": "Both players score in room 0, and player 1 has the higher cumulative score."
+  },
+  "environment": {"language": "python", "timeout_seconds": 3, "packages": [], "comparator": "assertions"},
+  "evaluation": {"type": "ml_modeling"},
+  "references": [
+    {"label": "Candidate report: Uber MLE room-progression coding round", "url": "https://prachub.com/interview-experiences/uber-machine-learning-engineer-interview-experience-mlsd-on-driver-etas-then-a-coding-problem-id-never-seen-before"},
+    {"label": "Reconstructed room-progression practice contract", "url": "https://prachub.com/coding-questions/design-room-progression-with-leaderboard"},
+    {"label": "Notion: Uber MLE room progression with dynamic top-K leaderboard", "url": "https://app.notion.com/p/3e16ce51456d8197a30cccc7d1f1daf4"}
+  ],
+  "created_at": "2026-09-21",
+  "interview_frequency": {"Uber": {"source_record_ids": ["3e16ce51456d8197a30cccc7d1f1daf4"], "stars": 1, "synced_at": "2026-09-21"}},
+  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-21"}
+}
