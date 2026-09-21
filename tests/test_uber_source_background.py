@@ -27,6 +27,9 @@ NOTION_TO_SLUG = {
     "3d66ce51456d81a99802d5b9143a3e58": "phone-keypad-combination-count",
     "3d66ce51456d81d88c81e129f4d27b01": "static-and-streaming-islands",
     "3e16ce51456d810b8d98dc8a7f861b18": "dropout-at-inference",
+    "3e16ce51456d817e83ead82e8f122143": "training-vs-inference",
+    "3e16ce51456d8197a30cccc7d1f1daf4": "uber-room-progression-topk-leaderboard",
+    "3e16ce51456d81d3a131e1119fd84a8e": "regularization-vs-weight-decay",
 }
 
 

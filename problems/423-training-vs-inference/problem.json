@@ -1,0 +1,57 @@
+{
+  "id": "423",
+  "slug": "training-vs-inference",
+  "title": "Compare Training and Inference",
+  "category": "ML Fundamentals",
+  "difficulty": "easy",
+  "tags": [
+    "training",
+    "inference",
+    "evaluation-mode",
+    "autograd",
+    "serving"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Compare training and inference for an ML model. Cover data and labels, forward and backward computation, parameter updates, stochastic or mode-sensitive behavior, and the performance concerns that matter in production. Distinguish offline evaluation from production inference. This is a writing exercise.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Separate optimization, offline evaluation, and production prediction before discussing framework modes.",
+    "reference_answer": "## Training\n\nFor a gradient-trained neural network, training consumes examples and a learning objective. It runs a forward pass, computes loss, backpropagates gradients, and updates parameters through an optimizer. It commonly uses stochastic batching, shuffling or augmentation, dropout, and training behavior for normalization layers. Optimizer state and gradient storage add memory and computation. Other model families can fit parameters or structure with different algorithms, so this loop is not a definition of all ML training.\n\n## Inference and evaluation\n\nInference uses fixed fitted parameters or structure for a forward prediction and normally performs no parameter update. It is commonly run without gradient tracking to reduce memory and overhead when the model uses autograd. Put a neural model in evaluation mode so modules such as Dropout and BatchNorm use their evaluation behavior; evaluation mode and disabled gradient tracking are separate controls.\n\nOffline evaluation may have labels so that metrics and error slices can be computed. Production inference usually lacks the target at decision time, although later outcomes can feed monitoring and future training. Some serving models intentionally sample outputs, so inference is not always deterministic.\n\n## Production concerns\n\nKeep preprocessing and feature definitions consistent with training, version the model and preprocessing together, and monitor input drift, output distributions, latency, throughput, memory, failures, and delayed quality signals. Choose batching, hardware, caching, and a latency budget for the actual serving workload rather than assuming the training configuration is appropriate."
+  },
+  "references": [
+    {
+      "label": "Notion: Uber MLE training versus inference",
+      "url": "https://app.notion.com/p/3e16ce51456d817e83ead82e8f122143"
+    },
+    {
+      "label": "Prachub: Uber MLE interview experience",
+      "url": "https://prachub.com/interview-experiences/uber-machine-learning-engineer-interview-experience-mlsd-on-driver-etas-then-a-coding-problem-id-never-seen-before"
+    },
+    {
+      "label": "PyTorch autograd modes",
+      "url": "https://docs.pytorch.org/docs/stable/notes/autograd.html"
+    },
+    {
+      "label": "PyTorch Module train and eval",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html"
+    }
+  ],
+  "created_at": "2026-09-21",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3e16ce51456d817e83ead82e8f122143"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  }
+}
