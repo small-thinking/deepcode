@@ -27,6 +27,7 @@ NOTION_TO_SLUG = {
     "3d66ce51456d8179ac80e29bfc6f3b92": "sorted-squares-and-kth-square",
     "3d66ce51456d81a99802d5b9143a3e58": "phone-keypad-combination-count",
     "3d66ce51456d81d88c81e129f4d27b01": "static-and-streaming-islands",
+    "3e16ce51456d81d3a131e1119fd84a8e": "regularization-vs-weight-decay",
 }
 
 
