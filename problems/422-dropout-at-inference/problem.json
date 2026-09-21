@@ -1,0 +1,56 @@
+{
+  "id": "422",
+  "slug": "dropout-at-inference",
+  "title": "Explain Dropout at Inference",
+  "category": "ML Fundamentals",
+  "difficulty": "easy",
+  "tags": [
+    "dropout",
+    "inference",
+    "evaluation-mode",
+    "regularization"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "After training a model with dropout, explain what should happen during inference and why. Contrast standard inverted dropout with the older test-time scaling convention, and name the related train/evaluation-mode concern that a practitioner should check. This is a writing exercise.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State the dropout convention before describing the inference-time computation.",
+    "reference_answer": "## Standard behavior\n\nDuring training, dropout randomly zeroes activations. In the common inverted-dropout convention, each retained activation is scaled by 1 / (1 - p), where p is the drop probability. That keeps the training-time activation expectation aligned with the full network. At ordinary inference, disable dropout and use the full network; under this convention the evaluation-time dropout layer is the identity.\n\n## Convention and operational checks\n\nOlder formulations instead leave retained activations unscaled during training and apply the corresponding scale at test time. Both conventions can represent the same intended expectation, but an answer should say which one it assumes rather than combining them.\n\nSwitch the model to evaluation mode so dropout is disabled and train/eval-sensitive modules such as BatchNorm use evaluation behavior. Evaluation mode alone does not necessarily disable autograd; inference code should also avoid building gradients when they are not needed. Deliberately retaining dropout for Monte Carlo uncertainty estimates is a special inference technique, not the standard prediction path."
+  },
+  "references": [
+    {
+      "label": "Notion: Uber MLE dropout at inference",
+      "url": "https://app.notion.com/p/3e16ce51456d810b8d98dc8a7f861b18"
+    },
+    {
+      "label": "Prachub: Uber MLE interview experience",
+      "url": "https://prachub.com/interview-experiences/uber-machine-learning-engineer-interview-experience-mlsd-on-driver-etas-then-a-coding-problem-id-never-seen-before"
+    },
+    {
+      "label": "PyTorch Dropout",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.Dropout.html"
+    },
+    {
+      "label": "Dropout: A Simple Way to Prevent Neural Networks from Overfitting",
+      "url": "https://jmlr.org/papers/v15/srivastava14a.html"
+    }
+  ],
+  "created_at": "2026-09-21",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3e16ce51456d810b8d98dc8a7f861b18"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  }
+}
