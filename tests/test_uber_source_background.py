@@ -18,7 +18,6 @@ NOTION_TO_SLUG = {
     "3d66ce51456d8119874ddea74757dea5": "payment-fraud-ml-system",
     "3d66ce51456d819e96f4fdb72083dc76": "marketplace-recommendation-eta-design",
     "3d76ce51456d813e99e9c4b76030d495": "end-to-end-project-deep-dive",
-    "3e16ce51456d8197a30cccc7d1f1daf4": "uber-room-progression-topk-leaderboard",
     "3d66ce51456d814ab567e94ece12a1cf": "ml-system-conflict-resolution",
     "3d76ce51456d81d8a273e693d8720eaa": "alien-dictionary-order",
     "3d66ce51456d81319399c204b4f712e7": "bounded-convex-minimization",
@@ -27,6 +26,8 @@ NOTION_TO_SLUG = {
     "3d66ce51456d8179ac80e29bfc6f3b92": "sorted-squares-and-kth-square",
     "3d66ce51456d81a99802d5b9143a3e58": "phone-keypad-combination-count",
     "3d66ce51456d81d88c81e129f4d27b01": "static-and-streaming-islands",
+    "3e16ce51456d817e83ead82e8f122143": "training-vs-inference",
+    "3e16ce51456d8197a30cccc7d1f1daf4": "uber-room-progression-topk-leaderboard",
     "3e16ce51456d81d3a131e1119fd84a8e": "regularization-vs-weight-decay",
 }
 
