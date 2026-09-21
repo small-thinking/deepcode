@@ -20,6 +20,8 @@ class MHA(nn.Module):
         q, k, v = self.W_qkv(x).reshape(b, t, 3, self.n_heads, self.head_dim).permute(2, 0, 3, 1, 4)
         scores = q @ k.transpose(-2, -1) / math.sqrt(self.head_dim)
         if mask is not None:
-            scores = scores.masked_fill(~mask, float('-inf'))
+            # Boolean mask: True blocks a query-key pair. Equivalently, an
+            # additive mask uses 0 for allowed positions and -inf for blocked ones.
+            scores = scores.masked_fill(mask, float('-inf'))
         out = (scores.softmax(dim=-1) @ v).transpose(1, 2).reshape(b, t, c)
         return self.W_o(out)
