@@ -1,0 +1,46 @@
+{
+  "id": "418",
+  "slug": "iot-remote-log-collection",
+  "title": "Design an Offline-Capable IoT Remote Log Collection Platform",
+  "category": "System Design",
+  "difficulty": "hard",
+  "tags": [
+    "iot",
+    "device-management",
+    "logging",
+    "event-time",
+    "observability",
+    "reliability"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "interview_frequency": {
+    "OpenAI": {
+      "source_record_ids": [
+        "3e16ce51456d81e2949bff3bf703a225"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "prompt": "Design a remote log-collection platform for a fleet of IoT devices. A device can be online or offline, collects logs locally, and uploads accumulated batches after it reconnects. Operators can request that selected devices collect particular log types. The platform must reliably accept and store uploaded logs and report success and failure metrics by log type. A late upload must update the relevant reporting rather than being silently excluded.\n\nDefine the device and operator-facing contracts, the meaning of collection success or failure, the ingestion and reporting paths, and the behavior for offline devices, retries, duplicates, malformed or partial batches, and reconnect bursts. Explain how an operator can tell the difference between a request that is still pending, failed, expired, or merely delayed. State the assumptions you need about scale, retention, security, and reporting freshness before selecting an architecture.\n\nThis is a writing exercise. There is no prescribed storage system, queue, consistency model, or throughput target.",
+  "response": {
+    "placeholder": "Start by defining the command, batch-acceptance, and event-time reporting contracts. Make the chosen delivery and correction guarantees explicit.",
+    "reference_answer": "## Scope and assumptions\n\nThe prompt establishes intermittent devices, targeted log requests, batch uploads after reconnect, per-log-type reporting, and late-arrival corrections. It does not establish device scale, retention, security requirements, service-level objectives, or a required architecture. I would ask whether a success metric means a command was delivered, a device confirmed collection, or the server durably received a log; those are different outcomes. The design below treats them as separate states.\n\n## Contracts and authoritative identities\n\nAn operator creates a collection request with a stable request ID, target selector, allowed log types, an expiry, and any policy limits. The service records the request durably before attempting delivery. A device receives a versioned command when it is reachable and acknowledges that command separately from uploading any resulting data. An offline device may receive the command only while it remains valid; otherwise it reports no invented success.\n\nEach device keeps a durable local spool. A batch has a stable batch ID, device ID, and immutable manifest; each event also has a stable event ID and event timestamp. The server accepts a batch only after validating the device identity, command scope, schema, and manifest, then durably records its acceptance and a deduplication record. A lost acknowledgement can therefore cause a safe retry. Partial acceptance needs an explicit response naming accepted, rejected, and retryable items rather than a blanket success.\n\nThe control-plane state for a request can include created, pending delivery, acknowledged, collecting, expired, failed, and completed. Completion needs a defined rule: for example, all targets have reported a terminal outcome or the expiry has passed. The ingestion state of a batch is independent: received, validated, accepted, rejected, and indexed. A command acknowledgement proves neither log presence nor report inclusion.\n\n## Ingestion and offline recovery\n\nDevices append logs to their local spool without placing remote collection on their application critical path. On reconnect, they upload bounded batches with retry and backoff. The service partitions accepted work by a durable key such as device or event stream, persists raw accepted events, and lets asynchronous consumers index and aggregate them. It enforces bounded per-device and fleet-wide admission so a reconnect storm does not let a few backlogged devices consume all capacity. If it cannot accept a batch safely, it returns an explicit retryable result; it does not acknowledge data it has not durably accepted.\n\nDeduplicate on stable IDs and retain enough receipt state for the retry horizon. Ordering can be best-effort across batches unless the product needs a stronger per-device sequence rule. A consumer must be idempotent too: delivery can repeat after a crash even when the public ingest acknowledgement was correct. Bad schema, unauthorized log types, exhausted local storage, expired commands, and server capacity rejection should be observable terminal or retryable outcomes according to the contract.\n\n## Event-time reporting and late corrections\n\nStore both event time and ingestion time. Use event time for the reporting window when the product wants to answer when a collection occurred, while ingestion time remains useful for freshness and operational debugging. Every aggregate should expose an as-of watermark or revision so a reader can distinguish a final-looking historical window from one that may still change.\n\nA streaming or batch aggregation path can update per-log-type totals as accepted events arrive. When a late event belongs to an already published event-time window, deduplication prevents double counting and the aggregator publishes a corrected revision or a bounded backfill. Keep raw accepted records long enough to replay a window after a bug, schema change, or aggregation outage. If reporting retention closes a window permanently, make that policy visible and count the event separately instead of silently losing it.\n\nReport command delivery, command acknowledgement, device-declared collection outcome, valid batch acceptance, rejected data, duplicate rate, event-to-ingest delay, late-correction count, aggregation watermark lag, and reporting revision count. A single success percentage that mixes these stages hides whether the control path, device, ingest service, or reporting pipeline failed.\n\n## Security, operations, and recovery\n\nAuthenticate each device and authorize an operator request against the target selector and allowed log types. Apply collection and retention policy before accepting payloads, redact or reject prohibited fields, and keep audit records for command creation and data acceptance. Separate high-cardinality raw logs from low-cardinality operational metrics so the metrics pipeline remains usable during a device flood.\n\nOn service restart, rebuild delivery and aggregation work from durable request, receipt, and raw-event records. Reconciliation identifies commands that have expired, deliveries without terminal confirmation, batches whose acknowledgement may have been lost, and aggregates behind their watermark. Alert on spool pressure, command-expiry rate, invalid-batch rate, ingest rejection, reconnect concentration, duplicate receipts, late-event age, correction backlog, and a growing gap between device collection reports and durable server acceptance.\n\n## Trade-offs\n\nLonger device spooling and raw-event retention improve outage recovery and backfills but cost device and storage capacity. Immediate event-time corrections make reports fresher but can change a number a user already saw; delayed finalization reduces churn but postpones completeness. Per-device ordering simplifies some reconciliation but can create hot partitions during reconnects. Choose these policies from the required freshness, loss tolerance, and operational budget rather than assuming exactly-once delivery or instant final metrics.\n\n## Progressive Hints\n\n1. A delivered request, a device acknowledgement, and a durably accepted log are separate facts.\n2. Give a retried upload a stable batch identity.\n3. Store event time and ingestion time for different questions.\n4. A published aggregate needs a visible correction or freshness rule.\n5. Design reconnect handling so one offline fleet does not starve current devices."
+  },
+  "references": [
+    {
+      "label": "OpenAI system-design interview report",
+      "url": "https://www.1point3acres.com/bbs/thread-1188857-1-1.html"
+    }
+  ],
+  "evaluation": {
+    "type": "system_design"
+  },
+  "created_at": "2026-09-21"
+}
