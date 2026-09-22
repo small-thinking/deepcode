@@ -18,5 +18,10 @@
     "name": "duplicate child replies cannot inflate the aggregate",
     "input": "a root with two leaves receives one leaf reply twice",
     "test": "sent = []\nroot = AsyncTreeCounter('root', ['left', 'right'], lambda target, message: sent.append((target, dict(message))))\nroot.receive_message(None, {'type': 'count_request', 'request_id': 'once'})\nroot.receive_message('left', {'type': 'count_reply', 'request_id': 'once', 'count': 1})\nroot.receive_message('left', {'type': 'count_reply', 'request_id': 'once', 'count': 1})\nroot.receive_message('right', {'type': 'count_reply', 'request_id': 'once', 'count': 1})\nassert sent[-1] == (None, {'type': 'count_reply', 'request_id': 'once', 'count': 3})\nassert root.state == {}"
+  },
+  {
+    "name": "late duplicate replies are ignored after request completion",
+    "input": "the final child reply is redelivered after its request state was cleared",
+    "test": "sent = []\nroot = AsyncTreeCounter('root', ['leaf'], lambda target, message: sent.append((target, dict(message))))\nroot.receive_message(None, {'type': 'count_request', 'request_id': 'done'})\nreply = {'type': 'count_reply', 'request_id': 'done', 'count': 1}\nroot.receive_message('leaf', reply)\ncompleted = list(sent)\nroot.receive_message('leaf', dict(reply))\nassert sent == completed\nassert root.state == {}\nassert sent[-1] == (None, {'type': 'count_reply', 'request_id': 'done', 'count': 2})"
   }
 ]
