@@ -14,8 +14,8 @@
   "companies": [
     "Waymo"
   ],
-  "prompt": "Repair a small NumPy-backed `Matrix` helper so rectangular arrays, decimal values, and independent copies behave correctly.\n\nImplement:\n\n- `zeros(rows, columns)` and `from_ndarray(values)` to construct a matrix; the latter copies a numeric 2D array.\n- `set(row, column, value)` to change one element.\n- `to_ndarray()` and `copy()` to return independent copies.\n- `transpose()` to return a new matrix with swapped axes.\n- `sum(axis=None)` to return a scalar total, column sums for `axis=0`, or row sums for `axis=1`.\n\nPreserve numeric values and never mutate caller-owned arrays. Reject unsupported reduction axes; `assert` is sufficient. Storing values as float64 is acceptable.",
-  "starter_code": "import numpy as np\n\n\nclass Matrix:\n    def __init__(self, values):\n        pass\n\n    @classmethod\n    def zeros(cls, rows, columns):\n        pass\n\n    @classmethod\n    def from_ndarray(cls, values):\n        pass\n\n    def to_ndarray(self):\n        pass\n\n    def set(self, row, column, value):\n        pass\n\n    def transpose(self):\n        pass\n\n    def sum(self, axis=None):\n        pass\n\n    def copy(self):\n        pass\n",
+  "prompt": "The supplied `Matrix` implementation runs, but produces incorrect results for some inputs and operations. Find and fix the bugs while preserving its public API.\n\nThe expected behavior is:\n\n- `zeros(rows, columns)` and `from_ndarray(values)` to construct a matrix; the latter copies a numeric 2D array.\n- `set(row, column, value)` to change one element.\n- `to_ndarray()` and `copy()` to return independent copies.\n- `transpose()` to return a new matrix with swapped axes.\n- `sum(axis=None)` to return a scalar total, column sums for `axis=0`, or row sums for `axis=1`.\n\nPreserve numeric values and never mutate caller-owned arrays. Reject unsupported reduction axes; `assert` is sufficient. Storing values as float64 is acceptable.",
+  "starter_code": "import numpy as np\n\n\nclass Matrix:\n    def __init__(self, values):\n        self._values = values\n\n    @classmethod\n    def zeros(cls, rows, columns):\n        return cls([[0.0] * columns] * rows)\n\n    @classmethod\n    def from_ndarray(cls, values):\n        return cls(values.astype(int))\n\n    def to_ndarray(self):\n        return np.asarray(self._values)\n\n    def set(self, row, column, value):\n        self._values[row][column] = value\n\n    def transpose(self):\n        return Matrix(np.asarray(self._values).T)\n\n    def sum(self, axis=None):\n        return np.asarray(self._values).sum()\n\n    def copy(self):\n        return Matrix(self._values)\n",
   "example": {
     "input": "matrix = Matrix.from_ndarray(np.array([[1.5, 2.0, 3.5], [4.0, 5.0, 6.0]])); matrix.sum(axis=1)",
     "output": "array([7.0, 15.0])",
@@ -50,6 +50,18 @@
     {
       "label": "Notion interview record (original source not recorded)",
       "url": "https://app.notion.com/p/3df6ce51456d814f89e9c66f2b6f9799"
+    },
+    {
+      "label": "Related debugging exercise — PracHub (curated reconstruction)",
+      "url": "https://prachub.com/interview-questions/debug-tensor-conversion-bugs?view=text"
+    },
+    {
+      "label": "Python reference — repeated nested lists share storage",
+      "url": "https://docs.python.org/3/faq/programming.html#how-do-i-create-a-multidimensional-list"
+    },
+    {
+      "label": "NumPy reference — array conversion and copying",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.asarray.html"
     }
   ]
 }
