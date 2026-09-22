@@ -12,21 +12,20 @@
     "error-handling"
   ],
   "companies": [
-    "Canva",
-    "General"
+    "Canva"
   ],
   "interview_frequency": {
-    "General": {
+    "Canva": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d8124bf56d9afaad3a5d8"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement `ImagePredictionService(downloader, sanitizer, models, capacity, max_retries=0)` and its `predict(image_id, model_key)` method. `downloader(image_id)` returns raw image data, `sanitizer(raw)` returns sanitized data, and `models[model_key]` is an object with `predict(sanitized)`. Define `TransientDownloadError` for retryable download failures.\n\nCache successful predictions in an LRU cache keyed by `(model_key, image_id)`. A cache hit must bypass downloading, sanitizing, and inference. Retry only `TransientDownloadError`, making at most `max_retries + 1` download attempts total. Propagate all other download exceptions and every sanitizer/model exception immediately; failed requests must never create a cache entry. Require a positive integer `capacity`, a non-negative integer `max_retries`, and an existing model key.",
   "starter_code": "class TransientDownloadError(Exception):\n    pass\n\n\nclass ImagePredictionService:\n    def __init__(self, downloader, sanitizer, models, capacity, max_retries=0):\n        pass\n\n    def predict(self, image_id, model_key):\n        pass\n",
@@ -45,6 +44,10 @@
     {
       "label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen",
       "url": "https://www.1point3acres.com/interview/thread/1064047"
+    },
+    {
+      "label": "Canonical question and source/practice boundaries",
+      "url": "https://www.notion.so/3cf6ce51456d8124bf56d9afaad3a5d8"
     }
   ],
   "evaluation": {
