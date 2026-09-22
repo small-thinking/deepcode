@@ -17,7 +17,7 @@ export function loadCodeVersions(storage, slug) {
   return data.versions;
 }
 
-export function saveCodeVersion(storage, slug, code, name, { onlyIfChanged = false } = {}) {
+export function saveCodeVersion(storage, slug, code, name = "", { onlyIfChanged = false } = {}) {
   const versions = loadCodeVersions(storage, slug);
   if (onlyIfChanged && versions.some((version) => version.code === code)) return versions;
   const version = {
@@ -28,4 +28,28 @@ export function saveCodeVersion(storage, slug, code, name, { onlyIfChanged = fal
   };
   storage.setItem(codeVersionsKey(slug), JSON.stringify({ schemaVersion: 1, versions: [version, ...versions] }));
   return [version, ...versions];
+}
+
+// Repeating the same submission does not fill History with identical snapshots.
+export function saveSubmittedCodeVersion(storage, slug, code) {
+  const versions = loadCodeVersions(storage, slug);
+  if (versions[0]?.code === code) return versions;
+  return saveCodeVersion(storage, slug, code, "Submitted code");
+}
+
+export function deleteCodeVersion(storage, slug, id) {
+  const versions = loadCodeVersions(storage, slug);
+  const remaining = versions.filter((version) => version.id !== id);
+  if (remaining.length !== versions.length) {
+    storage.setItem(codeVersionsKey(slug), JSON.stringify({ schemaVersion: 1, versions: remaining }));
+  }
+  return remaining;
+}
+
+export function undoDeleteCodeVersion(storage, slug, version) {
+  const versions = loadCodeVersions(storage, slug);
+  if (versions.some((item) => item.id === version.id)) return versions;
+  const restored = [...versions, version].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  storage.setItem(codeVersionsKey(slug), JSON.stringify({ schemaVersion: 1, versions: restored }));
+  return restored;
 }

@@ -2,7 +2,9 @@
 
 Each coding problem keeps its existing `deepcode-code:<slug>` localStorage key as the current, automatically saved working draft. Opening a problem reads that draft, so existing saved code needs no migration and the latest edit is displayed by default.
 
-Named snapshots live separately at `deepcode-code-versions:<slug>`:
+Running all tests, an individual test, or custom tests automatically saves the submitted code as a snapshot before execution. No name entry or manual save step is needed. Typing only updates the working draft. Consecutive submissions of identical code reuse the newest snapshot; submitting changed code (including a previously used approach) creates a new latest version. Failed test attempts are saved too.
+
+Snapshots live separately at `deepcode-code-versions:<slug>`:
 
 ```json
 {
@@ -10,44 +12,50 @@ Named snapshots live separately at `deepcode-code-versions:<slug>`:
   "versions": [
     {
       "id": "UUID",
-      "name": "Vectorized distances",
-      "code": "exact source text",
+      "name": "Submitted code",
+      "code": "exact submitted source text",
       "createdAt": "ISO-8601 timestamp"
     }
   ]
 }
 ```
 
-Versions are ordered newest first and never overwritten or automatically evicted. Duplicate names are allowed. History previews do not touch the editor. Restoring copies a saved version into the current draft; restoring and resetting first preserve the current code if identical code is not already in history. Backups must succeed before the draft is replaced. Malformed/unsupported history or exhausted browser storage causes the operation to stop, preserving existing data. Empty drafts and restored old starters survive reopening. Failed autosaves remain in memory across UI rerenders and problem navigation, keep a visible warning, and trigger the normal browser leave warning until persistence succeeds.
+Versions are ordered newest first and never overwritten or automatically evicted. Legacy named versions remain readable. History previews do not touch the editor. Restoring copies a saved version into the current draft; restoring and resetting first preserve the current code if identical code is not already in history. Backups must succeed before the draft is replaced. Failed autosaves remain in memory through rerenders and navigation, with a visible warning and browser leave protection.
 
-This retains the app's browser-local storage model: clearing site data removes drafts and versions, and another browser/device/origin does not share them. This is not server-side synchronization. Playground sessions and System Design answers keep their existing storage/UI.
+**Delete version** removes only the selected snapshot ID, leaving the working draft and other problems unchanged. **Undo delete** recovers the most recent deletion while History remains open. Deletes and undo operations re-read storage and only update the UI after a successful write. Deleting the last version leaves an empty schema envelope, so intentionally restored code remains protected from starter refresh.
+
+Malformed/unsupported history or unavailable/full storage aborts version mutations. A submission that cannot be saved is cancelled with a visible error. Clearing browser site data removes drafts and versions; another browser/device/origin does not share them. This is not server-side synchronization. Playground sessions and System Design answers retain their existing behavior.
 
 ## Browser checks
 
 Tested in the Codex in-app browser against the feature worktree on `http://127.0.0.1:8851`, using isolated browser storage and test-only server state. No changes were made to the normal service on port 8848.
 
-1. Entered a loop-based distance helper and saved **Loop baseline**.
-2. Replaced the editor with a broadcasting helper and saved **Vectorized distances**. Both versions remained, newest first.
-3. Reloaded: the broadcasting draft opened automatically.
-4. Added an unversioned experiment comment. Previewed the older version, then closed History: the current draft still contained the experiment.
-5. Restored **Loop baseline**. The editor showed the older code; History contained **Before restoring Loop baseline** with the entire experiment draft. Reloading retained the restored code.
-6. Added another draft comment and reset. The editor returned to the starter; History contained **Before reset**, including the comment.
-7. Switched to Top-p sampling: its history was empty. Returning to K-means retained all four versions.
-8. No browser warning/error logs were recorded during these checks.
+1. Typed an initial test attempt: the four existing history entries remained unchanged.
+2. Ran all tests without entering a name: **Submitted code** appeared automatically, even though the attempt failed its tests.
+3. Ran identical code again: the history count and newest snapshot timestamp stayed unchanged.
+4. Edited and submitted a second attempt: a second automatic snapshot appeared at the top.
+5. Selected the older automatic snapshot and clicked **Delete version**: exactly that entry disappeared; the newer snapshot and older legacy versions remained.
+6. Clicked **Undo delete**: the removed snapshot returned in chronological order.
+7. Prior checks verified reload into the latest draft, read-only preview, restore with automatic backup, reload of restored code, reset backup, and per-problem isolation.
 
-The helper code is synthetic test content, not a submitted solution to the K-means exercise.
+The displayed code is synthetic browser-test content, not a verified solution to the K-means exercise.
 
-### Two saved approaches
+### Automatic submission snapshots
 
-![Named versions, newest first, with a read-only preview](history.png)
+![Code is saved on submission without a name field](history.png)
+
+### Delete a selected version
+
+![The selected version is removed with an undo action](delete-version.png)
 
 ### Restore preserves the previous draft
+
+The earlier restore check (before the automatic-save UI update) verified preservation of unversioned edits:
 
 ![Automatic backup includes the unversioned experiment](restore-backup.png)
 
 ## Automated checks
 
-- `uv run --locked python -m unittest discover -s tests -p test_code_versions.py`: 10 passed.
-- `uv run --locked python -m unittest discover -s tests -p test_static_ui.py`: 42 passed.
-- `uv run --locked python -m unittest discover -s tests`: all 394 tests passed (95.8 s). Run with local socket permission because an architecture test starts a loopback HTTP server.
+- Focused code-version tests cover snapshots, submission timing and deduplication, typing without snapshots, deletion by ID, undo, storage failures, current-draft recovery, custom runs, and legacy compatibility.
+- `uv run --locked python -m unittest discover -s tests`: all 401 tests passed (99.8 s), including all 17 focused version tests.
 - `node --check frontend/app.js` and `node --check frontend/code-versions.mjs`: passed.

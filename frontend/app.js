@@ -1,4 +1,4 @@
-import { loadCodeVersions, saveCodeVersion } from "./code-versions.mjs";
+import { codeVersionsKey, loadCodeVersions, saveCodeVersion, saveSubmittedCodeVersion, deleteCodeVersion, undoDeleteCodeVersion } from "./code-versions.mjs";
 
 // Keep failed writes available through UI rerenders and problem navigation.
 const unsavedProblemDrafts = new Map();
@@ -922,8 +922,8 @@ function syncStarterCode(problem) {
   const savedCode = localStorage.getItem(key);
   const lastStarterCode = localStorage.getItem(versionKey);
 
-  // Once versions exist, a deliberately restored draft must not be refreshed away.
-  if (shouldRefreshStoredCode(savedCode, lastStarterCode) && !loadCodeVersions(localStorage, problem.slug).length) {
+  // Keep restored drafts protected even after the user deletes every snapshot.
+  if (shouldRefreshStoredCode(savedCode, lastStarterCode) && localStorage.getItem(codeVersionsKey(problem.slug)) === null) {
     if (savedCode !== null && savedCode !== starterCode) {
       saveCodeVersion(localStorage, problem.slug, savedCode, "Before starter update");
     }
@@ -1100,7 +1100,7 @@ function updateCodeSaveStatus(message, failed = false) {
   status.classList.toggle("save-failed", failed);
 }
 
-function showCodeVersions(focusName = false) {
+function showCodeVersions() {
   const slug = state.selected?.slug;
   if (!slug || state.view === "playground" || state.running) return;
   const dialog = document.createElement("dialog");
@@ -1109,14 +1109,9 @@ function showCodeVersions(focusName = false) {
   dialog.innerHTML = `
     <header class="versions-header">
       <div><h2 id="code-versions-title">Code versions</h2>
-        <p>Your latest draft opens automatically. Saved versions stay unchanged.</p></div>
+        <p>Code is saved as a version when you run tests. Typing only updates your current draft.</p></div>
       <button class="ghost-button" id="close-code-versions" aria-label="Close code versions">Close</button>
     </header>
-    <form id="save-code-version-form" class="version-save-form">
-      <label for="code-version-name">Save current draft as a version</label>
-      <div><input id="code-version-name" maxlength="100" placeholder="e.g. Vectorized solution" autocomplete="off" />
-        <button class="primary-button" type="submit">Save version</button></div>
-    </form>
     <p class="version-feedback" role="status" aria-live="polite"></p>
     <div class="versions-content">
       <div class="versions-list"><label for="code-version-list">Saved versions · newest first</label>
@@ -1125,23 +1120,30 @@ function showCodeVersions(focusName = false) {
         <p id="code-version-date"></p><pre id="code-version-preview" tabindex="0" aria-label="Saved code preview"></pre></section>
     </div>
     <footer class="versions-footer"><p>Stored in this browser. Restoring also saves your current draft first.</p>
-      <button class="primary-button" id="restore-code-version" disabled>Restore to editor</button></footer>`;
+      <div class="version-actions">
+        <button class="ghost-button" id="undo-delete-code-version" hidden>Undo delete</button>
+        <button class="ghost-button" id="delete-code-version" disabled>Delete version</button>
+        <button class="primary-button" id="restore-code-version" disabled>Restore to editor</button>
+      </div></footer>`;
   document.body.append(dialog);
   const list = dialog.querySelector("#code-version-list");
   const restore = dialog.querySelector("#restore-code-version");
   const feedback = dialog.querySelector(".version-feedback");
-  const name = dialog.querySelector("#code-version-name");
+  const remove = dialog.querySelector("#delete-code-version");
+  const undoDelete = dialog.querySelector("#undo-delete-code-version");
+  let deletedVersion = null;
   let versions = [];
   function reportError(error) {
-    feedback.textContent = `Could not save or read versions. ${error.message} Your editor and saved versions have been kept.`;
+    feedback.textContent = `Could not update version history. ${error.message} Your editor and saved versions have been kept.`;
     feedback.classList.add("save-failed");
   }
   function preview() {
     const version = versions.find((item) => item.id === list.value);
     dialog.querySelector("#code-version-heading").textContent = version?.name || "No saved versions yet";
-    dialog.querySelector("#code-version-date").textContent = version ? new Date(version.createdAt).toLocaleString() : "Save a version to keep an approach you can return to.";
+    dialog.querySelector("#code-version-date").textContent = version ? new Date(version.createdAt).toLocaleString() : "Run tests to save your first version automatically.";
     dialog.querySelector("#code-version-preview").textContent = version?.code ?? "";
     restore.disabled = !version;
+    remove.disabled = !version;
   }
   function refresh() {
     versions = loadCodeVersions(localStorage, slug);
@@ -1158,13 +1160,26 @@ function showCodeVersions(focusName = false) {
   list.addEventListener("change", preview);
   dialog.querySelector("#close-code-versions").addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => dialog.remove());
-  dialog.querySelector("#save-code-version-form").addEventListener("submit", (event) => {
-    event.preventDefault();
+  remove.addEventListener("click", () => {
+    const version = versions.find((item) => item.id === list.value);
+    if (!version) return;
     try {
-      saveCodeVersion(localStorage, slug, editorCode(), name.value);
-      name.value = "";
+      deleteCodeVersion(localStorage, slug, version.id);
+      deletedVersion = version;
+      undoDelete.hidden = false;
       refresh();
-      feedback.textContent = "Version saved. You can keep editing your current draft.";
+      feedback.textContent = "Version deleted. Your current draft is unchanged. You can undo before closing History.";
+      feedback.classList.remove("save-failed");
+    } catch (error) { reportError(error); }
+  });
+  undoDelete.addEventListener("click", () => {
+    if (!deletedVersion) return;
+    try {
+      undoDeleteCodeVersion(localStorage, slug, deletedVersion);
+      deletedVersion = null;
+      undoDelete.hidden = true;
+      refresh();
+      feedback.textContent = "Deleted version restored.";
       feedback.classList.remove("save-failed");
     } catch (error) { reportError(error); }
   });
@@ -1186,7 +1201,7 @@ function showCodeVersions(focusName = false) {
   });
   try { refresh(); } catch (error) { reportError(error); }
   dialog.showModal();
-  (focusName ? name : list.disabled ? name : list).focus();
+  (list.disabled ? dialog.querySelector("#close-code-versions") : list).focus();
 }
 
 function validPlaygroundSessions(value) {
@@ -1636,6 +1651,14 @@ async function runCustomTests(customIndex = null) {
 }
 
 async function runPayload(payload, { testIndex = null, customIndex = null } = {}) {
+  if (!state.selected || state.running) return;
+  try {
+    saveSubmittedCodeVersion(localStorage, state.selected.slug, payload.code);
+  } catch {
+    state.error = "Run cancelled — could not save a code version. Browser storage may be full or unavailable.";
+    render();
+    return;
+  }
   state.running = true;
   state.runResult = null;
   state.runLogs = [];
@@ -3032,7 +3055,6 @@ function renderDetail() {
         }">
           <div class="panel-header code-toolbar">
             <div class="editor-actions">
-              <button class="ghost-button" id="save-code-version" ${state.running ? "disabled" : ""}>Save version</button>
               <button class="ghost-button" id="code-version-history" ${state.running ? "disabled" : ""}>History</button>
               <button class="ghost-button" id="reset-code" ${state.running ? "disabled" : ""}>Reset</button>
               <button
@@ -3045,7 +3067,7 @@ function renderDetail() {
             <button class="primary-button" id="run-tests" ${runButtonState} aria-busy="${state.running}">
               ${runButtonContent}
             </button>
-            <span id="code-save-status" class="code-save-status ${unsavedProblemDrafts.has(problem.slug) ? "save-failed" : ""}" role="status">${unsavedProblemDrafts.has(problem.slug) ? "Draft not saved — browser storage is full or unavailable" : "Draft autosaved · Saved versions in History"}</span>
+            <span id="code-save-status" class="code-save-status ${unsavedProblemDrafts.has(problem.slug) ? "save-failed" : ""}" role="status">${unsavedProblemDrafts.has(problem.slug) ? "Draft not saved — browser storage is full or unavailable" : "Draft autosaved · Runs saved in History"}</span>
           </div>
           <div class="code-pane">
             <div id="code-editor" class="code-editor ace-editor"></div>
@@ -3987,7 +4009,6 @@ function bindEvents() {
   document.querySelector("#data-link-target")?.addEventListener("input", (event) => {
     state.dataLinkTarget = event.target.value;
   });
-  document.querySelector("#save-code-version")?.addEventListener("click", () => showCodeVersions(true));
   document.querySelector("#code-version-history")?.addEventListener("click", () => showCodeVersions());
   document.querySelector("#reset-code")?.addEventListener("click", resetCode);
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));

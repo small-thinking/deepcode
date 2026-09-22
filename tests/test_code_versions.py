@@ -12,7 +12,7 @@ class CodeVersionsTest(unittest.TestCase):
         script = f"""
 import assert from 'node:assert/strict';
 import {{ webcrypto }} from 'node:crypto';
-import {{ codeVersionsKey, loadCodeVersions, saveCodeVersion }} from {json.dumps(module_url)};
+import {{ codeVersionsKey, loadCodeVersions, saveCodeVersion, saveSubmittedCodeVersion, deleteCodeVersion, undoDeleteCodeVersion }} from {json.dumps(module_url)};
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 const entries = new Map();
 const unsavedProblemDrafts = new Map();
@@ -83,6 +83,187 @@ saveCodeVersion(localStorage, 'alpha', 'x', 'Before reset', {onlyIfChanged: true
 assert.equal(loadCodeVersions(localStorage, 'alpha').length, 3);
 assert.deepEqual(loadCodeVersions(localStorage, 'alpha')[2], first);
 """)
+
+    def test_submissions_deduplicate_only_the_latest_exact_code(self):
+        self.run_js(r"""
+const original = '\tprint("你好")  \r\n\n';
+const first = saveSubmittedCodeVersion(localStorage, 'alpha', original)[0];
+assert.equal(first.code, original);
+const before = localStorage.getItem(codeVersionsKey('alpha'));
+// An unchanged submission needs no write, even if storage is now full.
+failKey = codeVersionsKey('alpha');
+assert.deepEqual(saveSubmittedCodeVersion(localStorage, 'alpha', original), [first]);
+assert.equal(localStorage.getItem(codeVersionsKey('alpha')), before);
+failKey = null;
+const changed = saveSubmittedCodeVersion(localStorage, 'alpha', original.trim())[0];
+const returned = saveSubmittedCodeVersion(localStorage, 'alpha', original)[0];
+assert.notEqual(returned.id, first.id);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), [returned, changed, first]);
+const empty = saveSubmittedCodeVersion(localStorage, 'alpha', '')[0];
+saveSubmittedCodeVersion(localStorage, 'alpha', '');
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), [empty, returned, changed, first]);
+assert.deepEqual(loadCodeVersions(localStorage, 'beta'), []);
+""")
+
+    def test_delete_uses_selected_id_and_problem_even_with_duplicate_names(self):
+        self.run_js(r"""
+const first = saveCodeVersion(localStorage, 'alpha', 'first', 'Same name')[0];
+const selected = saveCodeVersion(localStorage, 'alpha', 'selected', 'Same name')[0];
+const latest = saveCodeVersion(localStorage, 'alpha', 'latest', 'Same name')[0];
+const beta = saveCodeVersion(localStorage, 'beta', 'other problem', 'Same name')[0];
+localStorage.setItem('deepcode-code:alpha', 'working draft');
+assert.deepEqual(deleteCodeVersion(localStorage, 'alpha', selected.id), [latest, first]);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), [latest, first]);
+assert.deepEqual(loadCodeVersions(localStorage, 'beta'), [beta]);
+assert.equal(localStorage.getItem('deepcode-code:alpha'), 'working draft');
+failKey = codeVersionsKey('alpha');
+assert.deepEqual(deleteCodeVersion(localStorage, 'alpha', beta.id), [latest, first]);
+const before = new Map(entries);
+assert.throws(() => deleteCodeVersion(localStorage, 'alpha', first.id), /Quota/);
+assert.deepEqual(entries, before);
+""")
+
+    def test_undo_delete_restores_original_record_and_preserves_new_versions(self):
+        self.run_js(r"""
+const oldest = {id: 'old', name: 'Same name', code: 'old code', createdAt: '2026-09-20T00:00:00.000Z'};
+const selected = {id: 'selected', name: 'Same name', code: '\tselected\r\n', createdAt: '2026-09-21T00:00:00.000Z'};
+const newest = {id: 'new', name: 'Same name', code: 'new code', createdAt: '2026-09-22T00:00:00.000Z'};
+localStorage.setItem(codeVersionsKey('alpha'), JSON.stringify({schemaVersion: 1, versions: [selected, oldest]}));
+const beta = saveCodeVersion(localStorage, 'beta', 'other code', 'Same name')[0];
+deleteCodeVersion(localStorage, 'alpha', selected.id);
+// A subsequent save (possibly from another tab) must survive Undo.
+localStorage.setItem(codeVersionsKey('alpha'), JSON.stringify({schemaVersion: 1, versions: [newest, oldest]}));
+const before = new Map(entries);
+failKey = codeVersionsKey('alpha');
+assert.throws(() => undoDeleteCodeVersion(localStorage, 'alpha', selected), /Quota/);
+assert.deepEqual(entries, before);
+failKey = null;
+assert.deepEqual(undoDeleteCodeVersion(localStorage, 'alpha', selected), [newest, selected, oldest]);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), [newest, selected, oldest]);
+assert.deepEqual(loadCodeVersions(localStorage, 'beta'), [beta]);
+failKey = codeVersionsKey('alpha');
+assert.deepEqual(undoDeleteCodeVersion(localStorage, 'alpha', selected), [newest, selected, oldest]);
+""")
+
+    def test_typing_updates_only_the_working_draft(self):
+        source = Path("frontend/app.js").read_text(encoding="utf-8")
+        save_function = source[source.index("function saveCode("):source.index("function updateCodeSaveStatus(")]
+        self.run_js(r"""
+const state = {view: 'problems', selected: {slug: 'alpha'}};
+const codeKey = slug => `deepcode-code:${slug}`;
+const updateCodeSaveStatus = () => {};
+const saved = saveSubmittedCodeVersion(localStorage, 'alpha', 'submitted');
+for (const draft of ['s', 'some', 'some edits', '']) saveCode(draft);
+assert.equal(localStorage.getItem(codeKey('alpha')), '');
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), saved);
+state.selected = {slug: 'beta'};
+saveCode('new unsent draft');
+assert.deepEqual(loadCodeVersions(localStorage, 'beta'), []);
+""", app_code=save_function)
+
+    def run_functions(self):
+        source = Path("frontend/app.js").read_text(encoding="utf-8")
+        return source[source.index("async function runTests("):source.index("async function runTestsWithStream(")]
+
+    def test_runs_save_exact_payload_before_stream_or_fallback_even_on_failure(self):
+        self.run_js(r"""
+const state = {selected: {slug: 'alpha'}, running: false};
+let payload, mode, streamCalls = 0, apiCalls = 0, timerStarts = 0, timerStops = 0;
+const render = () => {};
+const updateRunElapsed = () => {};
+const startRunTimer = () => {timerStarts++;};
+const stopRunTimer = () => {timerStops++;};
+const syncProblemStatus = () => {};
+const assertSaved = received => {
+  assert.deepEqual(received, payload);
+  assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, payload.code);
+  assert.equal(state.running, true);
+};
+const runTestsWithStream = async received => {
+  streamCalls++;
+  assertSaved(received);
+  if (mode === 'stream-error') throw new Error('Stream unavailable');
+  if (mode === 'fallback') return false;
+  state.runResult = {passed: false, error: 'Assertion failed'};
+  return true;
+};
+const api = async (url, options) => {
+  apiCalls++;
+  assert.equal(url, '/api/problems/alpha/run');
+  assert.equal(options.method, 'POST');
+  assertSaved(JSON.parse(options.body));
+  throw new Error('Runner unavailable');
+};
+for (mode of ['streamed-failure', 'stream-error', 'fallback']) {
+  payload = {code: `\t${mode}  \r\n\n`, test_index: 0};
+  await runPayload(payload, {testIndex: 0});
+  assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, payload.code);
+  assert.equal(state.running, false);
+  assert.equal(state.runningTestIndex, null);
+  if (mode === 'streamed-failure') assert.equal(state.runResult.passed, false);
+  else assert.match(state.error, /unavailable/);
+}
+assert.equal(loadCodeVersions(localStorage, 'alpha').length, 3);
+assert.equal(streamCalls, 3);
+assert.equal(apiCalls, 1);
+assert.equal(timerStarts, 3);
+assert.equal(timerStops, 3);
+""", app_code=self.run_functions())
+
+    def test_run_aborts_before_execution_when_version_storage_is_full(self):
+        self.run_js(r"""
+const state = {selected: {slug: 'alpha'}, running: false, runResult: {previous: true}, runLogs: ['previous log']};
+let rendered = 0;
+const render = () => {rendered++;};
+const startRunTimer = () => assert.fail('must not start timer');
+const runTestsWithStream = async () => assert.fail('must not start stream');
+const api = async () => assert.fail('must not call runner');
+saveSubmittedCodeVersion(localStorage, 'alpha', 'previous code');
+localStorage.setItem('deepcode-code:alpha', 'current draft');
+const before = new Map(entries);
+failKey = codeVersionsKey('alpha');
+await runPayload({code: 'new submission'});
+assert.deepEqual(entries, before);
+assert.equal(state.running, false);
+assert.deepEqual(state.runResult, {previous: true});
+assert.deepEqual(state.runLogs, ['previous log']);
+assert.match(state.error, /could not save a code version/i);
+assert.equal(rendered, 1);
+""", app_code=self.run_functions())
+
+    def test_custom_runs_save_the_normalized_code_actually_submitted(self):
+        self.run_js(r"""
+const state = {selected: {slug: 'alpha'}, running: false, customTests: [{input: 'first'}, {input: 'second'}]};
+let editor = '\tprint("custom")\r\n', collected = 0, calls = 0;
+const normalized = '    print("custom")\n';
+const isMlCodingProblem = () => true;
+const collectCustomTestInputs = () => {collected++;};
+const editorCode = () => editor;
+const normalizePythonIndentation = () => normalized;
+const setEditorCode = value => {editor = value;};
+const saveCode = value => localStorage.setItem('deepcode-code:alpha', value);
+const render = () => {};
+const startRunTimer = () => {};
+const stopRunTimer = () => {};
+const updateRunElapsed = () => {};
+const runTestsWithStream = async payload => {
+  assert.equal(payload.code, normalized);
+  assert.equal(payload.custom_only, true);
+  assert.deepEqual(payload.custom_tests, calls ? state.customTests : [state.customTests[1]]);
+  assert.equal(state.runningCustomTestIndex, calls ? 'all' : 1);
+  assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, payload.code);
+  calls++;
+  state.runResult = {passed: false};
+  return true;
+};
+await runCustomTests(1);
+await runCustomTests();
+assert.equal(calls, 2);
+assert.equal(collected, 2);
+assert.equal(editor, normalized);
+assert.equal(localStorage.getItem('deepcode-code:alpha'), normalized);
+assert.equal(loadCodeVersions(localStorage, 'alpha').length, 1);
+""", app_code=self.run_functions())
 
     def test_corrupt_or_future_histories_are_never_overwritten(self):
         self.run_js(r"""
@@ -202,6 +383,14 @@ for (const restored of ['old starter\n', '']) {
 }
 const legacy = 'class NGramCharModel:\n    def train(self, text):\n        pass\n    def generate(self, prompt="", max_new_chars=100):\n        pass\n    def evaluate(self, text):\n        pass';
 localStorage.setItem(codeKey('alpha'), legacy);
+syncStarterCode(problem);
+assert.equal(localStorage.getItem(codeKey('alpha')), legacy);
+// Deleting every snapshot must not make restored legacy code look untouched.
+for (const version of loadCodeVersions(localStorage, 'alpha')) {
+  deleteCodeVersion(localStorage, 'alpha', version.id);
+}
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), []);
+syncStarterCode(problem);
 syncStarterCode(problem);
 assert.equal(localStorage.getItem(codeKey('alpha')), legacy);
 syncStarterCode({slug: 'fresh', starter_code: 'fresh starter'});
