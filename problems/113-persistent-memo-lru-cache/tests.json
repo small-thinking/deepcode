@@ -28,5 +28,10 @@
     "name": "an incomplete final persistence record preserves prior replay",
     "input": "valid access followed by a truncated JSON line",
     "test": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as tmp:\n    path = Path(tmp) / 'cache.jsonl'\n    def ident(x):\n        return x\n    cache = MemoLRUCache(2, str(path))\n    assert cache.get_or_compute(ident, args=[7]) == 7\n    with path.open('ab') as handle:\n        handle.write(b'{\\\"event\\\":')\n    restored = MemoLRUCache(2, str(path))\n    calls = []\n    def ident(x):\n        calls.append(x)\n        return x\n    assert restored.get_or_compute(ident, args=[7]) == 7\n    assert calls == []"
+  },
+  {
+    "name": "new accesses after a truncated tail survive the next restart",
+    "input": "recover a damaged log, write two accesses, restart again",
+    "test": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as tmp:\n    path = Path(tmp) / 'cache.jsonl'\n    calls = []\n    def ident(x):\n        calls.append(x)\n        return x\n    cache = MemoLRUCache(2, str(path))\n    cache.get_or_compute(ident, args=[1])\n    cache.get_or_compute(ident, args=[2])\n    with path.open('ab') as handle:\n        handle.write(b'{\"key\":')\n    recovered = MemoLRUCache(2, str(path))\n    recovered.get_or_compute(ident, args=[1])\n    recovered.get_or_compute(ident, args=[3])\n    again = MemoLRUCache(2, str(path))\n    calls.clear()\n    assert again.get_or_compute(ident, args=[1]) == 1\n    assert again.get_or_compute(ident, args=[3]) == 3\n    assert calls == []\n    assert again.get_or_compute(ident, args=[2]) == 2\n    assert calls == [2]"
   }
 ]
