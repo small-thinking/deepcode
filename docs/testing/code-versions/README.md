@@ -1,8 +1,10 @@
 # Code versions: storage design and browser checks
 
-Each coding problem keeps its existing `deepcode-code:<slug>` localStorage key as the current, automatically saved working draft. Opening a problem reads that draft, so existing saved code needs no migration and the latest edit is displayed by default.
+Each coding problem keeps its existing `deepcode-code:<slug>` localStorage key as the current, automatically saved working draft. Opening a problem reads that draft, so the latest edit is displayed by default. On the first load after this upgrade, all existing problem drafts in this browser are copied into version history as **Existing draft**, including problems that are not opened. Exact matches already in history are reused; the working-draft keys remain unchanged.
 
 Running all tests, an individual test, or custom tests automatically saves the submitted code as a snapshot before execution. No name entry or manual save step is needed. Typing only updates the working draft. Consecutive submissions of identical code reuse the newest snapshot; submitting changed code (including a previously used approach) creates a new latest version. Failed test attempts are saved too.
+
+A completion marker (`deepcode-code-versions-migrated:v1`) prevents later typing, reloads, or intentional deletions from creating or restoring snapshots. If migration is interrupted or storage is full, it can safely retry on reload without duplicating completed copies. A visible banner reports incomplete migration.
 
 Snapshots live separately at `deepcode-code-versions:<slug>`:
 
@@ -36,7 +38,8 @@ Tested in the Codex in-app browser against the feature worktree on `http://127.0
 4. Edited and submitted a second attempt: a second automatic snapshot appeared at the top.
 5. Selected the older automatic snapshot and clicked **Delete version**: exactly that entry disappeared; the newer snapshot and older legacy versions remained.
 6. Clicked **Undo delete**: the removed snapshot returned in chronological order.
-7. Prior checks verified reload into the latest draft, read-only preview, restore with automatic backup, reload of restored code, reset backup, and per-problem isolation.
+7. Loaded an old unsubmitted Top-p draft: **Existing draft** appeared automatically; a reload kept exactly one entry.
+8. Prior checks verified reload into the latest draft, read-only preview, restore with automatic backup, reload of restored code, reset backup, and per-problem isolation.
 
 The displayed code is synthetic browser-test content, not a verified solution to the K-means exercise.
 
@@ -57,5 +60,9 @@ The earlier restore check (before the automatic-save UI update) verified preserv
 ## Automated checks
 
 - Focused code-version tests cover snapshots, submission timing and deduplication, typing without snapshots, deletion by ID, undo, storage failures, current-draft recovery, custom runs, and legacy compatibility.
-- `uv run --locked python -m unittest discover -s tests`: all 401 tests passed (99.8 s), including all 17 focused version tests.
+- Full-suite results are recorded in the PR Test Plan. The focused version/migration suite passes all 23 tests.
 - `node --check frontend/app.js` and `node --check frontend/code-versions.mjs`: passed.
+
+### Existing drafts are preserved on upgrade
+
+![An existing unsubmitted draft becomes the first saved version](existing-draft.png)

@@ -12,12 +12,14 @@ class CodeVersionsTest(unittest.TestCase):
         script = f"""
 import assert from 'node:assert/strict';
 import {{ webcrypto }} from 'node:crypto';
-import {{ codeVersionsKey, loadCodeVersions, saveCodeVersion, saveSubmittedCodeVersion, deleteCodeVersion, undoDeleteCodeVersion }} from {json.dumps(module_url)};
+import {{ codeVersionsKey, loadCodeVersions, saveCodeVersion, saveSubmittedCodeVersion, deleteCodeVersion, undoDeleteCodeVersion, migrateExistingCodeDrafts }} from {json.dumps(module_url)};
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 const entries = new Map();
 const unsavedProblemDrafts = new Map();
 let failKey = null;
 const localStorage = {{
+  get length() {{ return entries.size; }},
+  key: index => [...entries.keys()][index] ?? null,
   getItem: key => entries.has(key) ? entries.get(key) : null,
   setItem(key, value) {{
     if (key === failKey) throw new Error('QuotaExceededError');
@@ -37,6 +39,112 @@ const localStorage = {{
     def draft_functions(self):
         source = Path("frontend/app.js").read_text(encoding="utf-8")
         return source[source.index("function codeKey("):source.index("function validEditorHistory(")]
+
+    def test_migration_preserves_every_legacy_draft_and_ignores_other_storage(self):
+        self.run_js(r"""
+const drafts = new Map([
+  ['alpha', '\tprint("你好")  \r\n\n'],
+  ['unvisited-problem', 'unsent solution'],
+  ['empty', ''],
+]);
+const unrelated = new Map([
+  ['deepcode-playground-code', 'playground code'],
+  ['deepcode-playground-sessions', 'playground sessions'],
+  ['deepcode-system-design-answer:alpha', 'design notes'],
+  ['deepcode-code-editor-history:alpha', 'editor undo history'],
+]);
+for (const [key, value] of unrelated) localStorage.setItem(key, value);
+for (const [slug, code] of drafts) localStorage.setItem(`deepcode-code:${slug}`, code);
+migrateExistingCodeDrafts(localStorage);
+for (const [slug, code] of drafts) {
+  const versions = loadCodeVersions(localStorage, slug);
+  assert.equal(versions.length, 1);
+  assert.equal(versions[0].code, code);
+  assert.equal(versions[0].name, 'Existing draft');
+  assert.ok(Number.isFinite(Date.parse(versions[0].createdAt)));
+  assert.equal(localStorage.getItem(`deepcode-code:${slug}`), code);
+}
+for (const [key, value] of unrelated) assert.equal(localStorage.getItem(key), value);
+assert.deepEqual([...entries.keys()].filter(key => key.startsWith('deepcode-code-versions:')).sort(),
+  [...drafts.keys()].map(codeVersionsKey).sort());
+""")
+
+    def test_migration_reuses_matching_snapshot_anywhere_in_history(self):
+        self.run_js(r"""
+const draft = '\tprint("你好")  \r\n\n';
+saveCodeVersion(localStorage, 'alpha', draft, 'Original draft');
+saveCodeVersion(localStorage, 'alpha', 'newer submitted code', 'Submitted code');
+localStorage.setItem('deepcode-code:alpha', draft);
+const before = localStorage.getItem(codeVersionsKey('alpha'));
+// Exact matching history needs no write even when that key cannot be saved.
+failKey = codeVersionsKey('alpha');
+migrateExistingCodeDrafts(localStorage);
+assert.equal(localStorage.getItem(codeVersionsKey('alpha')), before);
+assert.equal(localStorage.getItem('deepcode-code:alpha'), draft);
+""")
+
+    def test_migration_captures_unversioned_draft_with_existing_history(self):
+        self.run_js(r"""
+const previous = saveSubmittedCodeVersion(localStorage, 'alpha', 'solution\n');
+localStorage.setItem('deepcode-code:alpha', 'solution\n\n');
+migrateExistingCodeDrafts(localStorage);
+const versions = loadCodeVersions(localStorage, 'alpha');
+assert.equal(versions.length, 2);
+assert.equal(versions[0].code, 'solution\n\n');
+assert.deepEqual(versions.slice(1), previous);
+assert.equal(localStorage.getItem('deepcode-code:alpha'), 'solution\n\n');
+""")
+
+    def test_completed_migration_does_not_snapshot_later_typing_on_next_boot(self):
+        self.run_js(r"""
+localStorage.setItem('deepcode-code:alpha', 'legacy draft');
+migrateExistingCodeDrafts(localStorage);
+localStorage.setItem('deepcode-code:alpha', 'later unsent edits');
+localStorage.setItem('deepcode-code:new-problem', 'new unsent draft');
+const before = new Map(entries);
+migrateExistingCodeDrafts(localStorage);
+assert.deepEqual(entries, before);
+assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, 'legacy draft');
+assert.deepEqual(loadCodeVersions(localStorage, 'new-problem'), []);
+""")
+
+    def test_partial_migration_retries_without_duplicates_or_draft_changes(self):
+        self.run_js(r"""
+const drafts = new Map([['alpha', 'first\r\n'], ['beta', ''], ['gamma', '\tthird  ']]);
+for (const [slug, code] of drafts) localStorage.setItem(`deepcode-code:${slug}`, code);
+failKey = codeVersionsKey('beta');
+assert.throws(() => migrateExistingCodeDrafts(localStorage), /Quota/);
+const first = loadCodeVersions(localStorage, 'alpha');
+assert.equal(first.length, 1);
+assert.deepEqual(loadCodeVersions(localStorage, 'beta'), []);
+assert.deepEqual(loadCodeVersions(localStorage, 'gamma'), []);
+for (const [slug, code] of drafts) assert.equal(localStorage.getItem(`deepcode-code:${slug}`), code);
+failKey = null;
+migrateExistingCodeDrafts(localStorage);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), first);
+for (const [slug, code] of drafts) {
+  const versions = loadCodeVersions(localStorage, slug);
+  assert.equal(versions.length, 1);
+  assert.equal(versions[0].code, code);
+  assert.equal(localStorage.getItem(`deepcode-code:${slug}`), code);
+}
+const completed = new Map(entries);
+migrateExistingCodeDrafts(localStorage);
+assert.deepEqual(entries, completed);
+""")
+
+    def test_deleted_migrated_snapshot_is_not_resurrected_on_reload(self):
+        self.run_js(r"""
+localStorage.setItem('deepcode-code:alpha', 'legacy draft');
+migrateExistingCodeDrafts(localStorage);
+const migrated = loadCodeVersions(localStorage, 'alpha')[0];
+deleteCodeVersion(localStorage, 'alpha', migrated.id);
+const before = new Map(entries);
+migrateExistingCodeDrafts(localStorage);
+assert.deepEqual(entries, before);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), []);
+assert.equal(localStorage.getItem('deepcode-code:alpha'), 'legacy draft');
+""")
 
     def test_snapshots_keep_exact_text_and_previous_named_versions(self):
         self.run_js(r"""

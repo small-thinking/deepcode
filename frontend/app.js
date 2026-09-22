@@ -1,4 +1,4 @@
-import { codeVersionsKey, loadCodeVersions, saveCodeVersion, saveSubmittedCodeVersion, deleteCodeVersion, undoDeleteCodeVersion } from "./code-versions.mjs";
+import { codeVersionsKey, loadCodeVersions, saveCodeVersion, saveSubmittedCodeVersion, deleteCodeVersion, undoDeleteCodeVersion, migrateExistingCodeDrafts } from "./code-versions.mjs";
 
 // Keep failed writes available through UI rerenders and problem navigation.
 const unsavedProblemDrafts = new Map();
@@ -98,6 +98,7 @@ const state = {
   runningCustomTestIndex: null,
   pendingCustomTestScrollIndex: null,
   error: null,
+  codeVersionMigrationError: null,
   loading: true,
   running: false,
   playgroundRunning: false,
@@ -1992,6 +1993,13 @@ function render() {
     renderDetail();
   } else {
     renderList();
+  }
+  if (state.codeVersionMigrationError) {
+    const notice = document.createElement("div");
+    notice.className = "error-banner";
+    notice.setAttribute("role", "alert");
+    notice.textContent = state.codeVersionMigrationError;
+    app.prepend(notice);
   }
   bindEvents();
   mountEditor();
@@ -4089,5 +4097,10 @@ window.addEventListener("hashchange", () => {
   }
 });
 
+try {
+  migrateExistingCodeDrafts(localStorage);
+} catch {
+  state.codeVersionMigrationError = "Some existing drafts could not be copied to version history. Your drafts are unchanged. Free browser storage and reload to retry.";
+}
 applyTheme();
 bootFromHash();

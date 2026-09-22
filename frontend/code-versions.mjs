@@ -53,3 +53,20 @@ export function undoDeleteCodeVersion(storage, slug, version) {
   storage.setItem(codeVersionsKey(slug), JSON.stringify({ schemaVersion: 1, versions: restored }));
   return restored;
 }
+
+// One-time upgrade: preserve all existing drafts, including unvisited problems.
+export function migrateExistingCodeDrafts(storage) {
+  const migrationKey = "deepcode-code-versions-migrated:v1";
+  if (storage.getItem(migrationKey) === "complete") return;
+  const prefix = "deepcode-code:";
+  const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index))
+    .filter((key) => key?.startsWith(prefix));
+  for (const key of keys) {
+    const code = storage.getItem(key);
+    if (code !== null) {
+      saveCodeVersion(storage, key.slice(prefix.length), code, "Existing draft", { onlyIfChanged: true });
+    }
+  }
+  // Failed/partial migrations retry on reload without duplicating successful saves.
+  storage.setItem(migrationKey, "complete");
+}
