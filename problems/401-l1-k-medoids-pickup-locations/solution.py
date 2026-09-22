@@ -1,4 +1,5 @@
 def k_medians(points, k):
+    points = [tuple(point) for point in points]
     def distance(point, center):
         return abs(point[0] - center[0]) + abs(point[1] - center[1])
 
