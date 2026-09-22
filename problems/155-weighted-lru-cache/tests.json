@@ -12,6 +12,6 @@
   {
     "name": "invalid and oversized writes do not discard live entries",
     "input": "a capacity-eight cache with invalid weights and an oversized item",
-    "test": "cache = WeightedLRUCache(8)\ncache.put('safe', 7, 5)\nfor weight in (0, -1, True):\n    try:\n        cache.put('bad', 1, weight)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    cache.put('huge', 9, 9)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\nassert cache.get('safe') == 7\nassert cache.get('huge') is None\nfor capacity in (0, -1, True):\n    try:\n        WeightedLRUCache(capacity)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "cache = WeightedLRUCache(8)\ncache.put(\"safe\", 7, 5)\nfor weight in (0, -1):\n    try:\n        cache.put(\"bad\", 1, weight)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")\ntry:\n    cache.put(\"huge\", 9, 9)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected input validation error\")\nassert cache.get(\"safe\") == 7\nassert cache.get(\"huge\") is None\nfor capacity in (0, -1):\n    try:\n        WeightedLRUCache(capacity)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

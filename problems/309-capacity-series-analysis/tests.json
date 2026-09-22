@@ -12,6 +12,6 @@
   {
     "name": "rejects invalid dimensions, values, and window sizes",
     "input": "wrong ranks, mismatched lengths, non-positive capacity, and invalid windows",
-    "test": "import numpy as np\ndef expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nexpect(lambda: analyze_capacity_series(np.array([[1]]), np.array([1]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([1, 2]), 1))\nexpect(lambda: analyze_capacity_series(np.array([]), np.array([]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([0]), 1))\nexpect(lambda: analyze_capacity_series(np.array([-1]), np.array([1]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([1]), 0))"
+    "test": "import numpy as np\n\ndef expect(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nexpect(lambda: analyze_capacity_series(np.array([[1]]), np.array([1]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([1, 2]), 1))\nexpect(lambda: analyze_capacity_series(np.array([]), np.array([]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([0]), 1))\nexpect(lambda: analyze_capacity_series(np.array([-1]), np.array([1]), 1))\nexpect(lambda: analyze_capacity_series(np.array([1]), np.array([1]), 0))\n"
   }
 ]

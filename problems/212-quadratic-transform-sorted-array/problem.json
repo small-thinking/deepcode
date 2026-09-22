@@ -4,9 +4,16 @@
   "title": "Sort a Quadratic Transform",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["arrays", "two-pointers", "quadratic", "sorting"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `sort_transformed(nums, a, b, c) -> list`. `nums` is a nondecreasing list of integers. Compute `a*x*x + b*x + c` for every input value and return the transformed values in nondecreasing order.\n\nUse the input's existing sorted order with two pointers instead of sorting transformed values again. The approach must take `O(n)` time and `O(n)` output space. Handle upward and downward parabolas, the linear case `a == 0`, duplicate input values, and negative coefficients. Do not mutate `nums`.",
+  "tags": [
+    "arrays",
+    "two-pointers",
+    "quadratic",
+    "sorting"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement `sort_transformed(nums, a, b, c) -> list`. `nums` is a nondecreasing list of integers. Compute `a*x*x + b*x + c` for every input value and return the transformed values in nondecreasing order.\n\nThe approach must take `O(n)` time and `O(n)` output space. Handle upward and downward parabolas, the linear case `a == 0`, duplicate input values, and negative coefficients. Do not mutate `nums`.",
   "starter_code": "def sort_transformed(nums, a, b, c):\n    # Transform every value and return the results in nondecreasing order.\n    pass\n",
   "example": {
     "input": "sort_transformed([-4, -2, 2, 4], 1, 3, 5)",
@@ -22,5 +29,24 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "interview_frequency": {
+    "Waymo": {
+      "source_record_ids": [
+        "3df6ce51456d816d894bcaf41296a129"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d816d894bcaf41296a129"
+    }
+  ]
 }

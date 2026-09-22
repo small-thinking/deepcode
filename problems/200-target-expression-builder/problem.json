@@ -4,9 +4,16 @@
   "title": "Target Expression Builder",
   "category": "Algorithms",
   "difficulty": "hard",
-  "tags": ["backtracking", "recursion", "expression-tree", "search"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `build_expression(values, target) -> str | None`. `values` contains two to six nonnegative integers. Return an arithmetic expression that evaluates exactly to the integer `target`, or `None` if no expression exists.\n\nThe expression must use every supplied value exactly once, including duplicate values. It may contain only integer literals from `values`, binary `+`, `-`, and `*`, and parentheses. Input values may be reordered; intermediate values may be negative. Division, exponentiation, unary operators, concatenated digits, and additional literals are not allowed.\n\nThe evaluator parses the returned expression and checks the operator set, literal multiset, and exact result. Parenthesize combined subexpressions so their grouping is unambiguous. A pairwise-reduction backtracking search is appropriate for the generalized input size.",
+  "tags": [
+    "backtracking",
+    "recursion",
+    "expression-tree",
+    "search"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement `build_expression(values, target) -> str | None`. `values` contains two to six nonnegative integers. Return an arithmetic expression that evaluates exactly to the integer `target`, or `None` if no expression exists.\n\nThe expression must use every supplied value exactly once, including duplicate values. It may contain only integer literals from `values`, binary `+`, `-`, and `*`, and parentheses. Input values may be reordered; intermediate values may be negative. Division, exponentiation, unary operators, concatenated digits, and additional literals are not allowed.\n\nAny expression satisfying these rules is accepted.",
   "starter_code": "def build_expression(values, target):\n    # Return a valid expression using every input value once, or None.\n    pass\n",
   "example": {
     "input": "build_expression([5, 5, 1], 20)",
@@ -22,5 +29,24 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "interview_frequency": {
+    "Waymo": {
+      "source_record_ids": [
+        "3df6ce51456d816eba77f7b52c7e3428"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d816eba77f7b52c7e3428"
+    }
+  ]
 }

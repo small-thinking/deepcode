@@ -51,8 +51,8 @@ class MistralReplayBufferDebuggingFixtureTest(unittest.TestCase):
                 "synced_at": "2026-09-15",
             },
         )
-        self.assertIn("local test choices", self.problem["prompt"].lower())
-        self.assertIn("did not ask for a deque", self.problem["prompt"])
+        self.assertIn("equal batch lengths", self.problem["prompt"].lower())
+        self.assertIn("nonempty buffer for sampling", self.problem["prompt"])
         urls = {reference["url"] for reference in self.problem["references"]}
         self.assertIn(
             "https://app.notion.com/p/35c6ce51456d8141b414e6ed51f79326", urls

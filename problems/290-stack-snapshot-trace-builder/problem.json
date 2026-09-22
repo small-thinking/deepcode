@@ -4,9 +4,16 @@
   "title": "Stack Snapshot Trace Builder",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["tracing", "stacks", "event-streams", "common-prefix"],
-  "companies": ["Anthropic"],
-  "prompt": "Implement `stack_samples_to_trace_events(samples, end_timestamp) -> list[dict]`. Each item in `samples` is `(timestamp, stack)`, where `stack` lists active frame names from outermost to innermost. Sample timestamps are nondecreasing. Convert the snapshots into begin/end trace events with dictionaries of the exact form `{'name': frame, 'phase': 'B' or 'E', 'timestamp': timestamp}`.\n\nFor each new snapshot, keep the longest common frame prefix with the previous active stack. At that sample's timestamp, emit end events for the old suffix from innermost to outermost, then begin events for the new suffix from outermost to innermost. After the last sample, emit end events for every still-active frame at `end_timestamp`, innermost first. Empty `samples` returns an empty list.\n\nTimestamps must be finite `int` or `float` values (not `bool`), `end_timestamp` must be at least the final sample timestamp, and every stack must be a non-string sequence of nonempty frame-name strings. Raise `TypeError` for invalid value types and `ValueError` for non-monotonic timestamps, an invalid final boundary, or an empty frame name. Do not mutate a caller-owned stack.",
+  "tags": [
+    "tracing",
+    "stacks",
+    "event-streams",
+    "common-prefix"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `stack_samples_to_trace_events(samples, end_timestamp) -> list[dict]`. Each item in `samples` is `(timestamp, stack)`, where `stack` lists active frame names from outermost to innermost. Sample timestamps are nondecreasing. Convert the snapshots into begin/end trace events with dictionaries of the exact form `{'name': frame, 'phase': 'B' or 'E', 'timestamp': timestamp}`.\n\nFor each new snapshot, keep the longest common frame prefix with the previous active stack. At that sample's timestamp, emit end events for the old suffix from innermost to outermost, then begin events for the new suffix from outermost to innermost. After the last sample, emit end events for every still-active frame at `end_timestamp`, innermost first. Empty `samples` returns an empty list.\n\nTimestamps must be finite `int` or `float` values, `end_timestamp` must be at least the final sample timestamp, and every stack must be a non-string sequence of nonempty frame-name strings. Reject invalid types, non-monotonic timestamps, an invalid final boundary, or an empty frame name. Do not mutate a caller-owned stack.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def stack_samples_to_trace_events(samples, end_timestamp):\n    # Convert stack snapshots into ordered begin/end event dictionaries.\n    pass\n",
   "example": {
     "input": "stack_samples_to_trace_events([(1, ['main', 'load']), (3, ['main', 'parse'])], 5)",
@@ -22,5 +29,19 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-19"
+  "created_at": "2026-08-19",
+  "references": [
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1089271",
+      "url": "https://www.1point3acres.com/bbs/thread-1089271-1-1.html"
+    },
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1098075",
+      "url": "https://www.1point3acres.com/bbs/thread-1098075-2-1.html"
+    },
+    {
+      "label": "Notion interview record (practice variant)",
+      "url": "https://app.notion.com/p/35c6ce51456d81dbbea2c9e63d4714cc"
+    }
+  ]
 }

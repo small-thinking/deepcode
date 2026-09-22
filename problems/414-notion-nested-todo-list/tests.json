@@ -22,7 +22,7 @@
   {
     "name": "invalid operations raise ValueError without mutations",
     "input": "duplicate IDs, unknown parent and unknown update target",
-    "test": "todos = NestedTodoList()\ntodos.add('p', 'parent')\ntodos.add('c', 'child', 'p')\ntodos.set_done('c', True)\nexpected = todos.list_items()\nfor operation in (lambda: todos.add('p', 'replacement'), lambda: todos.add('c', 'replacement', 'p'), lambda: todos.add('new', 'orphan', 'missing'), lambda: todos.set_done('missing', True)):\n    try:\n        operation()\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('expected ValueError')\n    assert todos.list_items() == expected\n# A failed add must not reserve the new ID or damage sibling order.\ntodos.add('new', 'valid child', 'p')\nassert todos.list_items() == expected + [('new', 'valid child', False, 1)]"
+    "test": "todos = NestedTodoList()\ntodos.add(\"p\", \"parent\")\ntodos.add(\"c\", \"child\", \"p\")\ntodos.set_done(\"c\", True)\nexpected = todos.list_items()\nfor operation in (\n    lambda: todos.add(\"p\", \"replacement\"),\n    lambda: todos.add(\"c\", \"replacement\", \"p\"),\n    lambda: todos.add(\"new\", \"orphan\", \"missing\"),\n    lambda: todos.set_done(\"missing\", True),\n):\n    try:\n        operation()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")\n    assert todos.list_items() == expected\ntodos.add(\"new\", \"valid child\", \"p\")\nassert todos.list_items() == expected + [(\"new\", \"valid child\", False, 1)]"
   },
   {
     "name": "snapshots are detached in both directions",

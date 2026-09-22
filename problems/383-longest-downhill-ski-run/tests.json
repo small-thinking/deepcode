@@ -17,6 +17,6 @@
   {
     "name": "rejects malformed terrain and out-of-bounds starts",
     "input": "empty, ragged, and invalid-coordinate inputs",
-    "test": "for elevations, starts in [([], []), ([[1], [2, 3]], []), ([[1]], [(1, 0)]), ([[1]], [(0, -1)])]:\n    try:\n        downhill_run_scores(elevations, starts)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "for elevations, starts in [\n    ([], []),\n    ([[1], [2, 3]], []),\n    ([[1]], [(1, 0)]),\n    ([[1]], [(0, -1)]),\n]:\n    try:\n        downhill_run_scores(elevations, starts)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

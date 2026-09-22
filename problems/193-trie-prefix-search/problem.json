@@ -14,7 +14,7 @@
   "companies": [
     "Waymo"
   ],
-  "prompt": "Implement `PrefixTrie` for a minimal prefix-search contract.\n\n- `PrefixTrie(words=())` inserts each initial word.\n- `insert(word)` adds one nonempty string. Inserting an existing word is a no-op.\n- `contains(word) -> bool` reports exact membership.\n- `complete(prefix) -> list[str]` returns every stored word that begins with `prefix`, in lexicographic order. The empty prefix enumerates all stored words.\n\nWords are case-sensitive. `word` must be a nonempty string; `prefix` must be a string and may be empty. Raise `TypeError` for invalid arguments. Do not add ranking, fuzzy matching, frequency counts, result limits, or deletion behavior. Use a trie so lookup follows the prefix rather than scanning every stored word.",
+  "prompt": "Implement `PrefixTrie` for a minimal prefix-search contract.\n\n- `PrefixTrie(words=())` inserts each initial word.\n- `insert(word)` adds one nonempty string. Inserting an existing word is a no-op.\n- `contains(word) -> bool` reports exact membership.\n- `complete(prefix) -> list[str]` returns every stored word that begins with `prefix`, in lexicographic order. The empty prefix enumerates all stored words.\n\nWords are case-sensitive. `word` must be a nonempty string; `prefix` must be a string and may be empty. Raise an error for invalid arguments. Use a trie so lookup follows the prefix rather than scanning every stored word.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class PrefixTrie:\n    def __init__(self, words=()):\n        pass\n\n    def insert(self, word):\n        pass\n\n    def contains(self, word):\n        pass\n\n    def complete(self, prefix):\n        pass\n",
   "example": {
     "input": "trie = PrefixTrie(['car', 'cart', 'cat']); trie.complete('car')",
@@ -30,5 +30,24 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "interview_frequency": {
+    "Waymo": {
+      "source_record_ids": [
+        "3df6ce51456d81bf9fb3ebd6f7629e6a"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d81bf9fb3ebd6f7629e6a"
+    }
+  ]
 }

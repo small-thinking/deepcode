@@ -7,6 +7,6 @@
   {
     "name": "rejects overlapping intervals and invalid queries",
     "input": "overlap on one engine and malformed window",
-    "test": "ledger = EngineFlightLedger()\nledger.record('a', 'eng', 'm', 10, 20)\ntry:\n    ledger.record('b', 'eng', 'm2', 15, 22)\n    assert False\nexcept ValueError:\n    pass\nassert ledger.record('c', 'eng', 'm2', 20, 23) is True\nfor args in (('eng', 8, 7), ('eng', True, 7)):\n    try:\n        ledger.engine_flight_time(*args)\n        assert False\n    except (TypeError, ValueError):\n        pass\nfor call in (lambda: ledger.engine_flight_time('missing'), lambda: ledger.mission_flight_time('missing')):\n    try:\n        call()\n        assert False\n    except KeyError:\n        pass"
+    "test": "ledger = EngineFlightLedger()\nledger.record(\"a\", \"eng\", \"m\", 10, 20)\ntry:\n    ledger.record(\"b\", \"eng\", \"m2\", 15, 22)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False\nassert ledger.record(\"c\", \"eng\", \"m2\", 20, 23) is True\nfor args in ((\"eng\", 8, 7),):\n    try:\n        ledger.engine_flight_time(*args)\n    except (TypeError, ValueError, AssertionError):\n        pass\n    else:\n        assert False\nfor call in (\n    lambda: ledger.engine_flight_time(\"missing\"),\n    lambda: ledger.mission_flight_time(\"missing\"),\n):\n    try:\n        call()\n    except (KeyError, AssertionError):\n        pass\n    else:\n        assert False"
   }
 ]

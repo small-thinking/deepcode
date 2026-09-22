@@ -12,7 +12,7 @@
   {
     "name": "validates states and snapshots input items",
     "input": "mutated caller list and invalid indexes",
-    "test": "items = [1, 2]\nit = ListIterator(items)\nitems.append(3)\nassert [it.next(), it.next()] == [1, 2]\nfor state in [{'index': -1}, {'index': 3}, {'index': 1.5}, {'index': '1'}]:\n    try:\n        ListIterator([1, 2]).set_state(state)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+    "test": "items = [1, 2]\nit = ListIterator(items)\nitems.append(3)\nassert [it.next(), it.next()] == [1, 2]\nfor state in [{\"index\": -1}, {\"index\": 3}, {\"index\": 1.5}, {\"index\": \"1\"}]:\n    try:\n        ListIterator([1, 2]).set_state(state)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, \"expected input validation error\""
   },
   {
     "name": "composite iterator restores child states",

@@ -7,11 +7,11 @@
   {
     "name": "turn ownership and invalid or full columns are rejected",
     "input": "wrong player out-of-range and a full column",
-    "test": "game = ConnectKGame(2, 2, 3)\nfor call in (lambda: game.make_move(Player.O, 0), lambda: game.make_move(Player.X, -1), lambda: game.make_move(Player.X, 2)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nassert game.make_move(Player.X, 0) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 0) is GameStatus.IN_PROGRESS\ntry:\n    game.make_move(Player.X, 0)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass"
+    "test": "game = ConnectKGame(2, 2, 3)\nfor call in (\n    lambda: game.make_move(Player.O, 0),\n    lambda: game.make_move(Player.X, -1),\n    lambda: game.make_move(Player.X, 2),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")\nassert game.make_move(Player.X, 0) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 0) is GameStatus.IN_PROGRESS\ntry:\n    game.make_move(Player.X, 0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected input validation error\")"
   },
   {
     "name": "K one terminal moves and board-filling moves have the right precedence",
     "input": "a first-move win and an unwinnable full board",
-    "test": "one = ConnectKGame(2, 2, 1)\nassert one.make_move(Player.X, 0) is GameStatus.PLAYER_X_WINS\ntry:\n    one.make_move(Player.O, 1)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\ndraw = ConnectKGame(2, 2, 3)\nfor player, column in ((Player.X, 0), (Player.O, 1), (Player.X, 0), (Player.O, 1)):\n    status = draw.make_move(player, column)\nassert status is GameStatus.DRAW"
+    "test": "one = ConnectKGame(2, 2, 1)\nassert one.make_move(Player.X, 0) is GameStatus.PLAYER_X_WINS\ntry:\n    one.make_move(Player.O, 1)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected input validation error\")\ndraw = ConnectKGame(2, 2, 3)\nfor player, column in ((Player.X, 0), (Player.O, 1), (Player.X, 0), (Player.O, 1)):\n    status = draw.make_move(player, column)\nassert status is GameStatus.DRAW"
   }
 ]

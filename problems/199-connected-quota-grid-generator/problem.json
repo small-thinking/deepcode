@@ -4,9 +4,16 @@
   "title": "Connected Quota Grid Generator",
   "category": "Algorithms",
   "difficulty": "hard",
-  "tags": ["grid", "randomized", "connected-components", "construction"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `generate_grid(rows, cols, rng) -> list[list[int]]`. Return a `rows` by `cols` grid labeled with exactly `1`, `2`, `3`, and `4`. Each label must occupy exactly `(rows * cols) // 4` cells, and the cells of each label must form one 4-connected component (up, down, left, right only).\n\n`rows` and `cols` are positive and `rows * cols` is divisible by four. Raise `ValueError` otherwise. `rng` is a supplied random-number generator with a `shuffle(sequence)` method; use it so different seeded generators can produce different valid layouts. Do not use unbounded rejection sampling.\n\nA constructive approach should guarantee connectivity for every valid rectangular shape, including cases where an equal-size region crosses a row boundary. Run in O(rows * cols) time and use O(rows * cols) output space.",
+  "tags": [
+    "grid",
+    "randomized",
+    "connected-components",
+    "construction"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement `generate_grid(rows, cols, rng) -> list[list[int]]`. Return a `rows` by `cols` grid labeled with exactly `1`, `2`, `3`, and `4`. Each label must occupy exactly `(rows * cols) // 4` cells, and the cells of each label must form one 4-connected component (up, down, left, right only).\n\n`rows` and `cols` are positive and `rows * cols` is divisible by four. Raise an error otherwise. `rng` is a supplied random-number generator with a `shuffle(sequence)` method; use it so different seeded generators can produce different valid layouts. Do not use unbounded rejection sampling.\n\nRun in O(rows * cols) time and use O(rows * cols) output space.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def generate_grid(rows, cols, rng):\n    # Return four equally sized 4-connected labeled regions.\n    pass\n",
   "example": {
     "input": "generate_grid(2, 4, rng)",
@@ -22,5 +29,24 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "interview_frequency": {
+    "Waymo": {
+      "source_record_ids": [
+        "3df6ce51456d811791c4ec4a34f90f3a"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d811791c4ec4a34f90f3a"
+    }
+  ]
 }

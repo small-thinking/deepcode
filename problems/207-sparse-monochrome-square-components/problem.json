@@ -4,9 +4,16 @@
   "title": "Sparse Monochrome Square Components",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["grid", "connected-components", "bfs", "sparse-data"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `count_square_components(cells) -> int`. `cells` is a collection of unique `(x, y, color)` triples on an unbounded integer grid. Two cells are adjacent only when they share an edge, and a component may contain cells of only one color.\n\nReturn the number of same-color 4-connected components that are fully filled axis-aligned squares. A one-cell component counts as a square. For one component, let its bounding box have width `max_x - min_x + 1` and height `max_y - min_y + 1`; it is a square exactly when width equals height and the component contains `width * height` cells. This count rule rejects rectangles, L-shapes, and shapes with holes.\n\nUse a hash map keyed by coordinates and BFS or DFS over present neighbors. Do not allocate a dense matrix based on coordinate magnitudes. Aim for expected O(n) time and space.",
+  "tags": [
+    "grid",
+    "connected-components",
+    "bfs",
+    "sparse-data"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement `count_square_components(cells) -> int`. `cells` is a collection of unique `(x, y, color)` triples on an unbounded integer grid. Two cells are adjacent only when they share an edge, and a component may contain cells of only one color.\n\nReturn the number of same-color 4-connected components that are fully filled axis-aligned squares. A one-cell component counts as a square. Rectangles, L-shapes, and shapes with holes do not count.\n\nCoordinates can be large. Aim for expected O(n) time and space, independent of coordinate magnitudes.",
   "starter_code": "def count_square_components(cells):\n    # Return how many same-color connected components are filled squares.\n    pass\n",
   "example": {
     "input": "count_square_components([(10, 10, 'A'), (11, 10, 'A'), (10, 11, 'A'), (11, 11, 'A')])",
@@ -22,5 +29,24 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "interview_frequency": {
+    "Waymo": {
+      "source_record_ids": [
+        "3df6ce51456d813e90c1fdeace4854ae"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d813e90c1fdeace4854ae"
+    }
+  ]
 }

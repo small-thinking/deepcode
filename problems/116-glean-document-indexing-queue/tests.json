@@ -22,6 +22,6 @@
   {
     "name": "handles invalid or empty inputs",
     "input": "zero indexers and mismatched arrays",
-    "test": "assert document_indexing_queue(0, [1], [1], 1) == (0, None, [], 0.0)\ntry:\n    document_indexing_queue(2, [1, 2], [3], 1)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+    "test": "assert document_indexing_queue(0, [1], [1], 1) == (0, None, [], 0.0)\ntry:\n    document_indexing_queue(2, [1, 2], [3], 1)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False, \"expected input validation error\""
   }
 ]

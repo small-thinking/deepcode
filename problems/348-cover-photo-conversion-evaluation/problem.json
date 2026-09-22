@@ -26,7 +26,7 @@
     "stars": 2,
     "synced_at": "2026-09-03"
   },
-  "prompt": "An Airbnb MLE interview report asks: given candidate images for a listing, choose the best cover photo to improve booking conversion. Design the decision and evaluation loop.\n\nCover the objective and eligible decision unit, exposure and outcome data, offline evaluation, online causal validation, and product or trust guardrails. The report does not specify a model family, traffic scale, or conversion definition: make and label any such assumptions rather than presenting them as Airbnb facts. This is a writing exercise.",
+  "prompt": "Given candidate images for an accommodation listing, design a system that chooses the cover photo to improve booking conversion.\n\nDefine the decision and success metric, describe the data and model you would use, and explain offline evaluation and an online experiment. State assumptions about conversion and traffic, and discuss product and trust guardrails.",
   "references": [
     {
       "label": "1Point3Acres: Airbnb ML coding report",

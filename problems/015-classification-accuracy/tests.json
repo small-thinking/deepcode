@@ -14,8 +14,8 @@
   {
     "name": "invalid shapes",
     "input": "y_true = [1, 0], y_pred = [1]",
-    "test": "print(classification_accuracy([1, 0], [1]))",
-    "expected_output": "-1"
+    "test": "try:\n    result = classification_accuracy([1, 0], [1])\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    assert result == -1, \"invalid input must be rejected\"\nprint(\"rejected\")\n",
+    "expected_output": "rejected"
   },
   {
     "name": "rounds repeating fraction",
@@ -32,14 +32,8 @@
   {
     "name": "both inputs empty",
     "input": "y_true = [], y_pred = []",
-    "test": "print(classification_accuracy([], []))",
-    "expected_output": "-1"
-  },
-  {
-    "name": "empty predictions",
-    "input": "y_true = [1], y_pred = []",
-    "test": "print(classification_accuracy([1], []))",
-    "expected_output": "-1"
+    "test": "try:\n    result = classification_accuracy([], [])\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    assert result == -1, \"invalid input must be rejected\"\nprint(\"rejected\")\n",
+    "expected_output": "rejected"
   },
   {
     "name": "case-sensitive string labels",

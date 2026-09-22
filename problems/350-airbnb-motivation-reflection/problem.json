@@ -26,7 +26,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Prepare concise, truthful answers to three reported Airbnb values questions: Why Airbnb? What is the biggest problem in the world? What cause or mission matters personally to you?\n\nOrganize an answer that connects motivation to credible evidence and invites follow-up. Do not fabricate personal experience, impact, or company facts. The report does not establish a universal rubric or answer order; label any general interview-preparation assumptions. This is a writing exercise.",
+  "prompt": "Why do you want to work at Airbnb? What do you consider the biggest problem in the world, and what cause or mission matters personally to you?\n\nGive concise answers supported by your own experiences and explain how they relate to your motivation.",
   "references": [
     {
       "label": "1Point3Acres: Airbnb ML coding report",

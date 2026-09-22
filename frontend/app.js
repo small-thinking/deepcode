@@ -1,3 +1,8 @@
+import { codeVersionsKey, loadCodeVersions, saveCodeVersion, saveSubmittedCodeVersion, deleteCodeVersion, undoDeleteCodeVersion, migrateExistingCodeDrafts } from "./code-versions.mjs";
+
+// Keep failed writes available through UI rerenders and problem navigation.
+const unsavedProblemDrafts = new Map();
+
 const THEME_KEY = "deepcode-theme";
 const PROBLEM_TIMERS_KEY = "deepcode-problem-timers";
 const EDITOR_HISTORY_STORAGE_KEY = "deepcode-editor-history";
@@ -93,6 +98,7 @@ const state = {
   runningCustomTestIndex: null,
   pendingCustomTestScrollIndex: null,
   error: null,
+  codeVersionMigrationError: null,
   loading: true,
   running: false,
   playgroundRunning: false,
@@ -905,7 +911,7 @@ function isLegacyNGramStarterDraft(code) {
 }
 
 function shouldRefreshStoredCode(savedCode, lastStarterCode) {
-  if (!savedCode) return true;
+  if (savedCode === null || savedCode === undefined) return true;
   if (lastStarterCode && normalizeSavedCode(savedCode) === normalizeSavedCode(lastStarterCode)) return true;
   return isLegacyNGramStarterDraft(savedCode);
 }
@@ -917,7 +923,11 @@ function syncStarterCode(problem) {
   const savedCode = localStorage.getItem(key);
   const lastStarterCode = localStorage.getItem(versionKey);
 
-  if (shouldRefreshStoredCode(savedCode, lastStarterCode)) {
+  // Keep restored drafts protected even after the user deletes every snapshot.
+  if (shouldRefreshStoredCode(savedCode, lastStarterCode) && localStorage.getItem(codeVersionsKey(problem.slug)) === null) {
+    if (savedCode !== null && savedCode !== starterCode) {
+      saveCodeVersion(localStorage, problem.slug, savedCode, "Before starter update");
+    }
     localStorage.setItem(key, starterCode);
   }
   localStorage.setItem(versionKey, starterCode);
@@ -927,7 +937,9 @@ function currentCode() {
   if (state.view === "playground") {
     return localStorage.getItem(PLAYGROUND_CODE_KEY) ?? PLAYGROUND_STARTER_CODE;
   }
-  return state.selected ? localStorage.getItem(codeKey(state.selected.slug)) ?? state.selected.starter_code ?? "" : "";
+  if (!state.selected) return "";
+  if (unsavedProblemDrafts.has(state.selected.slug)) return unsavedProblemDrafts.get(state.selected.slug);
+  return localStorage.getItem(codeKey(state.selected.slug)) ?? state.selected.starter_code ?? "";
 }
 
 function validEditorHistory(value) {
@@ -1072,7 +1084,125 @@ function saveCode(value) {
     return;
   }
   if (!state.selected) return;
-  localStorage.setItem(codeKey(state.selected.slug), value);
+  try {
+    localStorage.setItem(codeKey(state.selected.slug), value);
+    unsavedProblemDrafts.delete(state.selected.slug);
+    updateCodeSaveStatus("Draft autosaved");
+  } catch {
+    unsavedProblemDrafts.set(state.selected.slug, value);
+    updateCodeSaveStatus("Draft not saved — browser storage is full or unavailable", true);
+  }
+}
+
+function updateCodeSaveStatus(message, failed = false) {
+  const status = document.querySelector("#code-save-status");
+  if (!status) return;
+  status.textContent = message;
+  status.classList.toggle("save-failed", failed);
+}
+
+function showCodeVersions() {
+  const slug = state.selected?.slug;
+  if (!slug || state.view === "playground" || state.running) return;
+  const dialog = document.createElement("dialog");
+  dialog.className = "code-versions-dialog";
+  dialog.setAttribute("aria-labelledby", "code-versions-title");
+  dialog.innerHTML = `
+    <header class="versions-header">
+      <div><h2 id="code-versions-title">Code versions</h2>
+        <p>Code is saved as a version when you run tests. Typing only updates your current draft.</p></div>
+      <button class="ghost-button" id="close-code-versions" aria-label="Close code versions">Close</button>
+    </header>
+    <p class="version-feedback" role="status" aria-live="polite"></p>
+    <div class="versions-content">
+      <div class="versions-list"><label for="code-version-list">Saved versions · newest first</label>
+        <select id="code-version-list" size="8" aria-label="Saved versions"></select></div>
+      <section class="version-preview"><h3 id="code-version-heading">No saved versions yet</h3>
+        <p id="code-version-date"></p><pre id="code-version-preview" tabindex="0" aria-label="Saved code preview"></pre></section>
+    </div>
+    <footer class="versions-footer"><p>Stored in this browser. Restoring also saves your current draft first.</p>
+      <div class="version-actions">
+        <button class="ghost-button" id="undo-delete-code-version" hidden>Undo delete</button>
+        <button class="ghost-button" id="delete-code-version" disabled>Delete version</button>
+        <button class="primary-button" id="restore-code-version" disabled>Restore to editor</button>
+      </div></footer>`;
+  document.body.append(dialog);
+  const list = dialog.querySelector("#code-version-list");
+  const restore = dialog.querySelector("#restore-code-version");
+  const feedback = dialog.querySelector(".version-feedback");
+  const remove = dialog.querySelector("#delete-code-version");
+  const undoDelete = dialog.querySelector("#undo-delete-code-version");
+  let deletedVersion = null;
+  let versions = [];
+  function reportError(error) {
+    feedback.textContent = `Could not update version history. ${error.message} Your editor and saved versions have been kept.`;
+    feedback.classList.add("save-failed");
+  }
+  function preview() {
+    const version = versions.find((item) => item.id === list.value);
+    dialog.querySelector("#code-version-heading").textContent = version?.name || "No saved versions yet";
+    dialog.querySelector("#code-version-date").textContent = version ? new Date(version.createdAt).toLocaleString() : "Run tests to save your first version automatically.";
+    dialog.querySelector("#code-version-preview").textContent = version?.code ?? "";
+    restore.disabled = !version;
+    remove.disabled = !version;
+  }
+  function refresh() {
+    versions = loadCodeVersions(localStorage, slug);
+    list.replaceChildren(...versions.map((version) => {
+      const option = document.createElement("option");
+      option.value = version.id;
+      option.textContent = `${version.name} · ${new Date(version.createdAt).toLocaleString()}`;
+      return option;
+    }));
+    list.selectedIndex = versions.length ? 0 : -1;
+    list.disabled = !versions.length;
+    preview();
+  }
+  list.addEventListener("change", preview);
+  dialog.querySelector("#close-code-versions").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => dialog.remove());
+  remove.addEventListener("click", () => {
+    const version = versions.find((item) => item.id === list.value);
+    if (!version) return;
+    try {
+      deleteCodeVersion(localStorage, slug, version.id);
+      deletedVersion = version;
+      undoDelete.hidden = false;
+      refresh();
+      feedback.textContent = "Version deleted. Your current draft is unchanged. You can undo before closing History.";
+      feedback.classList.remove("save-failed");
+    } catch (error) { reportError(error); }
+  });
+  undoDelete.addEventListener("click", () => {
+    if (!deletedVersion) return;
+    try {
+      undoDeleteCodeVersion(localStorage, slug, deletedVersion);
+      deletedVersion = null;
+      undoDelete.hidden = true;
+      refresh();
+      feedback.textContent = "Deleted version restored.";
+      feedback.classList.remove("save-failed");
+    } catch (error) { reportError(error); }
+  });
+  restore.addEventListener("click", () => {
+    const version = versions.find((item) => item.id === list.value);
+    if (!version) return;
+    try {
+      saveCodeVersion(localStorage, slug, editorCode(), "Before restoring " + version.name, { onlyIfChanged: true });
+      // Persist before changing the editor: a failed write must leave the draft intact.
+      localStorage.setItem(codeKey(slug), version.code);
+      unsavedProblemDrafts.delete(slug);
+      setEditorCode(version.code);
+      state.runResult = null;
+      state.activeResultIndex = 0;
+      dialog.close();
+      render();
+      updateCodeSaveStatus(`Restored: ${version.name} · Draft autosaved`);
+    } catch (error) { reportError(error); }
+  });
+  try { refresh(); } catch (error) { reportError(error); }
+  dialog.showModal();
+  (list.disabled ? dialog.querySelector("#close-code-versions") : list).focus();
 }
 
 function validPlaygroundSessions(value) {
@@ -1522,6 +1652,14 @@ async function runCustomTests(customIndex = null) {
 }
 
 async function runPayload(payload, { testIndex = null, customIndex = null } = {}) {
+  if (!state.selected || state.running) return;
+  try {
+    saveSubmittedCodeVersion(localStorage, state.selected.slug, payload.code);
+  } catch {
+    state.error = "Run cancelled — could not save a code version. Browser storage may be full or unavailable.";
+    render();
+    return;
+  }
   state.running = true;
   state.runResult = null;
   state.runLogs = [];
@@ -1659,17 +1797,25 @@ function resetPlayground() {
 }
 
 async function resetCode() {
-  if (!state.selected) return;
+  if (!state.selected || state.running) return;
+  const slug = state.selected.slug;
   const starterCode = state.selected.starter_code || "";
-  localStorage.setItem(codeKey(state.selected.slug), starterCode);
+  try {
+    saveCodeVersion(localStorage, slug, editorCode(), "Before reset", { onlyIfChanged: true });
+    localStorage.setItem(codeKey(slug), starterCode);
+    unsavedProblemDrafts.delete(slug);
+  } catch {
+    updateCodeSaveStatus("Reset cancelled — could not preserve your draft in browser storage", true);
+    return;
+  }
   resetEditorHistory(starterCode);
   state.runResult = null;
   state.activeResultIndex = 0;
   state.error = null;
   try {
-    const payload = await api(`/api/problems/${encodeURIComponent(state.selected.slug)}/reset`, { method: "POST" });
+    const payload = await api(`/api/problems/${encodeURIComponent(slug)}/reset`, { method: "POST" });
     if (payload.problem_status) {
-      syncProblemStatus(state.selected.slug, payload.problem_status);
+      syncProblemStatus(slug, payload.problem_status);
     }
   } catch (error) {
     state.error = error.message;
@@ -1847,6 +1993,13 @@ function render() {
     renderDetail();
   } else {
     renderList();
+  }
+  if (state.codeVersionMigrationError) {
+    const notice = document.createElement("div");
+    notice.className = "error-banner";
+    notice.setAttribute("role", "alert");
+    notice.textContent = state.codeVersionMigrationError;
+    app.prepend(notice);
   }
   bindEvents();
   mountEditor();
@@ -2908,9 +3061,10 @@ function renderDetail() {
         ${systemDesign ? renderSystemDesignWorkspace(problem) : `<section class="editor-panel ${
           state.layout.resultsCollapsed ? "results-collapsed" : ""
         }">
-          <div class="panel-header">
+          <div class="panel-header code-toolbar">
             <div class="editor-actions">
-              <button class="ghost-button" id="reset-code">Reset</button>
+              <button class="ghost-button" id="code-version-history" ${state.running ? "disabled" : ""}>History</button>
+              <button class="ghost-button" id="reset-code" ${state.running ? "disabled" : ""}>Reset</button>
               <button
                 class="ghost-button"
                 id="toggle-results"
@@ -2921,6 +3075,7 @@ function renderDetail() {
             <button class="primary-button" id="run-tests" ${runButtonState} aria-busy="${state.running}">
               ${runButtonContent}
             </button>
+            <span id="code-save-status" class="code-save-status ${unsavedProblemDrafts.has(problem.slug) ? "save-failed" : ""}" role="status">${unsavedProblemDrafts.has(problem.slug) ? "Draft not saved — browser storage is full or unavailable" : "Draft autosaved · Runs saved in History"}</span>
           </div>
           <div class="code-pane">
             <div id="code-editor" class="code-editor ace-editor"></div>
@@ -3028,8 +3183,8 @@ function renderProblemDescription(problem) {
     ),
     renderProblemAssets(problem, "prompt"),
     renderProblemDataInfo(problem.data),
-    renderProblemMetadata(problem),
     renderProblemExample(problem.example),
+    renderProblemMetadata(problem),
     renderReferences(problem.references),
   ].join("");
 }
@@ -3559,9 +3714,7 @@ function renderDataLinkSetup(problem) {
 }
 
 function renderReferences(references) {
-  if (!Array.isArray(references) || references.length === 0) return "";
-
-  const links = references
+  const links = (Array.isArray(references) ? references : [])
     .filter((reference) => reference && reference.label && reference.url)
     .map(
       (reference) => `
@@ -3572,11 +3725,12 @@ function renderReferences(references) {
     )
     .join("");
 
-  if (!links) return "";
   return renderProblemBlock(
     PROBLEM_SECTION_CLASSES.references,
     "Background",
-    `<div class="reference-list" aria-label="Background references">${links}</div>`
+    links
+      ? `<div class="reference-list" aria-label="Background references">${links}</div>`
+      : `<p class="muted">An original interview source has not been linked for this exercise.</p>`
   );
 }
 
@@ -3862,6 +4016,7 @@ function bindEvents() {
   document.querySelector("#data-link-target")?.addEventListener("input", (event) => {
     state.dataLinkTarget = event.target.value;
   });
+  document.querySelector("#code-version-history")?.addEventListener("click", () => showCodeVersions());
   document.querySelector("#reset-code")?.addEventListener("click", resetCode);
   document.querySelector("#code-editor-fallback")?.addEventListener("input", (event) => saveCode(event.target.value));
   document.querySelector("#system-design-answer")?.addEventListener("input", (event) => saveSystemDesignAnswer(event.target.value));
@@ -3899,7 +4054,14 @@ function bootFromHash() {
   }
 }
 
+window.addEventListener("beforeunload", (event) => {
+  if (!unsavedProblemDrafts.size) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
+
 window.addEventListener("hashchange", () => {
+  document.querySelector(".code-versions-dialog")?.close();
   if (codeEditor) saveCode(editorCode());
   if (location.hash === "#/playground") {
     if (state.view !== "playground" || state.selected) openPlayground();
@@ -3934,5 +4096,10 @@ window.addEventListener("hashchange", () => {
   }
 });
 
+try {
+  migrateExistingCodeDrafts(localStorage);
+} catch {
+  state.codeVersionMigrationError = "Some existing drafts could not be copied to version history. Your drafts are unchanged. Free browser storage and reload to retry.";
+}
 applyTheme();
 bootFromHash();

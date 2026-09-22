@@ -14,7 +14,7 @@
   "companies": [
     "Anthropic"
   ],
-  "prompt": "Implement `find_duplicate_files(root, chunk_size=8192)`. Recursively inspect the regular files below directory `root` and return groups of files with exactly identical bytes. Omit files that have no duplicate.\n\nRead file contents incrementally in chunks no larger than `chunk_size`; do not read an entire file into memory at once. Use a content hash to group candidates. Return a deterministic result: sort paths lexicographically within each group and sort groups by their first path. Each returned path must be a string.\n\nYou may assume `root` is an existing directory and `chunk_size` is positive. Use only the Python standard library.",
+  "prompt": "Implement `find_duplicate_files(root, chunk_size=8192)`. Recursively inspect the regular files below directory `root` and return groups of files with exactly identical bytes. Omit files that have no duplicate.\n\nRead file contents incrementally in chunks no larger than `chunk_size`; do not read an entire file into memory at once. Return a deterministic result: sort paths lexicographically within each group and sort groups by their first path. Each returned path must be a string.\n\nYou may assume `root` is an existing directory and `chunk_size` is positive. Use only the Python standard library.",
   "starter_code": "def find_duplicate_files(root, chunk_size=8192):\n    pass\n",
   "example": {
     "input": "find_duplicate_files('/tmp/archive', chunk_size=4096)",

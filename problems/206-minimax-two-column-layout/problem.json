@@ -4,9 +4,16 @@
   "title": "Minimax Two-Column Layout",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["binary-search", "greedy", "layout", "optimization"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `minimax_divider(left_words, right_words, total_width) -> int`. Choose a nonnegative integer divider `w`: the left column has width `w` and the right column has width `total_width - w`. Words are never split. Each column wraps greedily in order, placing exactly one space between adjacent words on the same line.\n\nBoth columns must fit their own longest word. Therefore the feasible divider range is `[max_left_word_length, total_width - max_right_word_length]`; an empty word list has minimum width zero. Return `-1` if this interval is empty. Otherwise, minimize the larger of the two resulting line counts. If several dividers achieve the same minimum, return the smallest divider.\n\nUse a greedy `line_count(words, width)` helper and exploit that the left height cannot increase as `w` grows while the right height cannot decrease. Aim for O((len(left_words) + len(right_words)) * log(total_width)) time and O(1) auxiliary space.",
+  "tags": [
+    "binary-search",
+    "greedy",
+    "layout",
+    "optimization"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement `minimax_divider(left_words, right_words, total_width) -> int`. Choose a nonnegative integer divider `w`: the left column has width `w` and the right column has width `total_width - w`. Words are never split. Each column wraps greedily in order, placing exactly one space between adjacent words on the same line.\n\nBoth columns must fit their own longest word. Therefore the feasible divider range is `[max_left_word_length, total_width - max_right_word_length]`; an empty word list has minimum width zero. Return `-1` if this interval is empty. Otherwise, minimize the larger of the two resulting line counts. If several dividers achieve the same minimum, return the smallest divider.\n\nAim for O((len(left_words) + len(right_words)) * log(total_width)) time and O(1) auxiliary space.",
   "starter_code": "def minimax_divider(left_words, right_words, total_width):\n    # Return the smallest optimal left-column width, or -1 when impossible.\n    pass\n",
   "example": {
     "input": "minimax_divider(['a', 'bb'], ['ccc', 'd'], 10)",
@@ -22,5 +29,24 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "interview_frequency": {
+    "Waymo": {
+      "source_record_ids": [
+        "3df6ce51456d8139a38ccef213ddb04d"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d8139a38ccef213ddb04d"
+    }
+  ]
 }

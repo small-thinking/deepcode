@@ -4,9 +4,16 @@
   "title": "Blocked Board Knight Distance",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["breadth-first-search", "graphs", "grid", "shortest-path"],
-  "companies": ["Waymo"],
-  "prompt": "Implement `min_knight_moves(rows, cols, start, dest, blocked) -> int | None`. The board is a finite `rows` by `cols` rectangle with zero-based `(row, column)` coordinates. A knight moves by changing one coordinate by two and the other by one.\n\nReturn the fewest moves from `start` to `dest`, or `None` when no route exists. `blocked` is a collection of coordinates that cannot be entered. If either endpoint is blocked, return `None`; if they are the same unblocked cell, return `0`. Inputs use positive dimensions and in-bounds endpoints.\n\nUse breadth-first search over legal, unblocked board cells. Do not enqueue off-board coordinates, revisit a cell, or treat blocked squares as passable. The expected complexity is O(rows * cols) time and space in the worst case.",
+  "tags": [
+    "breadth-first-search",
+    "graphs",
+    "grid",
+    "shortest-path"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Implement `min_knight_moves(rows, cols, start, dest, blocked) -> int | None`. The board is a finite `rows` by `cols` rectangle with zero-based `(row, column)` coordinates. A knight moves by changing one coordinate by two and the other by one.\n\nReturn the fewest moves from `start` to `dest`, or `None` when no route exists. `blocked` is a collection of coordinates that cannot be entered. If either endpoint is blocked, return `None`; if they are the same unblocked cell, return `0`. Inputs use positive dimensions and in-bounds endpoints.\n\nTarget O(rows * cols) time and space in the worst case.",
   "starter_code": "def min_knight_moves(rows, cols, start, dest, blocked):\n    # Return the minimum number of legal knight moves, or None.\n    pass\n",
   "example": {
     "input": "min_knight_moves(6, 7, (0, 0), (1, 2), set())",
@@ -22,5 +29,24 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "interview_frequency": {
+    "Waymo": {
+      "source_record_ids": [
+        "3df6ce51456d8106b839f2bde7536f29"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-21"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-21"
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d8106b839f2bde7536f29"
+    }
+  ]
 }

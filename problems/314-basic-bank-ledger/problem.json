@@ -4,9 +4,16 @@
   "title": "Basic Bank Ledger",
   "category": "Systems Coding",
   "difficulty": "medium",
-  "tags": ["banking", "ledger", "stateful-api", "validation"],
-  "companies": ["Anthropic"],
-  "prompt": "Implement an in-memory `BankLedger` for immediate deposits and withdrawals across independent accounts. This is a simple accounting API: it has no transfers, pending operations, timestamps, persistence, or account merging.\n\n- `open_account(account_id, opening_balance=0)` creates a non-empty string account ID with a non-negative ordinary-integer opening balance.\n- `deposit(account_id, amount, memo='') -> str` credits a positive ordinary integer amount, appends an entry, and returns globally ordered IDs `entry-1`, `entry-2`, and so on.\n- `withdraw(account_id, amount, memo='') -> str` debits a positive amount only when enough balance is available; otherwise raise `InsufficientFundsError` and append nothing.\n- `balance(account_id) -> int` returns the current account balance.\n- `statement(account_id) -> list[dict]` returns that account's entries in append order. Each entry contains `id`, `type` (`deposit` or `withdraw`), `amount`, `balance_after`, and `memo`.\n\nAccount IDs must be non-empty strings, memos must be strings, and booleans are not amounts or balances. Duplicate account IDs and malformed inputs raise `ValueError`; unknown account IDs raise `KeyError`. `statement` must return copies so callers cannot alter ledger history.",
+  "tags": [
+    "banking",
+    "ledger",
+    "stateful-api",
+    "validation"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement an in-memory `BankLedger` for immediate deposits and withdrawals across independent accounts. This is a simple accounting API: it has no transfers, pending operations, timestamps, persistence, or account merging.\n\n- `open_account(account_id, opening_balance=0)` creates a non-empty string account ID with a non-negative integer opening balance.\n- `deposit(account_id, amount, memo='') -> str` credits a positive integer amount, appends an entry, and returns globally ordered IDs `entry-1`, `entry-2`, and so on.\n- `withdraw(account_id, amount, memo='') -> str` debits a positive amount only when enough balance is available; otherwise raise `InsufficientFundsError` and append nothing.\n- `balance(account_id) -> int` returns the current account balance.\n- `statement(account_id) -> list[dict]` returns that account's entries in append order. Each entry contains `id`, `type` (`deposit` or `withdraw`), `amount`, `balance_after`, and `memo`.\n\nAccount IDs must be non-empty strings, memos must be strings,. Duplicate account IDs and malformed inputs raise an error; unknown account IDs raise an error. `statement` must return copies so callers cannot alter ledger history.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class InsufficientFundsError(Exception):\n    pass\n\n\nclass BankLedger:\n    def __init__(self):\n        pass\n\n    def open_account(self, account_id, opening_balance=0):\n        pass\n\n    def deposit(self, account_id, amount, memo=''):\n        pass\n\n    def withdraw(self, account_id, amount, memo=''):\n        pass\n\n    def balance(self, account_id):\n        pass\n\n    def statement(self, account_id):\n        pass\n",
   "example": {
     "input": "ledger.open_account('maya', 10); entry = ledger.withdraw('maya', 4, 'lunch')",
@@ -22,5 +29,19 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-19"
+  "created_at": "2026-08-19",
+  "references": [
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1174418",
+      "url": "https://www.1point3acres.com/interview/thread/1174418"
+    },
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1164836",
+      "url": "https://www.1point3acres.com/interview/thread/1164836"
+    },
+    {
+      "label": "Notion interview record (practice variant)",
+      "url": "https://app.notion.com/p/35c6ce51456d81efa5ebd29f95c32d4d"
+    }
+  ]
 }

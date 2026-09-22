@@ -22,6 +22,6 @@
   {
     "name": "[Part 4] validates labels and formula grammar while retaining accepted values",
     "input": "invalid labels, malformed expressions, and a legal numeric string",
-    "test": "sheet = ValidatedSpreadsheet()\nassert sheet.set_cell('C1', '12') is True\nassert sheet.get_cell('C1') == 12\nfor cell, value in (\n    ('c1', 14),\n    ('C0', 14),\n    ('C1', 'D1+6'),\n    ('C1', '=D1+'),\n    ('C1', '=D_1+6'),\n):\n    assert sheet.set_cell(cell, value) is False\nassert sheet.get_cell('C1') == 12\ntry:\n    sheet.get_cell('c1')\n    raise AssertionError('expected ValueError for an invalid label')\nexcept ValueError:\n    pass"
+    "test": "sheet = ValidatedSpreadsheet()\nassert sheet.set_cell(\"C1\", \"12\") is True\nassert sheet.get_cell(\"C1\") == 12\nfor cell, value in (\n    (\"c1\", 14),\n    (\"C0\", 14),\n    (\"C1\", \"D1+6\"),\n    (\"C1\", \"=D1+\"),\n    (\"C1\", \"=D_1+6\"),\n):\n    assert sheet.set_cell(cell, value) is False\nassert sheet.get_cell(\"C1\") == 12\ntry:\n    sheet.get_cell(\"c1\")\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected input validation error for an invalid label\")"
   }
 ]

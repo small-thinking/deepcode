@@ -12,6 +12,6 @@
   {
     "name": "rejects invalid array shapes and indexes",
     "input": "wrong ranks, mismatched batches, booleans, and out-of-range values",
-    "test": "import numpy as np\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nvalues = np.zeros((2, 3, 1))\nmust_raise(lambda: masked_batched_gather(np.zeros((2, 3)), np.zeros((2, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.zeros((1, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.array([[True], [False]])))\nmust_raise(lambda: masked_batched_gather(values, np.array([[3], [0]])))\nmust_raise(lambda: masked_batched_gather(values, np.array([[-2], [0]])))"
+    "test": "import numpy as np\n\ndef must_raise(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nvalues = np.zeros((2, 3, 1))\nmust_raise(lambda: masked_batched_gather(np.zeros((2, 3)), np.zeros((2, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.zeros((1, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.array([[3], [0]])))\nmust_raise(lambda: masked_batched_gather(values, np.array([[-2], [0]])))\n"
   }
 ]

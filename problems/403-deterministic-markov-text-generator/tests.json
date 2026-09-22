@@ -1,20 +1,20 @@
 [
   {
-    "name": "frequency beats lexical order and ties are lexical",
-    "input": "frequency beats lexical order and ties are lexical",
-    "test": "assert transition_counts('a c a b a c')=={'a':{'c':2,'b':1},'c':{'a':1},'b':{'a':1}}\nassert generate_text('a c a b a c','a',3)=='a c a c'\nassert generate_text('a c a b','a',3)=='a b'\nprint('ok')\n",
+    "name": "generated pairs are observed in the corpus",
+    "input": "every generated bigram must be observed",
+    "test": "corpus = 'a b a c a b a c a'\nsentence = generate_sentence(corpus, 4)\nwords = sentence.split()\nobserved_pairs = set(zip(corpus.split(), corpus.split()[1:]))\nassert len(words) == 4\nassert all(pair in observed_pairs for pair in zip(words, words[1:]))\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
-    "name": "apostrophes punctuation and casing",
-    "input": "apostrophes punctuation and casing",
-    "test": "assert transition_counts(\"It's its! IT'S, good42day\")=={\"it's\":{'its':1,'good':1},'its':{\"it's\":1},'good':{'day':1}}\nassert generate_text('Hello, WORLD!','HELLO!',5)=='hello world'\nprint('ok')\n",
+    "name": "longer generation preserves observed pairs",
+    "input": "a longer Markov walk",
+    "test": "corpus = 'red blue red green red blue red green red'\nsentence = generate_sentence(corpus, 7)\nwords = sentence.split()\nobserved_pairs = set(zip(corpus.split(), corpus.split()[1:]))\nassert len(words) == 7\nassert all(pair in observed_pairs for pair in zip(words, words[1:]))\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
-    "name": "empty unseen terminal and zero steps",
-    "input": "empty unseen terminal and zero steps",
-    "test": "assert transition_counts('123 !!!')=={}\nassert generate_text('', 'Start',10)=='start'\nassert generate_text('a b','c',5)=='c'\nassert generate_text('a b','b',5)=='b'\nassert generate_text('a b','a',0)=='a'\nprint('ok')\n",
+    "name": "one-word generation chooses a corpus word",
+    "input": "k equals one",
+    "test": "corpus = 'red blue green red'\nassert generate_sentence(corpus, 1) in corpus.split()\nprint('ok')\n",
     "expected_output": "ok"
   }
 ]

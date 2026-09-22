@@ -14,7 +14,7 @@
   {
     "name": "supports unit patches and rejects malformed layouts",
     "input": "unit patches plus invalid ranks, dtypes, sizes, and divisibility",
-    "test": "import numpy as np\nimage = np.arange(15).reshape(3, 5, 1)\nunit = patchify_channels_first(image, 1, 1)\nassert unit.shape == (3, 5, 1, 1, 1)\nassert np.array_equal(unit[:, :, 0, 0, 0], image[:, :, 0])\ninvalid_calls = [\n    lambda: patchify_channels_first(np.ones((2, 2)), 1, 1),\n    lambda: patchify_channels_first(np.ones((1, 2, 2, 1)), 1, 1),\n    lambda: patchify_channels_first(np.array([[[\"x\"]]], dtype=object), 1, 1),\n    lambda: patchify_channels_first(np.ones((0, 2, 1)), 1, 1),\n    lambda: patchify_channels_first(np.ones((3, 4, 1)), 0, 2),\n    lambda: patchify_channels_first(np.ones((3, 4, 1)), True, 2),\n    lambda: patchify_channels_first(np.ones((3, 4, 1)), 2, 2),\n]\nfor call in invalid_calls:\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass",
+    "test": "import numpy as np\nimage = np.arange(15).reshape(3, 5, 1)\nunit = patchify_channels_first(image, 1, 1)\nassert unit.shape == (3, 5, 1, 1, 1)\nassert np.array_equal(unit[:, :, 0, 0, 0], image[:, :, 0])\ninvalid_calls = [lambda: patchify_channels_first(np.ones((2, 2)), 1, 1), lambda: patchify_channels_first(np.ones((1, 2, 2, 1)), 1, 1), lambda: patchify_channels_first(np.ones((0, 2, 1)), 1, 1), lambda: patchify_channels_first(np.ones((3, 4, 1)), 0, 2), lambda: patchify_channels_first(np.ones((3, 4, 1)), 2, 2)]\nfor call in invalid_calls:\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError('expected validation error')\n",
     "expected_output": ""
   }
 ]

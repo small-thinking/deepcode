@@ -27,7 +27,7 @@
     "stars": 2,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement two functions for entropy from unnormalized logits.\n\n`entropy_from_logits(logits)` receives a non-empty 1D list or NumPy array of logits and returns the natural-log entropy of the softmax distribution. Use a numerically stable log-sum-exp style computation, so large logits such as `[1000, 1000]` do not overflow.\n\n`streaming_entropy(blocks)` receives an iterable of non-empty 1D logit blocks and returns the same entropy as if all blocks had been concatenated. Do not store all logits. Maintain a shared running max plus scaled sums so the computation uses `O(1)` extra state besides the current block.\n\nFor logits `z`, if `L = logsumexp(z)`, the entropy is `L - sum_i softmax(z)_i * z_i`. Raise `ValueError` for an empty logits vector, an empty block, or no blocks.",
+  "prompt": "A language-model monitor needs the entropy of a token distribution, even when its logits arrive in blocks.\n\n- `entropy_from_logits(logits)`: given a non-empty 1D list or NumPy array, return the natural-log entropy of its softmax distribution.\n- `streaming_entropy(blocks)`: given an iterable of non-empty 1D logit blocks, return the entropy of the combined distribution using `O(1)` extra state besides the current block. Do not retain all logits.\n\nBoth functions must remain numerically stable for large logits. Reject empty input or an empty block; `assert` is sufficient. NumPy is available.",
   "starter_code": "import numpy as np\n\n\ndef entropy_from_logits(logits):\n    # Return the softmax entropy using a stable log-sum-exp computation.\n    pass\n\n\ndef streaming_entropy(blocks):\n    # Return the same entropy while consuming one block at a time.\n    pass\n",
   "example": {
     "input": "logits = [0.0, 0.0, 0.0]",
@@ -50,6 +50,18 @@
     {
       "label": "NumPy: log",
       "url": "https://numpy.org/doc/stable/reference/generated/numpy.log.html"
+    },
+    {
+      "label": "Original interview report: 1Point3Acres 1177444",
+      "url": "https://www.1point3acres.com/bbs/thread-1177444-1-1.html"
+    },
+    {
+      "label": "Original interview report: 1Point3Acres 1178705",
+      "url": "https://www.1point3acres.com/bbs/thread-1178705-1-1.html"
+    },
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/36c6ce51456d81d9b06af18040c8c9c4"
     }
   ],
   "evaluation": {

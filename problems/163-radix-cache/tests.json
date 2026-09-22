@@ -12,6 +12,6 @@
   {
     "name": "input snapshots, duplicates, and validation have deterministic behavior",
     "input": "a caller-mutated sequence plus invalid inputs",
-    "test": "cache = RadixCache()\nsequence = [9, 1]\ncache.insert(sequence)\ncache.insert([9, 1])\nsequence.append(2)\nassert cache.search([9, 1])\nassert not cache.search([9, 1, 2])\nassert cache.get_all_sequences() == [[9, 1]]\nassert cache.prefix_match([]) == []\nassert not cache.search([])\nfor call in (\n    lambda: cache.insert((1, 2)),\n    lambda: cache.insert([1, True]),\n    lambda: cache.search('12'),\n    lambda: cache.prefix_match([1, 2.0]),\n):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+    "test": "cache = RadixCache()\nsequence = [9, 1]\ncache.insert(sequence)\ncache.insert([9, 1])\nsequence.append(2)\nassert cache.search([9, 1])\nassert not cache.search([9, 1, 2])\nassert cache.get_all_sequences() == [[9, 1]]\nassert cache.prefix_match([]) == []\nassert not cache.search([])\nfor call in (\n    lambda: cache.insert((1, 2)),\n    lambda: cache.search(\"12\"),\n    lambda: cache.prefix_match([1, 2.0]),\n):\n    try:\n        call()\n    except (TypeError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

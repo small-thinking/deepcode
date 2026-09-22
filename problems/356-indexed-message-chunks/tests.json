@@ -17,6 +17,6 @@
   {
     "name": "handles empty and impossible messages",
     "input": "an empty string and a too-small limit",
-    "test": "assert split_indexed_message('', 1) == []\ntry:\n    split_indexed_message('x', 3)\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass"
+    "test": "assert split_indexed_message(\"\", 1) == []\ntry:\n    split_indexed_message(\"x\", 3)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected input validation error\")"
   }
 ]

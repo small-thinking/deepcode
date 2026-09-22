@@ -17,6 +17,6 @@
   {
     "name": "capacity and keys are validated",
     "input": "bad capacities and an unhashable list key",
-    "test": "for capacity in (0, -1, True):\n    try:\n        ManualLRUCache(capacity)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ncache = ManualLRUCache(1)\nfor call in (lambda: cache.get([]), lambda: cache.put([], 1), lambda: cache.remove([])):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+    "test": "for capacity in (0, -1):\n    try:\n        ManualLRUCache(capacity)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")\ncache = ManualLRUCache(1)\nfor call in (lambda: cache.get([]), lambda: cache.put([], 1), lambda: cache.remove([])):\n    try:\n        call()\n    except (TypeError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

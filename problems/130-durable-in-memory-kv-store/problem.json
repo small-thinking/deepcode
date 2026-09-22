@@ -20,15 +20,15 @@
       "source_record_ids": [
         "3ab6ce51456d81c0965afc615840d30a"
       ],
-      "stars": 2,
-      "synced_at": "2026-09-03"
+      "stars": 3,
+      "synced_at": "2026-09-21"
     }
   },
   "interview_frequency_total": {
-    "stars": 2,
-    "synced_at": "2026-09-03"
+    "stars": 3,
+    "synced_at": "2026-09-21"
   },
-  "prompt": "Build a durable, single-process key-value store. Keys are strings and values may be any JSON-serializable value. Use UTF-8 JSON Lines so each record occupies one newline-terminated line.\n\n### Part 1 — Log-backed recovery\n\nImplement `LogBackedKVStore(path)` with `set(key, value)`, `get(key, default=None)`, and `delete(key)`. Every mutation must append one record, flush it, and call `os.fsync` before changing the visible in-memory state. Reconstruct state by replaying the log in constructor order. A delete of a missing key is still a durable no-op record. Accept a malformed final fragment only when the file does not end in a newline, modeling a torn last write; malformed complete records must raise `ValueError`. Reject non-string keys and values that cannot be serialized as JSON.\n\n### Part 2 — Multi-file snapshots\n\nImplement `MultiFileSnapshotKVStore(root, max_file_bytes=1024)` with the same in-memory `set`, `get`, and `delete` behavior plus `save_snapshot()` and `load_snapshot()`. `save_snapshot()` writes sorted key/value records into a new generation directory, never splits a record across files, calls `fsync` for every data file, and atomically publishes the generation name through a `CURRENT` manifest. Return that generation name. Every non-empty data file must be at most `max_file_bytes`; if one encoded record is too large, raise `ValueError` without replacing the previously published snapshot. `load_snapshot()` replaces memory with the generation named by `CURRENT`, or with an empty mapping when no manifest exists. Ignore unpublished generation directories.",
+  "prompt": "Build two single-process key-value stores with string keys and JSON-serializable values. Both expose `set(key, value)`, `get(key, default=None)`, and `delete(key)`.\n\n### Part 1 — Durable log\n\n`LogBackedKVStore(path)` recovers state from a UTF-8 JSON Lines log. Every mutation, including deleting a missing key, appends one newline-terminated record and calls `flush` and `os.fsync` before becoming visible. On recovery, ignore only a malformed final fragment without a terminating newline; reject malformed complete records and invalid keys or values.\n\n### Part 2 — Snapshots\n\n`MultiFileSnapshotKVStore(root, max_file_bytes=1024)` keeps mutations in memory and adds:\n\n- `save_snapshot()`: write sorted key/value records into a new generation directory and return its name. Keep each record whole and each nonempty file within `max_file_bytes`. Fsync data files before atomically publishing the generation through `CURRENT`. An oversized record must fail without replacing the previous snapshot.\n- `load_snapshot()`: replace memory with the generation named by `CURRENT`, or an empty mapping if no manifest exists. Ignore unpublished generations.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class LogBackedKVStore:\n    def __init__(self, path):\n        pass\n\n    def set(self, key, value):\n        pass\n\n    def get(self, key, default=None):\n        pass\n\n    def delete(self, key):\n        pass\n\n\nclass MultiFileSnapshotKVStore:\n    def __init__(self, root, max_file_bytes=1024):\n        pass\n\n    def set(self, key, value):\n        pass\n\n    def get(self, key, default=None):\n        pass\n\n    def delete(self, key):\n        pass\n\n    def save_snapshot(self):\n        pass\n\n    def load_snapshot(self):\n        pass\n",
   "example": {
     "input": "store = LogBackedKVStore(path); store.set('model', {'name': 'gpt'}); recovered = LogBackedKVStore(path)",

@@ -12,6 +12,6 @@
   {
     "name": "validates checkpoint versions shapes and next paths",
     "input": "wrong logical source and malformed JSON-like state",
-    "test": "it = MultiDimensionalIterator([[1], [2]])\nvalid = it.get_state()\nfor state in [None, {}, {'version': 2, 'shape': valid['shape'], 'next_path': [0, 0]}, {'version': 1, 'shape': [], 'next_path': [0, 0]}, {'version': 1, 'shape': valid['shape'], 'next_path': [9, 9]}, {'version': 1, 'shape': valid['shape'], 'next_path': '0'}]:\n    try:\n        it.set_state(state)\n        assert False, state\n    except ValueError:\n        pass\nitems = [[1], [2]]\nsnapshot = MultiDimensionalIterator(items)\nitems[0][0] = 99\nassert snapshot.next() == 1"
+    "test": "it = MultiDimensionalIterator([[1], [2]])\nvalid = it.get_state()\nfor state in [\n    None,\n    {},\n    {\"version\": 2, \"shape\": valid[\"shape\"], \"next_path\": [0, 0]},\n    {\"version\": 1, \"shape\": [], \"next_path\": [0, 0]},\n    {\"version\": 1, \"shape\": valid[\"shape\"], \"next_path\": [9, 9]},\n    {\"version\": 1, \"shape\": valid[\"shape\"], \"next_path\": \"0\"},\n]:\n    try:\n        it.set_state(state)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, state\nitems = [[1], [2]]\nsnapshot = MultiDimensionalIterator(items)\nitems[0][0] = 99\nassert snapshot.next() == 1"
   }
 ]

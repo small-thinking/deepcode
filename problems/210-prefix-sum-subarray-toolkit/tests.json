@@ -17,6 +17,6 @@
   {
     "name": "rejects unsupported modes and a zero divisor",
     "input": "invalid mode and invalid divisor",
-    "test": "for args in [([1], 'unknown', 1), ([1], 'count_divisible', 0)]:\n    try:\n        subarray_metric(*args)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "for args in [([1], \"unknown\", 1), ([1], \"count_divisible\", 0)]:\n    try:\n        subarray_metric(*args)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

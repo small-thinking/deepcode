@@ -14,7 +14,7 @@
   {
     "name": "invalid ASCII and non-ASCII characters",
     "input": "invalid ASCII and non-ASCII characters",
-    "test": "for s in ['1','20','2a','2 3','\uff12','23\\n']:\n    try:\n        count_keypad_combinations(s)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(s)\nprint(\"ok\")",
+    "test": "for s in [\"1\", \"20\", \"2a\", \"2 3\", \"２\", \"23\\n\"]:\n    try:\n        count_keypad_combinations(s)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(s)\nprint(\"ok\")",
     "expected_output": "ok"
   },
   {

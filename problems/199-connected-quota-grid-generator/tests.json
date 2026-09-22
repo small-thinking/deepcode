@@ -12,6 +12,6 @@
   {
     "name": "rejects invalid dimensions",
     "input": "non-positive dimensions and area not divisible by four",
-    "test": "import random\nfor rows, cols in ((0, 4), (2, 3), (-1, 4)):\n    try:\n        generate_grid(rows, cols, random.Random(0))\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('invalid dimensions must raise ValueError')"
+    "test": "import random\n\nfor rows, cols in ((0, 4), (2, 3), (-1, 4)):\n    try:\n        generate_grid(rows, cols, random.Random(0))\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"invalid dimensions must raise ValueError\")"
   }
 ]

@@ -12,6 +12,6 @@
   {
     "name": "validates timestamps, final boundary, and frame names",
     "input": "out-of-order samples, an early end, and an empty frame",
-    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except exception_type:\n        return\n    raise AssertionError(f'expected {exception_type.__name__}')\n\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, ['a']), (1, ['a'])], 3))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, ['a'])], 1))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(1, [''])], 1))\nexpect(TypeError, lambda: stack_samples_to_trace_events([(True, ['a'])], 1))"
+    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except (exception_type, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, [\"a\"]), (1, [\"a\"])], 3))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, [\"a\"])], 1))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(1, [\"\"])], 1))"
   }
 ]

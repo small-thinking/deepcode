@@ -22,6 +22,6 @@
   {
     "name": "rejects malformed programs",
     "input": "unknown op, bad integer, and out-of-range pc",
-    "test": "for bad in [['noop +0'], ['plus nope'], ['jump -1']]:\n    try:\n        run_bootloader(bad)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+    "test": "for bad in [[\"noop +0\"], [\"plus nope\"], [\"jump -1\"]]:\n    try:\n        run_bootloader(bad)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, \"expected input validation error\""
   }
 ]

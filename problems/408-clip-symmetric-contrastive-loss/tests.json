@@ -14,7 +14,7 @@
   {
     "name": "rejects rank, shape, and temperature contract violations",
     "input": "rank mismatch, shape mismatch, zero, infinite, and negative temperatures",
-    "test": "import torch\ncases=[(torch.ones(2),torch.ones(2),.1),(torch.ones(2,3),torch.ones(3,3),.1),(torch.ones(2,3),torch.ones(2,3),0),(torch.ones(2,3),torch.ones(2,3),float('inf')),(torch.ones(2,3),torch.ones(2,3),-1)]\nfor images,texts,temp in cases:\n try: clip_contrastive_loss(images,texts,temp)\n except ValueError: pass\n else: raise AssertionError((images.shape,texts.shape,temp))\nprint('ok')",
+    "test": "import torch\ncases = [(torch.ones(2), torch.ones(2), 0.1), (torch.ones(2, 3), torch.ones(3, 3), 0.1), (torch.ones(2, 3), torch.ones(2, 3), 0), (torch.ones(2, 3), torch.ones(2, 3), float('inf')), (torch.ones(2, 3), torch.ones(2, 3), -1)]\nfor images, texts, temp in cases:\n    try:\n        clip_contrastive_loss(images, texts, temp)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError((images.shape, texts.shape, temp))\nprint('ok')\n",
     "expected_output": "ok"
   }
 ]

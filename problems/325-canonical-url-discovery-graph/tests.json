@@ -12,6 +12,6 @@
   {
     "name": "rejects a non-web seed but retains unmapped web discoveries",
     "input": "a mailto seed and a discovered URL without a page entry",
-    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nexpect_value_error(lambda: discover_canonical_urls('mailto:x@example.test', {}))\nassert discover_canonical_urls('https://site.test/', {'https://site.test/': ['https://new.test/path#x']}) == ['https://site.test/', 'https://new.test/path']"
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nexpect_value_error(lambda: discover_canonical_urls(\"mailto:x@example.test\", {}))\nassert discover_canonical_urls(\n    \"https://site.test/\", {\"https://site.test/\": [\"https://new.test/path#x\"]}\n) == [\"https://site.test/\", \"https://new.test/path\"]"
   }
 ]

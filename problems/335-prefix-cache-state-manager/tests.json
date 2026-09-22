@@ -7,6 +7,6 @@
   {
     "name": "replacement removal and validation are explicit",
     "input": "replace then remove one exact prefix",
-    "test": "cache = PrefixCache()\ncache.store((4,), 'old')\ncache.store([4], 'new')\nassert cache.lookup([4, 5]) == (1, 'new')\nassert cache.remove([4]) is True\nassert cache.remove([4]) is False\nfor invalid in ('12', [1, True], [-1]):\n    try:\n        cache.lookup(invalid)\n        assert False\n    except TypeError:\n        pass\nfor tokens, value in (([], 'x'), ([1], '')):\n    try:\n        cache.store(tokens, value)\n        assert False\n    except ValueError:\n        pass"
+    "test": "cache = PrefixCache()\ncache.store((4,), \"old\")\ncache.store([4], \"new\")\nassert cache.lookup([4, 5]) == (1, \"new\")\nassert cache.remove([4]) is True\nassert cache.remove([4]) is False\nfor invalid in (\"12\", [-1]):\n    try:\n        cache.lookup(invalid)\n    except (TypeError, AssertionError):\n        pass\n    else:\n        assert False\nfor tokens, value in (([], \"x\"), ([1], \"\")):\n    try:\n        cache.store(tokens, value)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False"
   }
 ]

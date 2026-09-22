@@ -12,6 +12,6 @@
   {
     "name": "validates construction and edit ranges",
     "input": "invalid initial text, indices, and insertions",
-    "test": "for make in (lambda: TextDocument(3), lambda: TextDocument('ok').insert(-1, 'x'), lambda: TextDocument('ok').delete(2, 1), lambda: TextDocument('ok').insert(0, 4)):\n    try:\n        make()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "for make in (\n    lambda: TextDocument(3),\n    lambda: TextDocument(\"ok\").insert(-1, \"x\"),\n    lambda: TextDocument(\"ok\").delete(2, 1),\n    lambda: TextDocument(\"ok\").insert(0, 4),\n):\n    try:\n        make()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

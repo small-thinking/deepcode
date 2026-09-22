@@ -409,6 +409,17 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".problem-test-case", styles_css)
         self.assertIn(".problem-meta-grid", styles_css)
 
+    def test_problem_description_renders_example_before_metadata(self):
+        app_js = Path("frontend/app.js").read_text(encoding="utf-8")
+        description = app_js.split("function renderProblemDescription(problem) {", maxsplit=1)[1].split(
+            "\n}\n\nfunction problemAssetUrl", maxsplit=1
+        )[0]
+
+        self.assertLess(
+            description.index("renderProblemExample(problem.example)"),
+            description.index("renderProblemMetadata(problem)"),
+        )
+
     def test_system_design_workspace_uses_full_height_draft_and_reference_tabs(self):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
@@ -520,9 +531,7 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('data-direction="t2i"', demo_html)
         self.assertIn('type:\'deepcode:interactive-demo-ready\'', demo_html)
         self.assertIn('type:\'deepcode:interactive-demo-height\'', demo_html)
-        self.assertIn("Source boundary", problem["prompt"])
-        self.assertIn("two cross-entropy terms", problem["prompt"])
-        self.assertIn("does not require a redundant empty-batch check", problem["prompt"])
+        self.assertNotIn("Source boundary", problem["prompt"])
 
     def test_listing_quality_demo_covers_the_full_ml_decision_loop(self):
         problem = json.loads(

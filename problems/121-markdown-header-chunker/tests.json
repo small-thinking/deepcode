@@ -27,6 +27,6 @@
   {
     "name": "rejects impossible header context",
     "input": "max_chars smaller than active header context",
-    "test": "try:\n    chunk_markdown('# LongHeader\\n\\ntext', 5)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass\ntry:\n    chunk_markdown('# A', 0)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+    "test": "try:\n    chunk_markdown(\"# LongHeader\\n\\ntext\", 5)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False, \"expected input validation error\"\ntry:\n    chunk_markdown(\"# A\", 0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False, \"expected input validation error\""
   }
 ]

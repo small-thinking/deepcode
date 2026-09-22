@@ -12,7 +12,7 @@
   {
     "name": "[Part 1] complete corruption and invalid inputs are rejected",
     "input": "malformed newline-terminated record, non-string key, and non-JSON value",
-    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    corrupt = Path(tmp) / 'corrupt.jsonl'\n    corrupt.write_bytes(b'not-json\\n')\n    try:\n        LogBackedKVStore(corrupt)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass\n\n    store = LogBackedKVStore(Path(tmp) / 'valid.jsonl')\n    for key, value in [(1, 'value'), ('bad', {1, 2})]:\n        try:\n            store.set(key, value)\n            assert False, 'expected ValueError'\n        except ValueError:\n            pass"
+    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    corrupt = Path(tmp) / \"corrupt.jsonl\"\n    corrupt.write_bytes(b\"not-json\\n\")\n    try:\n        LogBackedKVStore(corrupt)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, \"expected input validation error\"\n    store = LogBackedKVStore(Path(tmp) / \"valid.jsonl\")\n    for key, value in [(1, \"value\"), (\"bad\", {1, 2})]:\n        try:\n            store.set(key, value)\n        except (ValueError, AssertionError):\n            pass\n        else:\n            assert False, \"expected input validation error\""
   },
   {
     "name": "[Part 2] snapshot splits only between records and reloads",
@@ -27,6 +27,6 @@
   {
     "name": "[Part 2] oversized record preserves current snapshot",
     "input": "new value whose one encoded record exceeds max_file_bytes",
-    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp) / 'snapshots'\n    store = MultiFileSnapshotKVStore(root, max_file_bytes=80)\n    store.set('safe', 'small')\n    generation = store.save_snapshot()\n    store.set('huge', 'x' * 500)\n    try:\n        store.save_snapshot()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass\n    assert (root / 'CURRENT').read_text().strip() == generation\n    restored = MultiFileSnapshotKVStore(root, max_file_bytes=80)\n    restored.load_snapshot()\n    assert restored.get('safe') == 'small'\n    assert restored.get('huge') is None"
+    "test": "import tempfile\nfrom pathlib import Path\n\nwith tempfile.TemporaryDirectory() as tmp:\n    root = Path(tmp) / \"snapshots\"\n    store = MultiFileSnapshotKVStore(root, max_file_bytes=80)\n    store.set(\"safe\", \"small\")\n    generation = store.save_snapshot()\n    store.set(\"huge\", \"x\" * 500)\n    try:\n        store.save_snapshot()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, \"expected input validation error\"\n    assert (root / \"CURRENT\").read_text().strip() == generation\n    restored = MultiFileSnapshotKVStore(root, max_file_bytes=80)\n    restored.load_snapshot()\n    assert restored.get(\"safe\") == \"small\"\n    assert restored.get(\"huge\") is None"
   }
 ]

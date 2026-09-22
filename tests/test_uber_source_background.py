@@ -7,6 +7,7 @@ from deepcode.problem_store import ProblemStore
 ROOT = Path(__file__).resolve().parents[1]
 
 NOTION_TO_SLUG = {
+    "3df6ce51456d81b68bf1cb300ebece77": "numpy-kmeans-clustering",
     "3d76ce51456d819fbf16f5b4950fcf03": "clip-symmetric-contrastive-loss",
     "3d66ce51456d8116a8e8f796e2e5f158": "l1-k-medoids-pickup-locations",
     "3d66ce51456d81848fd7d34e9a1a4ec6": "pytorch-projected-multihead-attention",
@@ -25,6 +26,11 @@ NOTION_TO_SLUG = {
     "3d66ce51456d8179ac80e29bfc6f3b92": "sorted-squares-and-kth-square",
     "3d66ce51456d81a99802d5b9143a3e58": "phone-keypad-combination-count",
     "3d66ce51456d81d88c81e129f4d27b01": "static-and-streaming-islands",
+    "3e16ce51456d81edaa00f39cca4d0f64": "xgboost-tree-depth",
+    "3e16ce51456d810b8d98dc8a7f861b18": "dropout-at-inference",
+    "3e16ce51456d817e83ead82e8f122143": "training-vs-inference",
+    "3e16ce51456d8197a30cccc7d1f1daf4": "uber-room-progression-topk-leaderboard",
+    "3e16ce51456d81d3a131e1119fd84a8e": "regularization-vs-weight-decay",
 }
 
 
