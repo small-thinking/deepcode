@@ -11,15 +11,23 @@
     "evaluation"
   ],
   "companies": [
-    "Google DeepMind"
+    "Google",
+    "Spotify"
   ],
   "interview_frequency": {
-    "Google DeepMind": {
+    "Google": {
       "source_record_ids": [
         "3cc6ce51456d81bab4e6ecba1d88799c"
       ],
-      "stars": 2,
-      "synced_at": "2026-09-03"
+      "stars": 1,
+      "synced_at": "2026-09-22"
+    },
+    "Spotify": {
+      "source_record_ids": [
+        "3e36ce51456d815587bbc6f62d5074e4"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
