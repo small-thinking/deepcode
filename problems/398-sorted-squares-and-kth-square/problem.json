@@ -11,7 +11,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "### Part 1\n\nImplement `sorted_squares(nums) -> list[int]` for an integer array sorted in nondecreasing order. Return its squares in nondecreasing order in `O(n)` time, without calling a sorting operation. Preserve duplicates and do not mutate the input. Empty input returns `[]`.\n\n### Part 2\n\nImplement `kth_smallest_square(nums, k) -> int`, with one-based `k` and `1 <= k <= len(nums)`. Target `O(log n + k)` time and `O(1)` auxiliary space: locate the split between negative and nonnegative values, then merge outward by magnitude until the k-th value. Do not build all sorted squares.\n\nPractice reconstruction: one-based rank, valid-input assumptions, and follow-up complexity are explicit conventions. Emitting `k` values from the two outer endpoints yields the k-th largest square, so that source suggestion must be adapted for the smallest-square follow-up.",
+  "prompt": "### Part 1\n\nImplement `sorted_squares(nums) -> list[int]` for an integer array sorted in nondecreasing order. Return its squares in nondecreasing order in `O(n)` time, without calling a sorting operation. Preserve duplicates and do not mutate the input. Empty input returns `[]`.\n\n### Part 2\n\nImplement `kth_smallest_square(nums, k) -> int`, with one-based `k` and `1 <= k <= len(nums)`. Target `O(log n + k)` time and `O(1)` auxiliary space. Do not build all sorted squares.",
   "starter_code": "def sorted_squares(nums):\n    pass\n\ndef kth_smallest_square(nums, k):\n    pass\n",
   "example": {
     "input": "nums=[-4,-1,0,3,10], k=3",
@@ -28,8 +28,14 @@
     "type": "ml_coding"
   },
   "references": [
-    {"label": "Notion: Squares of a Sorted Array / K-th Smallest Square", "url": "https://app.notion.com/p/3d66ce51456d8179ac80e29bfc6f3b92"},
-    {"label": "1Point3Acres: Uber sorted-squares phone-screen problem", "url": "https://www.1point3acres.com/interview/problems/company/uber/phone-screen-squares-of-sorted"}
+    {
+      "label": "Notion: Squares of a Sorted Array / K-th Smallest Square",
+      "url": "https://app.notion.com/p/3d66ce51456d8179ac80e29bfc6f3b92"
+    },
+    {
+      "label": "1Point3Acres: Uber sorted-squares phone-screen problem",
+      "url": "https://www.1point3acres.com/interview/problems/company/uber/phone-screen-squares-of-sorted"
+    }
   ],
   "created_at": "2026-09-08",
   "interview_frequency": {

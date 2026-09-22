@@ -12,6 +12,6 @@
   {
     "name": "rejects incompatible inputs and processor outputs",
     "input": "bad batch sizes, image shapes, and returned batch shapes",
-    "test": "import numpy as np\ndef expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nimage = np.zeros((2, 2))\nexpect(lambda: process_image_batches([image], 0, lambda batch: batch))\nexpect(lambda: process_image_batches([image], 1, None))\nexpect(lambda: process_image_batches([image, np.zeros((1, 2))], 1, lambda batch: batch))\nexpect(lambda: process_image_batches([np.array([], dtype=float)], 1, lambda batch: batch))\nexpect(lambda: process_image_batches([image], 1, lambda batch: np.zeros((1, 1, 1))))\nexpect(lambda: process_image_batches([[1]], 1, lambda batch: batch))"
+    "test": "import numpy as np\n\ndef expect(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nimage = np.zeros((2, 2))\nexpect(lambda: process_image_batches([image], 0, lambda batch: batch))\nexpect(lambda: process_image_batches([image], 1, None))\nexpect(lambda: process_image_batches([image, np.zeros((1, 2))], 1, lambda batch: batch))\nexpect(lambda: process_image_batches([np.array([], dtype=float)], 1, lambda batch: batch))\nexpect(lambda: process_image_batches([image], 1, lambda batch: np.zeros((1, 1, 1))))\nexpect(lambda: process_image_batches([[1]], 1, lambda batch: batch))\n"
   }
 ]

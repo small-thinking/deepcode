@@ -13,7 +13,7 @@
   "companies": [
     "Airbnb"
   ],
-  "prompt": "This practice extension adds solution reconstruction to the source-reported minimum-count exact-fill problem; the original interview post asks only for the minimum count and uses one-decimal experience durations.\n\nImplement `min_exact_purchase_plan(prices, target)`. `prices` is a nonempty list of positive integer cent amounts. You may buy unlimited copies of every listed price. `target` is a nonnegative integer cent amount.\n\nIf no multiset of prices totals exactly `target`, return `-1`. Otherwise return `{'minimum_count': count, 'items': items}`, where `items` is a nondecreasing list of selected prices whose sum is exactly `target` and whose length is `count`. If more than one minimum-count selection exists, either is valid. For `target == 0`, return `{'minimum_count': 0, 'items': []}`.",
+  "prompt": "A buyer wants to spend an exact budget using as few items as possible.\n\nImplement `min_exact_purchase_plan(prices, target)`. `prices` is a nonempty list of positive integer cent amounts. You may buy unlimited copies of every listed price. `target` is a nonnegative integer cent amount.\n\nIf no multiset of prices totals exactly `target`, return `-1`. Otherwise return `{'minimum_count': count, 'items': items}`, where `items` is a nondecreasing list of selected prices whose sum is exactly `target` and whose length is `count`. If more than one minimum-count selection exists, either is valid. For `target == 0`, return `{'minimum_count': 0, 'items': []}`.",
   "starter_code": "def min_exact_purchase_plan(prices, target):\n    pass\n",
   "example": {
     "input": "min_exact_purchase_plan([1, 5, 7], 11)",

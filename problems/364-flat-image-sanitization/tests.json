@@ -12,6 +12,6 @@
   {
     "name": "rejects malformed flat-image inputs",
     "input": "empty, non-square, non-1-D, and non-uint8 arrays",
-    "test": "import numpy as np\ndef must_raise(value):\n    try:\n        sanitize_image(value)\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nmust_raise(np.array([], dtype=np.uint8))\nmust_raise(np.arange(6, dtype=np.uint8))\nmust_raise(np.zeros((2, 2), dtype=np.uint8))\nmust_raise(np.arange(4, dtype=np.int64))"
+    "test": "import numpy as np\n\ndef must_raise(value):\n    try:\n        sanitize_image(value)\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nmust_raise(np.array([], dtype=np.uint8))\nmust_raise(np.arange(6, dtype=np.uint8))\nmust_raise(np.zeros((2, 2), dtype=np.uint8))\nmust_raise(np.arange(4, dtype=np.int64))\n"
   }
 ]

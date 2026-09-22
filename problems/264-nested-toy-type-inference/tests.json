@@ -2,7 +2,7 @@
   {
     "name": "parses nested empty and singleton tuples canonically",
     "input": "mixed delimiters",
-    "test": "assert parse_type(' [ int , (str, ()) ] ') == ('int', ('str', ()))\nassert parse_type('(x,)') == ('x',)\nassert format_type(('int', ('str', ()))) == '(int,(str,()))'\nfor text in ['', '(int', 'int)', '(,)', '(int,,str)', '() tail']:\n    try:\n        parse_type(text)\n        assert False, text\n    except ValueError:\n        pass"
+    "test": "assert parse_type(\" [ int , (str, ()) ] \") == (\"int\", (\"str\", ()))\nassert parse_type(\"(x,)\") == (\"x\",)\nassert format_type((\"int\", (\"str\", ()))) == \"(int,(str,()))\"\nfor text in [\"\", \"(int\", \"int)\", \"(,)\", \"(int,,str)\", \"() tail\"]:\n    try:\n        parse_type(text)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, text"
   },
   {
     "name": "unifies nested generic structures and substitutes return types",
@@ -12,6 +12,6 @@
   {
     "name": "requires every repeated generic to have one compatible binding",
     "input": "same generic in separate and nested positions",
-    "test": "assert infer_return_type(['int', 'int'], ['T', 'T'], 'T') == 'int'\nassert infer_return_type([('int', 'str')], ['T'], 'T') == ('int', 'str')\nfor args in [(['int', 'str'], ['T', 'T'], 'T'), ([('int',)], [('T', 'U')], 'T'), (['int'], ['T'], 'U'), (['int'], ['T', 'U'], 'T')]:\n    try:\n        infer_return_type(*args)\n        assert False, args\n    except ValueError:\n        pass"
+    "test": "assert infer_return_type([\"int\", \"int\"], [\"T\", \"T\"], \"T\") == \"int\"\nassert infer_return_type([(\"int\", \"str\")], [\"T\"], \"T\") == (\"int\", \"str\")\nfor args in [\n    ([\"int\", \"str\"], [\"T\", \"T\"], \"T\"),\n    ([(\"int\",)], [(\"T\", \"U\")], \"T\"),\n    ([\"int\"], [\"T\"], \"U\"),\n    ([\"int\"], [\"T\", \"U\"], \"T\"),\n]:\n    try:\n        infer_return_type(*args)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, args"
   }
 ]

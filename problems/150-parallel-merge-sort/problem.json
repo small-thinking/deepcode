@@ -4,9 +4,17 @@
   "title": "Parallel Merge Sort",
   "category": "Systems Coding",
   "difficulty": "medium",
-  "tags": ["sorting", "merge-sort", "parallelism", "workers", "algorithm"],
-  "companies": ["xAI"],
-  "prompt": "Implement `parallel_merge_sort(values, workers)` to return a new list of integers in nondecreasing order.\n\nTreat `workers` as logical workers so the behavior can be tested deterministically. Split the input into at most `min(workers, len(values))` contiguous, nearly equal chunks. Sort each chunk independently, then repeatedly merge sorted chunks until one sorted result remains.\n\n`workers` is a positive integer. Preserve every value, including duplicates and negatives, and leave `values` unchanged. An empty input returns an empty list.\n\nIn a production implementation, explain separately whether threads, processes, or a native numeric library are appropriate for CPU-bound sorting in the target runtime.",
+  "tags": [
+    "sorting",
+    "merge-sort",
+    "parallelism",
+    "workers",
+    "algorithm"
+  ],
+  "companies": [
+    "xAI"
+  ],
+  "prompt": "A sorting service can divide work among a limited number of workers. Implement `parallel_merge_sort(values, workers)` using merge sort and return a new list of integers in nondecreasing order.\n\n`workers` is a positive logical worker budget; actual threads or processes are not required for this exercise. Preserve duplicates and leave the input unchanged. Empty input returns `[]`; the budget may exceed the number of values.\n\nFollow-up: how would you choose between threads, processes, and native libraries for CPU-bound sorting?",
   "starter_code": "def parallel_merge_sort(values, workers):\n    # Return a freshly allocated sorted list.\n    pass\n",
   "example": {
     "input": "parallel_merge_sort([41, 7, 29, 14, 3, 36], workers=2)",

@@ -28,7 +28,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Design a system that receives multiple music items and produces one useful description of the collection when only a limited, potentially noisy set of human descriptions is available. Explain how you would represent the items, learn from scarce annotations, combine information across the collection, generate or retrieve a description, and evaluate quality.\n\nDiscuss factual grounding, cold-start items, disagreement in the annotation taxonomy, and the trade-off between direct generation and retrieval. The reported prompt does not specify modalities, dataset scale, or output length. State such assumptions clearly instead of treating them as source facts. This is a writing exercise.",
+  "prompt": "Design a system that takes multiple music items and produces one useful description of the collection. Only a small, potentially noisy set of human-written descriptions is available.\n\nState assumptions about input modalities and the desired description. Explain how you would learn from scarce annotations, combine information across items, and evaluate quality and factual accuracy, including for new items.",
   "references": [
     {
       "label": "1Point3Acres: Spotify Research Scientist Internship video interview",

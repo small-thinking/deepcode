@@ -4,9 +4,17 @@
   "title": "Sample-Aspect Double-Descent Diagnostic",
   "category": "ML Coding",
   "difficulty": "medium",
-  "tags": ["numpy", "generalization", "double-descent", "diagnostics", "experiments"],
-  "companies": ["Anthropic"],
-  "prompt": "Implement `diagnose_sample_aspect_losses(sample_counts, aspect_losses, aspect_names=None)` for a CPU-fast experiment diagnostic. `sample_counts` is a strictly increasing one-dimensional integer NumPy array with at least three positive entries. `aspect_losses` is a finite, non-negative two-dimensional numeric NumPy array shaped `(len(sample_counts), number_of_aspects)`.\n\nFor each aspect column, find strict local maxima: an index whose loss is greater than both adjacent losses. Choose the highest such peak; break ties by choosing the earlier index. Classify the aspect as double-descent only when that peak is also strictly higher than both the first and final loss for that aspect.\n\nReturn a mapping with:\n\n- `mean_loss`: the mean across aspects at every sample count;\n- `aspects`: one mapping per aspect in column order with `name`, `peak_index`, `peak_samples`, `peak_loss`, and `double_descent`; use `None` for all peak fields when no strict local peak exists; and\n- `double_descent_aspects`: aspect names classified as double-descent in column order.\n\nWhen `aspect_names` is omitted, use `aspect_0`, `aspect_1`, and so on. Reject invalid array ranks, values, dimensions, sample counts, or names with `ValueError`. Do not mutate inputs.",
+  "tags": [
+    "numpy",
+    "generalization",
+    "double-descent",
+    "diagnostics",
+    "experiments"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `diagnose_sample_aspect_losses(sample_counts, aspect_losses, aspect_names=None)` to summarize how losses change with training-set size. `sample_counts` is a strictly increasing one-dimensional integer NumPy array with at least three positive entries. `aspect_losses` is a finite, non-negative two-dimensional numeric NumPy array shaped `(len(sample_counts), number_of_aspects)`.\n\nFor each aspect column, find strict local maxima: an index whose loss is greater than both adjacent losses. Choose the highest such peak; break ties by choosing the earlier index. Classify the aspect as double-descent only when that peak is also strictly higher than both the first and final loss for that aspect.\n\nReturn a mapping with:\n\n- `mean_loss`: the mean across aspects at every sample count;\n- `aspects`: one mapping per aspect in column order with `name`, `peak_index`, `peak_samples`, `peak_loss`, and `double_descent`; use `None` for all peak fields when no strict local peak exists; and\n- `double_descent_aspects`: aspect names classified as double-descent in column order.\n\nWhen `aspect_names` is omitted, use `aspect_0`, `aspect_1`, and so on. Reject invalid array ranks, values, dimensions, sample counts, or names; `assert` is sufficient. Do not mutate inputs.",
   "starter_code": "import numpy as np\n\n\ndef diagnose_sample_aspect_losses(sample_counts, aspect_losses, aspect_names=None):\n    pass\n",
   "example": {
     "input": "sample_counts = np.array([10, 20, 30, 40]); one aspect has losses [0.8, 1.5, 0.7, 0.4]",
@@ -16,11 +24,23 @@
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
-    "packages": ["numpy"],
+    "packages": [
+      "numpy"
+    ],
     "comparator": "assertions"
   },
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-19"
+  "created_at": "2026-08-19",
+  "references": [
+    {
+      "label": "Original interview report: 1Point3Acres 1173649",
+      "url": "https://www.1point3acres.com/bbs/thread-1173649-1-1.html"
+    },
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3d26ce51456d81809145cb3d853ac0fb"
+    }
+  ]
 }

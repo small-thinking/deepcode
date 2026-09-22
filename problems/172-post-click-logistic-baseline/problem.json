@@ -4,19 +4,28 @@
   "title": "Post Click Prediction",
   "category": "ML Coding",
   "difficulty": "medium",
-  "tags": ["numpy", "logistic-regression", "classification", "feature-engineering"],
-  "companies": ["Reddit"],
-  "prompt": "This machine-learning engineering exercise is a hands-on tabular prediction task. You receive a tidy JSON dataset in which each record is a post shown to a user, and you must estimate whether that user will select the post.\n\nRead the JSON input, turn records into a pandas DataFrame, review available columns, transform input variables, fit a baseline along with sensible alternatives, measure model performance, and justify the decisions and compromises involved.\n\nThe dataset fields are:\n\n- hours_spent_reading_a (float)\n- hours_spent_reading_b (float)\n- hours_spent_reading_c (float)\n- current_post_category (A, B, or C)\n- click (binary label)\n\nThe first three fields record prior reading time for posts from each category; current_post_category identifies the category of the currently displayed post; click records whether it was selected. Create a model that predicts click.\n\nAssume the raw data is in data.json. Reported datasets are complete, without substantial class skew, and contain uncomplicated numerical and categorical fields.",
+  "tags": [
+    "numpy",
+    "logistic-regression",
+    "classification",
+    "feature-engineering"
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "prompt": "A feed team wants to predict whether a user will click a displayed post. Build a baseline and explain how you would evaluate and improve it.\n\nImplement `predict_clicks(train_data, test_data)`. Each record contains numeric `hours_spent_reading_a`, `hours_spent_reading_b`, and `hours_spent_reading_c`, plus `current_post_category` (`A`, `B`, or `C`). Training records also contain the binary label `click`. Assume complete tabular data.\n\nReturn a dictionary with `predictions` (one 0/1 value per test record) and `metrics` containing `accuracy`, `f1_score`, and `roc_auc`. Explain which labeled split you use for those metrics, your treatment of the categorical feature, and the limits of a small baseline evaluation.",
   "starter_code": "def predict_clicks(train_data, test_data):\n    \"\"\"\n    Train a binary classifier on train_data and predict on test_data.\n    Args:\n        train_data: list of dicts with keys hours_spent_reading_a, hours_spent_reading_b,\n                    hours_spent_reading_c, current_post_category, click.\n        test_data: list of dicts with keys hours_spent_reading_a, hours_spent_reading_b,\n                   hours_spent_reading_c, current_post_category.\n    Returns:\n        dict with predictions (list of 0/1 ints) and metrics (dict with accuracy,\n        f1_score, roc_auc).\n    \"\"\"\n    # TODO: implement the solution\n    pass\n",
   "example": {
     "input": "{\"train\":[{\"hours_spent_reading_a\":12.5,\"hours_spent_reading_b\":2.1,\"hours_spent_reading_c\":0.8,\"current_post_category\":\"A\",\"click\":1},{\"hours_spent_reading_a\":3.0,\"hours_spent_reading_b\":9.7,\"hours_spent_reading_c\":1.4,\"current_post_category\":\"B\",\"click\":0},{\"hours_spent_reading_a\":6.2,\"hours_spent_reading_b\":5.5,\"hours_spent_reading_c\":8.1,\"current_post_category\":\"C\",\"click\":1},{\"hours_spent_reading_a\":0.3,\"hours_spent_reading_b\":0.6,\"hours_spent_reading_c\":4.5,\"current_post_category\":\"C\",\"click\":1}],\"test\":[{\"hours_spent_reading_a\":11.0,\"hours_spent_reading_b\":1.9,\"hours_spent_reading_c\":0.2,\"current_post_category\":\"A\"},{\"hours_spent_reading_a\":2.8,\"hours_spent_reading_b\":10.1,\"hours_spent_reading_c\":1.1,\"current_post_category\":\"B\"}]}",
-    "output": "{\"predictions\": [1, 0], \"metrics\": {\"accuracy\": 1.0, \"f1_score\": 1.0, \"roc_auc\": 1.0}}",
-    "reasoning": "The visible source case predicts selection for the first test post and not for the second."
+    "output": "{\"predictions\": [1, 0], \"metrics\": {\"accuracy\": ..., \"f1_score\": ..., \"roc_auc\": ...}}",
+    "reasoning": "The baseline predicts a click for the first test post and no click for the second. Metric values depend on the labeled evaluation split."
   },
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
-    "packages": ["numpy"],
+    "packages": [
+      "numpy"
+    ],
     "comparator": "assertions"
   },
   "evaluation": {

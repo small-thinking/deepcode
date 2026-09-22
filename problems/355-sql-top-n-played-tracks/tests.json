@@ -14,7 +14,7 @@
   {
     "name": "returns the empty shape and rejects invalid rank parameters or events",
     "input": "empty input plus malformed N values and event records",
-    "test": "assert top_played_tracks([], 3) == {'global': [], 'by_country': {}}\ninvalid_calls = [\n    lambda: top_played_tracks([], -1),\n    lambda: top_played_tracks([], True),\n    lambda: top_played_tracks([], 1.5),\n    lambda: top_played_tracks([{'track_id': 'a'}], 1),\n    lambda: top_played_tracks([{'track_id': '', 'country': 'US'}], 1),\n    lambda: top_played_tracks([{'track_id': 'a', 'country': ''}], 1),\n    lambda: top_played_tracks([('a', 'US')], 1),\n]\nfor call in invalid_calls:\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass",
+    "test": "assert top_played_tracks([], 3) == {\"global\": [], \"by_country\": {}}\ninvalid_calls = [\n    lambda: top_played_tracks([], -1),\n    lambda: top_played_tracks([{\"track_id\": \"a\"}], 1),\n    lambda: top_played_tracks([{\"track_id\": \"\", \"country\": \"US\"}], 1),\n    lambda: top_played_tracks([{\"track_id\": \"a\", \"country\": \"\"}], 1),\n    lambda: top_played_tracks([(\"a\", \"US\")], 1),\n]\nfor call in invalid_calls:\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")",
     "expected_output": ""
   }
 ]

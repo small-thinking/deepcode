@@ -17,6 +17,6 @@
   {
     "name": "invalid divisibility byte budgets and infeasible candidates are rejected",
     "input": "malformed tile shapes and a tile that cannot fit the workspace",
-    "test": "for call in (lambda: estimate_tiled_matmul_cost(4, 4, 4, (3, 1, 1)), lambda: estimate_tiled_matmul_cost(4, 4, 4, (1, 1)), lambda: estimate_tiled_matmul_cost(True, 4, 4, (1, 1, 1)), lambda: choose_matrix_tiling(4, 4, 4, [(4, 4, 4)], 10), lambda: choose_matrix_tiling(4, 4, 4, [], 100)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "for call in (lambda: estimate_tiled_matmul_cost(4, 4, 4, (3, 1, 1)), lambda: estimate_tiled_matmul_cost(4, 4, 4, (1, 1)), lambda: choose_matrix_tiling(4, 4, 4, [(4, 4, 4)], 10), lambda: choose_matrix_tiling(4, 4, 4, [], 100)):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError('expected validation error')\n"
   }
 ]

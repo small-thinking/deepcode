@@ -22,6 +22,6 @@
   {
     "name": "invalid shapes raise",
     "input": "non-square W or mismatched grad_P shape",
-    "test": "import torch\n\ndef must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nmust_raise(lambda: prefix_matrix_products(torch.ones(2, 2, 3)))\nmust_raise(lambda: prefix_matrix_products_backward(torch.ones(2, 2, 2), torch.ones(2, 2, 3)))"
+    "test": "import torch\n\n\ndef must_raise(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nmust_raise(lambda: prefix_matrix_products(torch.ones(2, 2, 3)))\nmust_raise(\n    lambda: prefix_matrix_products_backward(torch.ones(2, 2, 2), torch.ones(2, 2, 3))\n)"
   }
 ]

@@ -13,7 +13,7 @@
   "companies": [
     "Notion"
   ],
-  "prompt": "## Reported question\n\nDesign calendar search. Focus on backend system design rather than ranking algorithms.\n\n## Source scope\n\nA Notion ML full-time onsite candidate reported this design question. Enterprise-search ranking described the recruiting team, not the actual design task; the candidate also reported no separate model-design round.\n\nThe report does not provide a concrete query API, event schema, scale, latency target, permission model or recurrence requirements. Clarifying these is part of this open-ended exercise. Do not present any chosen assumption as an original interview constraint.\n\n## Practice response\n\nChoose and state a coherent search use case, then explain ingestion and indexing, the query path, source updates/deletions, access control, failure handling and operational tradeoffs. Sketch an API and walk through one query and one event update. These are preparation prompts, not a recovered interviewer rubric. Explain which requirements you would confirm before adding recurrence, cross-calendar sharing, semantic search or complex ranking.\n\nThis is a writing exercise. The reference answer illustrates one scoped solution, not the only acceptable design.",
+  "prompt": "Design calendar search, focusing on the backend system.\n\nStart by clarifying the search use case, event data, permissions, scale, and latency needs. Define the query and result API, then walk through a search and an event update. Explain indexing, deletions, failures, and the main trade-offs in your design.",
   "evaluation": {
     "type": "system_design"
   },

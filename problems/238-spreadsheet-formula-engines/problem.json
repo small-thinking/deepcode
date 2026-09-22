@@ -15,7 +15,7 @@
     "Harvey",
     "OpenAI"
   ],
-  "prompt": "Build four progressively capable sparse spreadsheet engines. A cell label is one or more uppercase letters followed by a positive row number, such as `C3` or `ZZ1000000`. An unset valid cell reads as `0`. Formulas are additive: they begin with `=` and contain `+`-separated cell references or integer literals. A bare numeric string such as `\"12\"` is also a literal; an unprefixed nonnumeric string is invalid. Repeated references count once per occurrence in arithmetic.\n\n### Part 1: literal cells\n\nImplement `Spreadsheet`:\n\n```python\nclass Spreadsheet:\n    def set_cell(self, cell: str, value: int) -> None: ...\n    def get_cell(self, cell: str) -> int: ...\n```\n\nStore integer literals sparsely. A later write replaces an earlier value.\n\n### Part 2: eager formulas\n\nImplement `EagerSpreadsheet` with the same method names. `set_cell` accepts an integer, a numeric string, or a formula. After each write, update every direct and transitive dependent before `set_cell` returns, so `get_cell` is O(1). Replacing a formula with another formula or a literal must remove its old dependency relationships.\n\n### Part 3: lazy formulas\n\nImplement `LazySpreadsheet` with the same method names. Store formulas at write time and evaluate only during `get_cell`. Use memoization within one read so a shared dependency is evaluated once, but do not keep computed values across separate reads; a later write must be visible immediately.\n\n### Part 4: validated lazy formulas\n\nImplement `ValidatedSpreadsheet`:\n\n```python\nclass ValidatedSpreadsheet:\n    def set_cell(self, cell: str, value) -> bool: ...\n    def get_cell(self, cell: str) -> int: ...\n```\n\n`set_cell` returns `True` only when the label and content are valid and the proposed write does not create a direct or indirect dependency cycle. It returns `False` for rejection. Rejected writes are transactional: they leave the previous definition and dependency state unchanged. `get_cell` should raise `ValueError` for an invalid label.\n\nDo not add multiplication, ranges, whitespace-tolerant parsing, persistent computed-value caches, or cycle recovery behavior.",
+  "prompt": "Build four spreadsheet engines with `set_cell(cell, value)` and `get_cell(cell)`. Labels are uppercase letters followed by a positive row number, such as `C3` or `ZZ1000000`; unset valid cells read as `0`.\n\nFormulas begin with `=` and add cell references or integer literals separated by `+`. Repeated references contribute repeatedly. Numeric strings such as `\"12\"` are literals; other unprefixed strings are invalid. Multiplication, ranges, and whitespace-tolerant parsing are outside scope.\n\n1. `Spreadsheet`: store integer literals in a sparse sheet. Later writes replace earlier ones.\n2. `EagerSpreadsheet`: also accept numeric strings and formulas. A write updates all dependent values before returning; reads take O(1). Replacing a formula removes its old dependencies.\n3. `LazySpreadsheet`: accept the same values, evaluating formulas on reads. Evaluate a shared dependency once per read; do not retain computed values across separate reads.\n4. `ValidatedSpreadsheet`: use lazy evaluation and make `set_cell` return `True` for a valid write, or `False` for an invalid label/content or a dependency cycle. Rejection leaves all prior definitions and dependencies unchanged. `get_cell` rejects an invalid label.\n\nInvalid inputs may be rejected with `assert`, except the explicit boolean rejection API in Part 4.",
   "starter_code": "class Spreadsheet:\n    def __init__(self):\n        pass\n\n    def set_cell(self, cell, value):\n        pass\n\n    def get_cell(self, cell):\n        pass\n\n\nclass EagerSpreadsheet:\n    def __init__(self):\n        pass\n\n    def set_cell(self, cell, value):\n        pass\n\n    def get_cell(self, cell):\n        pass\n\n\nclass LazySpreadsheet:\n    def __init__(self):\n        pass\n\n    def set_cell(self, cell, value):\n        pass\n\n    def get_cell(self, cell):\n        pass\n\n\nclass ValidatedSpreadsheet:\n    def __init__(self):\n        pass\n\n    def set_cell(self, cell, value):\n        pass\n\n    def get_cell(self, cell):\n        pass\n",
   "example": {
     "input": "sheet = EagerSpreadsheet(); sheet.set_cell('B2', '12'); sheet.set_cell('B3', '=B2+18'); sheet.set_cell('B4', '=B2+B3+7'); sheet.get_cell('B4')",
@@ -31,5 +31,19 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "references": [
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1178950",
+      "url": "https://www.1point3acres.com/bbs/thread-1178950-1-1.html"
+    },
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1178687",
+      "url": "https://www.1point3acres.com/bbs/thread-1178687-1-1.html"
+    },
+    {
+      "label": "Notion interview record (practice variant)",
+      "url": "https://app.notion.com/p/37c6ce51456d8165967be27c212c5c68"
+    }
+  ]
 }

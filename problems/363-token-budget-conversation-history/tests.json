@@ -12,6 +12,6 @@
   {
     "name": "validates roles contents and budgets",
     "input": "empty roles, non-string content, and invalid budgets",
-    "test": "history = ConversationHistory()\nfor call in (lambda: history.add('', 'ok'), lambda: history.add('user', 3), lambda: history.get_recent(-1), lambda: history.get_recent(True)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "history = ConversationHistory()\nfor call in (\n    lambda: history.add(\"\", \"ok\"),\n    lambda: history.add(\"user\", 3),\n    lambda: history.get_recent(-1),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

@@ -86,7 +86,7 @@ Recommended fields:
 - `evaluation.type`: Evaluator backend. Omit it or use `ml_coding` for current problems.
 - `environment.timeout_seconds`: Per-test timeout. Keep ML coding tasks short.
 - `environment.comparator`: `exact` or `numeric`.
-- `references`: Optional background links shown on the problem page. Use a list of `{ "label": "...", "url": "https://..." }` objects. URLs must be `http` or `https`.
+- `references`: Background links shown on every problem page. For interview-derived questions, include the original report URLs recorded on the corresponding Notion question, with descriptive labels such as `Original interview report — <topic>`. An internal Notion record or general documentation is not a substitute for an original report. Preserve exact URLs, verify the question's contract before linking, and never invent a source. General practice exercises or unresolved sources may leave this list empty; Background then explicitly states that an original interview source has not been linked. Use `{ "label": "...", "url": "https://..." }` objects with `http` or `https` URLs.
 - `created_at`: ISO date for review history.
 
 The browser-facing `#` is generated as `display_id` after the catalog loads, so
@@ -435,9 +435,9 @@ For example, `[2.3333, 2.3333]` can match `[2.3333333333, 2.3333333333]`, but a 
 ## Authoring Checklist
 
 1. Choose a stable id for ordering and a stable slug.
-2. Write a prompt that states the function name, arguments, return value, and edge cases.
+2. Write a short interview-style prompt: a relevant scenario, the task, and clear inputs and outputs. Keep only constraints needed to solve and evaluate it; omit solution recipes, implementation walkthroughs, provenance bookkeeping, and test-harness commentary. A plausible business scenario must not be presented as a verified company fact. For design questions, state the user need and expected design discussion rather than prescribing the architecture.
 3. Keep starter code minimal and easy to rewrite by hand.
-4. Add visible tests for the main behavior and edge cases.
+4. Add visible tests for the main behavior and a few meaningful boundaries. Avoid exhaustive malformed-input permutations and obscure edge cases that are unrelated to the interview objective. When input validation is necessary, allow `assert` / `AssertionError`; require a particular exception type only when exception semantics are the point of the exercise. Put the failure assertion in a `try`/`except`/`else` block's `else` clause, so the test cannot catch its own failure and falsely pass.
 5. Prefer deterministic, small examples that finish within the timeout.
 6. Run the test suite:
 

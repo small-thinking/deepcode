@@ -13,7 +13,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Explain how maximum tree depth changes an XGBoost model's capacity, bias and variance, overfitting risk, and training and inference cost. Then describe how you would choose it in practice. State which other controls you would tune with depth and why. This is a writing exercise.",
+  "prompt": "How does maximum tree depth affect an XGBoost model's capacity, generalization, and training and inference cost?\n\nExplain how you would choose depth for a new dataset and which other hyperparameters you would consider alongside it.",
   "evaluation": {
     "type": "system_design"
   },

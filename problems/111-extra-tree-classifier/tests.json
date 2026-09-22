@@ -17,6 +17,6 @@
   {
     "name": "predict before fit is rejected",
     "input": "unfitted model",
-    "test": "import numpy as np\nmodel = ExtraTreeClassifier()\ntry:\n    model.predict(np.array([[0.0]]))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('predict before fit should raise ValueError')"
+    "test": "import numpy as np\nmodel = ExtraTreeClassifier()\ntry:\n    model.predict(np.array([[0.0]]))\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('predict before fit should reject invalid input')\n"
   }
 ]

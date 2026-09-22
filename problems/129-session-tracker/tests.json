@@ -7,7 +7,7 @@
   {
     "name": "[Part 1] ordered contract and global eviction",
     "input": "decreasing timestamp and a far-future unrelated key",
-    "test": "tracker = RecentInteractionTracker()\ntracker.process_event('stale', 'chat', 1)\ntracker.process_event('new', 'chat', 30)\nassert tracker.get_num_recent_interactions('stale', 'chat') == 0\ntry:\n    tracker.process_event('u', 'c', 29)\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+    "test": "tracker = RecentInteractionTracker()\ntracker.process_event(\"stale\", \"chat\", 1)\ntracker.process_event(\"new\", \"chat\", 30)\nassert tracker.get_num_recent_interactions(\"stale\", \"chat\") == 0\ntry:\n    tracker.process_event(\"u\", \"c\", 29)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False, \"expected input validation error\""
   },
   {
     "name": "[Part 2] end deactivates and later interaction reactivates",

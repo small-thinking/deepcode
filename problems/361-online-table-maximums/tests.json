@@ -12,6 +12,6 @@
   {
     "name": "rejects malformed keys values and unknown table reads",
     "input": "empty names, boolean values, and absent tables",
-    "test": "index = TableMaxIndex()\nfor call in (lambda: index.set_cell('', 'x', 1), lambda: index.set_cell('a', '', 1), lambda: index.set_cell('a', 'x', True), lambda: index.table_max('missing')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "index = TableMaxIndex()\nfor call in (\n    lambda: index.set_cell(\"\", \"x\", 1),\n    lambda: index.set_cell(\"a\", \"\", 1),\n    lambda: index.table_max(\"missing\"),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

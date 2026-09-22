@@ -28,7 +28,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Explain the difference between multiprocessing and multithreading, when each is appropriate, and how you would make the choice for an ML or agent system. Address CPU-bound and I/O-bound work, memory and data transfer, shared state, failure isolation, and observability.\n\nUse a truthful project example or clearly marked hypothetical example; do not invent experience. The reported prompt is an explanation question rather than a request to implement a concurrency library. This is a writing exercise.",
+  "prompt": "Explain the difference between multiprocessing and multithreading, when each is appropriate, and how you would make the choice for an ML or agent system. Address CPU-bound and I/O-bound work, memory and data transfer, shared state, failure isolation, and observability.\n\nUse a real project or a clearly marked hypothetical workload to explain your choice. Return a short written design with its tradeoffs; no concurrency library implementation is required.",
   "references": [
     {
       "label": "1Point3Acres: xAI 15-minute machine learning interview overview",

@@ -4,9 +4,16 @@
   "title": "Add Decimal Integers as Strings",
   "category": "General Coding",
   "difficulty": "easy",
-  "tags": ["strings", "arithmetic", "simulation", "carry"],
-  "companies": ["Mistral AI"],
-  "prompt": "Implement `add_decimal_strings(a, b) -> str`. The source reports only that two integer strings are given and their sum should be returned as a string.\n\nFor this practice version, assume `a` and `b` are nonempty strings of decimal digits representing nonnegative integers. Leading zeros are allowed in the inputs, but the output must be canonical: no leading zeros unless the result is exactly `\"0\"`. Do not convert an entire operand to an integer; add the values digit by digit and propagate carries.",
+  "tags": [
+    "strings",
+    "arithmetic",
+    "simulation",
+    "carry"
+  ],
+  "companies": [
+    "Mistral AI"
+  ],
+  "prompt": "Implement `add_decimal_strings(a, b) -> str`.\n\nAssume `a` and `b` are nonempty strings of decimal digits representing nonnegative integers. Leading zeros are allowed in the inputs, but the output must be canonical: no leading zeros unless the result is exactly `\"0\"`. Do not convert an entire operand to an integer.",
   "starter_code": "def add_decimal_strings(a, b):\n    # Add from right to left without converting a whole operand to int.\n    pass\n",
   "example": {
     "input": "add_decimal_strings('999', '1')",
@@ -19,7 +26,9 @@
     "packages": [],
     "comparator": "assertions"
   },
-  "evaluation": {"type": "ml_modeling"},
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "references": [
     {
       "label": "Notion: Mistral AI string integer addition",
@@ -33,10 +42,15 @@
   "created_at": "2026-09-15",
   "interview_frequency": {
     "Mistral AI": {
-      "source_record_ids": ["35c6ce51456d81d1bca2e9d40a40d46e"],
+      "source_record_ids": [
+        "35c6ce51456d81d1bca2e9d40a40d46e"
+      ],
       "stars": 1,
       "synced_at": "2026-09-15"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-09-15"}
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-15"
+  }
 }

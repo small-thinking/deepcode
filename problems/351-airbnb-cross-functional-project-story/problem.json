@@ -26,7 +26,7 @@
     "stars": 2,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Prepare a project deep dive about a high-impact project with cross-functional or cross-organizational collaboration. Cover the challenge, your role, success metrics, execution plan, outcome, and why you are proud of it.\n\nUse only your own truthful project facts. The reports do not specify a required role, project, metric, or storytelling rubric, so mark any general preparation guidance as an assumption. This is a writing exercise.",
+  "prompt": "Tell me about a high-impact project that required collaboration across teams or organizations.\n\nExplain the challenge, your role, how you worked with others, and the outcome. What made the project successful, and why are you proud of it?",
   "references": [
     {
       "label": "1Point3Acres: Airbnb senior SWE report",

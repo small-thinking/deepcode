@@ -27,7 +27,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `label_one_blocks(bits)`.\n\nGiven a sequence of binary values, return a list of integers with the same length. Each `0` becomes `-1`. Each contiguous block of `1` values receives a block id, starting from `0` and increasing from left to right. All ones in the same contiguous block share the same id.\n\nAccept either a string of `'0'` and `'1'` characters or an iterable containing integer `0` and `1` values. Raise `ValueError` for any other value.",
+  "prompt": "Implement `label_one_blocks(bits)`.\n\nGiven a sequence of binary values, return a list of integers with the same length. Each `0` becomes `-1`. Each contiguous block of `1` values receives a block id, starting from `0` and increasing from left to right. All ones in the same contiguous block share the same id.\n\nAccept either a string of `'0'` and `'1'` characters or an iterable containing integer `0` and `1` values. Raise an error for any other value.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def label_one_blocks(bits):\n    # Convert each 0 to -1 and each contiguous block of 1s to its block id.\n    pass\n",
   "example": {
     "input": "bits = '0010110111'",
@@ -47,6 +47,14 @@
     {
       "label": "Run-length encoding",
       "url": "https://en.wikipedia.org/wiki/Run-length_encoding"
+    },
+    {
+      "label": "Original interview report: 1Point3Acres 1169606",
+      "url": "https://www.1point3acres.com/bbs/thread-1169606-1-1.html"
+    },
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/35e6ce51456d81839efeef7faaa223ef"
     }
   ],
   "created_at": "2026-06-15"

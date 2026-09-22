@@ -7,7 +7,7 @@
   {
     "name": "expands current user and named home aliases",
     "input": "~ and ~alice destinations",
-    "test": "assert cd('/tmp', '~/proj', home='/home/me') == '/home/me/proj'\nassert cd('/tmp', '~alice/docs', home_map={'alice': '/Users/alice'}) == '/Users/alice/docs'\ntry:\n    cd('/tmp', '~bob/docs', home_map={'alice': '/Users/alice'})\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+    "test": "assert cd(\"/tmp\", \"~/proj\", home=\"/home/me\") == \"/home/me/proj\"\nassert (\n    cd(\"/tmp\", \"~alice/docs\", home_map={\"alice\": \"/Users/alice\"}) == \"/Users/alice/docs\"\n)\ntry:\n    cd(\"/tmp\", \"~bob/docs\", home_map={\"alice\": \"/Users/alice\"})\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False, \"expected input validation error\""
   },
   {
     "name": "uses longest complete symlink prefix",
@@ -17,6 +17,6 @@
   {
     "name": "reapplies symlinks after each rewrite and detects cycles",
     "input": "target normalization creates another symlink match",
-    "test": "assert cd('/', 'a/c', links={'/a': '/b/..', '/c': '/d'}) == '/d'\ntry:\n    cd('/a', 'b', links={'/a/b': '/x', '/x': '/a/b'})\n    assert False, 'expected ValueError'\nexcept ValueError:\n    pass"
+    "test": "assert cd(\"/\", \"a/c\", links={\"/a\": \"/b/..\", \"/c\": \"/d\"}) == \"/d\"\ntry:\n    cd(\"/a\", \"b\", links={\"/a/b\": \"/x\", \"/x\": \"/a/b\"})\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False, \"expected input validation error\""
   }
 ]

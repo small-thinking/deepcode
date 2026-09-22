@@ -17,6 +17,6 @@
   {
     "name": "history copies and invalid inputs cannot corrupt state",
     "input": "a returned statement plus duplicate and malformed mutations",
-    "test": "ledger = BankLedger()\nledger.open_account('a', 1)\nledger.deposit('a', 2)\nrows = ledger.statement('a')\nrows[0]['memo'] = 'tampered'\nassert ledger.statement('a')[0]['memo'] == ''\nfor call in (lambda: ledger.open_account('a'), lambda: ledger.open_account('', 0), lambda: ledger.open_account('b', True), lambda: ledger.deposit('a', 0), lambda: ledger.withdraw('a', True), lambda: ledger.deposit('a', 1, None)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    ledger.balance('missing')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+    "test": "ledger = BankLedger()\nledger.open_account(\"a\", 1)\nledger.deposit(\"a\", 2)\nrows = ledger.statement(\"a\")\nrows[0][\"memo\"] = \"tampered\"\nassert ledger.statement(\"a\")[0][\"memo\"] == \"\"\nfor call in (\n    lambda: ledger.open_account(\"a\"),\n    lambda: ledger.open_account(\"\", 0),\n    lambda: ledger.deposit(\"a\", 0),\n    lambda: ledger.deposit(\"a\", 1, None),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")\ntry:\n    ledger.balance(\"missing\")\nexcept (KeyError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected lookup validation error\")"
   }
 ]

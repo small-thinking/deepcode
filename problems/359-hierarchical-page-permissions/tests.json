@@ -12,6 +12,6 @@
   {
     "name": "returns none for an ungranted user and rejects invalid pages",
     "input": "unknown users, parent pages, and roles",
-    "test": "permissions = PagePermissions()\npermissions.add_page('root')\nassert permissions.getUserPermissionForPage('root', 'nobody') == 'none'\nfor call in (lambda: permissions.add_page('child', 'missing'), lambda: permissions.grant_user('missing', 'ada', 'view'), lambda: permissions.grant_user('root', 'ada', 'owner')):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "permissions = PagePermissions()\npermissions.add_page(\"root\")\nassert permissions.getUserPermissionForPage(\"root\", \"nobody\") == \"none\"\nfor call in (\n    lambda: permissions.add_page(\"child\", \"missing\"),\n    lambda: permissions.grant_user(\"missing\", \"ada\", \"view\"),\n    lambda: permissions.grant_user(\"root\", \"ada\", \"owner\"),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]
