@@ -13,12 +13,12 @@
   "companies": [
     "Anthropic"
   ],
-  "prompt": "Build an in-memory `TransferLedger` for accounts with transfers that settle only after acceptance.\n\n- `open(account_id, initial_balance=0)` creates an account; `balance(account_id)` returns its balance.\n- `create_transfer(source, destination, amount)` records a pending transfer without moving funds. Return IDs `transfer-1`, `transfer-2`, ... in creation order.\n- `accept(transfer_id) -> bool` settles a pending transfer using the source's current balance. Sufficient funds debit the source, credit the destination, mark it `accepted`, and return `True`. Otherwise mark it `rejected`, return `False`, and leave balances unchanged. A terminal transfer cannot be accepted again.\n- `cancel(transfer_id)` marks a pending transfer `cancelled`; reject cancellation of terminal transfers.\n- `merge_accounts(keep, absorb)` combines balances and removes `absorb`. Rewrite its endpoints in pending transfers to `keep`, cancelling any resulting self-transfer. Leave terminal records unchanged.\n- `transfer(transfer_id)` returns a copy with `id`, `source`, `destination`, `amount`, and `status`.\n\nAccount IDs are nonempty strings, opening balances are nonnegative integers, and transfer amounts are positive integers. Transfers require distinct existing accounts. Reject malformed inputs, unknown IDs, and invalid merges. This API is single-threaded. Invalid inputs may be rejected with `assert`.",
+  "prompt": "Build an in-memory `TransferLedger`. A transfer reserves money when it is requested and credits the destination only after acceptance.\n\n- `open(account_id, initial_balance=0)` creates an account; `balance(account_id)` returns its available balance.\n- `create_transfer(source, destination, amount)` reserves the amount from the source's available balance and records a pending transfer. If funds are insufficient, raise an error without changing state or consuming an ID. Successful requests return `transfer-1`, `transfer-2`, ... in creation order.\n- `accept(transfer_id) -> bool` credits the reserved amount to the destination, marks the transfer `accepted`, and returns `True`. Do not debit the source a second time.\n- `cancel(transfer_id)` releases the reservation back to the source and marks the transfer `cancelled`. Accepted or cancelled transfers are terminal; reject further acceptance or cancellation.\n- `merge_accounts(keep, absorb)` combines available balances and removes `absorb`. Rewrite its endpoints in pending transfers to `keep`. Cancel any transfer that becomes a self-transfer and release its reserved funds into `keep`. Other reservations remain pending. Leave terminal records unchanged.\n- `transfer(transfer_id)` returns a copy with `id`, `source`, `destination`, `amount`, and `status`.\n\nAccount IDs are nonempty strings, opening balances are nonnegative integers, and transfer amounts are positive integers. Transfers require distinct existing accounts. Reject malformed inputs, unknown IDs, and invalid merges. This single-threaded version uses explicit cancellation; automatic expiry and historical balance queries are follow-up discussion topics. Invalid inputs may be rejected with `assert`.",
   "starter_code": "class TransferLedger:\n    def __init__(self):\n        pass\n\n    def open(self, account_id, initial_balance=0):\n        pass\n\n    def balance(self, account_id):\n        pass\n\n    def create_transfer(self, source, destination, amount):\n        pass\n\n    def accept(self, transfer_id):\n        pass\n\n    def cancel(self, transfer_id):\n        pass\n\n    def merge_accounts(self, keep, absorb):\n        pass\n\n    def transfer(self, transfer_id):\n        pass\n",
   "example": {
     "input": "ledger.open('ana', 9); ledger.open('bo', 2); tx = ledger.create_transfer('ana', 'bo', 5); ledger.accept(tx)",
     "output": "ledger.balance('ana') == 4 and ledger.balance('bo') == 7",
-    "reasoning": "Creating a transfer is only a proposal. Balances change when its pending record is accepted."
+    "reasoning": "Creating the transfer reserves five from ana, leaving four available. Acceptance credits bo without another debit."
   },
   "environment": {
     "language": "python",
@@ -40,8 +40,12 @@
       "url": "https://www.1point3acres.com/interview/thread/1164836"
     },
     {
-      "label": "Notion interview record (practice variant)",
+      "label": "Notion interview record; explicit cancellation and merge redirection are practice conventions",
       "url": "https://app.notion.com/p/35c6ce51456d81efa5ebd29f95c32d4d"
+    },
+    {
+      "label": "Public secondary prompt: pending transfers reserve source funds before acceptance",
+      "url": "https://prachub.com/coding-questions/design-an-in-memory-banking-service"
     }
   ]
 }
