@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Per-label metrics with asymmetric errors",
+    "input": "actuals=[cat,cat,dog,dog,dog], predictions=[cat,dog,cat,dog,bird]",
+    "test": "e = Evaluator()\ne.build_matrix(['cat','cat','dog','dog','dog'], ['cat','dog','cat','dog','bird'])\nr = e.calculate_metrics()\nassert [x.label for x in r] == ['bird','cat','dog']\nassert [x.num_actual_samples for x in r] == [0,2,3]\nassert e.matrix.get('dog','bird') == 1 and e.matrix.get('bird','dog') == 0\nfor got, expected in zip(r, [(0,0,0),(0.5,0.5,0.5),(0.5,1/3,0.4)]):\n    assert abs(got.precision-expected[0]) < 1e-9\n    assert abs(got.recall-expected[1]) < 1e-9\n    assert abs(got.f1-expected[2]) < 1e-9",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Actual-only label and prediction-only label",
+    "input": "actuals=[a,a], predictions=[b,b]",
+    "test": "e=Evaluator()\ne.build_matrix(['a','a'], ['b','b'])\nassert e.calculate_metrics() == [LabelMetrics('a',2,0.0,0.0,0.0), LabelMetrics('b',0,0.0,0.0,0.0)]",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Rebuilding replaces prior counts, including empty inputs",
+    "input": "reuse one Evaluator",
+    "test": "e=Evaluator()\ne.build_matrix(['a','a'], ['a','b'])\ne.build_matrix(['c'], ['c'])\nassert e.calculate_metrics() == [LabelMetrics('c',1,1.0,1.0,1.0)]\ne.build_matrix([], [])\nassert e.calculate_metrics() == []",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Paired label arrays have equal lengths",
+    "input": "different input lengths",
+    "test": "try:\n    Evaluator().build_matrix(['a'], [])\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    raise AssertionError('unequal label lengths must be rejected')",
+    "expected_output": "All assertions pass"
+  }
+]
