@@ -1,0 +1,38 @@
+[
+  {
+    "name": "L2 objective and gradient scaling",
+    "input": "coefficients=[2,-3], lambda=0.25",
+    "test": "import numpy as np\nr=L2Regularizer(0.25)\nw=np.array([2.,-3.])\nassert np.isclose(r.loss_penalty(w),3.25)\nassert np.allclose(r.gradiate_penalty(w),[1.,-1.5])\nassert np.allclose(w,[2.,-3.])",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Injected regularizer affects updates and epoch objective",
+    "input": "custom regularizer, full batch, one epoch",
+    "test": "import numpy as np\nclass Custom(Regularizer):\n    def gradiate_penalty(self,w): return np.array([0.75])\n    def loss_penalty(self,w): return 2.5\nx=np.array([[1.],[2.]])\ny=np.array([0.,1.])\nw,losses=train_logistic(x,y,Custom(),epochs=1,learning_rate=0.2,batch_size=2)\nassert np.allclose(w,[-0.1])\nz=x@w\nexpected=np.mean(np.logaddexp(0.,z)-y*z)+2.5\nassert np.allclose(losses,[expected])",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Zero regularization preserves baseline and inputs",
+    "input": "two epochs with a final partial batch",
+    "test": "import numpy as np\nx=np.array([[1.,2.],[-1.,3.],[2.,1.]])\ny=np.array([1.,0.,1.])\nold_x=x.copy();old_y=y.copy()\na=train_logistic(x,y,None,epochs=2,batch_size=2,seed=7)\nb=train_logistic(x,y,L2Regularizer(0),epochs=2,batch_size=2,seed=7)\nassert np.allclose(a[0],b[0]) and np.allclose(a[1],b[1])\nassert len(a[1])==2 and np.isfinite(a[1]).all()\nassert np.array_equal(x,old_x) and np.array_equal(y,old_y)",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Penalty is applied at current weights without batch scaling",
+    "input": "two full-batch steps with known gradient",
+    "test": "import numpy as np\nx=np.array([[1.],[2.],[3.]])\ny=np.array([0.,1.,1.])\nr=L2Regularizer(0.3)\nw,losses=train_logistic(x,y,r,epochs=2,learning_rate=0.1,batch_size=3)\nfirst=np.array([0.2/3])\np=np.exp(-np.logaddexp(0.,-(x@first)))\nexpected=first-0.1*(x.T@(p-y)/3+0.6*first)\nassert np.allclose(w,expected)\nassert len(losses)==2",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Stable large logits and strict prediction threshold",
+    "input": "large positive/negative logits, threshold tie",
+    "test": "import numpy as np\nx=np.array([[1000.],[-1000.],[0.]])\nassert np.array_equal(predict_logistic(x,np.array([1.])),[1,0,0])\nw,losses=train_logistic(x,np.array([1.,0.,0.]),L2Regularizer(0.01),epochs=3,learning_rate=0.01,batch_size=3)\nassert np.isfinite(w).all() and np.isfinite(losses).all()",
+    "expected_output": "All assertions pass"
+  },
+  {
+    "name": "Final partial minibatch contributes an update",
+    "input": "three identical samples, batch size two",
+    "test": "import numpy as np\nx=np.ones((3,1)); y=np.ones(3)\nw,_=train_logistic(x,y,None,epochs=1,learning_rate=0.2,batch_size=2)\nfirst=0.1\nexpected=first-0.2*(1/(1+np.exp(-first))-1)\nassert np.allclose(w,[expected])",
+    "expected_output": "All assertions pass"
+  }
+]
