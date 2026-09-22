@@ -11,21 +11,20 @@
     "numerical-stability"
   ],
   "companies": [
-    "Datadog",
-    "General"
+    "Datadog"
   ],
   "interview_frequency": {
-    "General": {
+    "Datadog": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81148bedea8884632adc"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement `binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\")` using NumPy.\n\nYou may assume `labels` and `probabilities` are non-empty numeric arrays with the same shape; labels are 0 or 1, probabilities are strictly between 0 and 1, `0 < alpha < 1`, and `gamma > 0`. `reduction` is one of `\"none\"`, `\"sum\"`, or `\"mean\"`. Input validation is not required.\n\nFor each element, let `p_t = p` and `alpha_t = alpha` when the label is 1; otherwise let `p_t = 1-p` and `alpha_t = 1-alpha`. Return the focal loss `-alpha_t * (1-p_t)**gamma * log(p_t)`. With `reduction=\"none\"`, return the same-shape array of per-element losses. With `\"sum\"` or `\"mean\"`, return the corresponding scalar reduction.",
   "starter_code": "import numpy as np\n\n\ndef binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\"):\n    pass\n",

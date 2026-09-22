@@ -12,21 +12,20 @@
     "data-validation"
   ],
   "companies": [
-    "Datadog",
-    "General"
+    "Datadog"
   ],
   "interview_frequency": {
-    "General": {
+    "Datadog": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81f1be32da0aff234ab9"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Train an ordinary least-squares model from a 25GB CSV with over one million rows, roughly 3,000 floating-point features, and one label column. The dataset does not fit in memory.\n\nDescribe a single-machine pipeline and its model output, memory needs, numerical behavior, and validation. Then explain how you would distribute the work and recover from failures. Discuss the trade-offs in solver choice.",
   "response": {

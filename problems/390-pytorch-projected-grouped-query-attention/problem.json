@@ -9,7 +9,9 @@
     "attention",
     "autograd"
   ],
-  "companies": [],
+  "companies": [
+    "Datadog"
+  ],
   "prompt": "Implement a PyTorch grouped-query attention layer that shares key/value heads among query heads.\n\n`GQA(n_heads, dim, n_kv_heads).forward(x, mask=None)` maps a floating `(B, T, dim)` tensor to the same shape. With `head_dim = dim // n_heads` and `kv_dim = n_kv_heads * head_dim`, expose biased linear layers `W_qkv: dim → dim + 2 * kv_dim` (all Q, then K, then V) and `W_o: dim → dim`.\n\nQuery head `h` uses KV head `h // (n_heads // n_kv_heads)`. Use scaled dot-product attention; support one KV head, intermediate counts, and equal query/KV head counts.\n\nThe optional boolean mask broadcasts to `(B, n_heads, T, T)`; True permits attention. Every query has an allowed key, and causality is caller-controlled. Assert positive constructor values, `dim % n_heads == 0`, and `n_heads % n_kv_heads == 0`. Assume other shapes are compatible. Preserve dtype, device, and autograd without mutation. Use CPU PyTorch; no other transformer components are required.",
   "starter_code": "import torch\nfrom torch import nn\n\n\nclass GQA(nn.Module):\n    def __init__(self, n_heads, dim, n_kv_heads):\n        super().__init__()\n        # Define W_qkv and W_o.\n        pass\n\n    def forward(self, x, mask=None):\n        pass\n",
   "example": {
@@ -55,5 +57,18 @@
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3cf6ce51456d81dbb7d2de28cb951c6b"
     }
-  ]
+  ],
+  "interview_frequency": {
+    "Datadog": {
+      "stars": 1,
+      "source_record_ids": [
+        "3cf6ce51456d81dbb7d2de28cb951c6b"
+      ],
+      "synced_at": "2026-09-22"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-22"
+  }
 }

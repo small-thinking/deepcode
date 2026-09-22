@@ -12,21 +12,20 @@
     "streaming"
   ],
   "companies": [
-    "Datadog",
-    "General"
+    "Datadog"
   ],
   "interview_frequency": {
-    "General": {
+    "Datadog": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d8153bb01d662156a9fe4"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement `LogStore`. `add(timestamp, message)` accepts an integer timestamp and a string message; arrivals may be out of timestamp order. `iter_range(start, end)` returns a fresh iterator of `(timestamp, message)` pairs for the closed interval `[start, end]`. Results must be ordered by timestamp, and records with equal timestamps must retain insertion order.\n\nLocate a query range in O(log n) time and yield matching records lazily. `start` and `end` must be integers with `start <= end`; reject invalid arguments with an error. The exercise is single-threaded: concurrent writes during iteration are out of scope.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class LogStore:\n    def __init__(self):\n        pass\n\n    def add(self, timestamp, message):\n        pass\n\n    def iter_range(self, start, end):\n        pass\n",
