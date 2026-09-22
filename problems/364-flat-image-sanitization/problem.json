@@ -27,7 +27,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "A grayscale preprocessing stage receives one flat 8-bit image. Implement `sanitize_image(image) -> np.ndarray`. `image` must be a non-empty, one-dimensional NumPy array with dtype `uint8`, and its length must be a perfect square.\n\nReturn a new square `float32` array. Min-max normalize the pixel values so the smallest value becomes `0.0` and the largest becomes `1.0`, then reshape to `(side, side)`. If every pixel has the same value, return an all-zero image of the required shape instead of dividing by zero. Raise `ValueError` for an empty image, a non-1-D input, a non-`uint8` dtype, or a length that is not a perfect square. Do not mutate `image`.",
+  "prompt": "A grayscale preprocessing stage receives one flat 8-bit image. Implement `sanitize_image(image) -> np.ndarray`. `image` must be a non-empty, one-dimensional NumPy array with dtype `uint8`, and its length must be a perfect square.\n\nReturn a new square `float32` array. Min-max normalize the pixel values so the smallest value becomes `0.0` and the largest becomes `1.0`, then reshape to `(side, side)`. If every pixel has the same value, return an all-zero image of the required shape instead of dividing by zero. Reject an empty image, a non-1-D input, a non-`uint8` dtype, or a length that is not a perfect square. Input validation may use `assert`. Do not mutate `image`.",
   "starter_code": "import numpy as np\n\n\ndef sanitize_image(image):\n    pass\n",
   "example": {
     "input": "sanitize_image(np.array([0, 85, 170, 255], dtype=np.uint8))",

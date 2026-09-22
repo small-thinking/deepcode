@@ -531,9 +531,7 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn('data-direction="t2i"', demo_html)
         self.assertIn('type:\'deepcode:interactive-demo-ready\'', demo_html)
         self.assertIn('type:\'deepcode:interactive-demo-height\'', demo_html)
-        self.assertIn("Source boundary", problem["prompt"])
-        self.assertIn("two cross-entropy terms", problem["prompt"])
-        self.assertIn("does not require a redundant empty-batch check", problem["prompt"])
+        self.assertNotIn("Source boundary", problem["prompt"])
 
     def test_listing_quality_demo_covers_the_full_ml_decision_loop(self):
         problem = json.loads(

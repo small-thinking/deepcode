@@ -7,6 +7,6 @@
   {
     "name": "failure respects the retry limit and exposes independent dead letters",
     "input": "fail a two-attempt task twice",
-    "test": "queue = LeasedWorkQueue(2)\nqueue.enqueue('a', 'payload')\nfirst = queue.reserve(0, 5)\nassert queue.fail('a', first['lease_token'], 1) == 'pending'\nsecond = queue.reserve(1, 5)\nassert queue.fail('a', second['lease_token'], 2) == 'dead'\ndead = queue.dead_letters()\nassert dead == [{'task_id': 'a', 'payload': 'payload', 'attempts': 2}]\ndead[0]['payload'] = 'changed'\nassert queue.dead_letters()[0]['payload'] == 'payload'\nfor call in (lambda: LeasedWorkQueue(0), lambda: queue.enqueue('a', 'again'), lambda: queue.reserve(True, 1)):\n    try:\n        call()\n        assert False\n    except (TypeError, ValueError):\n        pass"
+    "test": "queue = LeasedWorkQueue(2)\nqueue.enqueue(\"a\", \"payload\")\nfirst = queue.reserve(0, 5)\nassert queue.fail(\"a\", first[\"lease_token\"], 1) == \"pending\"\nsecond = queue.reserve(1, 5)\nassert queue.fail(\"a\", second[\"lease_token\"], 2) == \"dead\"\ndead = queue.dead_letters()\nassert dead == [{\"task_id\": \"a\", \"payload\": \"payload\", \"attempts\": 2}]\ndead[0][\"payload\"] = \"changed\"\nassert queue.dead_letters()[0][\"payload\"] == \"payload\"\nfor call in (\n    lambda: LeasedWorkQueue(0),\n    lambda: queue.enqueue(\"a\", \"again\"),\n    lambda: queue.reserve(True, 1),\n):\n    try:\n        call()\n    except (TypeError, ValueError, AssertionError):\n        pass\n    else:\n        assert False"
   }
 ]

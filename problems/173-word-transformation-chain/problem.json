@@ -4,9 +4,16 @@
   "title": "Dictionary Word Transformation Path",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["breadth-first-search", "graph", "strings", "shortest-path"],
-  "companies": ["Reddit"],
-  "prompt": "You receive a start word, a target word, and a collection of permitted dictionary words. Decide whether a legal sequence of word changes links start to target.\n\nEvery eligible word has the same length. Start and target contain lowercase letters. Repeated dictionary entries have no additional effect. Start need not be in the dictionary, target is an allowed final destination even when it is absent from the dictionary, and a word must not be explored again after it is visited.\n\nPart 1: implement solve(start: str, target: str, words: list[str], part: int) -> bool. A transition changes exactly one character. All words between the endpoints must be in the dictionary.\n\nExample: solve(\"cold\", \"warm\", [\"cord\", \"card\", \"ward\"], 1) returns True through cold -> cord -> card -> ward -> warm.\n\nPart 2: one move may change exactly one or exactly two characters. Example: solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 2) returns True through bake -> bore -> tone -> torn.\n\nPart 3: return one shortest legal chain, including start and target, or [] when none exists. For solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 3), one valid result is [\"bake\", \"bore\", \"torn\"].",
+  "tags": [
+    "breadth-first-search",
+    "graph",
+    "strings",
+    "shortest-path"
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "prompt": "You receive a start word, a target word, and a collection of permitted dictionary words. Decide whether a legal sequence of word changes links start to target.\n\nEvery eligible word has the same length. Start and target contain lowercase letters. Repeated dictionary entries have no additional effect. Start need not be in the dictionary, target is an allowed final destination even when it is absent from the dictionary.\n\nPart 1: implement solve(start: str, target: str, words: list[str], part: int) -> bool. A transition changes exactly one character. All words between the endpoints must be in the dictionary.\n\nExample: solve(\"cold\", \"warm\", [\"cord\", \"card\", \"ward\"], 1) returns True through cold -> cord -> card -> ward -> warm.\n\nPart 2: one move may change exactly one or exactly two characters. Example: solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 2) returns True through bake -> bore -> tone -> torn.\n\nPart 3: return one shortest legal chain, including start and target, or [] when none exists. For solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 3), one valid result is [\"bake\", \"bore\", \"torn\"].",
   "starter_code": "def solve(start: str, target: str, words: list[str], part: int):\n    # TODO: implement the requested part\n    pass\n",
   "example": {
     "input": "solve('cold', 'warm', ['cord', 'card', 'ward'], 1)",

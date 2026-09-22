@@ -3714,9 +3714,7 @@ function renderDataLinkSetup(problem) {
 }
 
 function renderReferences(references) {
-  if (!Array.isArray(references) || references.length === 0) return "";
-
-  const links = references
+  const links = (Array.isArray(references) ? references : [])
     .filter((reference) => reference && reference.label && reference.url)
     .map(
       (reference) => `
@@ -3727,11 +3725,12 @@ function renderReferences(references) {
     )
     .join("");
 
-  if (!links) return "";
   return renderProblemBlock(
     PROBLEM_SECTION_CLASSES.references,
     "Background",
-    `<div class="reference-list" aria-label="Background references">${links}</div>`
+    links
+      ? `<div class="reference-list" aria-label="Background references">${links}</div>`
+      : `<p class="muted">An original interview source has not been linked for this exercise.</p>`
   );
 }
 

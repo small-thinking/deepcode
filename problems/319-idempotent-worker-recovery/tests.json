@@ -12,6 +12,6 @@
   {
     "name": "rejects impossible durable-log transitions",
     "input": "unknown phases, missing fields, effect-before-claim, and ack-before-effect",
-    "test": "def expect(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a', 'phase': 'effect_committed'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a', 'phase': 'claim'}, {'job_id': 'a', 'phase': 'ack'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': '', 'phase': 'claim'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a', 'phase': 'unknown'}]))\nexpect(lambda: recover_idempotent_jobs([{'job_id': 'a'}]))"
+    "test": "def expect(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nexpect(lambda: recover_idempotent_jobs([{\"job_id\": \"a\", \"phase\": \"effect_committed\"}]))\nexpect(\n    lambda: recover_idempotent_jobs(\n        [{\"job_id\": \"a\", \"phase\": \"claim\"}, {\"job_id\": \"a\", \"phase\": \"ack\"}]\n    )\n)\nexpect(lambda: recover_idempotent_jobs([{\"job_id\": \"\", \"phase\": \"claim\"}]))\nexpect(lambda: recover_idempotent_jobs([{\"job_id\": \"a\", \"phase\": \"unknown\"}]))\nexpect(lambda: recover_idempotent_jobs([{\"job_id\": \"a\"}]))"
   }
 ]

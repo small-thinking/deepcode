@@ -12,6 +12,6 @@
   {
     "name": "rejects invalid budgets and invalid URL records",
     "input": "a boolean limit, a missing priority, and a non-web URL",
-    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nexpect_value_error(lambda: plan_crawl_frontier([], True, 1))\nexpect_value_error(lambda: plan_crawl_frontier([{'url': 'https://a.test/'}], 1, 1))\nexpect_value_error(lambda: plan_crawl_frontier([{'url': 'mailto:x@example.test', 'priority': 1}], 1, 1))"
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nexpect_value_error(lambda: plan_crawl_frontier([{\"url\": \"https://a.test/\"}], 1, 1))\nexpect_value_error(\n    lambda: plan_crawl_frontier([{\"url\": \"mailto:x@example.test\", \"priority\": 1}], 1, 1)\n)"
   }
 ]

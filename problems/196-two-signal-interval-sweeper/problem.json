@@ -14,7 +14,7 @@
   "companies": [
     "Waymo"
   ],
-  "prompt": "Implement `active_overlap_intervals(left_events, right_events, horizon) -> list[tuple[int, int]]`. Each event stream contains strictly time-increasing `(timestamp, active)` updates for one signal. Both signals start inactive. An update at time `t` takes effect for the half-open interval beginning at `t`; `horizon` is an integer end time, and every event timestamp must satisfy `0 <= timestamp < horizon`.\n\nReturn the maximal half-open intervals `[start, end)` within `[0, horizon)` during which both signals are active. At a timestamp that appears in both streams, apply the entire timestamp batch before deciding the state of the following interval. Therefore simultaneous changes never create a zero-length transient interval.\n\nTimestamps must be integers but not booleans, and `active` must be a boolean. Reject malformed, out-of-order, duplicate-timestamp, or out-of-horizon events with `ValueError`. Do not mutate either input stream. Use only the Python standard library.",
+  "prompt": "Implement `active_overlap_intervals(left_events, right_events, horizon) -> list[tuple[int, int]]`. Each event stream contains strictly time-increasing `(timestamp, active)` updates for one signal. Both signals start inactive. An update at time `t` takes effect for the half-open interval beginning at `t`; `horizon` is an integer end time, and every event timestamp must satisfy `0 <= timestamp < horizon`.\n\nReturn the maximal half-open intervals `[start, end)` within `[0, horizon)` during which both signals are active. At a timestamp that appears in both streams, apply the entire timestamp batch before deciding the state of the following interval. Therefore simultaneous changes never create a zero-length transient interval.\n\nTimestamps are integers and `active` is a boolean. Reject malformed, out-of-order, duplicate-timestamp, or out-of-horizon events with an error. Do not mutate either input stream. Use only the Python standard library.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def active_overlap_intervals(left_events, right_events, horizon):\n    pass\n",
   "example": {
     "input": "left = [(1, True), (4, False)]; right = [(2, True), (5, False)]; active_overlap_intervals(left, right, 6)",
@@ -43,5 +43,11 @@
   "interview_frequency_total": {
     "stars": 1,
     "synced_at": "2026-09-21"
-  }
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d814aa163f0df2606e441"
+    }
+  ]
 }

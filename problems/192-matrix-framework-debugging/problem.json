@@ -4,9 +4,17 @@
   "title": "Matrix Framework Debugging",
   "category": "ML Coding",
   "difficulty": "medium",
-  "tags": ["numpy", "matrices", "debugging", "shapes", "aliasing"],
-  "companies": ["Waymo"],
-  "prompt": "Implement the public methods of a small `Matrix` helper backed by NumPy. The goal is to make shape behavior, copying, and reduction semantics explicit rather than relying on square integer smoke tests.\n\nRequired methods:\n\n- `Matrix.zeros(rows, columns)` returns a `(rows, columns)` zero matrix. Mutating one element must not alter another row.\n- `Matrix.from_ndarray(values)` accepts a two-dimensional numeric NumPy array and copies its values without truncating decimals.\n- `to_ndarray()` returns an independent two-dimensional NumPy array; mutating it must not mutate the `Matrix`.\n- `set(row, column, value)` changes one element of this `Matrix`.\n- `transpose()` returns a new matrix whose shape is `(columns, rows)`, including for rectangular inputs.\n- `sum(axis=None)` returns the full scalar sum for `None`, a NumPy array of column sums for `axis=0`, and a NumPy array of row sums for `axis=1`. Raise `ValueError` for another axis.\n- `copy()` returns an independent `Matrix`.\n\nDo not mutate caller-owned arrays. It is fine for this compact helper to store numeric values as `float64`; preserve their numeric values exactly enough for ordinary NumPy comparisons.",
+  "tags": [
+    "numpy",
+    "matrices",
+    "debugging",
+    "shapes",
+    "aliasing"
+  ],
+  "companies": [
+    "Waymo"
+  ],
+  "prompt": "Repair a small NumPy-backed `Matrix` helper so rectangular arrays, decimal values, and independent copies behave correctly.\n\nImplement:\n\n- `zeros(rows, columns)` and `from_ndarray(values)` to construct a matrix; the latter copies a numeric 2D array.\n- `set(row, column, value)` to change one element.\n- `to_ndarray()` and `copy()` to return independent copies.\n- `transpose()` to return a new matrix with swapped axes.\n- `sum(axis=None)` to return a scalar total, column sums for `axis=0`, or row sums for `axis=1`.\n\nPreserve numeric values and never mutate caller-owned arrays. Reject unsupported reduction axes; `assert` is sufficient. Storing values as float64 is acceptable.",
   "starter_code": "import numpy as np\n\n\nclass Matrix:\n    def __init__(self, values):\n        pass\n\n    @classmethod\n    def zeros(cls, rows, columns):\n        pass\n\n    @classmethod\n    def from_ndarray(cls, values):\n        pass\n\n    def to_ndarray(self):\n        pass\n\n    def set(self, row, column, value):\n        pass\n\n    def transpose(self):\n        pass\n\n    def sum(self, axis=None):\n        pass\n\n    def copy(self):\n        pass\n",
   "example": {
     "input": "matrix = Matrix.from_ndarray(np.array([[1.5, 2.0, 3.5], [4.0, 5.0, 6.0]])); matrix.sum(axis=1)",
@@ -16,7 +24,9 @@
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
-    "packages": ["numpy"],
+    "packages": [
+      "numpy"
+    ],
     "comparator": "assertions"
   },
   "evaluation": {
@@ -35,5 +45,11 @@
   "interview_frequency_total": {
     "stars": 1,
     "synced_at": "2026-09-21"
-  }
+  },
+  "references": [
+    {
+      "label": "Notion interview record (original source not recorded)",
+      "url": "https://app.notion.com/p/3df6ce51456d814f89e9c66f2b6f9799"
+    }
+  ]
 }

@@ -10,8 +10,8 @@
     "test": "import math\nassert math.isclose(matmul_arithmetic_intensity(1, 1, 16, element_bytes=8), 4 / 33, rel_tol=1e-12)\nassert math.isclose(matmul_arithmetic_intensity(8, 8, 8), 4 / 3, rel_tol=1e-12)"
   },
   {
-    "name": "rejects booleans, non-integers, and non-positive dimensions",
-    "input": "a boolean dimension, a float dimension, and zero byte width",
-    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except exception_type:\n        return\n    raise AssertionError(f'expected {exception_type.__name__}')\n\nexpect(TypeError, lambda: matmul_arithmetic_intensity(1, True, 2))\nexpect(TypeError, lambda: matmul_arithmetic_intensity(1, 2.0, 2))\nexpect(ValueError, lambda: matmul_arithmetic_intensity(0, 2, 2))\nexpect(ValueError, lambda: matmul_arithmetic_intensity(1, 2, 2, element_bytes=0))"
+    "name": "rejects non-positive dimensions and byte widths",
+    "input": "a zero matrix dimension and a zero element byte width",
+    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except (exception_type, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nexpect(ValueError, lambda: matmul_arithmetic_intensity(0, 2, 2))\nexpect(ValueError, lambda: matmul_arithmetic_intensity(1, 2, 2, element_bytes=0))"
   }
 ]

@@ -14,7 +14,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Compare training and inference for an ML model. Cover data and labels, forward and backward computation, parameter updates, stochastic or mode-sensitive behavior, and the performance concerns that matter in production. Distinguish offline evaluation from production inference. This is a writing exercise.",
+  "prompt": "What changes when an ML model moves from training to inference?\n\nDiscuss the data, computation, parameter updates, mode-sensitive behavior, and production performance requirements. How does offline evaluation differ from production inference?",
   "evaluation": {
     "type": "system_design"
   },

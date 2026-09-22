@@ -11,7 +11,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None)` using NumPy. Train either linear regression with mean squared error or binary logistic regression with binary cross-entropy using full-batch gradient descent.\n\nInitialize the weights to small random values and the bias to zero. Add optional L2 regularization to the weights (not the bias), and stop early when consecutive losses differ by at most `tol`. Return `(weights, bias, losses)`, where `losses` contains the initial loss and the loss after every update.\n\nDerive the gradients and implement backpropagation yourself—do not use sklearn, autograd, or optimizer helpers. Keep the logistic loss and sigmoid numerically stable.",
+  "prompt": "Implement `train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None)` using NumPy. Train either linear regression with mean squared error or binary logistic regression with binary cross-entropy using full-batch gradient descent.\n\n`X` has shape `(N, D)` and `y` has shape `(N,)`; logistic targets are 0 or 1. Return a `(D,)` weight vector, scalar bias, and loss history. Assume valid inputs.\n\nInitialize the weights to small random values and the bias to zero. Add optional L2 regularization to the weights (not the bias), and stop early when consecutive losses differ by at most `tol`. Return `(weights, bias, losses)`, where `losses` contains the initial loss and the loss after every update.\n\nDerive the gradients and implement backpropagation yourself—do not use sklearn, autograd, or optimizer helpers. Keep the logistic loss and sigmoid numerically stable.",
   "starter_code": "import numpy as np\n\n\ndef train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None):\n    pass\n",
   "example": {
     "input": "w, b, losses = train_regression([[1.]], [2.], epochs=0); (w.shape, b, len(losses))",
@@ -47,10 +47,22 @@
     }
   ],
   "references": [
-    {"label": "Notion: Linear and Logistic Regression From Scratch", "url": "https://app.notion.com/p/3d66ce51456d8192b499fe7f55f6285b"},
-    {"label": "1Point3Acres: Uber MLE full loop, March 2026", "url": "https://www.1point3acres.com/interview/thread/1167901"},
-    {"label": "1Point3Acres: Uber MLE coding from scratch question bank", "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-coding-from-scratch"},
-    {"label": "LinkedIn: Uber MLE-2 regression implementation experience", "url": "https://www.linkedin.com/posts/nitindas230202_interviewexperience-mle-sde-activity-7497360304184418304-lOd0"}
+    {
+      "label": "Notion: Linear and Logistic Regression From Scratch",
+      "url": "https://app.notion.com/p/3d66ce51456d8192b499fe7f55f6285b"
+    },
+    {
+      "label": "1Point3Acres: Uber MLE full loop, March 2026",
+      "url": "https://www.1point3acres.com/interview/thread/1167901"
+    },
+    {
+      "label": "1Point3Acres: Uber MLE coding from scratch question bank",
+      "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-coding-from-scratch"
+    },
+    {
+      "label": "LinkedIn: Uber MLE-2 regression implementation experience",
+      "url": "https://www.linkedin.com/posts/nitindas230202_interviewexperience-mle-sde-activity-7497360304184418304-lOd0"
+    }
   ],
   "created_at": "2026-09-08",
   "interview_frequency": {

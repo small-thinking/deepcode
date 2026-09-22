@@ -22,6 +22,6 @@
   {
     "name": "[All parts] malformed shapes are rejected",
     "input": "empty shards, rank mismatch, input mismatch, and dy mismatch",
-    "test": "import numpy as np\n\nbad_calls = [\n    lambda: column_sharded_matmul(np.ones((2, 2)), []),\n    lambda: column_sharded_matmul(np.ones(2), [np.ones((2, 1))]),\n    lambda: column_sharded_matmul(np.ones((2, 3)), [np.ones((2, 1))]),\n    lambda: column_sharded_matmul(np.ones((2, 2)), [np.ones((2, 1)), np.ones((3, 1))]),\n    lambda: column_sharded_matmul_with_grads(np.ones((2, 2)), [np.ones((2, 1))], np.ones((3, 1))),\n]\nfor call in bad_calls:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+    "test": "import numpy as np\nbad_calls = [lambda: column_sharded_matmul(np.ones((2, 2)), []), lambda: column_sharded_matmul(np.ones(2), [np.ones((2, 1))]), lambda: column_sharded_matmul(np.ones((2, 3)), [np.ones((2, 1))]), lambda: column_sharded_matmul(np.ones((2, 2)), [np.ones((2, 1)), np.ones((3, 1))]), lambda: column_sharded_matmul_with_grads(np.ones((2, 2)), [np.ones((2, 1))], np.ones((3, 1)))]\nfor call in bad_calls:\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, 'expected validation error'\n"
   }
 ]

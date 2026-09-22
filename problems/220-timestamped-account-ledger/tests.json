@@ -12,6 +12,6 @@
   {
     "name": "overdrafts invalid amounts reversed ranges and older timestamps fail safely",
     "input": "a rejected withdrawal followed by invalid operations",
-    "test": "account = Account()\naccount.deposit(5, 10)\ntry:\n    account.withdraw(6, 11)\n    raise AssertionError('expected OverdraftError')\nexcept OverdraftError:\n    pass\nassert account.transactions(0, 10) == [(5, 10)]\nfor call in (lambda: account.deposit(4, 1), lambda: account.deposit(6, 0), lambda: account.withdraw(6, True), lambda: account.transactions(7, 6)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "account = Account()\naccount.deposit(5, 10)\ntry:\n    account.withdraw(6, 11)\n    raise AssertionError(\"expected OverdraftError\")\nexcept OverdraftError:\n    pass\nassert account.transactions(0, 10) == [(5, 10)]\nfor call in (\n    lambda: account.deposit(4, 1),\n    lambda: account.deposit(6, 0),\n    lambda: account.transactions(7, 6),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

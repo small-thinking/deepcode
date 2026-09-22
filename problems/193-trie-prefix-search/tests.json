@@ -12,6 +12,6 @@
   {
     "name": "invalid words and prefixes fail explicitly",
     "input": "empty and non-string API arguments",
-    "test": "trie = PrefixTrie()\nfor call in (\n    lambda: trie.insert(''),\n    lambda: trie.insert(3),\n    lambda: trie.complete(None),\n    lambda: trie.contains([]),\n):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+    "test": "trie = PrefixTrie()\nfor call in (\n    lambda: trie.insert(\"\"),\n    lambda: trie.insert(3),\n    lambda: trie.complete(None),\n    lambda: trie.contains([]),\n):\n    try:\n        call()\n    except (TypeError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

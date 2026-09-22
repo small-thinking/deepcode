@@ -12,11 +12,11 @@
   {
     "name": "direct indirect and rejected replacement cycles leave state unchanged",
     "input": "an existing formula graph followed by invalid cycles",
-    "test": "store = KeyStore()\nfor key, value in (('a', 1), ('b', 2), ('c', 3)):\n    store.set_value(key, value)\nstore.set_sum('a', ['b'])\ntry:\n    store.set_sum('b', ['a'])\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\nassert store.get_value('b') == 2\nstore.set_sum('b', ['c'])\ntry:\n    store.set_sum('c', ['a'])\n    raise AssertionError('expected ValueError')\nexcept ValueError:\n    pass\nstore.set_value('c', 8)\nassert store.get_value('b') == 8\nassert store.get_value('a') == 8\nstore.set_sum('a', ['b'])\nassert store.get_value('a') == 8"
+    "test": "store = KeyStore()\nfor key, value in ((\"a\", 1), (\"b\", 2), (\"c\", 3)):\n    store.set_value(key, value)\nstore.set_sum(\"a\", [\"b\"])\ntry:\n    store.set_sum(\"b\", [\"a\"])\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected input validation error\")\nassert store.get_value(\"b\") == 2\nstore.set_sum(\"b\", [\"c\"])\ntry:\n    store.set_sum(\"c\", [\"a\"])\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected input validation error\")\nstore.set_value(\"c\", 8)\nassert store.get_value(\"b\") == 8\nassert store.get_value(\"a\") == 8\nstore.set_sum(\"a\", [\"b\"])\nassert store.get_value(\"a\") == 8"
   },
   {
     "name": "unknown references and keys fail without creating partial state",
     "input": "missing inputs and a failed formula definition",
-    "test": "store = KeyStore()\nstore.set_value('known', 5)\nfor call in (lambda: store.get_value('missing'), lambda: store.set_sum('new', ['missing'])):\n    try:\n        call()\n        raise AssertionError('expected KeyError')\n    except KeyError:\n        pass\ntry:\n    store.get_value('new')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass"
+    "test": "store = KeyStore()\nstore.set_value(\"known\", 5)\nfor call in (\n    lambda: store.get_value(\"missing\"),\n    lambda: store.set_sum(\"new\", [\"missing\"]),\n):\n    try:\n        call()\n    except (KeyError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected lookup validation error\")\ntry:\n    store.get_value(\"new\")\nexcept (KeyError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected lookup validation error\")"
   }
 ]

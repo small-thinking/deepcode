@@ -26,7 +26,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "A production classifier's headline accuracy improved after a release, but a costly rare failure mode is appearing more often. Design the evaluation and diagnosis loop before deciding whether to tune, roll back, or collect more data.\n\nDiscuss metric selection under class imbalance, offline versus online validation, slice analysis, data and feature checks, experiment design, release gates, and monitoring. Explain how you would tell a model regression from a pipeline, labeling, or serving change. This is a practice reconstruction of a reported MLE technical-screen theme.",
+  "prompt": "A production classifier's overall accuracy improved after a release, but a costly rare failure is occurring more often. How would you decide whether to roll back, tune the model, or collect more data?\n\nDescribe the metrics, data checks, and experiments you would use, including how you distinguish a model regression from a labeling, pipeline, or serving change. Explain your release and monitoring criteria.",
   "evaluation": {
     "type": "system_design"
   },
@@ -34,5 +34,15 @@
     "placeholder": "Start with error cost and the decision threshold; accuracy alone is not the release criterion.",
     "reference_answer": "## Decision and evaluation contract\n\nChoose a cost-sensitive objective such as recall at a precision floor, expected cost, or a calibrated risk threshold. Build a time-aware evaluation set with rare-event slices and record label delay, provenance, feature availability, and the model and threshold version. Accuracy is reported but cannot hide a harmful class-specific regression.\n\n## Diagnosis\n\nCompare the candidate with the prior model on paired examples, then slice by source, geography, device, cohort, label age, and feature completeness. Audit data volume, label joins, schema changes, training/serving skew, feature freshness, threshold configuration, and traffic routing before attributing the issue to model weights. Examine calibration and score distributions as well as thresholded outcomes.\n\n## Validation and rollout\n\nUse a frozen holdout for a release gate and, where safe, shadow or limited traffic to validate production behavior. The owner defines rollback thresholds in advance for rare-event misses, latency, and data-quality alarms. Retraining or reweighting is evaluated against the same cost-based metric; collect labels where uncertainty or coverage is the limiting factor.\n\n## Monitoring\n\nMonitor input and feature drift, prediction and calibration drift, outcome delay, slice coverage, label quality, threshold changes, and realized cost. Every alert links a model version to its data snapshot, feature version, serving configuration, and traffic allocation so the diagnosis is reproducible."
   },
-  "created_at": "2026-08-30"
+  "created_at": "2026-08-30",
+  "references": [
+    {
+      "label": "Original interview report: 1Point3Acres 1184751",
+      "url": "https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=1184751"
+    },
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3bd6ce51456d814d8c2fc46ac304fee6"
+    }
+  ]
 }

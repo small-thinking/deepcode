@@ -13,7 +13,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "After training a model with dropout, explain what should happen during inference and why. Contrast standard inverted dropout with the older test-time scaling convention, and name the related train/evaluation-mode concern that a practitioner should check. This is a writing exercise.",
+  "prompt": "A model was trained with dropout. What should change at inference time, and why?\n\nExplain the difference between inverted dropout and test-time scaling, and describe how you would ensure the model is in the correct mode.",
   "evaluation": {
     "type": "system_design"
   },

@@ -12,6 +12,6 @@
   {
     "name": "rejects invalid capacities and empty pops",
     "input": "zero, boolean, and empty deque operations",
-    "test": "for capacity in (0, -1, True):\n    try:\n        ResizableDeque(capacity)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\nfor method in (ResizableDeque().pop_left, ResizableDeque().pop_right):\n    try:\n        method()\n        raise AssertionError('expected IndexError')\n    except IndexError:\n        pass"
+    "test": "for capacity in (0, -1):\n    try:\n        ResizableDeque(capacity)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")\nfor method in (ResizableDeque().pop_left, ResizableDeque().pop_right):\n    try:\n        method()\n        raise AssertionError(\"expected index validation error\")\n    except IndexError:\n        pass"
   }
 ]

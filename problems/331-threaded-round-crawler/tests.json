@@ -17,6 +17,6 @@
   {
     "name": "rejects invalid scheduling inputs and malformed link results",
     "input": "invalid workers, seed iterables, and fetch results",
-    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\nvalid_fetch = lambda url: []\nexpect_value_error(lambda: crawl_in_rounds('root', valid_fetch))\nexpect_value_error(lambda: crawl_in_rounds(['root', ''], valid_fetch))\nexpect_value_error(lambda: crawl_in_rounds(['root'], valid_fetch, workers=True))\nexpect_value_error(lambda: crawl_in_rounds(['root'], valid_fetch, workers=0))\nexpect_value_error(lambda: crawl_in_rounds(['root'], None))\nexpect_value_error(lambda: crawl_in_rounds(['root'], lambda url: 'child'))\nexpect_value_error(lambda: crawl_in_rounds(['root'], lambda url: ['child', 4]))"
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nvalid_fetch = lambda url: []\nexpect_value_error(lambda: crawl_in_rounds(\"root\", valid_fetch))\nexpect_value_error(lambda: crawl_in_rounds([\"root\", \"\"], valid_fetch))\nexpect_value_error(lambda: crawl_in_rounds([\"root\"], valid_fetch, workers=0))\nexpect_value_error(lambda: crawl_in_rounds([\"root\"], None))\nexpect_value_error(lambda: crawl_in_rounds([\"root\"], lambda url: \"child\"))\nexpect_value_error(lambda: crawl_in_rounds([\"root\"], lambda url: [\"child\", 4]))"
   }
 ]

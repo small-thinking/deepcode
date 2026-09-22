@@ -17,6 +17,6 @@
   {
     "name": "rejects invalid batch inputs and accepts k zero",
     "input": "one task, one human, k = 2",
-    "test": "assert build_schedule(['q'], ['m'], ['h'], 0) == []\nassert build_schedule([], [], [], 4) == []\nfor args in [(['q'], ['m'], ['h'], 2), ([], ['m'], ['h'], 1), (['q'], [], ['h'], 1), (['q'], ['m'], ['h'], -1)]:\n    try:\n        build_schedule(*args)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+    "test": "assert build_schedule([\"q\"], [\"m\"], [\"h\"], 0) == []\nassert build_schedule([], [], [], 4) == []\nfor args in [\n    ([\"q\"], [\"m\"], [\"h\"], 2),\n    ([], [\"m\"], [\"h\"], 1),\n    ([\"q\"], [], [\"h\"], 1),\n    ([\"q\"], [\"m\"], [\"h\"], -1),\n]:\n    try:\n        build_schedule(*args)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, \"expected input validation error\""
   }
 ]

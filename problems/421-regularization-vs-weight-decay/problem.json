@@ -14,7 +14,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Compare L1 regularization, L2 regularization, and weight decay. Explain how each changes the objective or update, how it changes learned parameters, and when an L2 penalty is or is not equivalent to weight decay. State the optimizer convention you are assuming. This is a writing exercise.",
+  "prompt": "Compare L1 regularization, L2 regularization, and weight decay. How does each affect the objective or parameter update and the learned parameters?\n\nWhen are L2 regularization and weight decay equivalent, and when do they differ? State the optimizer convention you assume.",
   "evaluation": {
     "type": "system_design"
   },

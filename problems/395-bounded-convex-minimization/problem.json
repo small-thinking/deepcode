@@ -12,7 +12,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `minimize_convex(f, a, b, tol=1e-6) -> float` for a finite-valued continuous convex function on a closed interval. Return a point within `tol` of at least one minimizer. Inputs satisfy `a <= b` and `tol > 0`; plateaus and endpoint minima are allowed. If `a == b`, return `a` without evaluating `f`. No derivatives are available.\n\nUse golden-section search to reuse expensive evaluations. For a nondegenerate interval let `N = max(0, ceil(log((b-a)/tol) / log((1+sqrt(5))/2)))`. Use at most `N + 2` calls to `f`; do not depend on hidden attributes of the callable. Assume finite bounds and a tolerance resolvable by floating-point arithmetic.\n\nThis is a practice reconstruction: the accuracy contract and evaluation budget make the reported continuous problem executable. Integer and 2D extensions are discussion follow-ups, not required APIs. For integers compare adjacent objective values; a 2D nested search requires justified convexity of the projected objective, not arbitrary coordinate descent.",
+  "prompt": "Implement `minimize_convex(f, a, b, tol=1e-6) -> float` for a finite-valued continuous convex function on a closed interval. Return a point within `tol` of at least one minimizer. Inputs satisfy `a <= b` and `tol > 0`; plateaus and endpoint minima are allowed. If `a == b`, return `a` without evaluating `f`. No derivatives are available.\n\nFunction evaluations are expensive. For a nondegenerate interval let `N = max(0, ceil(log((b-a)/tol) / log((1+sqrt(5))/2)))`. Use at most `N + 2` calls to `f`; do not depend on hidden attributes of the callable. Assume finite bounds and a tolerance resolvable by floating-point arithmetic.",
   "starter_code": "def minimize_convex(f, a, b, tol=1e-6):\n    pass\n",
   "example": {
     "input": "minimize_convex(lambda x: (x-2)**2+1, -10, 10)",
@@ -29,9 +29,18 @@
     "type": "ml_coding"
   },
   "references": [
-    {"label": "Notion: Minimize a Convex Function", "url": "https://app.notion.com/p/3d66ce51456d81319399c204b4f712e7"},
-    {"label": "1Point3Acres: Uber convex-function phone-screen problem", "url": "https://www.1point3acres.com/interview/problems/company/uber/phone-screen-convex-function-min"},
-    {"label": "1Point3Acres: Uber Sr MLE project deep dive and convex minimization", "url": "https://www.1point3acres.com/bbs/thread-1176531-1-1.html"}
+    {
+      "label": "Notion: Minimize a Convex Function",
+      "url": "https://app.notion.com/p/3d66ce51456d81319399c204b4f712e7"
+    },
+    {
+      "label": "1Point3Acres: Uber convex-function phone-screen problem",
+      "url": "https://www.1point3acres.com/interview/problems/company/uber/phone-screen-convex-function-min"
+    },
+    {
+      "label": "1Point3Acres: Uber Sr MLE project deep dive and convex minimization",
+      "url": "https://www.1point3acres.com/bbs/thread-1176531-1-1.html"
+    }
   ],
   "created_at": "2026-09-08",
   "interview_frequency": {

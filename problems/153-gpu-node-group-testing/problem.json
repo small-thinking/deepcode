@@ -4,11 +4,21 @@
   "title": "Find Faulty Nodes with Group Tests",
   "category": "ML Systems",
   "difficulty": "hard",
-  "tags": ["fault-isolation", "group-testing", "black-box-oracle", "gpu-clusters", "algorithm"],
-  "companies": ["xAI"],
+  "tags": [
+    "fault-isolation",
+    "group-testing",
+    "black-box-oracle",
+    "gpu-clusters",
+    "algorithm"
+  ],
+  "companies": [
+    "xAI"
+  ],
   "interview_frequency": {
     "xAI": {
-      "source_record_ids": ["3d06ce51456d800a81f5f9e2e00878d7"],
+      "source_record_ids": [
+        "3d06ce51456d800a81f5f9e2e00878d7"
+      ],
       "stars": 1,
       "synced_at": "2026-09-03"
     }
@@ -17,7 +27,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "A cluster has `n >= 2` numbered nodes and at least two healthy nodes. Implement `find_faulty_nodes(n, test)`, where `test(nodes)` accepts a Python `set` of node IDs with at least two members. It returns `True` exactly when every node in that set is healthy, and `False` when the set contains one or more faulty nodes.\n\nReturn the set of all faulty node IDs. The hidden health state is available only through `test`; do not inspect or modify the callback's closure. Do not call `test` on a singleton or empty set.\n\nThe general contract permits only quadratic worst-case oracle usage: if exactly two nodes are healthy, every tested set with three or more nodes must fail, so locating the one healthy pair can require checking pairs. Correctness and valid oracle calls matter more than a fabricated subquadratic target.",
+  "prompt": "Find faulty nodes in a GPU cluster using a group-testing service.\n\nImplement `find_faulty_nodes(n, test)` and return a set of faulty IDs from `0` through `n - 1`. There are at least two healthy nodes. `test(nodes)` accepts a Python set with at least two IDs and returns `True` exactly when every member is healthy.\n\nLearn node health only through the callback. Never test an empty set or singleton. Correct identification and valid calls are required; quadratic worst-case oracle usage is allowed. Discuss whether a better worst-case bound is possible under these assumptions.",
   "starter_code": "def find_faulty_nodes(n, test):\n    # test(nodes) accepts a set with at least two node IDs.\n    pass\n",
   "example": {
     "input": "n = 5 with hidden faulty nodes {1, 3}",

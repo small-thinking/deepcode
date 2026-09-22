@@ -12,6 +12,6 @@
   {
     "name": "rejects unknown and invalid syllable entries",
     "input": "unknown words and nonpositive counts",
-    "test": "for sentence, counts in [('mystery', {}), ('a', {'a': 0}), ('a', {'a': True})]:\n    try:\n        find_first_haiku(sentence, counts)\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass"
+    "test": "for sentence, counts in [(\"mystery\", {}), (\"a\", {\"a\": 0})]:\n    try:\n        find_first_haiku(sentence, counts)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

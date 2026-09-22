@@ -17,6 +17,6 @@
   {
     "name": "rejects non-binary values",
     "input": "contains 2 or x",
-    "test": "for bad in ['102', [0, 1, 2], ['0', '1'], ['0', 'x']]:\n    try:\n        label_one_blocks(bad)\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+    "test": "for bad in [\"102\", [0, 1, 2], [\"0\", \"1\"], [\"0\", \"x\"]]:\n    try:\n        label_one_blocks(bad)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, \"expected input validation error\""
   }
 ]

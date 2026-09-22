@@ -10,7 +10,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `k_medoids(points, k)` for a small list of 2D integer rider coordinates. Return `(medoid_indices, total_cost)`, where cost is the sum of each rider's Manhattan distance to its nearest selected rider. Each rider, including duplicates, contributes separately. Indices must be sorted. For nonempty input, k is a positive integer; select min(k, N) distinct indices. Empty input returns ([], 0).\n\nUse this deterministic greedy-plus-swap heuristic: start with no medoids; repeatedly add the candidate minimizing total cost, breaking ties by smallest index. Then examine every one-medoid-for-one-nonmedoid swap and choose the lowest-cost strictly improving replacement; tied replacement sets use lexicographically smallest sorted indices. Repeat until no strict improvement exists. Do not mutate points. This is a local optimum, not a guarantee of the global optimum for K > 1.\n\nReconstruction assumption: pickup locations MUST be rider coordinates (medoids). An arbitrary coordinate-wise L1 median need not be a rider, so the unrestricted facility-location variant is different. For K = 1 choose the best rider, with index tie-breaking. Explain the objective and why unrestricted coordinate-wise medians cannot simply solve this contract.",
+  "prompt": "A ride-hailing team wants to choose shared pickup points from rider locations. Implement `k_medoids(points, k)` for a small list of 2D integer rider coordinates. Return `(medoid_indices, total_cost)`, where cost is the sum of each rider's Manhattan distance to its nearest selected rider. Each rider, including duplicates, contributes separately. Indices must be sorted. For nonempty input, k is a positive integer; select min(k, N) distinct indices. Empty input returns ([], 0).\n\nUse this deterministic greedy-plus-swap heuristic: start with no medoids; repeatedly add the candidate minimizing total cost, breaking ties by smallest index. Then examine every one-medoid-for-one-nonmedoid swap and choose the lowest-cost strictly improving replacement; tied replacement sets use lexicographically smallest sorted indices. Repeat until no strict improvement exists. Do not mutate points. This is a local optimum, not a guarantee of the global optimum for K > 1.\n\nPickup locations must be rider coordinates (medoids). An arbitrary coordinate-wise L1 median need not be a rider, so the unrestricted facility-location variant is different. For K = 1 choose the best rider, with index tie-breaking. Explain the objective and why unrestricted coordinate-wise medians cannot simply solve this contract.",
   "starter_code": "def k_medoids(points, k):\n    pass\n",
   "example": {
     "input": "k_medoids([(0,0),(1,0),(9,0),(10,0)], 2)",
@@ -28,8 +28,14 @@
     "type": "ml_coding"
   },
   "references": [
-    {"label": "Notion: K-Medoids / Shuttle Pickup Facility Location", "url": "https://app.notion.com/p/3d66ce51456d8116a8e8f796e2e5f158"},
-    {"label": "1Point3Acres: Uber MLE coding from scratch question bank", "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-coding-from-scratch"}
+    {
+      "label": "Notion: K-Medoids / Shuttle Pickup Facility Location",
+      "url": "https://app.notion.com/p/3d66ce51456d8116a8e8f796e2e5f158"
+    },
+    {
+      "label": "1Point3Acres: Uber MLE coding from scratch question bank",
+      "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-coding-from-scratch"
+    }
   ],
   "created_at": "2026-09-08",
   "interview_frequency": {

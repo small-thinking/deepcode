@@ -4,9 +4,17 @@
   "title": "Snapshot Task Manager",
   "category": "Systems Coding",
   "difficulty": "hard",
-  "tags": ["task-manager", "ttl", "leases", "snapshots", "stateful"],
-  "companies": ["Anthropic"],
-  "prompt": "Implement a deterministic in-memory `SnapshotTaskManager` with explicit integer timestamps. A task has a non-empty string ID, a non-empty string payload, and a positive lifetime TTL. Timestamps are non-negative ordinary integers, not booleans.\n\n- `create(task_id, payload, timestamp, ttl)` creates a ready task that is live on `[timestamp, timestamp + ttl)`. Existing live task IDs cannot be recreated.\n- `claim(task_id, worker, timestamp, lease_ttl) -> bool` assigns a live ready task to a non-empty worker string until `timestamp + lease_ttl`. Return `False` when the task is unknown, expired, or currently leased.\n- `finish(task_id, worker, timestamp) -> bool` removes a live task only when that worker owns an unexpired lease. Otherwise return `False`.\n- `ready(timestamp) -> list[str]` returns all live ready task IDs in lexicographic order. An expired lease makes its still-live task ready again.\n- `get(task_id, timestamp) -> dict | None` returns a copy with `task_id`, `payload`, `status` (`ready` or `leased`), and `worker` (`None` when ready); return `None` for missing or expired tasks.\n- `snapshot(timestamp) -> dict` captures only tasks live at that instant. Its returned value must be independent from future mutations and must preserve each task's remaining lifetime and, if leased, remaining lease time.\n- `restore(snapshot, timestamp)` replaces current state with a snapshot returned by `snapshot`, re-anchoring the saved remaining task and lease TTLs at `timestamp`.\n\nBefore every operation, treat a task at its lifetime endpoint as expired and a lease at its endpoint as expired. Raise `ValueError` for malformed arguments and a duplicate live task ID. Do not implement persistence, queues, retries, or concurrency.",
+  "tags": [
+    "task-manager",
+    "ttl",
+    "leases",
+    "snapshots",
+    "stateful"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Build an in-memory `SnapshotTaskManager` for tasks with lifetimes and worker leases. IDs, payloads, and worker names are nonempty strings; timestamps are nonnegative integers and TTLs are positive integers.\n\n- `create(task_id, payload, timestamp, ttl)` creates a ready task live on `[timestamp, timestamp + ttl)`. Reject a duplicate live ID.\n- `claim(task_id, worker, timestamp, lease_ttl) -> bool` leases a live ready task until `timestamp + lease_ttl`; otherwise return `False`.\n- `finish(task_id, worker, timestamp) -> bool` removes a live task only when this worker owns its unexpired lease; otherwise return `False`.\n- `ready(timestamp)` returns sorted live ready IDs. Expired leases make still-live tasks ready again.\n- `get(task_id, timestamp)` returns a copy with `task_id`, `payload`, `status` (`ready` or `leased`), and `worker` (`None` if ready), or `None` for a missing/expired task.\n- `snapshot(timestamp)` returns an independent snapshot of live tasks, preserving remaining task and lease TTLs.\n- `restore(snapshot, timestamp)` replaces state with that snapshot, restarting saved TTLs at `timestamp`.\n\nTask and lease intervals exclude their expiry endpoint. Invalid inputs may be rejected with `assert`.",
   "starter_code": "class SnapshotTaskManager:\n    def __init__(self):\n        pass\n\n    def create(self, task_id, payload, timestamp, ttl):\n        pass\n\n    def claim(self, task_id, worker, timestamp, lease_ttl):\n        pass\n\n    def finish(self, task_id, worker, timestamp):\n        pass\n\n    def ready(self, timestamp):\n        pass\n\n    def get(self, task_id, timestamp):\n        pass\n\n    def snapshot(self, timestamp):\n        pass\n\n    def restore(self, snapshot, timestamp):\n        pass\n",
   "example": {
     "input": "manager.create('email', 'send receipt', 10, 8); manager.claim('email', 'worker-a', 11, 3); manager.ready(14)",
@@ -22,5 +30,19 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-19"
+  "created_at": "2026-08-19",
+  "references": [
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1177035",
+      "url": "https://www.1point3acres.com/bbs/thread-1177035-1-1.html"
+    },
+    {
+      "label": "Related interview source (practice variant): 1Point3Acres 1186968",
+      "url": "https://www.1point3acres.com/bbs/thread-1186968-1-1.html"
+    },
+    {
+      "label": "Notion interview record (practice variant)",
+      "url": "https://app.notion.com/p/36c6ce51456d81689ff0d5d15eaa9842"
+    }
+  ]
 }

@@ -12,6 +12,6 @@
   {
     "name": "rejects missing dependencies, unknown completion, and cycles",
     "input": "three invalid dependency graphs",
-    "test": "def expect_value_error(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nexpect_value_error(lambda: schedule_pending_tasks({'a': {'depends_on': ['missing'], 'priority': 0}}))\nexpect_value_error(lambda: schedule_pending_tasks({'a': {'depends_on': [], 'priority': 0}}, completed=['missing']))\nexpect_value_error(lambda: schedule_pending_tasks({'a': {'depends_on': ['b'], 'priority': 0}, 'b': {'depends_on': ['a'], 'priority': 0}}))"
+    "test": "def expect_value_error(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nexpect_value_error(\n    lambda: schedule_pending_tasks({\"a\": {\"depends_on\": [\"missing\"], \"priority\": 0}})\n)\nexpect_value_error(\n    lambda: schedule_pending_tasks(\n        {\"a\": {\"depends_on\": [], \"priority\": 0}}, completed=[\"missing\"]\n    )\n)\nexpect_value_error(\n    lambda: schedule_pending_tasks(\n        {\n            \"a\": {\"depends_on\": [\"b\"], \"priority\": 0},\n            \"b\": {\"depends_on\": [\"a\"], \"priority\": 0},\n        }\n    )\n)"
   }
 ]

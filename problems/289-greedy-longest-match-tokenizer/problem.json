@@ -4,9 +4,16 @@
   "title": "Greedy Longest-Match Tokenizer",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["trie", "tokenization", "strings", "greedy"],
-  "companies": ["Anthropic"],
-  "prompt": "Implement `tokenize_longest_match(text, vocabulary, unknown='<UNK>') -> list[str]`. Scan `text` from left to right. At each position, emit the longest token in `vocabulary` that begins at that position, then continue after that token. If no vocabulary token begins there, emit `unknown` once and advance by one character. Return the emitted token strings in order.\n\n`text` and `unknown` must be strings, and `unknown` must be nonempty. `vocabulary` must be an iterable of nonempty strings; duplicate tokens have no effect. The empty vocabulary is valid and turns every input character into one unknown token. Raise `TypeError` for an invalid argument type and `ValueError` for an empty vocabulary token or an empty `unknown`. Matching is case-sensitive and uses the original Unicode characters without normalization. Build a trie or equivalent prefix structure; do not re-check every vocabulary token at every text position.",
+  "tags": [
+    "trie",
+    "tokenization",
+    "strings",
+    "greedy"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `tokenize_longest_match(text, vocabulary, unknown='<UNK>') -> list[str]`. Scan `text` from left to right. At each position, emit the longest token in `vocabulary` that begins at that position, then continue after that token. If no vocabulary token begins there, emit `unknown` once and advance by one character. Return the emitted token strings in order.\n\n`text` and `unknown` must be strings, and `unknown` must be nonempty. `vocabulary` must be an iterable of nonempty strings; duplicate tokens have no effect. The empty vocabulary is valid and turns every input character into one unknown token. Raise an error for an invalid argument type and an error for an empty vocabulary token or an empty `unknown`. Matching is case-sensitive and uses the original Unicode characters without normalization. Avoid re-checking every vocabulary token at every text position.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def tokenize_longest_match(text, vocabulary, unknown='<UNK>'):\n    # Emit maximal-munch vocabulary tokens, or unknown for one unmatched character.\n    pass\n",
   "example": {
     "input": "tokenize_longest_match('thereafter', ['the', 'there', 'after', 'her'])",

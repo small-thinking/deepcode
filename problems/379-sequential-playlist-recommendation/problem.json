@@ -28,7 +28,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Design a one-shot recommender that selects and orders exactly 10 tracks from a candidate pool of roughly 10,000 for a user playlist. The system cannot adapt while the playlist is playing. Optimize satisfaction using completion, skips, saves, and later behavior.\n\nExplain labels and objectives for whole-playlist quality rather than only per-track click-through rate; retrieval, ranking, and slate selection; diversity, novelty, and coherence; position and exposure bias; offline and online evaluation; and serving constraints. This is a writing exercise.",
+  "prompt": "Design a recommender that selects and orders exactly 10 tracks from about 10,000 candidates for a user's playlist. It makes the selection once and cannot adapt during playback.\n\nDefine a whole-playlist satisfaction objective using signals such as completion, skips, saves, and later behavior. Explain the recommendation approach, diversity and coherence, evaluation, and serving constraints.",
   "references": [
     {
       "label": "1Point3Acres: Spotify VO ML depth interview",

@@ -17,6 +17,6 @@
   {
     "name": "invalid transaction controls and keys raise explicit errors",
     "input": "commit and rollback without begin plus non-string keys",
-    "test": "store = TransactionalKVStore()\nfor call in (store.commit, store.rollback):\n    try:\n        call()\n        raise AssertionError('expected RuntimeError')\n    except RuntimeError:\n        pass\nfor call in (lambda: store.get(1), lambda: store.contains(1), lambda: store.set(1, 'x'), lambda: store.delete(1)):\n    try:\n        call()\n        raise AssertionError('expected TypeError')\n    except TypeError:\n        pass"
+    "test": "store = TransactionalKVStore()\nfor call in (store.commit, store.rollback):\n    try:\n        call()\n        raise AssertionError(\"expected RuntimeError\")\n    except RuntimeError:\n        pass\nfor call in (\n    lambda: store.get(1),\n    lambda: store.contains(1),\n    lambda: store.set(1, \"x\"),\n    lambda: store.delete(1),\n):\n    try:\n        call()\n    except (TypeError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]

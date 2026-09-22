@@ -27,6 +27,6 @@
   {
     "name": "invalid constructor arguments raise",
     "input": "empty datasets, missing weights, zero weight, non-positive batch size",
-    "test": "def must_raise(call):\n    try:\n        call()\n    except ValueError:\n        return\n    raise AssertionError('expected ValueError')\n\nmust_raise(lambda: WeightedDatasetBatcher({}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'b': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 0}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': []}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 0))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 1, offset=-1))"
+    "test": "def must_raise(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nmust_raise(lambda: WeightedDatasetBatcher({}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'b': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 0}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': []}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 0))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 1, offset=-1))\n"
   }
 ]

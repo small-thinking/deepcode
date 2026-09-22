@@ -33,8 +33,8 @@ class MistralStringIntegerAdditionFixtureTest(unittest.TestCase):
             problem["interview_frequency"]["Mistral AI"]["source_record_ids"],
             ["35c6ce51456d81d1bca2e9d40a40d46e"],
         )
-        self.assertIn("source reports only", problem["prompt"])
-        self.assertIn("For this practice version", problem["prompt"])
+        self.assertIn("nonnegative integers", problem["prompt"])
+        self.assertIn("Do not convert an entire operand", problem["prompt"])
         self.assertTrue(any("thread-1144453-1-1.html" in item["url"] for item in problem["references"]))
 
     def test_reference_does_not_call_int(self):

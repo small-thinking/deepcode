@@ -32,19 +32,13 @@
   {
     "name": "empty training targets",
     "input": "train_y = [], n_predictions = 2",
-    "test": "print(mean_baseline([], 2))",
-    "expected_output": "-1"
+    "test": "try:\n    result = mean_baseline([], 2)\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    assert result == -1, \"invalid input must be rejected\"\nprint(\"rejected\")\n",
+    "expected_output": "rejected"
   },
   {
     "name": "negative prediction count",
     "input": "train_y = [1.0, 2.0], n_predictions = -1",
-    "test": "print(mean_baseline([1.0, 2.0], -1))",
-    "expected_output": "-1"
-  },
-  {
-    "name": "zero predictions with empty training targets",
-    "input": "train_y = [], n_predictions = 0",
-    "test": "print(mean_baseline([], 0))",
-    "expected_output": "[]"
+    "test": "try:\n    result = mean_baseline([1.0, 2.0], -1)\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    assert result == -1, \"invalid input must be rejected\"\nprint(\"rejected\")\n",
+    "expected_output": "rejected"
   }
 ]

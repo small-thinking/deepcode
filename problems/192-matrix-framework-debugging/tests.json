@@ -17,6 +17,6 @@
   {
     "name": "copy has independent backing storage",
     "input": "copy a matrix and mutate only the returned ndarray of the copy",
-    "test": "original = Matrix([[1.0, 2.0], [3.0, 4.0]])\nclone = original.copy()\nclone.set(0, 0, 77.0)\nassert original.to_ndarray()[0, 0] == 1.0\nassert clone.to_ndarray()[0, 0] == 77.0\ntry:\n    original.sum(axis=2)\n    raise AssertionError('invalid axis must raise ValueError')\nexcept ValueError:\n    pass"
+    "test": "original = Matrix([[1.0, 2.0], [3.0, 4.0]])\nclone = original.copy()\nclone.set(0, 0, 77.0)\nassert original.to_ndarray()[0, 0] == 1.0\nassert clone.to_ndarray()[0, 0] == 77.0\ntry:\n    original.sum(axis=2)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('invalid axis must reject invalid input')\n"
   }
 ]

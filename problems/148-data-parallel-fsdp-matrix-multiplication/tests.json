@@ -12,6 +12,6 @@
   {
     "name": "one device works and invalid partitions are rejected",
     "input": "one-device matrix product and malformed shapes",
-    "test": "import numpy as np\na = np.arange(12.0).reshape(6, 2)\nb = np.arange(8.0).reshape(2, 4)\nassert np.allclose(dp_mat_mul(a, b, 1), a @ b)\nassert np.allclose(fsdp_mat_mul(a, b, 1), a @ b)\nfor call in [\n    lambda: dp_mat_mul(np.ones(2), np.ones((2, 2)), 1),\n    lambda: fsdp_mat_mul(np.ones((3, 2)), np.ones((3, 2)), 1),\n    lambda: dp_mat_mul(np.ones((3, 2)), np.ones((2, 4)), 2),\n    lambda: fsdp_mat_mul(np.ones((4, 2)), np.ones((2, 5)), 2),\n    lambda: dp_mat_mul(np.ones((2, 2)), np.ones((2, 2)), 0),\n]:\n    try:\n        call()\n        assert False, 'expected ValueError'\n    except ValueError:\n        pass"
+    "test": "import numpy as np\na = np.arange(12.0).reshape(6, 2)\nb = np.arange(8.0).reshape(2, 4)\nassert np.allclose(dp_mat_mul(a, b, 1), a @ b)\nassert np.allclose(fsdp_mat_mul(a, b, 1), a @ b)\nfor call in [lambda: dp_mat_mul(np.ones(2), np.ones((2, 2)), 1), lambda: fsdp_mat_mul(np.ones((3, 2)), np.ones((3, 2)), 1), lambda: dp_mat_mul(np.ones((3, 2)), np.ones((2, 4)), 2), lambda: fsdp_mat_mul(np.ones((4, 2)), np.ones((2, 5)), 2), lambda: dp_mat_mul(np.ones((2, 2)), np.ones((2, 2)), 0)]:\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        assert False, 'expected validation error'\n"
   }
 ]

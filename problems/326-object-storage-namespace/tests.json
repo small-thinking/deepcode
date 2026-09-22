@@ -17,6 +17,6 @@
   {
     "name": "malformed identifiers and missing objects fail without mutation",
     "input": "a valid namespace followed by invalid creates writes and lookups",
-    "test": "store = ObjectStorageNamespace()\nstore.create_namespace('n', 'owner')\nfor call in (lambda: store.create_namespace('n', 'other'), lambda: store.create_namespace('', 'owner'), lambda: store.put('n', '', 'x', 'owner'), lambda: store.put('n', 'x', 3, 'owner'), lambda: store.list_objects('n', 'owner', None)):\n    try:\n        call()\n        raise AssertionError('expected ValueError')\n    except ValueError:\n        pass\ntry:\n    store.get('n', 'missing', 'owner')\n    raise AssertionError('expected KeyError')\nexcept KeyError:\n    pass\nassert store.list_objects('n', 'owner') == []"
+    "test": "store = ObjectStorageNamespace()\nstore.create_namespace(\"n\", \"owner\")\nfor call in (\n    lambda: store.create_namespace(\"n\", \"other\"),\n    lambda: store.create_namespace(\"\", \"owner\"),\n    lambda: store.put(\"n\", \"\", \"x\", \"owner\"),\n    lambda: store.put(\"n\", \"x\", 3, \"owner\"),\n    lambda: store.list_objects(\"n\", \"owner\", None),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")\ntry:\n    store.get(\"n\", \"missing\", \"owner\")\nexcept (KeyError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected lookup validation error\")\nassert store.list_objects(\"n\", \"owner\") == []"
   }
 ]

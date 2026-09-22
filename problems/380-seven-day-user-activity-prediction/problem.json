@@ -28,7 +28,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Design a model that predicts whether a user will be active during the next seven days. Define a defensible activity label and prediction timestamp, then explain how you would use listening, stream, share, save, artist, and tenure signals without temporal or self-referential leakage.\n\nDiscuss sparse high-cardinality features, changing behavior, very large event volume, baseline and sequence models, offline metrics, and online validation. The reported question leaves the final label open, so state and defend your choice. This is a writing exercise.",
+  "prompt": "Design a model that predicts whether a user will be active during the next seven days. Available signals include listening, streams, shares, saves, artists, and tenure.\n\nDefine activity and the prediction timestamp, then explain features, modeling, evaluation, and production use. Address large event volumes, sparse features, changing behavior, and leakage from future information.",
   "references": [
     {
       "label": "1Point3Acres: Spotify machine learning onsite interview",

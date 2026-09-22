@@ -4,9 +4,17 @@
   "title": "Pseudo-Memcached Protocol Server",
   "category": "Systems Coding",
   "difficulty": "medium",
-  "tags": ["protocol", "bytes", "parsing", "key-value-store", "stateful"],
-  "companies": ["Reddit"],
-  "prompt": "Create a server that provides a small in-memory key-value store with memcached-style behavior. Clients communicate through TCP using ASCII, case-sensitive commands, with each command line ending in a newline. A valid key contains only characters matched by [A-Za-z0-9_-], while stored values may contain any bytes. You may use any component from the standard library.\n\nImplement these commands:\n\n- get key_name retrieves a present key as VALUE key_name byte_count followed by the raw data and a final END newline. An absent key returns only END newline.\n- set key_name byte_count receives exactly byte_count data bytes followed by a newline, saves those bytes under the key, and returns STORED newline.\n\nBonus: allow get to receive more than one key. Return a VALUE block for every present requested key, followed by exactly one final END.\n\nFraming is based on declared byte length rather than a delimiter. After set, read exactly byte_count payload bytes because a value may contain newline characters, then read the final newline. Treat command names as case-sensitive.",
+  "tags": [
+    "protocol",
+    "bytes",
+    "parsing",
+    "key-value-store",
+    "stateful"
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "prompt": "Create a server that provides a small in-memory key-value store with memcached-style behavior. Clients communicate through TCP using ASCII, case-sensitive commands, with each command line ending in a newline. A valid key contains only characters matched by [A-Za-z0-9_-], while stored values may contain any bytes. You may use any component from the standard library.\n\nImplement these commands:\n\n- get key_name retrieves a present key as VALUE key_name byte_count followed by the raw data and a final END newline. An absent key returns only END newline.\n- set key_name byte_count receives exactly byte_count data bytes followed by a newline, saves those bytes under the key, and returns STORED newline.\n\nBonus: allow get to receive more than one key. Return a VALUE block for every present requested key, followed by exactly one final END.\n\nValues may contain newlines, so the declared byte count determines the payload boundary.",
   "evaluation": {
     "type": "system_design"
   },
