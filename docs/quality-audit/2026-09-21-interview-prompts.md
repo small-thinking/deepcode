@@ -39,6 +39,8 @@ The 119 unlinked problems and 30 Notion-only records still lack a verified origi
 
 “Retained” means the existing prompt was reviewed and kept; test and reference edits are listed separately. Detailed reasons and exact Notion record IDs are in [the audit inventory](2026-09-21-interview-prompts.json).
 
+The four Uber oral Q&A entries at the end of this historical audit were removed from the live catalog on 2026-09-23. Their links below point to the audited revision.
+
 | Problem | Prompt | Tests | Added links | Source status |
 | --- | --- | --- | ---: | --- |
 | [matrix-vector-dot-product](../../problems/001-matrix-vector-dot-product/problem.json) | Revised | Updated | 0 | Reading or compilation only |
@@ -360,7 +362,7 @@ The 119 unlinked problems and 30 Notion-only records still lack a verified origi
 | [replay-buffer-debugging](../../problems/417-replay-buffer-debugging/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
 | [iot-remote-log-collection](../../problems/418-iot-remote-log-collection/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
 | [uber-room-progression-topk-leaderboard](../../problems/419-uber-room-progression-topk-leaderboard/problem.json) | Retained | Unchanged | 0 | Report URL verified in Notion |
-| [xgboost-tree-depth](../../problems/420-xgboost-tree-depth/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
-| [regularization-vs-weight-decay](../../problems/421-regularization-vs-weight-decay/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
-| [dropout-at-inference](../../problems/422-dropout-at-inference/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
-| [training-vs-inference](../../problems/423-training-vs-inference/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
+| [xgboost-tree-depth](https://github.com/small-thinking/deepcode/blob/d41b8abcd9e0b6dbb52b165c6093f50eaef3e7dc/problems/420-xgboost-tree-depth/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
+| [regularization-vs-weight-decay](https://github.com/small-thinking/deepcode/blob/d41b8abcd9e0b6dbb52b165c6093f50eaef3e7dc/problems/421-regularization-vs-weight-decay/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
+| [dropout-at-inference](https://github.com/small-thinking/deepcode/blob/d41b8abcd9e0b6dbb52b165c6093f50eaef3e7dc/problems/422-dropout-at-inference/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
+| [training-vs-inference](https://github.com/small-thinking/deepcode/blob/d41b8abcd9e0b6dbb52b165c6093f50eaef3e7dc/problems/423-training-vs-inference/problem.json) | Revised | Unchanged | 0 | Report URL verified in Notion |
