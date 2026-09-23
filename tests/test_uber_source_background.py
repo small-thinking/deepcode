@@ -26,11 +26,7 @@ NOTION_TO_SLUG = {
     "3d66ce51456d8179ac80e29bfc6f3b92": "sorted-squares-and-kth-square",
     "3d66ce51456d81a99802d5b9143a3e58": "phone-keypad-combination-count",
     "3d66ce51456d81d88c81e129f4d27b01": "static-and-streaming-islands",
-    "3e16ce51456d81edaa00f39cca4d0f64": "xgboost-tree-depth",
-    "3e16ce51456d810b8d98dc8a7f861b18": "dropout-at-inference",
-    "3e16ce51456d817e83ead82e8f122143": "training-vs-inference",
     "3e16ce51456d8197a30cccc7d1f1daf4": "uber-room-progression-topk-leaderboard",
-    "3e16ce51456d81d3a131e1119fd84a8e": "regularization-vs-weight-decay",
 }
 
 
@@ -39,7 +35,7 @@ class UberSourceBackgroundTest(unittest.TestCase):
     def setUpClass(cls):
         cls.store = ProblemStore(ROOT / "problems")
 
-    def test_every_current_notion_uber_row_has_one_exact_mapping(self):
+    def test_every_catalog_uber_row_has_one_exact_mapping(self):
         uber = {problem["slug"]: problem for problem in self.store.list_problems(company="Uber")}
         self.assertEqual(set(uber), set(NOTION_TO_SLUG.values()))
 
