@@ -12,21 +12,20 @@
     "retention"
   ],
   "companies": [
-    "Spotify",
-    "General"
+    "Spotify"
   ],
   "interview_frequency": {
-    "General": {
+    "Spotify": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d817a9f36d84f92a4ec3c"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Design a model that predicts whether a user will be active during the next seven days. Available signals include listening, streams, shares, saves, artists, and tenure.\n\nDefine activity and the prediction timestamp, then explain features, modeling, evaluation, and production use. Address large event volumes, sparse features, changing behavior, and leakage from future information.",
   "references": [

@@ -12,21 +12,20 @@
     "privacy"
   ],
   "companies": [
-    "Faire",
-    "General"
+    "Faire"
   ],
   "interview_frequency": {
-    "General": {
+    "Faire": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d8141b025daefdf4fb48a"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Design a service where authenticated users like or unlike brands, check their own like status, and see a brand's like count. Repeating a request must not create extra likes, and each user contributes at most one active like per brand.\n\nDefine the API and count-freshness expectations. Explain concurrent requests, retries, popular brands, failures, and how you verify counts remain correct.",
   "response": {

@@ -11,21 +11,20 @@
     "normalization"
   ],
   "companies": [
-    "Faire",
-    "General"
+    "Faire"
   ],
   "interview_frequency": {
-    "General": {
+    "Faire": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81578a44cd63b53e5340"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement `find_first_haiku(sentence, syllables) -> list[list[str]] | None`. Extract words from `sentence` with the pattern `[A-Za-z]+(?:'[A-Za-z]+)?`, lowercase them, and look up every normalized word in `syllables`. Each count must be a positive integer.\n\nReturn the earliest contiguous sequence of words that can be split into three consecutive lines with syllable totals 5, then 7, then 5. Return the three normalized word lists, or `None` when no such sequence exists. Earliest means the smallest starting word index. Raise an error if an extracted word has no syllable entry or an entry is not a positive integer.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def find_first_haiku(sentence, syllables):\n    pass\n",

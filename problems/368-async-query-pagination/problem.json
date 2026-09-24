@@ -12,21 +12,20 @@
     "state-machine"
   ],
   "companies": [
-    "Datadog",
-    "General"
+    "Datadog"
   ],
   "interview_frequency": {
-    "General": {
+    "Datadog": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81e9915df42307c8a463"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement the async generator `stream_query(api, sql, max_polls=100)`. The injected API has three async methods: `submit(sql)` returning a query ID, `status(query_id)` returning one of `QUEUED`, `RUNNING`, `SUCCEEDED`, `FAILED`, or `CANCELED`, and `page(query_id, token)` returning `(rows, next_token)`, where `rows` is an iterable and `next_token` is either a non-empty string or `None`.\n\nSubmit exactly once, poll at most `max_polls` times until a terminal state, and after success yield rows page by page without accumulating all results. Raise `QueryFailed`, `QueryCancelled`, or `QueryTimeout` for the corresponding terminal condition. Reject a non-string/empty SQL query or a non-positive integer `max_polls` with an error; raise an error for malformed pages or a repeated continuation token. Real waiting, exponential backoff, and transport retries are intentionally outside this deterministic exercise.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class QueryFailed(RuntimeError):\n    pass\n\n\nclass QueryCancelled(RuntimeError):\n    pass\n\n\nclass QueryTimeout(RuntimeError):\n    pass\n\n\nasync def stream_query(api, sql, max_polls=100):\n    pass\n",

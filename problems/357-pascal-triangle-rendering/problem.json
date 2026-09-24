@@ -10,21 +10,20 @@
     "formatting"
   ],
   "companies": [
-    "Faire",
-    "General"
+    "Faire"
   ],
   "interview_frequency": {
-    "General": {
+    "Faire": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81c9bfe2f30094697019"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement `generate_pascal(height) -> list[list[int]]` and `render_pascal(height) -> list[str]`. `height` is a nonnegative integer. The numeric function returns the first `height` rows of Pascal's triangle; row zero is `[1]`. The rendering function uses that numeric result rather than recomputing values.\n\nFor a deterministic display, format every value right-aligned to the width of the widest value in the triangle, separate cells with one space, center each row relative to the final formatted row by adding floor-half left padding, and never add trailing spaces. Return an empty list for height zero and raise an error for an invalid height.\n\nThe separation between a numeric API and a display API is part of the exercise.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def generate_pascal(height):\n    pass\n\n\ndef render_pascal(height):\n    pass\n",

@@ -11,21 +11,20 @@
     "edge-cases"
   ],
   "companies": [
-    "Faire",
-    "General"
+    "Faire"
   ],
   "interview_frequency": {
-    "General": {
+    "Faire": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81069464c698a718103d"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement `split_indexed_message(message, limit) -> list[str]`. Split a message into the fewest nonempty consecutive payloads, then append an index suffix to every payload. If there are `n` chunks, the suffix for one-based chunk `i` is `#` followed by `i` padded with leading zeros to `max(2, len(str(n)))` digits. The suffix counts toward `limit` and every returned chunk must have length at most `limit`.\n\nThe payloads must preserve every character of `message`, including leading, trailing, and repeated whitespace: removing the suffix from each returned chunk and concatenating the payloads must reproduce `message` exactly. Return `[]` for an empty message. Raise an error when the inputs are invalid or `limit` cannot hold both one payload character and the shortest possible suffix.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "def split_indexed_message(message, limit):\n    pass\n",

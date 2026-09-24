@@ -12,21 +12,20 @@
     "slo"
   ],
   "companies": [
-    "Datadog",
-    "General"
+    "Datadog"
   ],
   "interview_frequency": {
-    "General": {
+    "Datadog": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81e193cdf869a9ce8008"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Design a monitoring service for dozens of web servers emitting response-time measurements about once per second. It should detect meaningful latency degradation and notify operators without excessive false alarms or repeated pages.\n\nDefine the alert and recovery criteria. Explain noisy or missing data, seasonal traffic, fleet-wide incidents, escalation, and how you would evaluate the detector using past incidents.",
   "response": {
