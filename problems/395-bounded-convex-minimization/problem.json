@@ -7,12 +7,13 @@
   "tags": [
     "optimization",
     "convexity",
+    "ternary-search",
     "golden-section-search"
   ],
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `minimize_convex(f, a, b, tol=1e-6) -> float` for a finite-valued continuous convex function on a closed interval. Return a point within `tol` of at least one minimizer. Inputs satisfy `a <= b` and `tol > 0`; plateaus and endpoint minima are allowed. If `a == b`, return `a` without evaluating `f`. No derivatives are available.\n\nFunction evaluations are expensive. For a nondegenerate interval let `N = max(0, ceil(log((b-a)/tol) / log((1+sqrt(5))/2)))`. Use at most `N + 2` calls to `f`; do not depend on hidden attributes of the callable. Assume finite bounds and a tolerance resolvable by floating-point arithmetic.",
+  "prompt": "Implement `minimize_convex(f, a, b, tol=1e-6) -> float` for a finite-valued continuous convex function on the closed interval `[a, b]`. Return a point `x` in `[a, b]` within `tol` of at least one minimizer. Inputs satisfy `a <= b` and `tol > 0`; plateaus and endpoint minima are allowed. If `a == b`, return `a` without evaluating `f`.\n\nNo derivatives are available. Evaluate `f` only within `[a, b]` and do not depend on hidden attributes of the callable. Use an interval-narrowing method such as ternary search or golden-section search. Aim for `O(1 + log(max(1, (b-a)/tol)))` function evaluations and `O(1)` extra space. There is no exact function-call budget; reusing evaluations is an optional optimization. Assume finite bounds and a tolerance resolvable by floating-point arithmetic.",
   "starter_code": "def minimize_convex(f, a, b, tol=1e-6):\n    pass\n",
   "example": {
     "input": "minimize_convex(lambda x: (x-2)**2+1, -10, 10)",

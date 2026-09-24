@@ -1,14 +1,14 @@
 [
   {
-    "name": "interior minimum and evaluation budget",
-    "input": "interior minimum and evaluation budget",
-    "test": "import math\ncalls = []\ndef f(x):\n    assert -10 <= x <= 10\n    calls.append(x)\n    return (x-2)**2\nx = minimize_convex(f, -10, 10, 1e-5)\nassert abs(x-2) <= 1e-5\nassert len(calls) <= math.ceil(math.log(20/1e-5)/math.log((1+math.sqrt(5))/2))+2\nprint(\"ok\")",
+    "name": "interior minimum and in-range evaluations",
+    "input": "interior minimum and in-range evaluations",
+    "test": "def f(x):\n    assert -10 <= x <= 10\n    return (x-2)**2\nx = minimize_convex(f, -10, 10, 1e-5)\nassert -10 <= x <= 10\nassert abs(x-2) <= 1e-5\nprint(\"ok\")",
     "expected_output": "ok"
   },
   {
     "name": "endpoint minima",
     "input": "endpoint minima",
-    "test": "assert abs(minimize_convex(lambda x: x, -3, 7, 1e-5)+3) <= 1e-5\nassert abs(minimize_convex(lambda x: -x, -3, 7, 1e-5)-7) <= 1e-5\nprint(\"ok\")",
+    "test": "x = minimize_convex(lambda x: x, -3, 7, 1e-5)\nassert -3 <= x <= 7 and abs(x+3) <= 1e-5\nx = minimize_convex(lambda x: -x, -3, 7, 1e-5)\nassert -3 <= x <= 7 and abs(x-7) <= 1e-5\nprint(\"ok\")",
     "expected_output": "ok"
   },
   {
@@ -21,6 +21,18 @@
     "name": "degenerate and already narrow interval",
     "input": "degenerate and already narrow interval",
     "test": "def forbidden(x):\n    raise AssertionError(\"unnecessary evaluation\")\nassert minimize_convex(forbidden, 3, 3) == 3\nx = minimize_convex(lambda x: x*x, 0, 1e-8)\nassert 0 <= x <= 1e-8\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "constant function",
+    "input": "constant function",
+    "test": "def f(x):\n    assert -4 <= x <= 6\n    return 5.0\nx = minimize_convex(f, -4, 6)\nassert -4 <= x <= 6\nprint(\"ok\")",
+    "expected_output": "ok"
+  },
+  {
+    "name": "different interval scales and tolerances",
+    "input": "different interval scales and tolerances",
+    "test": "for a, b, target, tol in [(-10000, 20000, 1234.5, 1e-4), (-0.02, 0.01, -0.0073, 1e-8), (10, 30, 16.75, 1e-3)]:\n    def f(x):\n        assert a <= x <= b\n        return abs(x-target)\n    x = minimize_convex(f, a, b, tol)\n    assert a <= x <= b\n    assert abs(x-target) <= tol\nprint(\"ok\")",
     "expected_output": "ok"
   }
 ]
