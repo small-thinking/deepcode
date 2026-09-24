@@ -21,5 +21,26 @@ class UberGeneralFixtureTest(unittest.TestCase):
                 self.assertEqual(result['passed'], len(problem['tests']))
 
 
+class BoundedConvexContractTest(unittest.TestCase):
+    def test_ternary_search_without_evaluation_reuse_is_accepted(self):
+        code = '''def minimize_convex(f, a, b, tol=1e-6):
+    left, right = a, b
+    while left < right - tol:
+        one = left + (right - left) / 3
+        two = right - (right - left) / 3
+        if f(one) < f(two):
+            right = two
+        else:
+            left = one
+    return (left + right) / 2
+'''
+        problem = ProblemStore(ROOT / 'problems').get_problem('bounded-convex-minimization')
+        result = evaluate_submission(EvaluationRequest(
+            code=code, problem=problem, tests=problem['tests'],
+            environment=problem['environment'], runtime=problem.get('_runtime', {})))
+        self.assertEqual(result['status'], 'passed', result)
+        self.assertEqual(result['passed'], len(problem['tests']))
+
+
 if __name__ == '__main__':
     unittest.main()
