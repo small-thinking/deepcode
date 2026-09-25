@@ -98,6 +98,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "canva",
                 "cohere",
                 "datadog",
+                "google",
                 "notion",
                 "spotify",
             },
