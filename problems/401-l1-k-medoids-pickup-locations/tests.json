@@ -1,20 +1,26 @@
 [
   {
-    "name": "medoid restriction and ties",
-    "input": "medoid restriction and ties",
-    "test": "assert k_medoids([(0,0),(2,0),(1,3)],1) == ([0],6)\nassert k_medoids([(0,0),(0,0),(10,0)],1) == ([0],10)\nprint('ok')\n",
+    "name": "uses the coordinate-wise median for one pickup",
+    "input": "three people whose best L1 center is not an input medoid",
+    "test": "assert k_medians([(0,0),(2,0),(1,3)],1) == ([(1,0)],5)\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
-    "name": "clusters duplicates and boundaries",
-    "input": "clusters duplicates and boundaries",
-    "test": "p=[(0,0),(1,0),(9,0),(10,0)]\nassert k_medoids(p,2)==([1,2],2)\nassert p==[(0,0),(1,0),(9,0),(10,0)]\nassert k_medoids([],1)==([],0)\nassert k_medoids([(2,3),(2,3)],5)==([0,1],0)\nprint('ok')\n",
+    "name": "returns useful locations with a matching cost",
+    "input": "two separated rider groups",
+    "test": "p=[(0,0),(1,0),(9,0),(10,0)]\noriginal=list(p)\nlocations, returned_cost = k_medians(p,2)\nassert len(locations)==2 and locations==sorted(locations)\nassert all(len(location)==2 for location in locations)\nactual_cost=sum(min(abs(x-a)+abs(y-b) for a,b in locations) for x,y in p)\nassert returned_cost==actual_cost\nassert p==original\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
-    "name": "swap improves greedy initialization",
-    "input": "swap improves greedy initialization",
-    "test": "assert k_medoids([(0,0),(1,0),(2,0),(5,0),(6,0)],2)==([1,3],3)\nprint('ok')\n",
+    "name": "is deterministic and counts duplicate people separately",
+    "input": "duplicate coordinates and two pickup locations",
+    "test": "p=[(0,0),(0,0),(10,0)]\nfirst=k_medians(p,2)\nsecond=k_medians(p,2)\nassert first==second\nlocations, returned_cost=first\nassert len(locations)==2 and locations==sorted(locations)\nactual_cost=sum(min(abs(x-a)+abs(y-b) for a,b in locations) for x,y in p)\nassert returned_cost==actual_cost\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "accepts list coordinates without mutating them",
+    "input": "[[0,0],[2,0],[1,3]], K=1",
+    "test": "p=[[0,0],[2,0],[1,3]]\noriginal=[point[:] for point in p]\nassert k_medians(p,1) == ([(1,0)],5)\nassert p==original\nprint('ok')\n",
     "expected_output": "ok"
   }
 ]
