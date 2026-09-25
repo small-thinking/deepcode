@@ -1,7 +1,7 @@
 {
   "id": "339",
   "slug": "satellite-link-assignment",
-  "title": "Design a Satellite Link Assignment Under Frequency Constraints",
+  "title": "Design a Satellite Beam Assignment Algorithm",
   "category": "System Design",
   "difficulty": "hard",
   "tags": [
@@ -26,13 +26,13 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Design a service that assigns users to visible satellites and one of four radio frequencies, maximizing coverage within a fixed runtime budget. Each satellite has limited capacity, and nearby links on the same satellite cannot share a frequency. Some users may have no visible satellite.\n\nDefine the inputs and assignment output, including the geometric visibility and separation assumptions you need. Explain your strategy, how you verify feasibility, and how you handle changing demand and limited computation time.",
+  "prompt": "Given Earth-centered 3D coordinates for users on a spherical Earth and for satellites, assign as many users as possible to a satellite and one of four frequencies. Return a mapping from each served user to its satellite and frequency. Each user may be served at most once.\n\n- A satellite can serve at most 32 users.\n- At the user, the direction toward the satellite must be within 45 degrees of the outward surface normal.\n- At a satellite, beams using the same frequency must be at least 10 degrees apart. Different frequencies may serve closer users.\n\nSome inputs cannot serve every user. Describe an assignment algorithm and an independent feasibility validator, and explain how you trade coverage against a fixed computation budget. A globally optimal assignment is not required.",
   "evaluation": {
     "type": "system_design"
   },
   "response": {
-    "placeholder": "Define the visibility and interference predicates before selecting an assignment algorithm.",
-    "reference_answer": "## Normalize constraints\n\nPrecompute a bipartite visibility graph using the stated Earth and elevation geometry; edge generation is separate from assignment. For each satellite, build a conflict graph over candidate users whose beam directions violate the angular separation rule. Validate capacity, frequency count, and numeric tolerances before optimization.\n\n## Assignment strategy\n\nFor small instances, a mixed-integer or constraint-programming formulation maximizes covered users subject to one satellite per user, capacity, and per-satellite graph coloring constraints. For large or time-bounded instances, use a deterministic heuristic: prioritize scarce users, choose a satellite by residual capacity and conflict degree, then assign the lowest feasible frequency. Local swaps or augmenting moves can recover coverage after the initial pass.\n\n## Correctness and operations\n\nA validator independently checks visibility, one assignment per user, capacity, and frequency conflicts before returning a plan. The response includes uncovered users with a reason such as no visibility, capacity exhaustion, or frequency conflict. Cache geometry by position version, recompute only affected neighborhoods on movement, and use stable tie-breakers for reproducible plans. Track coverage, constraint rejection reasons, solve time, approximation quality on sampled optimal baselines, and topology churn."
+    "placeholder": "Write the visibility and same-frequency conflict predicates, then explain a coverage heuristic and how you validate its output.",
+    "reference_answer": "## Geometry and feasibility\n\nFor user position u and satellite position s, visibility is the angle between u and s - u: it must be at most 45 degrees. The outward normal is u because the Earth is centered at the origin. For two users u and v served by satellite s on the same frequency, compare u - s with v - s: their angle must be at least 10 degrees. These angles are measured at different endpoints. Use normalized dot products and explicit floating-point tolerances near the boundaries.\n\nBuild a bipartite visibility graph, then per-satellite conflict edges between candidate users separated by less than 10 degrees. Each satellite may select at most 32 users, colored with four frequencies. A user may occur in at most one satellite assignment.\n\n## Assignment strategy\n\nFor small instances, a constraint-programming or integer-programming model can establish optimal coverage. For larger instances, prioritize users with few visible satellites, choose a satellite with available capacity and a feasible frequency, and update conflicts after every assignment. Greedy placement can strand users; bounded local swaps or reassignment improve coverage. Keep the best valid assignment when the computation budget expires. There is no claim that a greedy heuristic reaches the optimum.\n\n## Independent validation\n\nCheck user and satellite IDs, frequency membership, unique user assignment, satellite capacity, visibility, and every same-frequency beam pair. Include no-visible-satellite cases, users sharing one direction, capacity saturation, and angles exactly at 45 and 10 degrees. Distinguish physically infeasible users from users left uncovered by the heuristic; a failed greedy choice is not proof of infeasibility.\n\n## Practice scope\n\nThe public challenge copy supplies the geometry and capacity above. This is a written algorithm-design exercise based on that assignment; it does not reproduce the original hidden datasets or score thresholds."
   },
   "created_at": "2026-08-30",
   "references": [
@@ -43,6 +43,10 @@
     {
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3bd6ce51456d81f38241f1d9871ae3de"
+    },
+    {
+      "label": "Public beam-planning challenge specification (community copy)",
+      "url": "https://github.com/quantumscript/beam-planner-spacex"
     }
   ]
 }
