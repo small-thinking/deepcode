@@ -1,17 +1,37 @@
 [
   {
-    "name": "transitions only the stack suffix and closes the final stack",
-    "input": "load changes to parse while main remains active",
-    "test": "events = stack_samples_to_trace_events([(1, ['main', 'load']), (3, ['main', 'parse']), (5, ['main'])], 7)\nassert events == [\n    {'name': 'main', 'phase': 'B', 'timestamp': 1},\n    {'name': 'load', 'phase': 'B', 'timestamp': 1},\n    {'name': 'load', 'phase': 'E', 'timestamp': 3},\n    {'name': 'parse', 'phase': 'B', 'timestamp': 3},\n    {'name': 'parse', 'phase': 'E', 'timestamp': 5},\n    {'name': 'main', 'phase': 'E', 'timestamp': 7},\n]"
+    "name": "keeps final calls open and orders transitions",
+    "input": "keeps final calls open and orders transitions",
+    "test": "assert stack_samples_to_trace_events([(1, ['main', 'load']), (3, ['main', 'parse'])]) == [\n    {'name': 'main', 'phase': 'B', 'timestamp': 1},\n    {'name': 'load', 'phase': 'B', 'timestamp': 1},\n    {'name': 'load', 'phase': 'E', 'timestamp': 3},\n    {'name': 'parse', 'phase': 'B', 'timestamp': 3},\n]\nassert stack_samples_to_trace_events([]) == []"
   },
   {
-    "name": "closes nested frames innermost first and supports repeated frame names",
-    "input": "a recursive stack changes beneath its first frame",
-    "test": "events = stack_samples_to_trace_events([(0, ['serve', 'serve', 'decode']), (2, ['serve', 'encode'])], 4)\nassert events == [\n    {'name': 'serve', 'phase': 'B', 'timestamp': 0},\n    {'name': 'serve', 'phase': 'B', 'timestamp': 0},\n    {'name': 'decode', 'phase': 'B', 'timestamp': 0},\n    {'name': 'decode', 'phase': 'E', 'timestamp': 2},\n    {'name': 'serve', 'phase': 'E', 'timestamp': 2},\n    {'name': 'encode', 'phase': 'B', 'timestamp': 2},\n    {'name': 'encode', 'phase': 'E', 'timestamp': 4},\n    {'name': 'serve', 'phase': 'E', 'timestamp': 4},\n]\nassert stack_samples_to_trace_events([], 3) == []"
+    "name": "distinguishes recursive calls and changed parents",
+    "input": "distinguishes recursive calls and changed parents",
+    "test": "events = stack_samples_to_trace_events([(0, ['a', 'b', 'b']), (2, ['c', 'b']), (3, [])])\nassert [(e['name'], e['phase'], e['timestamp']) for e in events] == [\n    ('a', 'B', 0), ('b', 'B', 0), ('b', 'B', 0),\n    ('b', 'E', 2), ('b', 'E', 2), ('a', 'E', 2),\n    ('c', 'B', 2), ('b', 'B', 2), ('b', 'E', 3), ('c', 'E', 3),\n]"
   },
   {
-    "name": "validates timestamps, final boundary, and frame names",
-    "input": "out-of-order samples, an early end, and an empty frame",
-    "test": "def expect(exception_type, call):\n    try:\n        call()\n    except (exception_type, AssertionError):\n        return\n    raise AssertionError(\"expected input validation error\")\n\n\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, [\"a\"]), (1, [\"a\"])], 3))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(2, [\"a\"])], 1))\nexpect(ValueError, lambda: stack_samples_to_trace_events([(1, [\"\"])], 1))"
+    "name": "filters blips and begins on the confirming sample",
+    "input": "filters blips and begins on the confirming sample",
+    "test": "samples = [(0, ['main', 'blip']), (1, ['main', 'work']), (2, ['main', 'work']), (3, ['main']), (4, [])]\nevents = stack_samples_to_trace_events(iter(samples), min_samples=2)\nassert [(e['name'], e['phase'], e['timestamp']) for e in events] == [\n    ('main', 'B', 1), ('work', 'B', 2), ('work', 'E', 3), ('main', 'E', 4),\n]"
+  },
+  {
+    "name": "resets streaks when the call path changes",
+    "input": "resets streaks when the call path changes",
+    "test": "samples = [(0, ['a', 'b']), (1, ['c', 'b']), (2, ['c', 'b']), (3, []), (4, ['c', 'b'])]\nevents = stack_samples_to_trace_events(samples, 2)\nassert [(e['name'], e['phase'], e['timestamp']) for e in events] == [\n    ('c', 'B', 2), ('b', 'B', 2), ('b', 'E', 3), ('c', 'E', 3),\n]"
+  },
+  {
+    "name": "recursive depths have independent streaks",
+    "input": "recursive depths have independent streaks",
+    "test": "samples = [(0, ['f']), (1, ['f', 'f']), (2, ['f', 'f', 'f']), (3, ['f']), (4, [])]\nevents = stack_samples_to_trace_events(samples, 2)\nassert [(e['name'], e['phase'], e['timestamp']) for e in events] == [\n    ('f', 'B', 1), ('f', 'B', 2), ('f', 'E', 3), ('f', 'E', 4),\n]"
+  },
+  {
+    "name": "supports one-pass samples and does not modify caller stacks",
+    "input": "supports one-pass samples and does not modify caller stacks",
+    "test": "stack = ['main', 'work']\ndef samples():\n    yield 0, stack\n    stack.pop()\n    yield 1, stack\n    yield 1, []\nevents = stack_samples_to_trace_events(samples())\nassert stack == ['main']\nassert [(e['name'], e['phase'], e['timestamp']) for e in events] == [\n    ('main', 'B', 0), ('work', 'B', 0), ('work', 'E', 1), ('main', 'E', 1),\n]"
+  },
+  {
+    "name": "rejects invalid confirmation thresholds",
+    "input": "rejects invalid confirmation thresholds",
+    "test": "for threshold in (0, -1, 1.5, True):\n    try:\n        stack_samples_to_trace_events([], threshold)\n    except (ValueError, TypeError, AssertionError):\n        pass\n    else:\n        raise AssertionError('expected a positive integer threshold')"
   }
 ]

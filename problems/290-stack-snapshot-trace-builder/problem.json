@@ -8,17 +8,18 @@
     "tracing",
     "stacks",
     "event-streams",
-    "common-prefix"
+    "streaming",
+    "debouncing"
   ],
   "companies": [
     "Anthropic"
   ],
-  "prompt": "Implement `stack_samples_to_trace_events(samples, end_timestamp) -> list[dict]`. Each item in `samples` is `(timestamp, stack)`, where `stack` lists active frame names from outermost to innermost. Sample timestamps are nondecreasing. Convert the snapshots into begin/end trace events with dictionaries of the exact form `{'name': frame, 'phase': 'B' or 'E', 'timestamp': timestamp}`.\n\nFor each new snapshot, keep the longest common frame prefix with the previous active stack. At that sample's timestamp, emit end events for the old suffix from innermost to outermost, then begin events for the new suffix from outermost to innermost. After the last sample, emit end events for every still-active frame at `end_timestamp`, innermost first. Empty `samples` returns an empty list.\n\nTimestamps must be finite `int` or `float` values, `end_timestamp` must be at least the final sample timestamp, and every stack must be a non-string sequence of nonempty frame-name strings. Reject invalid types, non-monotonic timestamps, an invalid final boundary, or an empty frame name. Do not mutate a caller-owned stack.\n\nInvalid inputs may be rejected with `assert`.",
-  "starter_code": "def stack_samples_to_trace_events(samples, end_timestamp):\n    # Convert stack snapshots into ordered begin/end event dictionaries.\n    pass\n",
+  "prompt": "A sampling profiler periodically records the active call stack. Convert its samples into a trace showing when calls begin and end.\n\nImplement `stack_samples_to_trace_events(samples, min_samples=1) -> list[dict]`. Each sample is `(timestamp, stack)`, with frame names ordered from the outermost call to the innermost. Samples arrive in nondecreasing timestamp order.\n\nReturn events of the form `{'name': frame, 'phase': 'B' or 'E', 'timestamp': timestamp}`. A call begins when it first appears and ends at the first sample where it is absent. At the same timestamp, end inner calls before their parents, then begin parent calls before their children. A call is identified by its complete path from the outermost frame: the same name under a different parent, or at a different recursive depth, is a different call. Calls still present in the final sample remain open.\n\nFollow-up: suppress calls observed in fewer than `min_samples` consecutive samples. In this version, emit a begin event at the timestamp of the confirming sample, and an end event only for a previously confirmed call. With `min_samples=1`, this is the base behavior. Returning after an absence starts a new streak.\n\nAccept an iterable of samples without requiring the full input history in memory. Empty input returns `[]`. Assume finite numeric timestamps and nonempty string frame names; do not mutate the input. `min_samples` must be a positive integer.",
+  "starter_code": "def stack_samples_to_trace_events(samples, min_samples=1):\n    pass\n",
   "example": {
-    "input": "stack_samples_to_trace_events([(1, ['main', 'load']), (3, ['main', 'parse'])], 5)",
-    "output": "begin main/load at 1, end load then begin parse at 3, end parse/main at 5",
-    "reasoning": "The shared 'main' frame stays active while only the differing suffix changes at timestamp 3."
+    "input": "stack_samples_to_trace_events([(1, ['main', 'load']), (3, ['main', 'parse'])])",
+    "output": "[{'name': 'main', 'phase': 'B', 'timestamp': 1}, {'name': 'load', 'phase': 'B', 'timestamp': 1}, {'name': 'load', 'phase': 'E', 'timestamp': 3}, {'name': 'parse', 'phase': 'B', 'timestamp': 3}]",
+    "reasoning": "The load call has ended by the second sample. The main and parse calls have no observed end."
   },
   "environment": {
     "language": "python",
@@ -40,8 +41,12 @@
       "url": "https://www.1point3acres.com/bbs/thread-1098075-2-1.html"
     },
     {
-      "label": "Notion interview record (practice variant)",
+      "label": "Notion interview record; event schema and confirming-sample timestamps are practice conventions",
       "url": "https://app.notion.com/p/35c6ce51456d81dbbea2c9e63d4714cc"
+    },
+    {
+      "label": "Public prompt summary (secondary): open final calls and consecutive-sample follow-up",
+      "url": "https://prachub.com/interview-questions/convert-stack-samples-to-trace-events?view=text"
     }
   ]
 }
