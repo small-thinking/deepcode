@@ -39,6 +39,10 @@
     {
       "label": "1Point3Acres: Uber MLE full loop, March 2026",
       "url": "https://www.1point3acres.com/interview/thread/1167901"
+    },
+    {
+      "label": "First-person Uber SDE-ML2 report: robot-grid distance query",
+      "url": "https://www.reddit.com/r/leetcode/comments/1n8tyxi/my_uber_sdeml2_interview_journey_didnt_make_it/"
     }
   ],
   "created_at": "2026-09-08",
@@ -48,11 +52,11 @@
         "3d66ce51456d816eb77fe2a7be51e4f4"
       ],
       "stars": 2,
-      "synced_at": "2026-09-10"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-10"
+    "synced_at": "2026-09-22"
   }
 }
