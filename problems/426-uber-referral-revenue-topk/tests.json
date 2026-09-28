@@ -1,0 +1,22 @@
+[
+  {
+    "name": "updates ancestors and uses a strict threshold",
+    "input": "root, two children, and a repeat insert",
+    "test": "ops=[('insert',1,100,None),('insert',2,50,1),('insert',3,70,1),('top_k',2,100),('insert',2,30,None),('top_k',3,60)]\nassert solution(ops)==[[[1,220]],[[1,250],[2,80],[3,70]]]"
+  },
+  {
+    "name": "breaks equal totals by customer ID",
+    "input": "two roots each aggregate to 60",
+    "test": "ops=[('insert',2,50,None),('insert',1,50,None),('insert',4,10,2),('insert',3,10,1),('top_k',2,59)]\nassert solution(ops)==[[[1,60],[2,60]]]"
+  },
+  {
+    "name": "keeps an existing parent after later inserts",
+    "input": "existing child receives revenue with another referrer",
+    "test": "ops=[('insert',1,10,None),('insert',2,20,None),('insert',3,5,1),('insert',3,7,2),('top_k',3,0)]\nassert solution(ops)==[[[1,22],[2,20],[3,12]]]"
+  },
+  {
+    "name": "handles negative amounts and zero requested results",
+    "input": "negative update and k=0",
+    "test": "ops=[('insert',1,10,None),('insert',2,5,1),('insert',2,-8,None),('top_k',0,-100),('top_k',2,0)]\nassert solution(ops)==[[],[[1,7]]]"
+  }
+]

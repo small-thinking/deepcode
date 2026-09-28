@@ -1,0 +1,46 @@
+{
+  "id": "440",
+  "slug": "ai-project-adoption-value",
+  "title": "Explain an AI Project's Adoption and Value",
+  "category": "Behavioral",
+  "difficulty": "medium",
+  "tags": [
+    "project-discussion",
+    "trade-offs"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Tell me about a project where you chose AI or machine learning. Why was it appropriate, who used it, and what evidence shows that it delivered value? How long did it take to reach production, and what would a simpler solution have achieved?",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nUse a real project and separate your decisions from the team's work. State the user problem and existing workflow, then compare the selected method with rules or ordinary software. Describe the quality, latency and cost requirements that influenced the decision.\n\nGive actual evidence of adoption and production outcomes, including the observation window and limitations of attribution. Explain time to production, operational failures and what changed after launch. If the work remained a prototype, say so and describe what evidence was still missing. Do not invent business metrics or imply deployment from a successful demo."
+  },
+  "references": [
+    {
+      "label": "Aced / Exponent: candidate interview report",
+      "url": "https://www.tryexponent.com/experiences/anthropic-machine-learning-engineer-interview-27873a"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e76ce51456d813c8911f51f64666a58"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "3e76ce51456d813c8911f51f64666a58"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "id": "447",
+  "slug": "anthropic-values-and-judgment",
+  "title": "Discuss AI Safety, Values, and Judgment",
+  "category": "Behavioral",
+  "difficulty": "medium",
+  "tags": [
+    "project-discussion",
+    "trade-offs"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Why do you want to work at Anthropic, and which AI safety risk concerns you most? Describe a time you raised an ethical or policy concern under delivery pressure, or changed your mind after a disagreement. Explain your actions and what happened.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nUse your actual motivations and experience. Connect a concrete safety concern to likely harm, uncertainty and practical mitigations rather than repeating a mission statement. If discussing a company decision, check the facts and distinguish them from your opinion.\n\nFor the example, explain the conflicting goals, your responsibility, evidence available at the time and who held decision authority. Describe how you raised the concern, considered counterarguments and escalated if needed. State the outcome honestly, including costs or unresolved issues. Show what changed in your reasoning and what you would do differently; no particular personal story or view is prescribed."
+  },
+  "references": [
+    {
+      "label": "1Point3Acres: Anthropic HR Screen Interview Experience for Software Engineer Role",
+      "url": "https://www.1point3acres.com/interview/thread/1170382"
+    },
+    {
+      "label": "1Point3Acres: Anthropic HR Screen Interview Experience for Software Engineer Position",
+      "url": "https://www.1point3acres.com/interview/thread/1175805"
+    },
+    {
+      "label": "1Point3Acres: Anthropic onsite full-loop report",
+      "url": "https://www.1point3acres.com/bbs/thread-1178495-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic senior/staff infra onsite thread 1180552",
+      "url": "https://www.1point3acres.com/bbs/thread-1180552-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic HM interview report 1181004",
+      "url": "https://www.1point3acres.com/bbs/thread-1181004-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic fail report 1181431 (round recurrence only)",
+      "url": "https://www.1point3acres.com/bbs/thread-1181431-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic onsite report 1181642",
+      "url": "https://www.1point3acres.com/bbs/thread-1181642-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic onsite fail report 1182424",
+      "url": "https://www.1point3acres.com/bbs/thread-1182424-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: A HR面试",
+      "url": "https://www.1point3acres.com/bbs/thread-1182634-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic full-loop report 1182890 (round recurrence only)",
+      "url": "https://www.1point3acres.com/bbs/thread-1182890-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic full-loop report 1183045",
+      "url": "https://www.1point3acres.com/bbs/thread-1183045-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic onsite report 1184940",
+      "url": "https://www.1point3acres.com/bbs/thread-1184940-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic HR-screen report 1186970",
+      "url": "https://www.1point3acres.com/bbs/thread-1186970-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic HR screening report 1187132",
+      "url": "https://www.1point3acres.com/bbs/thread-1187132-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic recruiter-screen report 1187826",
+      "url": "https://www.1point3acres.com/bbs/thread-1187826-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic recruiter-screen report 1188498",
+      "url": "https://www.1point3acres.com/bbs/thread-1188498-1-1.html"
+    },
+    {
+      "label": "1Point3Acres: Anthropic HR-screen report 1188689",
+      "url": "https://www.1point3acres.com/bbs/thread-1188689-1-1.html"
+    },
+    {
+      "label": "Aced / Exponent: candidate interview report",
+      "url": "https://www.tryexponent.com/experiences/anthropic-machine-learning-engineer-interview-27873a"
+    },
+    {
+      "label": "Aced: Staff Infrastructure report — motivation, disagreement and safety trade-offs",
+      "url": "https://www.tryexponent.com/experiences/anthropic-staff-software-engineer-interview-6ecf1d"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/35c6ce51456d81938b95d8c982622307"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "35c6ce51456d81938b95d8c982622307"
+      ],
+      "stars": 5,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 5,
+    "synced_at": "2026-09-28"
+  }
+}

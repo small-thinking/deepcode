@@ -1,0 +1,3 @@
+# Evidence and reconstruction boundary
+
+The candidate report describes a filesystem tree with file sizes, recursive totals, and a follow-up that returns the total beneath a requested path. This practice version represents directories as dictionaries and files as nonnegative integer values. Optional slash handling, `None` for a missing path, and assertions for invalid components are local conventions, not reported interview requirements. The source author said they did not complete the path follow-up, so this solution reflects the requested behavior rather than validating the author's submitted implementation.

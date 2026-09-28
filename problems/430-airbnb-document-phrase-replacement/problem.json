@@ -1,0 +1,71 @@
+{
+  "id": "430",
+  "slug": "airbnb-document-phrase-replacement",
+  "title": "Replace Phrases in a Document",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "strings",
+    "scanning",
+    "redaction"
+  ],
+  "prompt": "Implement `redact_document(text, phrases, replacements)`. For each phrase, use the replacement at the same index. Scan the **original** text from left to right. Replace a phrase only when it begins and ends on ASCII word boundaries; an ASCII word character is a letter, digit, or underscore. If several phrases match at one position, choose the longest. Append replacement text verbatim without scanning it again. Matching is case-sensitive.\n\nAssume each phrase starts and ends with an ASCII word character. Assert that the phrase and replacement lists have equal lengths, and that phrases are nonempty and unique. Return the transformed string. These matching details define this runnable practice exercise.",
+  "companies": [
+    "Airbnb"
+  ],
+  "starter_code": "def redact_document(text, phrases, replacements):\n    pass\n",
+  "example": {
+    "input": "redact_document('Ask Alice, then Bob.', ['Alice', 'Bob'], ['[NAME]', '[NAME]'])",
+    "output": "'Ask [NAME], then [NAME].'",
+    "reasoning": "Both names match at word boundaries, while punctuation is preserved."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "LeetCode: candidate interview report",
+      "url": "https://leetcode.com/discuss/post/1522247/my-journey-to-offers-and-rejections-faang-and-non-faang/"
+    },
+    {
+      "label": "Reddit / Chill Interview: report excerpt (shared lineage possible)",
+      "url": "https://www.reddit.com/r/OfferEngineering/comments/1wl3n04/airbnb_machine_learning_engineer_mle_interview/"
+    },
+    {
+      "label": "PracHub: curated interview report (upstream lineage unverified)",
+      "url": "https://prachub.com/interview-experiences/airbnb-seniorplus-machine-learning-engineer-interview-experience-search-ranking-and-team-matching"
+    },
+    {
+      "label": "PracHub: curated practice specification (not an original transcript)",
+      "url": "https://prachub.com/coding-questions/redact-document-phrases-with-simultaneous-replacement"
+    },
+    {
+      "label": "1Point3Acres: Airbnb G8 Machine Learning Engineer full onsite report",
+      "url": "https://www.1point3acres.com/interview/thread/1190112"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e56ce51456d812f829edef49f375bcf"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e56ce51456d812f829edef49f375bcf"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-28"
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "counts ordinary ranges and the overflow bucket",
+    "input": "values span every bucket and overflow",
+    "test": "assert calc_buckets([0, 9, 10, 19, 20, 30], 3, 10) == [2, 2, 2]\nassert calc_buckets([90, 100, 119], 11, 10)[-1] == 2"
+  },
+  {
+    "name": "handles empty input and a single overflow bucket",
+    "input": "no values and bucket_count equal to one",
+    "test": "assert calc_buckets([], 4, 7) == [0, 0, 0, 0]\nassert calc_buckets([0, 3, 100], 1, 5) == [3]"
+  },
+  {
+    "name": "uses non-unit bucket widths and exact lower boundaries",
+    "input": "values on and around bucket boundaries",
+    "test": "assert calc_buckets([2, 3, 4, 7, 8, 11, 14], 3, 4) == [2, 2, 3]"
+  },
+  {
+    "name": "asserts positive integer dimensions and nonnegative integer latencies",
+    "input": "invalid dimensions or latency values",
+    "test": "for args in [([1], 0, 1), ([1], 1, 0), ([-1], 1, 1)]:\n    try:\n        calc_buckets(*args)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('invalid bucket input was accepted')"
+  }
+]

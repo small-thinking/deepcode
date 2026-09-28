@@ -1,0 +1,32 @@
+[
+  {
+    "name": "unequal lengths, noncontiguous tensors and padding mask",
+    "input": "unequal lengths, noncontiguous tensors and padding mask",
+    "test": "import torch\nfrom torch.nn.functional import scaled_dot_product_attention\ntorch.manual_seed(446)\nq = torch.randn(2, 3, 5, 4, dtype=torch.double).transpose(-2, -1)\nk = torch.randn(2, 3, 5, 6, dtype=torch.double).transpose(-2, -1)\nv = torch.randn(2, 3, 7, 6, dtype=torch.double).transpose(-2, -1)\nmask = torch.tensor([[[[True, False, True, False, True, False]]], [[[False, True, False, True, False, True]]]])\nsnapshots = [t.clone() for t in (q, k, v, mask)]\nout = masked_qkv_attention(q, k, v, mask)\nassert out.shape == (2, 3, 4, 7)\nassert out.dtype == q.dtype and out.device == q.device\ntorch.testing.assert_close(out, scaled_dot_product_attention(q, k, v, attn_mask=mask))\nfor tensor, snapshot in zip((q, k, v, mask), snapshots):\n    assert torch.equal(tensor, snapshot)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "unmasked, causal and combined causal-padding attention",
+    "input": "unmasked, causal and combined causal-padding attention",
+    "test": "import torch\nfrom torch.nn.functional import scaled_dot_product_attention\ntorch.manual_seed(446)\nq = torch.randn(2, 2, 4, 3)\nk = torch.randn(2, 2, 4, 3)\nv = torch.randn(2, 2, 4, 5)\ncausal = torch.ones(4, 4, dtype=torch.bool).tril()\npadding = torch.tensor([[[[True, True, True, False]]], [[[True, True, False, False]]]])\nfor mask in (None, causal, causal & padding):\n    out = masked_qkv_attention(q, k, v, mask)\n    assert out.dtype == q.dtype and out.device == q.device\n    torch.testing.assert_close(out, scaled_dot_product_attention(q, k, v, attn_mask=mask))\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "gradients through all three inputs",
+    "input": "gradients through all three inputs",
+    "test": "import torch\nfrom torch.nn.functional import scaled_dot_product_attention\ntorch.manual_seed(446)\nq = torch.randn(1, 2, 3, 4, dtype=torch.double, requires_grad=True)\nk = torch.randn(1, 2, 5, 4, dtype=torch.double, requires_grad=True)\nv = torch.randn(1, 2, 5, 2, dtype=torch.double, requires_grad=True)\nmask = torch.tensor([[True, True, False, True, False]])\nout = masked_qkv_attention(q, k, v, mask)\nexpected = scaled_dot_product_attention(q, k, v, attn_mask=mask)\ngot_grads = torch.autograd.grad(out.square().sum(), (q, k, v))\nexpected_grads = torch.autograd.grad(expected.square().sum(), (q, k, v))\nfor got, expected_grad in zip(got_grads, expected_grads):\n    assert torch.isfinite(got).all()\n    torch.testing.assert_close(got, expected_grad)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "large scores use stable softmax and singleton keys return their value",
+    "input": "large scores use stable softmax and singleton keys return their value",
+    "test": "import torch\nfrom torch.nn.functional import scaled_dot_product_attention\ntorch.manual_seed(446)\nq = torch.tensor([[[[10000., -10000.]]]])\nk = torch.tensor([[[[10000., -10000.], [-10000., 10000.]]]])\nv = torch.tensor([[[[2., 3.], [7., 11.]]]])\nout = masked_qkv_attention(q, k, v)\nassert torch.isfinite(out).all()\ntorch.testing.assert_close(out, scaled_dot_product_attention(q, k, v))\none = masked_qkv_attention(q, k[..., :1, :], v[..., :1, :])\ntorch.testing.assert_close(one, v[..., :1, :])\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "mixed precision avoids score overflow and preserves gradients",
+    "input": "float16 and bfloat16 inputs",
+    "test": "import torch\nfrom torch.nn.functional import scaled_dot_product_attention\nfor dtype in (torch.float16, torch.bfloat16):\n    q = torch.tensor([[[[10000., -10000.]]]], dtype=dtype)\n    k = torch.tensor([[[[10000., -10000.], [-10000., 10000.]]]], dtype=dtype)\n    v = torch.tensor([[[[2., 3.], [7., 11.]]]], dtype=dtype)\n    out = masked_qkv_attention(q, k, v)\n    expected = scaled_dot_product_attention(q.float(), k.float(), v.float()).to(dtype)\n    assert out.dtype == dtype and torch.isfinite(out).all()\n    torch.testing.assert_close(out, expected)\n    torch.manual_seed(446)\n    inputs = [torch.randn(1, 1, 2, 3, dtype=dtype, requires_grad=True) for _ in range(3)]\n    out = masked_qkv_attention(*inputs)\n    grads = torch.autograd.grad(out.float().square().sum(), inputs)\n    assert all(torch.isfinite(g).all() and g.abs().sum() > 0 for g in grads)\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "registers queries and reports later matching log lines",
+    "input": "two queries, two matching lines, and an unmatched line",
+    "test": "lines = ['Q: disk failed', 'L: DISK operation failed', 'Q: net error', 'L: Net error observed', 'L: unrelated text']\nassert match_stream(lines) == ['ACK: disk failed; ID=1', 'M: DISK operation failed; Q=1', 'ACK: net error; ID=2', 'M: Net error observed; Q=2']"
+  },
+  {
+    "name": "requires all query words while ignoring order and case",
+    "input": "query words occur in a different order and case",
+    "test": "assert match_stream(['Q: red BLUE', 'L: blue red', 'L: RED umbrella']) == ['ACK: red BLUE; ID=1', 'M: blue red; Q=1']"
+  },
+  {
+    "name": "uses only prior queries and assigns ascending IDs",
+    "input": "log before registration, then overlapping registered queries",
+    "test": "lines = ['L: go now', 'Q: red red', 'Q: go', 'L: GO now', 'Q: now', 'L: now GO RED']\nassert match_stream(lines) == ['ACK: red red; ID=1', 'ACK: go; ID=2', 'M: GO now; Q=2', 'ACK: now; ID=3', 'M: now GO RED; Q=1,2,3']"
+  },
+  {
+    "name": "does not match substrings and omits unmatched logs",
+    "input": "fail must not match failed or failure; empty stream",
+    "test": "assert match_stream(['Q: fail', 'L: failed', 'L: failure', 'L: fail']) == ['ACK: fail; ID=1', 'M: fail; Q=1']\nassert match_stream([]) == []"
+  }
+]

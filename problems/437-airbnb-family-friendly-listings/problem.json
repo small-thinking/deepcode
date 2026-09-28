@@ -1,0 +1,50 @@
+{
+  "id": "437",
+  "slug": "airbnb-family-friendly-listings",
+  "title": "Design a Family-Friendly Listing Classifier",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "system-design",
+    "evaluation"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Design a classifier or filter that helps guests find family-friendly homes. Define what the label means, how you would learn it from available data, and how you would evaluate and use the result. Discuss noisy labels and new listings.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nDefine suitability for a specified family use case before choosing a model. Distinguish verified amenities from subjective review evidence, and use reviewed examples to estimate weak-label error. Start with a calibrated tabular baseline using time-valid listing and permitted trip signals; add text or image features only if they improve held-out performance. Avoid treating missing evidence as proof of suitability.\n\nEvaluate precision, recall and calibration, including new listings and relevant listing/guest slices. Choose a threshold based on the cost of false assurances versus missed options. Validate online booking outcomes alongside complaints, refunds and user satisfaction. Monitor label drift and provide a correction path."
+  },
+  "references": [
+    {
+      "label": "PracHub: curated interview report (upstream lineage unverified)",
+      "url": "https://prachub.com/interview-experiences/airbnb-senior-machine-learning-engineer-interview-experience-four-ml-system-design-rounds-rejected-on-calibration"
+    },
+    {
+      "label": "Reddit / Chill Interview: matching report excerpt (lineage unverified)",
+      "url": "https://www.reddit.com/r/OfferEngineering/comments/1w5pahq/airbnb_senior_mle_interview_experience_jun_2026/"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e66ce51456d813f9c70fa95d4691740"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e66ce51456d813f9c70fa95d4691740"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "buffers until explicit flush below capacity",
+    "input": "write two chunks smaller than the capacity",
+    "test": "class Sink:\n    def __init__(self): self.writes = []\n    def write(self, data): self.writes.append(data)\nsink = Sink()\nwriter = BufferedFileWriter(sink, 5)\nwriter.write(b'ab')\nwriter.write(b'cd')\nassert sink.writes == []\nwriter.flush()\nassert sink.writes == [b'abcd']"
+  },
+  {
+    "name": "automatically flushes exactly when the buffer fills",
+    "input": "writes combine to exactly the capacity",
+    "test": "class Sink:\n    def __init__(self): self.writes = []\n    def write(self, data): self.writes.append(data)\nsink = Sink()\nwriter = BufferedFileWriter(sink, 4)\nwriter.write(b'ab')\nwriter.write(b'cd')\nassert sink.writes == [b'abcd']\nwriter.flush()\nassert sink.writes == [b'abcd']"
+  },
+  {
+    "name": "chunks writes larger than capacity and preserves residual data",
+    "input": "one write spans multiple full buffers and a remainder",
+    "test": "class Sink:\n    def __init__(self): self.writes = []\n    def write(self, data): self.writes.append(data)\nsink = Sink()\nwriter = BufferedFileWriter(sink, 3)\nwriter.write(b'abcdefgh')\nassert sink.writes == [b'abc', b'def']\nassert all(len(chunk) <= 3 for chunk in sink.writes)\nwriter.flush()\nassert sink.writes == [b'abc', b'def', b'gh']"
+  },
+  {
+    "name": "combines consecutive writes and flushes the residual bytes",
+    "input": "several writes fill the buffer more than once, then explicit flush",
+    "test": "class Sink:\n    def __init__(self): self.writes = []\n    def write(self, data): self.writes.append(data)\nsink = Sink()\nwriter = BufferedFileWriter(sink, 4)\nwriter.write(b'a')\nwriter.write(b'bc')\nwriter.write(b'defghi')\nassert sink.writes == [b'abcd', b'efgh']\nwriter.flush()\nassert sink.writes == [b'abcd', b'efgh', b'i']"
+  }
+]

@@ -1,0 +1,39 @@
+import unittest
+from pathlib import Path
+
+from deepcode.evaluators import EvaluationRequest, evaluate_submission
+from deepcode.problem_store import ProblemStore
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SLUGS = (
+    "datadog-latency-buckets",
+    "datadog-filesystem-path-size",
+    "datadog-buffered-file-writer",
+    "datadog-live-query-log-matcher",
+)
+
+
+class Multisource433436FixtureTest(unittest.TestCase):
+    def test_reference_solutions_pass_visible_cases(self):
+        store = ProblemStore(ROOT / "problems")
+        for slug in SLUGS:
+            with self.subTest(slug=slug):
+                problem = store.get_problem(slug)
+                problem_dir = next((ROOT / "problems").glob(f"*-{slug}"))
+                result = evaluate_submission(
+                    EvaluationRequest(
+                        code=(problem_dir / "solution.py").read_text(encoding="utf-8"),
+                        problem=problem,
+                        tests=problem["tests"],
+                        environment=problem["environment"],
+                        runtime=problem.get("_runtime", {}),
+                    )
+                )
+                self.assertEqual(result["status"], "passed", result)
+                self.assertEqual(result["passed"], len(problem["tests"]))
+                self.assertEqual(len(problem["tests"]), 4)
+
+
+if __name__ == "__main__":
+    unittest.main()

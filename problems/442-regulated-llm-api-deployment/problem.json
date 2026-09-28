@@ -1,0 +1,50 @@
+{
+  "id": "442",
+  "slug": "regulated-llm-api-deployment",
+  "title": "Design a Regulated LLM API Deployment",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "system-design",
+    "evaluation"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "A customer in a regulated industry wants to use Claude APIs. Recommend a service architecture and operating model that address data handling, security, auditability, and trust. What additional constraints would you clarify for a government contractor?",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nAsk which data classifications, contractual controls, residency boundaries and approval processes actually apply. Identify who operates each component and verify that candidate provider/service arrangements meet those requirements before recommending one. Do not assume a provider certification, private deployment option or retention policy.\n\nTrace data from client through the application, retrieval, API calls and logs. Specify tenant isolation, identity, least privilege, secrets handling, encryption, retention/deletion and auditable access. Keep required human approvals at consequential decision points. Explain monitoring, incident response, availability and an exit plan. For a government contractor, clarify the contract's specific authorization and handling requirements with the responsible reviewers."
+  },
+  "references": [
+    {
+      "label": "Aced / Exponent: candidate interview report",
+      "url": "https://www.tryexponent.com/experiences/anthropic-machine-learning-engineer-interview-27873a"
+    },
+    {
+      "label": "Aced prompt page linked to existing report",
+      "url": "https://www.tryexponent.com/questions/6264/design-claude-api-implementation-regulated-industry"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e76ce51456d818f972ac1e5ed05377b"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "3e76ce51456d818f972ac1e5ed05377b"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}

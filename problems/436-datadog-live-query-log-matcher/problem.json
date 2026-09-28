@@ -1,0 +1,60 @@
+{
+  "id": "436",
+  "slug": "datadog-live-query-log-matcher",
+  "title": "Match Registered Queries Against a Log Stream",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "streaming",
+    "logs",
+    "query-matching",
+    "strings"
+  ],
+  "companies": [
+    "Datadog"
+  ],
+  "prompt": "Implement `match_stream(lines) -> list[str]` for a stream of query and log lines. Each line is either `Q: text` or `L: text`.\n\nA `Q:` line registers a query and assigns it the next integer ID, starting at 1. Emit `ACK: {text}; ID={id}` for each query. An `L:` line is checked against the queries registered before that line. A query matches when all of its words occur in the log line, case-insensitively and in any order. Treat repeated query words as a set. For a matching log line, emit `M: {text}; Q={ids}` where `ids` are the matching query IDs in ascending order, separated by commas. If no query matches, emit nothing for that log line.\n\nInput lines are well-formed. Each query/log payload is a nonempty sequence of ASCII words separated by whitespace. Preserve the original payload text in emitted output. This practice version treats whitespace-separated tokens as words; punctuation normalization is not specified by the source report.",
+  "starter_code": "def match_stream(lines):\n    # Register queries in order and emit matches for later log lines.\n    pass\n",
+  "example": {
+    "input": "match_stream(['Q: loading failed', 'L: Loading snapshot failed'])",
+    "output": "['ACK: loading failed; ID=1', 'M: Loading snapshot failed; Q=1']",
+    "reasoning": "The log contains both query words regardless of case and order."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "LeetCode: candidate interview report",
+      "url": "https://leetcode.com/discuss/post/6376092/"
+    },
+    {
+      "label": "PracHub: curated query/log report (lineage unverified)",
+      "url": "https://prachub.com/interview-experiences/datadog-software-engineer-interview-experience-matching-queries-against-a-log-stream"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e56ce51456d81baa3f0fc50df5527d8"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Datadog": {
+      "source_record_ids": [
+        "3e56ce51456d81baa3f0fc50df5527d8"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}

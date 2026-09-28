@@ -1,0 +1,60 @@
+{
+  "id": "435",
+  "slug": "datadog-buffered-file-writer",
+  "title": "Buffer File Writes with a Capacity Limit",
+  "category": "Systems Coding",
+  "difficulty": "medium",
+  "tags": [
+    "buffer",
+    "files",
+    "stateful",
+    "memory-bound"
+  ],
+  "companies": [
+    "Datadog"
+  ],
+  "prompt": "Implement `BufferedFileWriter(sink, capacity)` with `write(data: bytes)` and `flush()`.\n\nThe writer buffers every byte in memory before sending bytes to `sink.write(bytes)`. Flush automatically when the buffer reaches `capacity`, and flush any remaining bytes when `flush()` is called. Never buffer more than `capacity` bytes. The sink's `write` method consumes the entire byte string synchronously on successful return.\n\nAssume `capacity` is a positive integer and each `write` call receives bytes. A write larger than the capacity should be handled in bounded chunks through the buffer; do not bypass buffering with a direct oversized sink write. The partial-write/circular-buffer discussion from a reported follow-up is not part of this exercise's required interface.",
+  "starter_code": "class BufferedFileWriter:\n    def __init__(self, sink, capacity):\n        pass\n\n    def write(self, data):\n        pass\n\n    def flush(self):\n        pass\n",
+  "example": {
+    "input": "writer = BufferedFileWriter(sink, 4); writer.write(b'abc'); writer.write(b'd'); writer.write(b'xy'); writer.flush()",
+    "output": "sink receives b'abcd' automatically, then b'xy' on flush",
+    "reasoning": "The first four bytes fill the capacity; the residual bytes remain buffered until explicitly flushed."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "LeetCode: candidate interview report",
+      "url": "https://leetcode.com/discuss/post/6376092/"
+    },
+    {
+      "label": "Reddit: candidate follow-up on buffered-writer scalability",
+      "url": "https://www.reddit.com/r/leetcode/comments/1g6183s/comment/lyabx1m/"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e56ce51456d813aacbaeea7b6576b74"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Datadog": {
+      "source_record_ids": [
+        "3e56ce51456d813aacbaeea7b6576b74"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}
