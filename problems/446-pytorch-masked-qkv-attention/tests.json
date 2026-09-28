@@ -22,5 +22,11 @@
     "input": "large scores use stable softmax and singleton keys return their value",
     "test": "import torch\nfrom torch.nn.functional import scaled_dot_product_attention\ntorch.manual_seed(446)\nq = torch.tensor([[[[10000., -10000.]]]])\nk = torch.tensor([[[[10000., -10000.], [-10000., 10000.]]]])\nv = torch.tensor([[[[2., 3.], [7., 11.]]]])\nout = masked_qkv_attention(q, k, v)\nassert torch.isfinite(out).all()\ntorch.testing.assert_close(out, scaled_dot_product_attention(q, k, v))\none = masked_qkv_attention(q, k[..., :1, :], v[..., :1, :])\ntorch.testing.assert_close(one, v[..., :1, :])\nprint('ok')\n",
     "expected_output": "ok"
+  },
+  {
+    "name": "mixed precision avoids score overflow and preserves gradients",
+    "input": "float16 and bfloat16 inputs",
+    "test": "import torch\nfrom torch.nn.functional import scaled_dot_product_attention\nfor dtype in (torch.float16, torch.bfloat16):\n    q = torch.tensor([[[[10000., -10000.]]]], dtype=dtype)\n    k = torch.tensor([[[[10000., -10000.], [-10000., 10000.]]]], dtype=dtype)\n    v = torch.tensor([[[[2., 3.], [7., 11.]]]], dtype=dtype)\n    out = masked_qkv_attention(q, k, v)\n    expected = scaled_dot_product_attention(q.float(), k.float(), v.float()).to(dtype)\n    assert out.dtype == dtype and torch.isfinite(out).all()\n    torch.testing.assert_close(out, expected)\n    torch.manual_seed(446)\n    inputs = [torch.randn(1, 1, 2, 3, dtype=dtype, requires_grad=True) for _ in range(3)]\n    out = masked_qkv_attention(*inputs)\n    grads = torch.autograd.grad(out.float().square().sum(), inputs)\n    assert all(torch.isfinite(g).all() and g.abs().sum() > 0 for g in grads)\nprint('ok')\n",
+    "expected_output": "ok"
   }
 ]

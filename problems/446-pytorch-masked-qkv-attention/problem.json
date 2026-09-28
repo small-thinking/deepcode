@@ -13,7 +13,7 @@
   "companies": [
     "Anthropic"
   ],
-  "prompt": "Implement `masked_qkv_attention(q, k, v, mask=None)` in PyTorch. Inputs have shapes `q: (B, H, Lq, D)`, `k: (B, H, Lk, D)` and `v: (B, H, Lk, Dv)`; return the scaled dot-product attention output `(B, H, Lq, Dv)`. Query and key lengths may differ.\n\nThe optional boolean mask is broadcastable to `(B, H, Lq, Lk)`; True permits attention. The caller supplies causal or padding masks, and every query has at least one allowed key. Assume compatible nonempty shapes and finite floating inputs with the same dtype and device. Preserve dtype, device and autograd without mutating inputs. Do not use built-in attention implementations.\n\nExplain why the scores are scaled and discuss time, memory and long-sequence optimizations.",
+  "prompt": "Implement `masked_qkv_attention(q, k, v, mask=None)` in PyTorch. Inputs have shapes `q: (B, H, Lq, D)`, `k: (B, H, Lk, D)` and `v: (B, H, Lk, Dv)`; return the scaled dot-product attention output `(B, H, Lq, Dv)`. Query and key lengths may differ.\n\nThe optional boolean mask is broadcastable to `(B, H, Lq, Lk)`; True permits attention. The caller supplies causal or padding masks, and every query has at least one allowed key. Assume compatible nonempty shapes and finite floating inputs with the same dtype and device. Handle float16/bfloat16 inputs stably. Preserve output dtype, device and autograd without mutating inputs. Do not use built-in attention implementations.\n\nExplain why the scores are scaled and discuss time, memory and long-sequence optimizations.",
   "starter_code": "import torch\n\n\ndef masked_qkv_attention(q, k, v, mask=None):\n    pass\n",
   "example": {
     "input": "q: (2, 3, 4, 8), k: (2, 3, 6, 8), v: (2, 3, 6, 5)",

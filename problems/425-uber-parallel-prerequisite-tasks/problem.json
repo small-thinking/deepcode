@@ -34,6 +34,10 @@
       "url": "https://prachub.com/coding-questions/compute-minimal-time-to-finish-dependent-tasks"
     },
     {
+      "label": "LeetCode: Uber dependency scheduling with variable durations (related variant)",
+      "url": "https://leetcode.com/discuss/post/881980/snapchat-uber-minimum-time-to-complete-all-tasks/"
+    },
+    {
       "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e56ce51456d813195abdd2a91e1248c"
     }
