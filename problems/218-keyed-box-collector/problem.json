@@ -1,9 +1,9 @@
 {
   "id": "218",
   "slug": "keyed-box-collector",
-  "title": "Keyed Box Collector",
+  "title": "Maximum Candies from Boxes",
   "category": "Systems Coding",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "tags": [
     "graph-traversal",
     "state-machine",
@@ -13,12 +13,12 @@
   "companies": [
     "Airbnb"
   ],
-  "prompt": "Implement a collector over boxes that can contain rewards, keys, and references to child boxes.\n\n`Box(id, candies, keys, children, is_open=False)` stores a box ID, a nonnegative reward count, iterable keys, iterable child box IDs, and whether the box is intrinsically open. The default preserves the four-argument constructor. Implement `get_max_candies(boxes, initially_open, key_to_box) -> int`. `boxes` is the complete catalog, `initially_open` contains root box IDs that are both discovered and unlocked, and `key_to_box` maps a key to the ID it unlocks.\n\nA catalog box can open exactly once only after it is discovered and unlocked. It is unlocked if its ID is in `initially_open`, its `is_open` flag is true, or a collected key unlocks it. An intrinsically open box still cannot be collected until it is discovered as an initial root or a child of an opened box. Opening a box collects its candies, reveals its keys, and discovers its child IDs. A key may unlock a catalog box before that box is discovered; it must wait until a parent reveals it. Repeated child references, duplicate keys, cycles, and self-references must not collect a box twice. A key absent from `key_to_box`, or one mapped to a box outside the catalog, has no effect. Do not mutate the supplied boxes or build a user interface.",
-  "starter_code": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Box:\n    id: object\n    candies: int\n    keys: tuple\n    children: tuple\n    is_open: bool = False\n\n\ndef get_max_candies(boxes, initially_open, key_to_box):\n    pass\n",
+  "prompt": "Implement `Solution.maxCandies(status, candies, keys, containedBoxes, initialBoxes) -> int`.\n\nBoxes have IDs from `0` to `n - 1`. The four parallel arrays describe every box:\n- `status[i]`: `1` means initially unlocked; `0` means a key is required. Neither value means its contents have already been collected.\n- `candies[i]`: the reward inside box `i`.\n- `keys[i]`: IDs of boxes that keys inside box `i` can unlock.\n- `containedBoxes[i]`: IDs of boxes physically inside box `i`.\n\n`initialBoxes` lists the boxes you possess at the start, including any locked ones. Initially you have no keys. Collect a box only when you possess it and it is unlocked or you have its key. Collection gives you its candies, keys and contained boxes. Each box contributes candies once. Keep keys for boxes you may discover later; a key alone does not give you the box. Return the maximum collectible candy total.\n\nAssume valid inputs: the parallel arrays have length `1 <= n <= 1000`; rewards are integers from 1 to 1000; IDs are valid; each individual keys/contained-box list has unique IDs; each box occurs inside at most one box. `initialBoxes` may be empty. No extra input validation is required.",
+  "starter_code": "class Solution:\n    def maxCandies(\n        self,\n        status: list[int],\n        candies: list[int],\n        keys: list[list[int]],\n        containedBoxes: list[list[int]],\n        initialBoxes: list[int],\n    ) -> int:\n        pass\n",
   "example": {
-    "input": "boxes = [Box('root', 2, ('brass',), ('side',)), Box('side', 5, (), ())]; get_max_candies(boxes, {'root'}, {'brass': 'side'})",
-    "output": "7",
-    "reasoning": "Opening the root both unlocks and reveals the side box, so each reward is collected once."
+    "input": "status = [1, 0, 1, 0], candies = [7, 5, 4, 100], keys = [[], [], [1], []], containedBoxes = [[1, 2], [3], [], []], initialBoxes = [0]",
+    "output": "16",
+    "reasoning": "Start with box 0. It reveals locked box 1 and unlocked box 2. Box 2 provides the key for box 1. Box 3 remains locked, so collect 7 + 4 + 5 candies."
   },
   "environment": {
     "language": "python",
@@ -31,6 +31,14 @@
   },
   "created_at": "2026-08-18",
   "references": [
+    {
+      "label": "Equivalent problem and input contract — LeetCode 1298",
+      "url": "https://leetcode.com/problems/maximum-candies-you-can-get-from-boxes/description/"
+    },
+    {
+      "label": "Original Airbnb phone interview — boxes and candies",
+      "url": "https://leetcode.com/discuss/post/434620/airbnb-phone-alien-dictionary-boxes-and-pwjrs/"
+    },
     {
       "label": "Original interview report — boxes, keys and candies",
       "url": "https://www.1point3acres.com/interview/thread/1178846"

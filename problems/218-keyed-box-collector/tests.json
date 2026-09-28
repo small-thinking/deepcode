@@ -1,32 +1,67 @@
 [
   {
-    "name": "opened boxes collect rewards keys and discovered descendants once",
-    "input": "a nested catalog with two staged keys",
-    "test": "boxes = [\n    Box('root', 2, ('brass',), ('side',)),\n    Box('side', 5, ('silver',), ('chest',)),\n    Box('chest', 11, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {'brass': 'side', 'silver': 'chest'}) == 18"
+    "name": "reported example unlocks a waiting box",
+    "input": "status=[1, 0, 1, 0], candies=[7, 5, 4, 100], keys=[[], [], [1], []], containedBoxes=[[1, 2], [3], [], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 0, 1, 0], [7, 5, 4, 100], [[], [], [1], []], [[1, 2], [3], [], []], [0]) == 16"
   },
   {
-    "name": "an early key waits until a later parent discovers its target",
-    "input": "a target unlocked before its child reference is exposed",
-    "test": "boxes = [\n    Box('root', 1, ('open-side', 'open-chest'), ('side',)),\n    Box('side', 3, (), ('chest',)),\n    Box('chest', 7, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {'open-side': 'side', 'open-chest': 'chest'}) == 11"
+    "name": "one box supplies all child boxes and their keys",
+    "input": "status=[1, 0, 0, 0, 0, 0], candies=[1, 1, 1, 1, 1, 1], keys=[[1, 2, 3, 4, 5], [], [], [], [], []], containedBoxes=[[1, 2, 3, 4, 5], [], [], [], [], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1], [[1, 2, 3, 4, 5], [], [], [], [], []], [[1, 2, 3, 4, 5], [], [], [], [], []], [0]) == 6"
   },
   {
-    "name": "cycles repeated references locked boxes and unknown keys are safe",
-    "input": "a cycle plus a child that has no unlocking key",
-    "test": "boxes = [\n    Box('root', 1, ('open-side', 'unknown'), ('side', 'side', 'locked')),\n    Box('side', 4, (), ('root',)),\n    Box('locked', 100, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {'open-side': 'side', 'unknown': 'not-in-catalog'}) == 5"
+    "name": "initial possession does not unlock a locked box",
+    "input": "status=[0], candies=[9], keys=[[]], containedBoxes=[[]], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([0], [9], [[]], [[]], [0]) == 0"
   },
   {
-    "name": "opens an intrinsically open child after discovery without a key",
-    "input": "a closed root that reveals an intrinsically open child",
-    "test": "boxes = [\n    Box('root', 1, (), ('open-child',)),\n    Box('open-child', 4, (), (), True),\n]\nassert get_max_candies(boxes, {'root'}, {}) == 5"
+    "name": "no initial boxes means no accessible rewards",
+    "input": "status=[1, 1], candies=[4, 8], keys=[[], []], containedBoxes=[[1], []], initialBoxes=[]",
+    "test": "assert Solution().maxCandies([1, 1], [4, 8], [[], []], [[1], []], []) == 0"
   },
   {
-    "name": "does not collect an intrinsically open catalog box before discovery",
-    "input": "an open box that is neither an initial root nor a revealed child",
-    "test": "boxes = [\n    Box('root', 1, (), ()),\n    Box('open-orphan', 100, (), (), True),\n]\nassert get_max_candies(boxes, {'root'}, {}) == 1"
+    "name": "unlocked catalog boxes still require possession",
+    "input": "status=[1, 1], candies=[2, 100], keys=[[], []], containedBoxes=[[], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 1], [2, 100], [[], []], [[], []], [0]) == 2"
   },
   {
-    "name": "keeps a discovered child locked when it has no key or open status",
-    "input": "a default-closed child revealed without a key",
-    "test": "boxes = [\n    Box('root', 1, (), ('locked-child',)),\n    Box('locked-child', 100, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {}) == 1"
+    "name": "a key does not grant possession of its target",
+    "input": "status=[1, 0], candies=[2, 100], keys=[[1], []], containedBoxes=[[], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 0], [2, 100], [[1], []], [[], []], [0]) == 2"
+  },
+  {
+    "name": "a key found early waits for later box discovery",
+    "input": "status=[1, 1, 0], candies=[2, 3, 7], keys=[[2], [], []], containedBoxes=[[1], [2], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 1, 0], [2, 3, 7], [[2], [], []], [[1], [2], []], [0]) == 12"
+  },
+  {
+    "name": "a later key unlocks an initially held box",
+    "input": "status=[0, 1], candies=[5, 7], keys=[[], [0]], containedBoxes=[[], []], initialBoxes=[0, 1]",
+    "test": "assert Solution().maxCandies([0, 1], [5, 7], [[], [0]], [[], []], [0, 1]) == 12"
+  },
+  {
+    "name": "unlocked children need no keys but locked children wait",
+    "input": "status=[1, 1, 0], candies=[2, 3, 100], keys=[[], [], []], containedBoxes=[[1], [2], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 1, 0], [2, 3, 100], [[], [], []], [[1], [2], []], [0]) == 5"
+  },
+  {
+    "name": "initial and contained possession overlap counts once",
+    "input": "status=[1, 0], candies=[3, 7], keys=[[1], []], containedBoxes=[[1], []], initialBoxes=[0, 1]",
+    "test": "assert Solution().maxCandies([1, 0], [3, 7], [[1], []], [[1], []], [0, 1]) == 10"
+  },
+  {
+    "name": "keys from different boxes cannot collect a target twice",
+    "input": "status=[1, 1, 1, 0], candies=[2, 3, 5, 7], keys=[[], [3], [3], []], containedBoxes=[[1, 2], [3], [], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 1, 1, 0], [2, 3, 5, 7], [[], [3], [3], []], [[1, 2], [3], [], []], [0]) == 17"
+  },
+  {
+    "name": "keys trapped in locked boxes cannot start a cycle",
+    "input": "status=[0, 0], candies=[5, 8], keys=[[1], [0]], containedBoxes=[[], []], initialBoxes=[0, 1]",
+    "test": "assert Solution().maxCandies([0, 0], [5, 8], [[1], [0]], [[], []], [0, 1]) == 0"
+  },
+  {
+    "name": "unlocking continues through several dependent stages",
+    "input": "status=[1, 0, 0, 1], candies=[2, 3, 5, 7], keys=[[2], [], [], [1]], containedBoxes=[[1, 3], [2], [], []], initialBoxes=[0]",
+    "test": "assert Solution().maxCandies([1, 0, 0, 1], [2, 3, 5, 7], [[2], [], [], [1]], [[1, 3], [2], [], []], [0]) == 17"
   }
 ]
