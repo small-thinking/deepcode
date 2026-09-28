@@ -32,12 +32,12 @@
   {
     "name": "Rejected player and column moves do not consume a turn",
     "input": "The correct player can still make the next legal move",
-    "test": "game = ConnectKGame(3, 4, 3)\ntry:\n    game.make_move(Player.O, 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\ntry:\n    game.make_move('X', 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\ntry:\n    game.make_move(Player.X, -1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\ntry:\n    game.make_move(Player.X, 4)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\nassert game.make_move(Player.X, 0) is GameStatus.IN_PROGRESS\ntry:\n    game.make_move(Player.X, 1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\nassert game.make_move(Player.O, 3) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.X, 1) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 3) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.X, 2) is GameStatus.PLAYER_X_WINS"
+    "test": "game = ConnectKGame(3, 4, 3)\ntry:\n    game.make_move(Player.O, 0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\ntry:\n    game.make_move('X', 0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\ntry:\n    game.make_move(Player.X, -1)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\ntry:\n    game.make_move(Player.X, 4)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\nassert game.make_move(Player.X, 0) is GameStatus.IN_PROGRESS\ntry:\n    game.make_move(Player.X, 1)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\nassert game.make_move(Player.O, 3) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.X, 1) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 3) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.X, 2) is GameStatus.PLAYER_X_WINS"
   },
   {
     "name": "A full-column rejection leaves other columns playable",
     "input": "After two pieces fill a column, the same player retries elsewhere",
-    "test": "game = ConnectKGame(2, 3, 3)\nassert game.make_move(Player.X, 0) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 0) is GameStatus.IN_PROGRESS\ntry:\n    game.make_move(Player.X, 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\nassert game.make_move(Player.X, 1) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 1) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.X, 2) is GameStatus.PLAYER_X_WINS"
+    "test": "game = ConnectKGame(2, 3, 3)\nassert game.make_move(Player.X, 0) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 0) is GameStatus.IN_PROGRESS\ntry:\n    game.make_move(Player.X, 0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\nassert game.make_move(Player.X, 1) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.O, 1) is GameStatus.IN_PROGRESS\nassert game.make_move(Player.X, 2) is GameStatus.PLAYER_X_WINS"
   },
   {
     "name": "A board-filling winning move is a win rather than a draw",
@@ -47,12 +47,12 @@
   {
     "name": "A full board without a line is a draw and rejects further moves",
     "input": "K=3 is attainable but neither player makes three in this game",
-    "test": "game = ConnectKGame(2, 3, 3)\ncolumns = [0, 1, 2, 0, 1, 2]\nfor turn, column in enumerate(columns):\n    player = Player.X if turn % 2 == 0 else Player.O\n    expected = GameStatus.DRAW if turn == len(columns) - 1 else GameStatus.IN_PROGRESS\n    assert game.make_move(player, column) is expected, f'Unexpected status after move {turn + 1}'\ntry:\n    game.make_move(Player.X, 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\n"
+    "test": "game = ConnectKGame(2, 3, 3)\ncolumns = [0, 1, 2, 0, 1, 2]\nfor turn, column in enumerate(columns):\n    player = Player.X if turn % 2 == 0 else Player.O\n    expected = GameStatus.DRAW if turn == len(columns) - 1 else GameStatus.IN_PROGRESS\n    assert game.make_move(player, column) is expected, f'Unexpected status after move {turn + 1}'\ntry:\n    game.make_move(Player.X, 0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\n"
   },
   {
     "name": "A win ends the game even when columns still have space",
     "input": "Neither player can continue after a normal horizontal win",
-    "test": "game = ConnectKGame(6, 7, 4)\ncolumns = [0, 6, 1, 6, 2, 5, 3]\nfor turn, column in enumerate(columns):\n    player = Player.X if turn % 2 == 0 else Player.O\n    expected = GameStatus.PLAYER_X_WINS if turn == len(columns) - 1 else GameStatus.IN_PROGRESS\n    assert game.make_move(player, column) is expected, f'Unexpected status after move {turn + 1}'\ntry:\n    game.make_move(Player.O, 4)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\ntry:\n    game.make_move(Player.X, 4)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Expected ValueError')\n"
+    "test": "game = ConnectKGame(6, 7, 4)\ncolumns = [0, 6, 1, 6, 2, 5, 3]\nfor turn, column in enumerate(columns):\n    player = Player.X if turn % 2 == 0 else Player.O\n    expected = GameStatus.PLAYER_X_WINS if turn == len(columns) - 1 else GameStatus.IN_PROGRESS\n    assert game.make_move(player, column) is expected, f'Unexpected status after move {turn + 1}'\ntry:\n    game.make_move(Player.O, 4)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\ntry:\n    game.make_move(Player.X, 4)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('Expected input rejection')\n"
   },
   {
     "name": "K one wins immediately and an unreachable K can still draw",
@@ -62,7 +62,7 @@
   {
     "name": "Board dimensions and K must be positive",
     "input": "Reject zero rows, zero columns, zero K and a negative dimension",
-    "test": "for rows, columns, k in [(0, 7, 4), (6, 0, 4), (6, 7, 0), (-1, 7, 4)]:\n    try:\n        ConnectKGame(rows, columns, k)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('Expected ValueError for nonpositive dimensions or K')"
+    "test": "for rows, columns, k in [(0, 7, 4), (6, 0, 4), (6, 7, 0), (-1, 7, 4)]:\n    try:\n        ConnectKGame(rows, columns, k)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError('Expected input rejection for nonpositive dimensions or K')"
   },
   {
     "name": "Separate game instances keep independent boards and turns",

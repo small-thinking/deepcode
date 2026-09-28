@@ -35,6 +35,12 @@ class SystemsCodingPracticeSetDFixtureTest(unittest.TestCase):
     def test_connect_k_game_engine_reference_solution_passes(self):
         self._assert_reference_solution_passes("connect-k-game-engine")
 
+    def test_connect_k_accepts_assertion_based_input_validation(self):
+        assertion_based = REFERENCE_SOLUTION.replace(
+            "raise ValueError(", "raise AssertionError("
+        )
+        self._assert_reference_solution_passes("connect-k-game-engine", assertion_based)
+
     def test_connect_k_checks_reject_common_game_logic_errors(self):
         mutations = {
             "missing opposite diagonal": (
