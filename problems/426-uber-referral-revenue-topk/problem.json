@@ -1,0 +1,56 @@
+{
+  "id": "426",
+  "slug": "uber-referral-revenue-topk",
+  "title": "Track Referral Revenue and Top-K Customers",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "trees",
+    "aggregation",
+    "ranking",
+    "stateful-operations"
+  ],
+  "prompt": "Implement `solution(operations)` for a referral forest. A customer's aggregate revenue is their own direct revenue plus all direct revenue in their descendant referrals. Process these operations in order:\n\n- `('insert', customer_id, amount, referrer_id)`: add `amount` to the customer's direct revenue. If the customer is new, create it with the given referrer, which may be `None`. An existing customer's referrer does not change.\n- `('top_k', k, threshold)`: return up to `k` `[customer_id, aggregate_revenue]` pairs with aggregate revenue **strictly greater** than `threshold`, ordered by aggregate revenue descending and customer ID ascending.\n\nReturn the outputs of all `top_k` operations in order. A new customer's non-`None` referrer already exists, and referrals never form cycles. Revenue amounts and thresholds are integers; amounts may be negative. Explain the update and query costs.",
+  "starter_code": "def solution(operations):\n    pass\n",
+  "example": {
+    "input": "solution([('insert', 1, 100, None), ('insert', 2, 50, 1), ('top_k', 2, 100)])",
+    "output": "[[[1, 150]]]",
+    "reasoning": "Customer 1 receives their own 100 plus customer 2’s 50; customer 2 does not exceed 100."
+  },
+  "companies": [
+    "Uber"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Public Uber MLE question page — core task",
+      "url": "https://prachub.com/coding-questions/implement-a-referral-revenue-tracker"
+    },
+    {
+      "label": "Canonical Notion question record",
+      "url": "https://app.notion.com/p/3e56ce51456d81a6a8a1e8cbdef37a0e"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3e56ce51456d81a6a8a1e8cbdef37a0e"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}

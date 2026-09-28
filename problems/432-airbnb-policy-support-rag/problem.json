@@ -1,0 +1,48 @@
+{
+  "id": "432",
+  "slug": "airbnb-policy-support-rag",
+  "title": "Design Policy-Grounded Support Procedures",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "rag",
+    "policy-retrieval",
+    "customer-support",
+    "evaluation"
+  ],
+  "prompt": "Design an assistant that gives human support agents ordered, policy-grounded steps for resolving a guest or host issue. Explain retrieval, citations, evaluation, and how it handles missing or conflicting policy. The assistant recommends steps; it does not execute account actions.",
+  "companies": [
+    "Airbnb"
+  ],
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Define a safe, policy-supported procedure contract before choosing retrieval and generation components.",
+    "reference_answer": "The source supports the task theme. The design below is a reconstructed practice answer, not a verbatim interview solution.\n\n## Procedure contract\n\nInput includes issue type, verified case facts, locale, effective date, agent permissions, and policy version. Output is an ordered procedure with prerequisites, conditional branches, required human checks, and a citation for each actionable step. The assistant asks for missing facts or escalates when policy support is absent or contradictory. It never performs the actions itself.\n\n## Policy retrieval and generation\n\nIngest approved policy documents with effective dates, jurisdiction, product scope, supersession links, and access controls. Chunk by rule or procedure section while preserving headings, exceptions, and cross-references. Retrieve candidate clauses using issue classification plus lexical/vector search, then rerank for applicability to the case facts. Filter stale or unauthorized policies before generation; keep retrieved passage IDs and versions in the trace.\n\nHave the generator assemble steps only from applicable clauses, preserve their order and preconditions, and attach citations at the step level. A deterministic validator can check required fields, permission boundaries, missing citations, and known policy conflicts. If the sources disagree or do not cover the case, return a clarification or escalation path instead of inventing a remedy.\n\n## Evaluation and operations\n\nBuild expert-reviewed cases with expected procedure steps, prerequisite checks, exception handling, and acceptable escalations. Measure retrieval coverage of the controlling clause, step applicability and order, citation support, invalid remedies, abstention quality, agent usefulness, latency, and policy-version freshness. Test ambiguous facts, superseded rules, region-specific exceptions, and prompt injection in retrieved content.\n\nFor a bad answer, replay the case with its facts, retrieved passages, policy versions, model/prompt version, and step citations. Diagnose whether the right clause was missing, an exception was dropped during chunking, reranking favored stale policy, or generation ignored a prerequisite. Fix the responsible stage and re-evaluate the affected case set before release.\n"
+  },
+  "references": [
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.1point3acres.com/interview/thread/1190112"
+    },
+    {
+      "label": "Canonical interview question",
+      "url": "https://app.notion.com/p/3e56ce51456d81efa2e9fffef8889fa6"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e56ce51456d81efa2e9fffef8889fa6"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}

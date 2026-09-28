@@ -1,0 +1,55 @@
+{
+  "id": "424",
+  "slug": "uber-directed-currency-conversion",
+  "title": "Convert Currency Along Directed Rates",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "graphs",
+    "depth-first-search",
+    "weighted-paths"
+  ],
+  "prompt": "Implement `solution(pairs, ratios, src, dst)`. Each pair `(a, b)` is a directed conversion: one unit of `a` becomes the corresponding positive number of units of `b`. Find a path from `src` to `dst` and return the product of its ratios. Return `-1.0` if no path exists, and `1.0` when `src == dst`. The input rates are consistent: whenever multiple paths connect the same currencies, they have the same product. A pair does not imply its reverse conversion.\n\n`pairs` and `ratios` have equal lengths. Explain the search and its time and space costs.",
+  "starter_code": "def solution(pairs, ratios, src, dst):\n    pass\n",
+  "example": {
+    "input": "solution([('USD', 'CAD'), ('CAD', 'EUR')], [2.0, 1.5], 'USD', 'EUR')",
+    "output": "3.0",
+    "reasoning": "The directed path multiplies 2.0 by 1.5."
+  },
+  "companies": [
+    "Uber"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Public Uber MLE question page — core task",
+      "url": "https://prachub.com/coding-questions/compute-currency-conversion-via-graph-search"
+    },
+    {
+      "label": "Canonical Notion question record",
+      "url": "https://app.notion.com/p/3e56ce51456d817cbc26fa987cdcdd7c"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3e56ce51456d817cbc26fa987cdcdd7c"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}

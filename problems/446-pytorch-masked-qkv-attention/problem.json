@@ -1,0 +1,63 @@
+{
+  "id": "446",
+  "slug": "pytorch-masked-qkv-attention",
+  "title": "Masked Q/K/V Attention in PyTorch",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "pytorch",
+    "attention",
+    "masking",
+    "autograd"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Implement `masked_qkv_attention(q, k, v, mask=None)` in PyTorch. Inputs have shapes `q: (B, H, Lq, D)`, `k: (B, H, Lk, D)` and `v: (B, H, Lk, Dv)`; return the scaled dot-product attention output `(B, H, Lq, Dv)`. Query and key lengths may differ.\n\nThe optional boolean mask is broadcastable to `(B, H, Lq, Lk)`; True permits attention. The caller supplies causal or padding masks, and every query has at least one allowed key. Assume compatible nonempty shapes and finite floating inputs with the same dtype and device. Preserve dtype, device and autograd without mutating inputs. Do not use built-in attention implementations.\n\nExplain why the scores are scaled and discuss time, memory and long-sequence optimizations.",
+  "starter_code": "import torch\n\n\ndef masked_qkv_attention(q, k, v, mask=None):\n    pass\n",
+  "example": {
+    "input": "q: (2, 3, 4, 8), k: (2, 3, 6, 8), v: (2, 3, 6, 5)",
+    "output": "output.shape == (2, 3, 4, 5)",
+    "reasoning": "Each query combines values from its own batch and head."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "references": [
+    {
+      "label": "Public interview question record \u2014 implement and analyze custom attention",
+      "url": "https://prachub.com/interview-questions/implement-and-analyze-custom-attention"
+    },
+    {
+      "label": "Linked candidate experience \u2014 DIY attention onsite (premium-gated body)",
+      "url": "https://prachub.com/interview-experiences/anthropic-software-engineer-interview-experience-a-two-part-phone-screen-and-a-diy-attention-algorithm-on-the-virtual-onsite"
+    },
+    {
+      "label": "Canonical interview question",
+      "url": "https://app.notion.com/p/3e76ce51456d817293fcc8122de8c39f"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Anthropic": {
+      "stars": 1,
+      "source_record_ids": [
+        "3e76ce51456d817293fcc8122de8c39f"
+      ],
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}

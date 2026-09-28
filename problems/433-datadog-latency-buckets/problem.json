@@ -1,0 +1,55 @@
+{
+  "id": "433",
+  "slug": "datadog-latency-buckets",
+  "title": "Count Latencies in Fixed-Width Buckets",
+  "category": "Systems Coding",
+  "difficulty": "easy",
+  "tags": [
+    "arrays",
+    "histogram",
+    "bucket-counting"
+  ],
+  "companies": [
+    "Datadog"
+  ],
+  "prompt": "Implement `calc_buckets(latencies, bucket_count, bucket_width) -> list[int]`.\n\nGiven nonnegative integer latencies, count how many values fall in each fixed-width bucket. Bucket `i` normally covers `[i * bucket_width, (i + 1) * bucket_width)`. The first bucket starts at zero. The last bucket is an overflow bucket: it includes every value at or above its lower bound, even when that value would fall beyond the nominal upper bound.\n\n`bucket_count` and `bucket_width` must be positive integers. Latencies must be nonnegative integers. Assert these input conditions. Return one count per bucket; an empty input returns all zeroes.",
+  "starter_code": "def calc_buckets(latencies, bucket_count, bucket_width):\n    # Count fixed-width latency ranges; the final bucket absorbs overflow.\n    pass\n",
+  "example": {
+    "input": "calc_buckets([0, 9, 10, 19, 20, 30], 3, 10)",
+    "output": "[2, 2, 2]",
+    "reasoning": "Buckets cover 0–9 and 10–19; the last bucket starts at 20 and absorbs 20 and 30."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Canonical Notion interview question",
+      "url": "https://app.notion.com/p/3e56ce51456d8166b9a2c190ce5dad45"
+    },
+    {
+      "label": "Public candidate tech-screen report",
+      "url": "https://leetcode.com/discuss/post/6375931/Datadog-tech-screening/"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Datadog": {
+      "source_record_ids": [
+        "3e56ce51456d8166b9a2c190ce5dad45"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "434",
+  "slug": "datadog-filesystem-path-size",
+  "title": "Compute File-System Size for a Given Path",
+  "category": "Systems Coding",
+  "difficulty": "easy",
+  "tags": [
+    "trees",
+    "filesystem",
+    "recursion",
+    "paths"
+  ],
+  "companies": [
+    "Datadog"
+  ],
+  "prompt": "Implement `total_size(tree, path='/') -> int | None` for a filesystem represented as nested dictionaries. A dictionary is a directory; each entry maps a child name to either another directory dictionary or a nonnegative integer byte size for a file.\n\nReturn the sum of all file sizes below the requested directory, or the file's own size when `path` names a file. A missing path returns `None`. The root is selected by `/` or an empty path. Leading and trailing slashes on other paths are optional.\n\nAssume each name is a nonempty path component other than `.` or `..`, names contain no slash, directory values are dictionaries, and file sizes are nonnegative integers. These Python representation and missing-path conventions make the reported tree/path task runnable.",
+  "starter_code": "def total_size(tree, path='/'):\n    # Return a file size or recursively sum the contents of a directory.\n    pass\n",
+  "example": {
+    "input": "tree = {'home': {'me': {'a.txt': 416, 'src': {'b.py': 100}}}, 'bin': {'ls': 20}}; total_size(tree, '/home/me')",
+    "output": "516",
+    "reasoning": "The selected directory contains a 416-byte file and a nested directory with a 100-byte file."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Canonical Notion interview question",
+      "url": "https://app.notion.com/p/3e56ce51456d81198113e9fc9073c60b"
+    },
+    {
+      "label": "Public candidate tech-screen report",
+      "url": "https://leetcode.com/discuss/post/6375931/Datadog-tech-screening/"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Datadog": {
+      "source_record_ids": [
+        "3e56ce51456d81198113e9fc9073c60b"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}

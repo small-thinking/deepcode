@@ -1,0 +1,48 @@
+{
+  "id": "431",
+  "slug": "airbnb-queryless-home-ranker",
+  "title": "Design a Queryless Home Ranker",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "ranking",
+    "marketplace",
+    "exposure-bias",
+    "evaluation"
+  ],
+  "prompt": "A guest has supplied trip dates, party size, location, and filters. You receive an eligible set of homes. Design a model to rank them without a text query. Discuss the objective, data, serving, and evaluation. How would you investigate a drop in bookings?",
+  "companies": [
+    "Airbnb"
+  ],
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with the ranking decision and a measurable booking outcome, then trace the data and serving paths.",
+    "reference_answer": "The source supports the task theme. The design below is a reconstructed practice answer, not a verbatim interview solution.\n\n## Contract and objective\n\nRank only homes already eligible for the requested dates, guests, location, and hard filters. Optimize a downstream outcome such as completed bookings per search session while watching cancellations, guest/host satisfaction, diversity, and latency. Clarify whether the surface is a search-results page or a recommendation feed, and what personal history may be used.\n\n## Training data and features\n\nLog eligible candidate sets, impressions, positions, clicks, requests, bookings, cancellations, and ranking-policy versions. A booking is delayed; build point-in-time training examples with mature labels and avoid features recorded after impression. Use trip context, listing quality, price relative to local alternatives, location, availability freshness, and permitted user history. A new guest gets context and regional priors; a new listing gets content and host priors rather than a permanent cold-start penalty.\n\nStart with a transparent rules or tabular baseline, then train a pointwise or pairwise ranker. Logged clicks and bookings are biased by prior exposure and position. Randomized exploration with logged propensities can support off-policy checks; otherwise treat offline comparisons as directional. Keep candidate generation and eligibility fixed during ranker comparisons so their changes do not masquerade as model gains.\n\n## Serving and evaluation\n\nFetch time-valid features for the eligible candidates, score a bounded set, and return a stable ordered list within a latency budget. Cache only features whose freshness and guest scope allow it. If ranking fails, use a deterministic quality/popularity order while preserving hard eligibility. Evaluate NDCG or pairwise ordering on judged or mature outcomes, calibration, and cold-start/geography slices, then run an online experiment on completed bookings with cancellations, diversity, and tail latency as guardrails.\n\n## Debugging\n\nWhen booking falls, first separate shifts in eligible candidates or supply from feature freshness, model version, and score distribution. Compare slices by trip type, geography, new users, and new listings; inspect exposure and booking-label delays. Replay a small sample with logged candidate/features/model versions, and roll back the ranker if the experiment or guardrails show harm.\n"
+  },
+  "references": [
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.1point3acres.com/interview/thread/1190112"
+    },
+    {
+      "label": "Canonical interview question",
+      "url": "https://app.notion.com/p/3e56ce51456d818eabd6cded0d2e7eef"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e56ce51456d818eabd6cded0d2e7eef"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}

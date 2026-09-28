@@ -1,0 +1,54 @@
+{
+  "id": "445",
+  "slug": "canva-diversity-aware-image-reranking",
+  "title": "Design Diversity-Aware Image Search Reranking",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "system-design",
+    "evaluation"
+  ],
+  "companies": [
+    "Canva"
+  ],
+  "prompt": "Image search results for queries such as \u201cbodybuilder\u201d are heavily skewed toward one gender. Design a general reranking approach that improves diversity while preserving relevance. Discuss a round-robin baseline and how you would evaluate the results against a labeled reference set.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nClarify the exposure objective, label provenance and relevance requirements. Do not assume equal counts are always appropriate or that every image has a reliable binary gender label. Preserve within-group relevance order and compare a simple round-robin baseline with constrained reranking using relevance floors and an explicit exposure target.\n\nEvaluate relevance and group exposure together across query and category slices. A diversity statistic such as entropy is useful but does not establish fairness by itself. Use reviewed reference judgments, account for uncertainty and missing labels, and inspect whether constraints promote irrelevant results. Run a guarded online experiment measuring search success and user feedback as well as exposure."
+  },
+  "references": [
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.jointaro.com/interviews/companies/canva/experiences/senior-machine-learning-engineer-sydney-march-1-2025-no-offer-negative-bcaed476/"
+    },
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.jointaro.com/interviews/companies/canva/experiences/senior-machine-learning-engineer-united-states-june-1-2025-no-offer-negative-cd84c688/"
+    },
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.jointaro.com/interviews/companies/canva/experiences/senior-machine-learning-engineer-australia-october-27-2025-no-offer-positive-21ecb037/"
+    },
+    {
+      "label": "Canonical interview question",
+      "url": "https://app.notion.com/p/3e86ce51456d813483b4d98640e9ea0a"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Canva": {
+      "source_record_ids": [
+        "3e86ce51456d813483b4d98640e9ea0a"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-28"
+  }
+}

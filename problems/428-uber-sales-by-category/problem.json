@@ -1,0 +1,56 @@
+{
+  "id": "428",
+  "slug": "uber-sales-by-category",
+  "title": "Aggregate Marketplace Sales by Category",
+  "category": "ML Coding",
+  "difficulty": "easy",
+  "tags": [
+    "tabular-data",
+    "joins",
+    "groupby",
+    "aggregation"
+  ],
+  "prompt": "Implement `solution(orders, products, categories)`. The tables are lists of dictionaries with columns `orders(order_id, product_id, quantity, unit_price, status)`, `products(product_id, category_id)`, and `categories(category_id, category_name)`. Join `orders` to `products` by `product_id`, then to `categories` by `category_id`; ignore rows missing either match. For each `category_name` with at least one matched order row, return a dictionary with:\n\n- `total_sales`: sum of `quantity * unit_price`;\n- `average_sales_per_order`: mean sales amount per matched order row;\n- `completion_rate`: fraction of matched rows whose status is `'completed'`.\n\nReturn a list of these dictionaries sorted by `category_name` ascending. Treat repeated `order_id` values as separate order rows. You may assume product and category IDs are unique within their respective tables.",
+  "starter_code": "def solution(orders, products, categories):\n    pass\n",
+  "example": {
+    "input": "solution([{'order_id':1,'product_id':10,'quantity':2,'unit_price':5.0,'status':'completed'}], [{'product_id':10,'category_id':3}], [{'category_id':3,'category_name':'Meals'}])",
+    "output": "[{'category_name': 'Meals', 'total_sales': 10.0, 'average_sales_per_order': 10.0, 'completion_rate': 1.0}]",
+    "reasoning": "One matched completed order line contributes 10 in sales."
+  },
+  "companies": [
+    "Uber"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Public Uber MLE question page — core task",
+      "url": "https://prachub.com/coding-questions/analyze-sales-with-groupby"
+    },
+    {
+      "label": "Canonical Notion question record",
+      "url": "https://app.notion.com/p/3e56ce51456d81f7a162ee2f8b338719"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3e56ce51456d81f7a162ee2f8b338719"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "multiplies along a directed path",
+    "input": "USD to EUR through CAD",
+    "test": "assert solution([('USD','CAD'),('CAD','EUR')],[2.0,1.5],'USD','EUR') == 3.0"
+  },
+  {
+    "name": "does not infer reverse rates",
+    "input": "EUR to USD with only USD-to-EUR edges",
+    "test": "assert solution([('USD','CAD'),('CAD','EUR')],[2.0,1.5],'EUR','USD') == -1.0"
+  },
+  {
+    "name": "same currency needs no edge",
+    "input": "JPY to JPY with no pairs",
+    "test": "assert solution([],[],'JPY','JPY') == 1.0"
+  },
+  {
+    "name": "handles a cycle without revisiting forever",
+    "input": "A to C via a cycle",
+    "test": "assert solution([('A','B'),('B','A'),('B','C')],[2.0,0.5,3.0],'A','C') == 6.0"
+  }
+]

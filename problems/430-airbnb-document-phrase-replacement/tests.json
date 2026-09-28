@@ -1,0 +1,22 @@
+[
+  {
+    "name": "replaces names and keeps punctuation",
+    "input": "two names in an ordinary sentence",
+    "test": "assert redact_document('Ask Alice, then Bob.', ['Alice','Bob'], ['[NAME]','[NAME]']) == 'Ask [NAME], then [NAME].'"
+  },
+  {
+    "name": "chooses the longest phrase at a position",
+    "input": "New York overlaps New",
+    "test": "assert redact_document('Visit New York or New Jersey.', ['New','New York'], ['N','NY']) == 'Visit NY or N Jersey.'"
+  },
+  {
+    "name": "does not reprocess inserted replacement text",
+    "input": "replacement contains another target phrase",
+    "test": "assert redact_document('Alice met Bob.', ['Alice','Bob'], ['Bob','X']) == 'Bob met X.'"
+  },
+  {
+    "name": "requires ASCII whole-word boundaries",
+    "input": "whole word, embedded word, and no match",
+    "test": "assert redact_document('Alice Alice_1 Malice', ['Alice'], ['X']) == 'X Alice_1 Malice'\nassert redact_document('Nothing here.', ['Alice'], ['X']) == 'Nothing here.'"
+  }
+]

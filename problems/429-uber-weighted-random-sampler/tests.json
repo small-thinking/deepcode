@@ -1,0 +1,22 @@
+[
+  {
+    "name": "uses half-open cumulative intervals",
+    "input": "fixed draws at zero and a boundary",
+    "test": "sampler=WeightedSampler(['A','B'],[1,3],rng=lambda:0)\nassert sampler.sample()=='A'\nsampler.rng=lambda:0.25\nassert sampler.sample()=='B'"
+  },
+  {
+    "name": "skips zero-weight values",
+    "input": "zero weights before and between positive weights",
+    "test": "sampler=WeightedSampler(['A','B','C','D'],[0,2,0,3],rng=lambda:0)\nassert sampler.sample()=='B'\nsampler.rng=lambda:0.4\nassert sampler.sample()=='D'"
+  },
+  {
+    "name": "uses a new draw on each sample",
+    "input": "two deterministic draws",
+    "test": "draws=iter([0.1,0.9])\nsampler=WeightedSampler([10,20],[1,1],rng=lambda:next(draws))\nassert [sampler.sample(),sampler.sample()]==[10,20]"
+  },
+  {
+    "name": "rejects invalid weight inputs",
+    "input": "empty, negative, or zero-total weights",
+    "test": "for values,weights in [([],[]),(['A'],[-1]),(['A'],[0])]:\n    try:\n        WeightedSampler(values,weights)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('invalid weights were accepted')"
+  }
+]

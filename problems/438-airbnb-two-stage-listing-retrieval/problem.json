@@ -1,0 +1,46 @@
+{
+  "id": "438",
+  "slug": "airbnb-two-stage-listing-retrieval",
+  "title": "Design Two-Stage Listing Retrieval and Ranking",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "system-design",
+    "evaluation"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Design a two-stage system that uses user embeddings to retrieve and rank homes a guest is likely to book. Explain training, candidate retrieval, ranking, evaluation, and serving. How would you handle new users and changing availability?",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nClarify the booking objective, request context, inventory constraints and latency budget. Learn user/listing representations from point-in-time interactions, retrieve candidates with an approximate-nearest-neighbor index, apply current eligibility rules and rerank with richer context. Measure the recall cost of filtering after retrieval and over-retrieve or use supported index filters when necessary.\n\nTrack retrieval recall separately from ranking quality. Account for exposure bias and delayed booking labels; do not treat every unexposed listing as a negative. Provide context-based fallbacks for new users and content-based embeddings for new listings. Version models and indexes together, refresh availability at serving time, and evaluate completed bookings with latency, cancellation and satisfaction guardrails."
+  },
+  "references": [
+    {
+      "label": "Candidate interview report",
+      "url": "https://prachub.com/interview-experiences/airbnb-senior-machine-learning-engineer-interview-experience-four-ml-system-design-rounds-rejected-on-calibration"
+    },
+    {
+      "label": "Canonical interview question",
+      "url": "https://app.notion.com/p/3e66ce51456d81e4bbe3e2509390e58e"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e66ce51456d81e4bbe3e2509390e58e"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}

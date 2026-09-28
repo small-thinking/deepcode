@@ -1,0 +1,22 @@
+[
+  {
+    "name": "sums files recursively from the root",
+    "input": "root has nested directories and direct files",
+    "test": "tree = {'home': {'me': {'a.txt': 416, 'src': {'b.py': 100}}}, 'bin': {'ls': 20}}\nassert total_size(tree) == 536\nassert total_size(tree, '/') == 536"
+  },
+  {
+    "name": "selects nested directories and individual files",
+    "input": "queries target a directory and a leaf file",
+    "test": "tree = {'home': {'me': {'a.txt': 416, 'src': {'b.py': 100}}}, 'bin': {'ls': 20}}\nassert total_size(tree, 'home/me') == 516\nassert total_size(tree, '/home/me/src/') == 100\nassert total_size(tree, '/home/me/a.txt') == 416"
+  },
+  {
+    "name": "returns None for missing paths and handles empty directories",
+    "input": "empty directory, zero-byte file, and absent child",
+    "test": "tree = {'empty': {}, 'zero.txt': 0}\nassert total_size(tree, 'empty') == 0\nassert total_size(tree, '/zero.txt/') == 0\nassert total_size(tree, 'missing/') is None\nassert total_size(tree, 'zero.txt') == 0"
+  },
+  {
+    "name": "queries sibling paths without changing the tree",
+    "input": "independent sibling directories and a file lookup",
+    "test": "tree = {'left': {'a.txt': 4, 'nested': {'b.txt': 6}}, 'right': {'c.txt': 11}}\nbefore = {'left': {'a.txt': 4, 'nested': {'b.txt': 6}}, 'right': {'c.txt': 11}}\nassert total_size(tree, 'left') == 10\nassert total_size(tree, '/right/') == 11\nassert total_size(tree, 'left/nested/b.txt') == 6\nassert tree == before"
+  }
+]

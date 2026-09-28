@@ -1,0 +1,50 @@
+{
+  "id": "447",
+  "slug": "anthropic-values-and-judgment",
+  "title": "Discuss AI Safety, Values, and Judgment",
+  "category": "Behavioral",
+  "difficulty": "medium",
+  "tags": [
+    "project-discussion",
+    "trade-offs"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "Why do you want to work at Anthropic, and which AI safety risk concerns you most? Describe a time you raised an ethical or policy concern under delivery pressure, or changed your mind after a disagreement. Explain your actions and what happened.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nUse your actual motivations and experience. Connect a concrete safety concern to likely harm, uncertainty and practical mitigations rather than repeating a mission statement. If discussing a company decision, check the facts and distinguish them from your opinion.\n\nFor the example, explain the conflicting goals, your responsibility, evidence available at the time and who held decision authority. Describe how you raised the concern, considered counterarguments and escalated if needed. State the outcome honestly, including costs or unresolved issues. Show what changed in your reasoning and what you would do differently; no particular personal story or view is prescribed."
+  },
+  "references": [
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.1point3acres.com/bbs/thread-1188689-1-1.html"
+    },
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.tryexponent.com/experiences/anthropic-machine-learning-engineer-interview-27873a"
+    },
+    {
+      "label": "Canonical interview question",
+      "url": "https://app.notion.com/p/35c6ce51456d81938b95d8c982622307"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "35c6ce51456d81938b95d8c982622307"
+      ],
+      "stars": 5,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 5,
+    "synced_at": "2026-09-28"
+  }
+}

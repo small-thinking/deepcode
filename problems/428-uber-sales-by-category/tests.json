@@ -1,0 +1,22 @@
+[
+  {
+    "name": "joins and aggregates multiple order lines",
+    "input": "two categories and four rows",
+    "test": "orders=[{'order_id':1,'product_id':101,'quantity':2,'unit_price':10.0,'status':'completed'},{'order_id':2,'product_id':102,'quantity':1,'unit_price':20.0,'status':'pending'},{'order_id':3,'product_id':103,'quantity':3,'unit_price':5.0,'status':'completed'},{'order_id':4,'product_id':101,'quantity':1,'unit_price':10.0,'status':'cancelled'}]\nproducts=[{'product_id':101,'category_id':1},{'product_id':102,'category_id':2},{'product_id':103,'category_id':1}]\ncategories=[{'category_id':1,'category_name':'Fast Food'},{'category_id':2,'category_name':'Drinks'}]\nactual=solution(orders,products,categories)\nassert actual[0]=={'category_name':'Drinks','total_sales':20.0,'average_sales_per_order':20.0,'completion_rate':0.0}\nassert actual[1]['category_name']=='Fast Food' and actual[1]['total_sales']==45.0 and actual[1]['average_sales_per_order']==15.0\nassert abs(actual[1]['completion_rate']-2/3)<1e-12"
+  },
+  {
+    "name": "uses inner-join semantics",
+    "input": "one matched and two unmatched orders",
+    "test": "orders=[{'order_id':1,'product_id':1,'quantity':1,'unit_price':5,'status':'completed'},{'order_id':2,'product_id':2,'quantity':4,'unit_price':3,'status':'completed'},{'order_id':3,'product_id':3,'quantity':2,'unit_price':2,'status':'completed'}]\nproducts=[{'product_id':1,'category_id':1},{'product_id':2,'category_id':99}]\ncategories=[{'category_id':1,'category_name':'A'},{'category_id':2,'category_name':'B'}]\nassert solution(orders,products,categories)==[{'category_name':'A','total_sales':5,'average_sales_per_order':5.0,'completion_rate':1.0}]"
+  },
+  {
+    "name": "counts repeated order IDs as separate rows",
+    "input": "two lines sharing an order ID",
+    "test": "orders=[{'order_id':7,'product_id':1,'quantity':1,'unit_price':10,'status':'completed'},{'order_id':7,'product_id':1,'quantity':1,'unit_price':20,'status':'pending'}]\nproducts=[{'product_id':1,'category_id':1}]\ncategories=[{'category_id':1,'category_name':'A'}]\nassert solution(orders,products,categories)==[{'category_name':'A','total_sales':30,'average_sales_per_order':15.0,'completion_rate':0.5}]"
+  },
+  {
+    "name": "omits categories without orders",
+    "input": "no orders",
+    "test": "assert solution([],[],[{'category_id':1,'category_name':'A'}])==[]"
+  }
+]

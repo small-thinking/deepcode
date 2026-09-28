@@ -1,0 +1,55 @@
+{
+  "id": "427",
+  "slug": "uber-first-local-minimum",
+  "title": "Find the First Strict Local Minimum",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "arrays",
+    "linear-scan",
+    "local-minimum"
+  ],
+  "prompt": "Implement `solution(nums)` to return the smallest index of a strict local minimum in an integer array. An interior element must be smaller than both neighbors. At an endpoint, compare with its one neighbor; a one-element array has a local minimum at index `0`. Return `-1` for an empty array or if no index qualifies. Explain the time and space costs.",
+  "starter_code": "def solution(nums):\n    pass\n",
+  "example": {
+    "input": "solution([5, 3, 4, 2, 6])",
+    "output": "1",
+    "reasoning": "Indices 1 and 3 are local minima, so return the first."
+  },
+  "companies": [
+    "Uber"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Public Uber MLE question page — core task",
+      "url": "https://prachub.com/coding-questions/find-first-local-minimum"
+    },
+    {
+      "label": "Canonical Notion question record",
+      "url": "https://app.notion.com/p/3e56ce51456d819f99d7d11b45ae9882"
+    }
+  ],
+  "created_at": "2026-09-24",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3e56ce51456d819f99d7d11b45ae9882"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-24"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-24"
+  }
+}

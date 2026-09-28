@@ -1,0 +1,22 @@
+[
+  {
+    "name": "returns the first of multiple minima",
+    "input": "[5, 3, 4, 2, 6]",
+    "test": "assert solution([5,3,4,2,6]) == 1"
+  },
+  {
+    "name": "compares endpoints with their one neighbor",
+    "input": "increasing and decreasing arrays",
+    "test": "assert solution([2,3,4]) == 0\nassert solution([4,3,2]) == 2"
+  },
+  {
+    "name": "requires strict comparison",
+    "input": "equal neighbors and a single value",
+    "test": "assert solution([3,3,3]) == -1\nassert solution([7]) == 0"
+  },
+  {
+    "name": "handles an empty array",
+    "input": "[]",
+    "test": "assert solution([]) == -1"
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "id": "441",
+  "slug": "enterprise-llm-guardrails",
+  "title": "Design Enterprise LLM Guardrails",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "system-design",
+    "evaluation"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "An enterprise wants to introduce an LLM into an employee workflow. How would you identify the risks and implement practical guardrails? Explain where human review belongs and how you would test and operate the controls.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then explain your approach and tradeoffs.",
+    "reference_answer": "This is a practice answer outline, not a reported interview solution.\n\nFirst define users, permitted data, actions and plausible failure consequences. Map each risk to a control: access checks before retrieval, least-privilege tools, validated tool arguments, separation of untrusted content from instructions, output checks and review of consequential actions. A prompt alone is not an authorization boundary.\n\nEvaluate misuse and ordinary requests, including prompt injection, missing evidence, downstream failures and excessive blocking. Use abstention or escalation when required information is unavailable. Log decisions and versions with appropriate privacy controls, assign incident ownership and support rollback. Measure both harmful failures and lost utility; update controls from reviewed incidents rather than relying on a single aggregate safety score."
+  },
+  "references": [
+    {
+      "label": "Candidate interview report",
+      "url": "https://www.tryexponent.com/experiences/anthropic-machine-learning-engineer-interview-27873a"
+    },
+    {
+      "label": "Canonical interview question",
+      "url": "https://app.notion.com/p/3e76ce51456d8168a857d771e6413fcd"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "3e76ce51456d8168a857d771e6413fcd"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
+}
