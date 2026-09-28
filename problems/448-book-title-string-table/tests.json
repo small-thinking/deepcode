@@ -1,0 +1,87 @@
+[
+  {
+    "name": "[Part 1] pads one short title",
+    "input": "['Dune'], 8",
+    "test": "assert format_book_titles(['Dune'], 8) == ['+--------+', '|Dune    |', '+--------+']"
+  },
+  {
+    "name": "[Part 1] separates adjacent title blocks",
+    "input": "['Dune', 'Emma'], 6",
+    "test": "assert format_book_titles(['Dune', 'Emma'], 6) == ['+------+', '|Dune  |', '+------+', '|Emma  |', '+------+']"
+  },
+  {
+    "name": "[Part 1] exact-width title",
+    "input": "['Emma'], 4",
+    "test": "assert format_book_titles(['Emma'], 4) == ['+----+', '|Emma|', '+----+']"
+  },
+  {
+    "name": "[Part 1] preserves internal spaces",
+    "input": "['The  Hobbit'], 12",
+    "test": "assert format_book_titles(['The  Hobbit'], 12) == ['+------------+', '|The  Hobbit |', '+------------+']"
+  },
+  {
+    "name": "[Part 1] preserves leading and trailing spaces",
+    "input": "[' Dune '], 8",
+    "test": "assert format_book_titles([' Dune '], 8) == ['+--------+', '| Dune   |', '+--------+']"
+  },
+  {
+    "name": "[Part 1] empty title is a blank row",
+    "input": "[''], 4",
+    "test": "assert format_book_titles([''], 4) == ['+----+', '|    |', '+----+']"
+  },
+  {
+    "name": "[Part 1] empty input has no box",
+    "input": "[], 8",
+    "test": "assert format_book_titles([], 8) == []"
+  },
+  {
+    "name": "[Part 1] rejects an overlong title",
+    "input": "format_book_titles(['The Hobbit'], 6)",
+    "test": "try:\n    format_book_titles(['The Hobbit'], 6)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected rejection\")"
+  },
+  {
+    "name": "[Part 1] rejects nonpositive width",
+    "input": "format_book_titles(['Dune'], 0)",
+    "test": "try:\n    format_book_titles(['Dune'], 0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected rejection\")"
+  },
+  {
+    "name": "[Part 2] title fits without wrapping",
+    "input": "['The Hobbit'], 10, True",
+    "test": "assert format_book_titles(['The Hobbit'], 10, True) == ['+----------+', '|The Hobbit|', '+----------+']"
+  },
+  {
+    "name": "[Part 2] greedy wrap preserves word order",
+    "input": "['The Lord of the Rings'], 11, True",
+    "test": "assert format_book_titles(['The Lord of the Rings'], 11, True) == ['+-----------+', '|The Lord of|', '|the Rings  |', '+-----------+']"
+  },
+  {
+    "name": "[Part 2] exact-fit packing without reflow",
+    "input": "['one two three'], 7, True",
+    "test": "assert format_book_titles(['one two three'], 7, True) == ['+-------+', '|one two|', '|three  |', '+-------+']"
+  },
+  {
+    "name": "[Part 2] normalizes ordinary spaces",
+    "input": "['  The   Hobbit  '], 10, True",
+    "test": "assert format_book_titles(['  The   Hobbit  '], 10, True) == ['+----------+', '|The Hobbit|', '+----------+']"
+  },
+  {
+    "name": "[Part 2] mixed wrapped and blank title blocks",
+    "input": "['Dune', 'The Hobbit', '   '], 6, True",
+    "test": "assert format_book_titles(['Dune', 'The Hobbit', '   '], 6, True) == ['+------+', '|Dune  |', '+------+', '|The   |', '|Hobbit|', '+------+', '|      |', '+------+']"
+  },
+  {
+    "name": "[Part 2] punctuation stays with words across several rows",
+    "input": "['The Lion, the Witch and the Wardrobe'], 10, True",
+    "test": "assert format_book_titles(['The Lion, the Witch and the Wardrobe'], 10, True) == ['+----------+', '|The Lion, |', '|the Witch |', '|and the   |', '|Wardrobe  |', '+----------+']"
+  },
+  {
+    "name": "[Part 2] rejects an overlong word",
+    "input": "format_book_titles(['extraordinary'], 8, True)",
+    "test": "try:\n    format_book_titles(['extraordinary'], 8, True)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError(\"expected rejection\")"
+  },
+  {
+    "name": "[Part 2] repeated calls preserve input",
+    "input": "titles = ['  Dune ', 'The Hobbit'], width = 6",
+    "test": "titles = ['  Dune ', 'The Hobbit']\noriginal = titles.copy()\nexpected = ['+------+', '|Dune  |', '+------+', '|The   |', '|Hobbit|', '+------+']\nassert format_book_titles(titles, 6, True) == expected\nassert format_book_titles(titles, 6, True) == expected\nassert titles == original\nassert format_book_titles([], 6, True) == []\nassert format_book_titles([''], 6, True) == ['+------+', '|      |', '+------+']"
+  }
+]
