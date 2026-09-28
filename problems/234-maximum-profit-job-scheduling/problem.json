@@ -4,8 +4,15 @@
   "title": "Maximum Profit Job Scheduling",
   "category": "Algorithms",
   "difficulty": "hard",
-  "tags": ["dynamic-programming", "intervals", "binary-search", "scheduling"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "dynamic-programming",
+    "intervals",
+    "binary-search",
+    "scheduling"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "prompt": "Implement `job_scheduling(start_times, end_times, profits) -> int`. The three equally sized arrays describe jobs: job `i` starts at `start_times[i]`, ends at `end_times[i]`, and earns `profits[i]`. Choose a subset with maximum total profit such that selected jobs do not overlap.\n\nA job ending at time `t` is compatible with another job starting at time `t`. Return `0` for no jobs. Do not assume time values are small or consecutive.",
   "starter_code": "def job_scheduling(start_times, end_times, profits):\n    # Return the maximum profit from a compatible subset of jobs.\n    pass\n",
   "example": {
@@ -22,5 +29,32 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e96ce51456d81d99351cd904acdb4f9"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  },
+  "references": [
+    {
+      "label": "Interview report — nonoverlapping job scheduling",
+      "url": "https://leetcode.com/discuss/post/2785776/Airbnb-or-SDE-2-or-India-or-Offer/"
+    },
+    {
+      "label": "Equivalent interval-scheduling contract",
+      "url": "https://leetcode.com/problems/maximum-profit-in-job-scheduling/"
+    },
+    {
+      "label": "Canonical source notes and reconstruction boundaries",
+      "url": "https://app.notion.com/p/3e96ce51456d81d99351cd904acdb4f9"
+    }
+  ]
 }

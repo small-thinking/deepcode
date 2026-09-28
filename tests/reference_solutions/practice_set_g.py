@@ -98,28 +98,38 @@ def format_articles(articles, width):
     if width <= 0:
         raise ValueError("width must be positive")
 
-    punctuation = set(".,;:!?")
+    def groups(article):
+        parts = []
+        length = 0
+        for token in article.split():
+            if token[0] in ".,;:!?":
+                if not parts:
+                    raise ValueError("punctuation needs a preceding word")
+                parts.append(token)
+                length += 1 + len(token)
+            else:
+                if parts:
+                    yield " ".join(parts)
+                parts = [token]
+                length = len(token)
+            if length > width:
+                raise ValueError("a word or punctuation group exceeds width")
+        if parts:
+            yield " ".join(parts)
+
     result = []
     for article_index, article in enumerate(articles):
-        line_parts = []
-        line_length = 0
-        for word in article.split():
-            if line_parts and word[0] in punctuation:
-                line_parts.append(word)
-                line_length += 1 + len(word)
-            elif not line_parts:
-                line_parts = [word]
-                line_length = len(word)
-            elif line_length + 1 + len(word) <= width:
-                line_parts.append(word)
-                line_length += 1 + len(word)
-            else:
-                result.append(" ".join(line_parts))
-                line_parts = [word]
-                line_length = len(word)
-
-        if line_parts:
-            result.append(" ".join(line_parts))
+        line = []
+        length = 0
+        for group in groups(article):
+            if line and length + 1 + len(group) > width:
+                result.append(" ".join(line))
+                line = []
+                length = 0
+            length += (1 if line else 0) + len(group)
+            line.append(group)
+        if line:
+            result.append(" ".join(line))
         if article_index != len(articles) - 1:
             result.append("----")
     return result

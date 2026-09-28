@@ -4,8 +4,15 @@
   "title": "Minimum Capacity Subset",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["backtracking", "subsets", "optimization", "tie-breaking"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "backtracking",
+    "subsets",
+    "optimization",
+    "tie-breaking"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "prompt": "Implement `best_capacity_subset(properties, group_size, neighborhood=None) -> list[dict]`. Each property is a mapping with a nonnegative integer `capacity` and may have a `neighborhood`. When `neighborhood` is supplied, only properties whose neighborhood equals it are eligible. Return a subset of the original property mappings whose total capacity is at least `group_size`.\n\nRank feasible subsets by `(total_capacity, property_count, original_index_tuple)` and return the chosen original mappings in their input order. Thus, minimize excess capacity first, then the number of properties, then use original input positions only as a final deterministic tie-breaker. Return `[]` when no eligible subset is feasible; `group_size == 0` also returns `[]`. Do not mutate the input mappings or reorder the returned objects.",
   "starter_code": "def best_capacity_subset(properties, group_size, neighborhood=None):\n    # Return the highest-ranked feasible subset in original input order.\n    pass\n",
   "example": {
@@ -22,5 +29,32 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e96ce51456d811ab05dcfecafb53e3b"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  },
+  "references": [
+    {
+      "label": "Interview report — capacity before property count",
+      "url": "https://www.1point3acres.com/interview/thread/1177958"
+    },
+    {
+      "label": "Related capacity-first interview prompt",
+      "url": "https://leetcode.com/discuss/post/6717917/"
+    },
+    {
+      "label": "Canonical source notes and reconstruction boundaries",
+      "url": "https://app.notion.com/p/3e96ce51456d811ab05dcfecafb53e3b"
+    }
+  ]
 }

@@ -4,14 +4,21 @@
   "title": "Multi-Article Line Formatter",
   "category": "Algorithms",
   "difficulty": "hard",
-  "tags": ["strings", "greedy", "formatting", "edge-cases"],
-  "companies": ["Airbnb"],
-  "prompt": "Implement `format_articles(articles, width) -> list[str]`. Each article is a string. Split an article on whitespace and greedily form border-free output lines in word order, placing one space between adjacent words. Insert exactly one `\"----\"` separator between every adjacent pair of input articles, never after the final article. An empty article emits no text lines but still participates in those separators.\n\nDo not split words or perform subjective reflow to avoid a final one-word line. An ordinary word that does not fit after a nonempty line starts the next line; an ordinary word longer than `width` is emitted whole on its own line. For the punctuation characters `.,;:!?`, a token beginning with one of them must attach to a nonempty preceding line even if that attachment exceeds `width`. A first token has no preceding line and therefore starts its own line.\n\n`width` is positive. Return `[]` for an empty `articles` list. Process each token once; aside from the returned strings, use space proportional to one current line.",
-  "starter_code": "def format_articles(articles, width):\n    # Return greedy border-free lines with separators between articles.\n    pass\n",
+  "tags": [
+    "strings",
+    "greedy",
+    "formatting",
+    "edge-cases"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Implement `format_articles(articles, width) -> list[str]`. Each article is a string. Normalize whitespace by splitting into tokens and placing one space between adjacent tokens. Return border-free output lines in the original token order. Insert exactly one `\"----\"` separator between every adjacent pair of input articles, never after the final article. An empty article emits no text lines but still participates in those separators. Separators are structural and are exempt from the line-width limit.\n\nFor the punctuation characters `.,;:!?`, a token beginning with one of them must stay with its preceding word or token group, separated by one space. Consecutive punctuation-leading tokens belong to that same indivisible group. A punctuation-leading token at the start of an article has no predecessor and is invalid. Do not split words or groups.\n\nGreedily pack the indivisible groups into lines of at most `width` characters. If a group does not fit after the current line, move the whole group to the next line. If any word or group is longer than `width`, reject the input with `ValueError` or `AssertionError`; never produce an overflowing text line. Do not rebalance lines to avoid a final one-word line.\n\n`width` must be positive; reject an invalid width with `ValueError` or `AssertionError`. Return `[]` for an empty `articles` list with a valid width.",
+  "starter_code": "def format_articles(articles, width):\n    # Group punctuation with its predecessor, then wrap within the width.\n    pass\n",
   "example": {
-    "input": "format_articles(['Hello ,world next'], 5)",
-    "output": "['Hello ,world', 'next']",
-    "reasoning": "The punctuation-leading token stays with the preceding line, even though that line overflows."
+    "input": "format_articles(['one two , next'], 7)",
+    "output": "['one', 'two ,', 'next']",
+    "reasoning": "The punctuation token and its preceding word move together so every text line stays within the width."
   },
   "environment": {
     "language": "python",
@@ -22,5 +29,28 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "references": [
+    {
+      "label": "Original Airbnb SWE phone-screen report",
+      "url": "https://www.1point3acres.com/interview/thread/1172996"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e96ce51456d81ae8d1cf0cf53d1ddde"
+    }
+  ],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e96ce51456d81ae8d1cf0cf53d1ddde"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-28"
+  }
 }

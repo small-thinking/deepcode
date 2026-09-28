@@ -29,5 +29,32 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e96ce51456d819fb7a9e4a765fce80b"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-28"
+  },
+  "references": [
+    {
+      "label": "Interview report — bank operations",
+      "url": "https://www.1point3acres.com/interview/thread/1163917"
+    },
+    {
+      "label": "Interview report — timestamp-query boundaries",
+      "url": "https://www.1point3acres.com/interview/thread/1162371"
+    },
+    {
+      "label": "Canonical source notes and reconstruction boundaries",
+      "url": "https://app.notion.com/p/3e96ce51456d819fb7a9e4a765fce80b"
+    }
+  ]
 }
