@@ -31,12 +31,12 @@
   },
   "references": [
     {
-      "label": "Canonical Notion interview question",
-      "url": "https://app.notion.com/p/3e56ce51456d81198113e9fc9073c60b"
+      "label": "LeetCode: candidate interview report",
+      "url": "https://leetcode.com/discuss/post/6375931/Datadog-tech-screening/"
     },
     {
-      "label": "Public candidate tech-screen report",
-      "url": "https://leetcode.com/discuss/post/6375931/Datadog-tech-screening/"
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e56ce51456d81198113e9fc9073c60b"
     }
   ],
   "created_at": "2026-09-24",

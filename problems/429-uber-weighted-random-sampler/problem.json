@@ -30,15 +30,19 @@
   },
   "references": [
     {
-      "label": "Candidate report: Uber SDE-ML2 weighted-sampling screen",
+      "label": "Reddit: Uber SDE-ML2 candidate report",
       "url": "https://www.reddit.com/r/leetcode/comments/1n8tyxi/my_uber_sdeml2_interview_journey_didnt_make_it/"
     },
     {
-      "label": "Candidate report: Uber SDE2 L4 weighted-sampling screen",
+      "label": "LeetCode: candidate interview report",
       "url": "https://leetcode.com/discuss/post/1654776/uber-sde2-l4-bangalore-accepted/"
     },
     {
-      "label": "Canonical Notion question record and source context",
+      "label": "GeeksforGeeks Uber SDE intern report — supplemental, independence unresolved",
+      "url": "https://www.geeksforgeeks.org/interview-experiences/uber-interview-experience/"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e56ce51456d81cb90c0e33137807664"
     }
   ],

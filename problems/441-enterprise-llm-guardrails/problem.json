@@ -21,11 +21,19 @@
   },
   "references": [
     {
-      "label": "Candidate interview report",
+      "label": "Aced / Exponent: candidate interview report",
       "url": "https://www.tryexponent.com/experiences/anthropic-machine-learning-engineer-interview-27873a"
     },
     {
-      "label": "Canonical interview question",
+      "label": "InterviewBaba company prep compilation",
+      "url": "https://interviewbaba.com/anthropic-interview-questions/"
+    },
+    {
+      "label": "Prachub related guardrails prompt",
+      "url": "https://prachub.com/interview-questions/answer-general-fit-and-ai-safety-questions"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e76ce51456d8168a857d771e6413fcd"
     }
   ],

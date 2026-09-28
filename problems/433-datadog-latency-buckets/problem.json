@@ -30,12 +30,16 @@
   },
   "references": [
     {
-      "label": "Canonical Notion interview question",
-      "url": "https://app.notion.com/p/3e56ce51456d8166b9a2c190ce5dad45"
+      "label": "LeetCode: candidate interview report",
+      "url": "https://leetcode.com/discuss/post/6375931/Datadog-tech-screening/"
     },
     {
-      "label": "Public candidate tech-screen report",
-      "url": "https://leetcode.com/discuss/post/6375931/Datadog-tech-screening/"
+      "label": "Hack2Hire: aggregated latency-bucket practice (not an original report)",
+      "url": "https://www.reddit.com/r/Hack2Hire/comments/1rftitf/datadog_onsite_interview_latency_bucket_counter/"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e56ce51456d8166b9a2c190ce5dad45"
     }
   ],
   "created_at": "2026-09-24",

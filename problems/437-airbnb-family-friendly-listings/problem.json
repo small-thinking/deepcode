@@ -21,11 +21,15 @@
   },
   "references": [
     {
-      "label": "Candidate interview report",
+      "label": "PracHub: curated interview report (upstream lineage unverified)",
       "url": "https://prachub.com/interview-experiences/airbnb-senior-machine-learning-engineer-interview-experience-four-ml-system-design-rounds-rejected-on-calibration"
     },
     {
-      "label": "Canonical interview question",
+      "label": "Reddit / Chill Interview: matching report excerpt (lineage unverified)",
+      "url": "https://www.reddit.com/r/OfferEngineering/comments/1w5pahq/airbnb_senior_mle_interview_experience_jun_2026/"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e66ce51456d813f9c70fa95d4691740"
     }
   ],

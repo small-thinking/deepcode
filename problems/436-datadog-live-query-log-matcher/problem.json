@@ -31,12 +31,16 @@
   },
   "references": [
     {
-      "label": "Canonical Notion interview question",
-      "url": "https://app.notion.com/p/3e56ce51456d81baa3f0fc50df5527d8"
+      "label": "LeetCode: candidate interview report",
+      "url": "https://leetcode.com/discuss/post/6376092/"
     },
     {
-      "label": "Public candidate full-loop report",
-      "url": "https://leetcode.com/discuss/post/6376092/"
+      "label": "PracHub: curated query/log report (lineage unverified)",
+      "url": "https://prachub.com/interview-experiences/datadog-software-engineer-interview-experience-matching-queries-against-a-log-stream"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e56ce51456d81baa3f0fc50df5527d8"
     }
   ],
   "created_at": "2026-09-24",

@@ -31,11 +31,11 @@
   },
   "references": [
     {
-      "label": "Public Uber MLE question page — core task",
+      "label": "PracHub: curated practice specification (not an original transcript)",
       "url": "https://prachub.com/coding-questions/implement-a-referral-revenue-tracker"
     },
     {
-      "label": "Canonical Notion question record",
+      "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e56ce51456d81a6a8a1e8cbdef37a0e"
     }
   ],

@@ -30,11 +30,11 @@
   },
   "references": [
     {
-      "label": "Public Uber MLE question page — core task",
+      "label": "PracHub: curated practice specification (not an original transcript)",
       "url": "https://prachub.com/coding-questions/compute-minimal-time-to-finish-dependent-tasks"
     },
     {
-      "label": "Canonical Notion question record",
+      "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e56ce51456d813195abdd2a91e1248c"
     }
   ],

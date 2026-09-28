@@ -21,11 +21,15 @@
   },
   "references": [
     {
-      "label": "Candidate interview report",
+      "label": "Aced / Exponent: candidate interview report",
       "url": "https://www.tryexponent.com/experiences/anthropic-machine-learning-engineer-interview-27873a"
     },
     {
-      "label": "Canonical interview question",
+      "label": "Aced prompt page linked to existing report",
+      "url": "https://www.tryexponent.com/questions/7110/improve-pdf-workflow-reliability-performance"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e76ce51456d8141be0ddd4d438e7b01"
     }
   ],

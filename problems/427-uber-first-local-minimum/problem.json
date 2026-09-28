@@ -30,11 +30,15 @@
   },
   "references": [
     {
-      "label": "Public Uber MLE question page — core task",
+      "label": "PracHub: curated practice specification (not an original transcript)",
       "url": "https://prachub.com/coding-questions/find-first-local-minimum"
     },
     {
-      "label": "Canonical Notion question record",
+      "label": "Dataford Uber MLE guide — supplemental question-family evidence",
+      "url": "https://dataford.io/interview-guides/uber/machine-learning-engineer"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e56ce51456d819f99d7d11b45ae9882"
     }
   ],
