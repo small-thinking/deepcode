@@ -1,0 +1,67 @@
+{
+  "id": "448",
+  "slug": "book-title-string-table",
+  "title": "Book Titles as a String Table",
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "tags": [
+    "strings",
+    "formatting",
+    "greedy"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Implement `format_book_titles(titles, width, wrap=False) -> list[str]` to display book titles in a single-column ASCII table. `titles` is a list of single-line ASCII strings whose whitespace consists only of ordinary spaces. `width` is a positive integer and counts characters inside the borders. Reject a nonpositive width with `ValueError` or `AssertionError`.\n\n### Part 1\n\nWith `wrap=False`, preserve each title exactly, including its spaces, and place it on one row. Pad on the right to exactly `width` characters and surround the content with `|`. Reject a title longer than `width` with `ValueError` or `AssertionError`.\n\nUse a horizontal border consisting of `+`, exactly `width` hyphens, and `+` at the top, between adjacent title blocks, and at the bottom. An empty title produces one blank padded row. Return `[]` for an empty title list. Do not change the input list.\n\n### Part 2\n\nWith `wrap=True`, normalize each title's spacing to one space between words and no leading or trailing spaces. Greedily put as many whole words as fit on each row, preserving word order. Do not split words. Reject a word longer than `width` with `ValueError` or `AssertionError`. Empty or space-only titles produce one blank row. Apply the same padding and borders; separate title blocks, not individual wrapped rows.\n\nPractice reconstruction: these explicit layout and rejection rules make the reported formatting task runnable.",
+  "starter_code": "def format_book_titles(titles, width, wrap=False):\n    pass\n",
+  "example": {
+    "input": "format_book_titles(['Dune', 'The Hobbit'], 6, wrap=True)",
+    "output": "['+------+', '|Dune  |', '+------+', '|The   |', '|Hobbit|', '+------+']",
+    "reasoning": "The second title wraps at a word boundary; every content row has six interior characters."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Original interview report — book-title table framing",
+      "url": "https://www.1point3acres.com/interview/thread/1190112"
+    },
+    {
+      "label": "Original interview report — one sentence per fixed-width row",
+      "url": "https://www.1point3acres.com/interview/thread/1176406"
+    },
+    {
+      "label": "Original interview report — article table and multi-column follow-up",
+      "url": "https://www.1point3acres.com/interview/thread/1173286"
+    },
+    {
+      "label": "Original interview report — boxed sentences and wrapping follow-ups",
+      "url": "https://www.1point3acres.com/interview/thread/1186786"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e66ce51456d81ab8f2adc25fe3c225a"
+    }
+  ],
+  "created_at": "2026-09-28",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e66ce51456d81ab8f2adc25fe3c225a"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-28"
+  }
+}
