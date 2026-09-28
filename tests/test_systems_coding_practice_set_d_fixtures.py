@@ -80,21 +80,33 @@ class SystemsCodingPracticeSetDFixtureTest(unittest.TestCase):
             "keyed-box-collector", KEYED_BOX_REFERENCE_SOLUTION
         )
 
-    def test_keyed_box_collector_rejects_mutant_that_ignores_open_status(self):
-        mutant = KEYED_BOX_REFERENCE_SOLUTION.replace(
-            "unlocked.update(box.id for box in boxes if box.is_open)",
-            "pass  # mutant ignores intrinsic open status",
-        )
-        self.assertNotEqual(mutant, KEYED_BOX_REFERENCE_SOLUTION)
+    def test_box_checks_distinguish_possession_unlocking_and_collection(self):
+        mutations = {
+            "initial possession implies unlocked": (
+                "possessed[box] = True", "possessed[box] = True; can_open[box] = True",
+            ),
+            "keys grant possession": (
+                "can_open[target] = True", "can_open[target] = True; possessed[target] = True",
+            ),
+            "unlocked children still need a key": (
+                "can_open = list(status)", "can_open = [False] * n",
+            ),
+            "processes an eligible box more than once": (
+                " and not scheduled[box]", "",
+            ),
+        }
+        for name, (before, after) in mutations.items():
+            with self.subTest(name=name):
+                self.assertIn(before, KEYED_BOX_REFERENCE_SOLUTION)
+                mutant = KEYED_BOX_REFERENCE_SOLUTION.replace(before, after, 1)
+                result = self._evaluate("keyed-box-collector", mutant)
+                self.assertEqual(result["status"], "failed", result)
 
-        result = self._evaluate("keyed-box-collector", mutant)
-        self.assertEqual(result["status"], "failed", result)
-        failed_names = [case["name"] for case in result["results"] if not case["passed"]]
-        self.assertEqual(
-            failed_names,
-            ["opens an intrinsically open child after discovery without a key"],
-            result,
+    def test_box_checks_allow_status_mutation(self):
+        in_place = KEYED_BOX_REFERENCE_SOLUTION.replace(
+            "can_open = list(status)", "can_open = status"
         )
+        self._assert_reference_solution_passes("keyed-box-collector", in_place)
 
     def test_reactive_sum_key_store_reference_solution_passes(self):
         self._assert_reference_solution_passes("reactive-sum-key-store")

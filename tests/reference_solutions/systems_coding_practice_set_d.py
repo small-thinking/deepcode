@@ -73,56 +73,6 @@ class ConnectKGame:
         return False
 
 
-@dataclass(frozen=True)
-class Box:
-    id: object
-    candies: int
-    keys: tuple
-    children: tuple
-
-
-def get_max_candies(boxes, initially_open, key_to_box):
-    catalog = {}
-    for box in boxes:
-        if not isinstance(box, Box) or box.id in catalog:
-            raise ValueError("boxes must have unique IDs")
-        catalog[box.id] = box
-    if not isinstance(key_to_box, Mapping):
-        raise ValueError("key_to_box must be a mapping")
-
-    discovered = {box_id for box_id in initially_open if box_id in catalog}
-    unlocked = set(discovered)
-    opened = set()
-    queued = set()
-    pending = deque()
-
-    def enqueue_available():
-        for box_id in discovered & unlocked:
-            if box_id not in opened and box_id not in queued:
-                pending.append(box_id)
-                queued.add(box_id)
-
-    enqueue_available()
-    total = 0
-    while pending:
-        box_id = pending.popleft()
-        queued.remove(box_id)
-        if box_id in opened or box_id not in discovered or box_id not in unlocked:
-            continue
-        box = catalog[box_id]
-        opened.add(box_id)
-        total += box.candies
-        for key in box.keys:
-            target = key_to_box.get(key)
-            if target in catalog:
-                unlocked.add(target)
-        for child_id in box.children:
-            if child_id in catalog:
-                discovered.add(child_id)
-        enqueue_available()
-    return total
-
-
 class KeyStore:
     def __init__(self):
         self._values = {}
