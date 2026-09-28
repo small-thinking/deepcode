@@ -1,17 +1,32 @@
 [
   {
     "name": "wraps greedily without subjective reflow",
-    "input": "ordinary words that leave a one-word final line",
-    "test": "assert format_articles(['one two three'], 7) == ['one two', 'three']\nassert format_articles(['oversized'], 3) == ['oversized']"
+    "input": "ordinary words and normalized whitespace",
+    "test": "assert format_articles(['one two three'], 7) == ['one two', 'three']\nassert format_articles(['  one\\t two\\nthree  '], 7) == ['one two', 'three']"
   },
   {
-    "name": "attaches punctuation-leading tokens with the overflow exception",
-    "input": "a punctuation-leading token after a full line and one at article start",
-    "test": "assert format_articles(['Hello ,world next'], 5) == ['Hello ,world', 'next']\nassert format_articles(['!alert ok'], 6) == ['!alert', 'ok']"
+    "name": "moves the preceding word with its punctuation onto the next line",
+    "input": "punctuation group cannot fit on the current line",
+    "test": "assert format_articles(['one two , next'], 7) == ['one', 'two ,', 'next']\nassert format_articles(['Hi Hello ,world next'], 12) == ['Hi', 'Hello ,world', 'next']"
   },
   {
-    "name": "places separators exactly between articles including empty ones",
-    "input": "a nonempty article, an empty middle article, and a final nonempty article",
-    "test": "assert format_articles(['First', '', 'Third'], 20) == ['First', '----', '----', 'Third']\nassert format_articles([], 20) == []"
+    "name": "accepts exact-width groups and consecutive punctuation tokens",
+    "input": "one indivisible group with several punctuation-leading tokens",
+    "test": "assert format_articles(['Hello ,world'], 12) == ['Hello ,world']\nassert format_articles(['a b , ! c'], 5) == ['a', 'b , !', 'c']"
+  },
+  {
+    "name": "places structural separators between articles including empty ones",
+    "input": "empty articles and separator wider than text width",
+    "test": "assert format_articles(['First', '', 'Third'], 20) == ['First', '----', '----', 'Third']\nassert format_articles(['a', '', 'b'], 1) == ['a', '----', '----', 'b']\nassert format_articles([], 20) == []\nassert format_articles(['', ''], 2) == ['----']"
+  },
+  {
+    "name": "rejects words and punctuation groups that cannot fit",
+    "input": "impossible long word or indivisible group",
+    "test": "for articles, width in [(['oversized'], 3), (['Hello ,world'], 5), (['a , !'], 4), (['ok', 'long'], 3)]:\n    try:\n        format_articles(articles, width)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError('An over-width word or group must be rejected')"
+  },
+  {
+    "name": "rejects leading punctuation and invalid width",
+    "input": "punctuation has no predecessor or width is nonpositive",
+    "test": "for articles, width in [(['!alert ok'], 20), ([' , hello'], 20), (['ok', '!bad'], 20), (['ok'], 0), ([], -1)]:\n    try:\n        format_articles(articles, width)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError('Invalid formatter input must be rejected')"
   }
 ]

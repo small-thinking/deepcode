@@ -13,5 +13,20 @@
     "name": "cycles repeated references locked boxes and unknown keys are safe",
     "input": "a cycle plus a child that has no unlocking key",
     "test": "boxes = [\n    Box('root', 1, ('open-side', 'unknown'), ('side', 'side', 'locked')),\n    Box('side', 4, (), ('root',)),\n    Box('locked', 100, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {'open-side': 'side', 'unknown': 'not-in-catalog'}) == 5"
+  },
+  {
+    "name": "opens an intrinsically open child after discovery without a key",
+    "input": "a closed root that reveals an intrinsically open child",
+    "test": "boxes = [\n    Box('root', 1, (), ('open-child',)),\n    Box('open-child', 4, (), (), True),\n]\nassert get_max_candies(boxes, {'root'}, {}) == 5"
+  },
+  {
+    "name": "does not collect an intrinsically open catalog box before discovery",
+    "input": "an open box that is neither an initial root nor a revealed child",
+    "test": "boxes = [\n    Box('root', 1, (), ()),\n    Box('open-orphan', 100, (), (), True),\n]\nassert get_max_candies(boxes, {'root'}, {}) == 1"
+  },
+  {
+    "name": "keeps a discovered child locked when it has no key or open status",
+    "input": "a default-closed child revealed without a key",
+    "test": "boxes = [\n    Box('root', 1, (), ('locked-child',)),\n    Box('locked-child', 100, (), ()),\n]\nassert get_max_candies(boxes, {'root'}, {}) == 1"
   }
 ]

@@ -35,6 +35,28 @@ class PracticeSetGFixtureTest(unittest.TestCase):
     def test_multi_article_line_formatter_reference_solution_passes(self):
         self._assert_reference_solution_passes("multi-article-line-formatter")
 
+    def test_multi_article_formatter_rejects_width_overflow_mutation(self):
+        problem = ProblemStore(ROOT / "problems").get_problem(
+            "multi-article-line-formatter"
+        )
+        mutation = REFERENCE_SOLUTION.replace(
+            '            if length > width:\n'
+            '                raise ValueError("a word or punctuation group exceeds width")\n',
+            "",
+        )
+        self.assertNotEqual(mutation, REFERENCE_SOLUTION)
+        result = evaluate_submission(
+            EvaluationRequest(
+                code=mutation,
+                problem=problem,
+                tests=problem["tests"],
+                environment=problem["environment"],
+                runtime=problem.get("_runtime", {}),
+            )
+        )
+        self.assertNotEqual(result["status"], "passed", result)
+        self.assertLess(result["passed"], len(problem["tests"]))
+
 
 if __name__ == "__main__":
     unittest.main()

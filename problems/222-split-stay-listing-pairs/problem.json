@@ -4,8 +4,15 @@
   "title": "Two-Leg Listing Pairs",
   "category": "Algorithms",
   "difficulty": "medium",
-  "tags": ["intervals", "availability", "sets", "pairing"],
-  "companies": ["Airbnb"],
+  "tags": [
+    "intervals",
+    "availability",
+    "sets",
+    "pairing"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
   "prompt": "Implement `find_split_pairs(listings, start_day, end_day) -> list[tuple[str, str]]`. `listings` maps each unique listing label to an iterable of integer days when that listing is available.\n\nA valid result uses two distinct listings for two nonempty, adjacent portions of the inclusive trip window. For some integer split day `k` with `start_day <= k < end_day`, one listing must contain every day in `[start_day, k]` and the other must contain every day in `[k + 1, end_day]`. A listing may also be available on other days; assigned coverage is not required to be exact.\n\nReturn each unordered pair once, as a lexicographically ordered tuple, and sort the output lexicographically. If there is no valid pair, or the requested window has fewer than two days, return an empty list. Do not mutate the input availability collections.",
   "starter_code": "def find_split_pairs(listings, start_day, end_day):\n    # Return sorted, deduplicated unordered listing pairs that can cover a two-leg stay.\n    pass\n",
   "example": {
@@ -22,5 +29,32 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e96ce51456d81e3a451d76ff32b38ff"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-28"
+  },
+  "references": [
+    {
+      "label": "Interview report — one contiguous switch",
+      "url": "https://www.1point3acres.com/interview/thread/1157745"
+    },
+    {
+      "label": "Interview report — two-listing combinations",
+      "url": "https://www.1point3acres.com/interview/thread/1159316"
+    },
+    {
+      "label": "Canonical source notes and reconstruction boundaries",
+      "url": "https://app.notion.com/p/3e96ce51456d81e3a451d76ff32b38ff"
+    }
+  ]
 }

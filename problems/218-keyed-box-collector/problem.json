@@ -13,8 +13,8 @@
   "companies": [
     "Airbnb"
   ],
-  "prompt": "Implement a collector over boxes that can contain rewards, keys, and references to child boxes.\n\n`Box(id, candies, keys, children)` stores a box ID, a nonnegative reward count, iterable keys, and iterable child box IDs. Implement `get_max_candies(boxes, initially_open, key_to_box) -> int`. `boxes` is the complete catalog, `initially_open` contains root box IDs that are both discovered and unlocked, and `key_to_box` maps a key to the ID it unlocks.\n\nA catalog box can open exactly once only after it is both discovered and unlocked. Opening it collects its candies, reveals its keys, and discovers its child IDs. A key may unlock a catalog box before that box is discovered; it must wait until a parent reveals it. Repeated child references, duplicate keys, cycles, and self-references must not collect a box twice. A key absent from `key_to_box`, or one mapped to a box outside the catalog, has no effect. Do not mutate the supplied boxes or build a user interface.",
-  "starter_code": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Box:\n    id: object\n    candies: int\n    keys: tuple\n    children: tuple\n\n\ndef get_max_candies(boxes, initially_open, key_to_box):\n    pass\n",
+  "prompt": "Implement a collector over boxes that can contain rewards, keys, and references to child boxes.\n\n`Box(id, candies, keys, children, is_open=False)` stores a box ID, a nonnegative reward count, iterable keys, iterable child box IDs, and whether the box is intrinsically open. The default preserves the four-argument constructor. Implement `get_max_candies(boxes, initially_open, key_to_box) -> int`. `boxes` is the complete catalog, `initially_open` contains root box IDs that are both discovered and unlocked, and `key_to_box` maps a key to the ID it unlocks.\n\nA catalog box can open exactly once only after it is discovered and unlocked. It is unlocked if its ID is in `initially_open`, its `is_open` flag is true, or a collected key unlocks it. An intrinsically open box still cannot be collected until it is discovered as an initial root or a child of an opened box. Opening a box collects its candies, reveals its keys, and discovers its child IDs. A key may unlock a catalog box before that box is discovered; it must wait until a parent reveals it. Repeated child references, duplicate keys, cycles, and self-references must not collect a box twice. A key absent from `key_to_box`, or one mapped to a box outside the catalog, has no effect. Do not mutate the supplied boxes or build a user interface.",
+  "starter_code": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Box:\n    id: object\n    candies: int\n    keys: tuple\n    children: tuple\n    is_open: bool = False\n\n\ndef get_max_candies(boxes, initially_open, key_to_box):\n    pass\n",
   "example": {
     "input": "boxes = [Box('root', 2, ('brass',), ('side',)), Box('side', 5, (), ())]; get_max_candies(boxes, {'root'}, {'brass': 'side'})",
     "output": "7",
@@ -29,5 +29,28 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "references": [
+    {
+      "label": "Original interview report — boxes, keys and candies",
+      "url": "https://www.1point3acres.com/interview/thread/1178846"
+    },
+    {
+      "label": "Canonical Notion question and source ledger",
+      "url": "https://app.notion.com/p/3e96ce51456d81ce93c2c694f17a42f4"
+    }
+  ],
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3e96ce51456d81ce93c2c694f17a42f4"
+      ],
+      "stars": 2,
+      "synced_at": "2026-09-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-28"
+  }
 }
