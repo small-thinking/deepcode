@@ -37,8 +37,7 @@ def find_split_pairs(listings, start_day, end_day):
     return pairs
 
 
-def render_terrain(heights, water=None):
-    water = [0] * len(heights) if water is None else water
+def _render_rows(heights, water):
     final_heights = [height + added_water for height, added_water in zip(heights, water)]
     rows = []
     for row in range(max(final_heights, default=0), 0, -1):
@@ -54,6 +53,10 @@ def render_terrain(heights, water=None):
     return "\n".join(rows)
 
 
+def render_terrain(heights):
+    return _render_rows(heights, [0] * len(heights))
+
+
 def pour_and_render(heights, units, source):
     water = [0] * len(heights)
 
@@ -61,37 +64,23 @@ def pour_and_render(heights, units, source):
         return heights[index] + water[index]
 
     for _ in range(units):
-        source_height = resting_height(source)
-
-        left_minimum = None
-        index = source - 1
-        while index >= 0 and resting_height(index) < source_height:
-            value = resting_height(index)
-            left_minimum = value if left_minimum is None else min(left_minimum, value)
-            index -= 1
-
-        right_minimum = None
-        index = source + 1
-        while index < len(heights) and resting_height(index) < source_height:
-            value = resting_height(index)
-            right_minimum = value if right_minimum is None else min(right_minimum, value)
-            index += 1
-
-        if left_minimum is None and right_minimum is None:
-            water[source] += 1
-            continue
-
-        direction = -1 if right_minimum is None or (
-            left_minimum is not None and left_minimum <= right_minimum
-        ) else 1
-        position = source
-        next_position = position + direction
-        while 0 <= next_position < len(heights) and resting_height(next_position) < resting_height(position):
-            position = next_position
+        destinations = []
+        for direction in (-1, 1):
+            position = source
             next_position = position + direction
+            while 0 <= next_position < len(heights) and resting_height(next_position) < resting_height(position):
+                position = next_position
+                next_position = position + direction
+            if position != source:
+                destinations.append(position)
+
+        if destinations:
+            position = min(destinations, key=lambda index: resting_height(index))
+        else:
+            position = source
         water[position] += 1
 
-    return render_terrain(heights, water)
+    return _render_rows(heights, water)
 
 
 def find_duplicate_indices(records):
