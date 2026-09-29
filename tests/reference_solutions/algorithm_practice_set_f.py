@@ -37,13 +37,13 @@ def find_split_pairs(listings, start_day, end_day):
     return pairs
 
 
-def render_terrain(heights, units=0, source=0):
+def render_terrain(heights, amount=0, drop_column=0):
     water = [0] * len(heights)
 
-    for _ in range(units):
+    for _ in range(amount):
         destinations = []
         for direction in (-1, 1):
-            position = source
+            position = drop_column
             next_position = position + direction
             while (
                 0 <= next_position < len(heights)
@@ -52,13 +52,13 @@ def render_terrain(heights, units=0, source=0):
             ):
                 position = next_position
                 next_position = position + direction
-            if position != source:
+            if position != drop_column:
                 destinations.append(position)
 
         if destinations:
             position = min(destinations, key=lambda index: heights[index] + water[index])
         else:
-            position = source
+            position = drop_column
         water[position] += 1
 
     final_heights = [height + added_water for height, added_water in zip(heights, water)]

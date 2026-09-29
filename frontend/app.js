@@ -3482,7 +3482,7 @@ function renderProblemExample(example) {
     `
       <div class="problem-example">
         <div class="problem-meta-row"><div class="label">Input</div><pre>${escapeHtml(example?.input || "")}</pre></div>
-        <div class="problem-meta-row"><div class="label">Output</div><pre>${escapeHtml(example?.output || "")}</pre></div>
+        <div class="problem-meta-row"><div class="label">Output</div><pre class="problem-example-output">${escapeHtml(example?.output || "")}</pre></div>
         <div class="problem-meta-row"><div class="label">Reasoning</div><div>${escapeHtml(example?.reasoning || "")}</div></div>
       </div>
     `

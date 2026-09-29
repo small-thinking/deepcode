@@ -22,6 +22,6 @@
   {
     "name": "requires strict descent and handles an edge source",
     "input": "equal-height columns after a descent and multiple drops from the first column",
-    "test": "assert render_terrain([2, 1, 1], 1, 0) == '+W\\n+++'\nassert render_terrain([2, 0, 2], 3, 0) == 'W\\n+W+\\n+W+'\nassert render_terrain([], 0, 0) == ''"
+    "test": "assert render_terrain([2, 1, 1], 1, 0) == '+W\\n+++'\nassert render_terrain([2, 0, 2], amount=3, drop_column=0) == 'W\\n+W+\\n+W+'\nassert render_terrain([], 0, 0) == ''"
   }
 ]
