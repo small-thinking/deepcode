@@ -92,61 +92,29 @@ def tokenize_longest_match(text, vocabulary, unknown="<UNK>"):
     return output
 
 
-def _validate_timestamp(timestamp):
-    if type(timestamp) not in (int, float):
-        raise TypeError("timestamps must be finite int or float values")
-    if not math.isfinite(timestamp):
-        raise ValueError("timestamps must be finite")
-
-
-def stack_samples_to_trace_events(samples, end_timestamp):
-    _validate_timestamp(end_timestamp)
-    try:
-        sample_iterator = iter(samples)
-    except TypeError as error:
-        raise TypeError("samples must be iterable") from error
+def stack_samples_to_trace_events(samples, min_samples=1):
+    if type(min_samples) is not int or min_samples <= 0:
+        raise ValueError("min_samples must be a positive integer")
 
     events = []
     active = []
-    previous_timestamp = None
-    saw_sample = False
-
-    for sample in sample_iterator:
-        if not isinstance(sample, tuple) or len(sample) != 2:
-            raise TypeError("each sample must be a (timestamp, stack) tuple")
-        timestamp, stack = sample
-        _validate_timestamp(timestamp)
-        if previous_timestamp is not None and timestamp < previous_timestamp:
-            raise ValueError("sample timestamps must be nondecreasing")
-        if isinstance(stack, str):
-            raise TypeError("stack must be a non-string sequence")
-        if not isinstance(stack, (list, tuple)):
-            raise TypeError("stack must be a non-string sequence")
+    streaks = []
+    for timestamp, stack in samples:
         current = list(stack)
-        for frame in current:
-            if not isinstance(frame, str):
-                raise TypeError("frame names must be strings")
-            if not frame:
-                raise ValueError("frame names must not be empty")
-
         common = 0
-        while common < len(active) and common < len(current) and active[common] == current[common]:
+        while common < min(len(active), len(current)) and active[common] == current[common]:
             common += 1
-        for frame in reversed(active[common:]):
-            events.append({"name": frame, "phase": "E", "timestamp": timestamp})
-        for frame in current[common:]:
-            events.append({"name": frame, "phase": "B", "timestamp": timestamp})
 
+        for depth in range(len(active) - 1, common - 1, -1):
+            if streaks[depth] >= min_samples:
+                events.append({"name": active[depth], "phase": "E", "timestamp": timestamp})
+
+        streaks = [min(count + 1, min_samples + 1) for count in streaks[:common]]
+        streaks.extend([1] * (len(current) - common))
+        for depth, frame in enumerate(current):
+            if streaks[depth] == min_samples:
+                events.append({"name": frame, "phase": "B", "timestamp": timestamp})
         active = current
-        previous_timestamp = timestamp
-        saw_sample = True
-
-    if not saw_sample:
-        return []
-    if end_timestamp < previous_timestamp:
-        raise ValueError("end_timestamp precedes the final sample")
-    for frame in reversed(active):
-        events.append({"name": frame, "phase": "E", "timestamp": end_timestamp})
     return events
 
 
