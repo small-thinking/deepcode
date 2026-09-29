@@ -1,5 +1,15 @@
 [
   {
+    "name": "renders the source-style terrain as rows before adding water",
+    "input": "a height array with slopes and empty columns",
+    "test": "heights = [5, 4, 3, 2, 1, 3, 4, 0, 3, 4]\nexpected = '+\\n++    +  +\\n+++  ++ ++\\n++++ ++ ++\\n+++++++ ++'\nassert render_terrain(heights) == expected\nassert heights == [5, 4, 3, 2, 1, 3, 4, 0, 3, 4]"
+  },
+  {
+    "name": "renders empty and zero-height ground without water",
+    "input": "Part 1 boundary cases and leading spaces",
+    "test": "assert render_terrain([]) == ''\nassert render_terrain([0, 0]) == ''\nassert render_terrain([0, 2, 0]) == ' +\\n +'\nassert render_terrain([2, 0, 2]) == '+ +\\n+ +'"
+  },
+  {
     "name": "simulates a multi-drop valley and renders without trailing spaces",
     "input": "a symmetric terrain with four drops released near the left slope",
     "test": "heights = [5, 4, 3, 1, 3, 4, 5]\nexpected = '+W    +\\n++W  ++\\n+++W+++\\n+++W+++\\n+++++++'\nassert pour_and_render(heights, 4, 1) == expected\nassert heights == [5, 4, 3, 1, 3, 4, 5]"

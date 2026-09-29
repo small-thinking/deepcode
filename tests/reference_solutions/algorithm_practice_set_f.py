@@ -37,6 +37,23 @@ def find_split_pairs(listings, start_day, end_day):
     return pairs
 
 
+def render_terrain(heights, water=None):
+    water = [0] * len(heights) if water is None else water
+    final_heights = [height + added_water for height, added_water in zip(heights, water)]
+    rows = []
+    for row in range(max(final_heights, default=0), 0, -1):
+        cells = []
+        for index, height in enumerate(heights):
+            if row <= height:
+                cells.append("+")
+            elif row <= final_heights[index]:
+                cells.append("W")
+            else:
+                cells.append(" ")
+        rows.append("".join(cells).rstrip())
+    return "\n".join(rows)
+
+
 def pour_and_render(heights, units, source):
     water = [0] * len(heights)
 
@@ -74,19 +91,7 @@ def pour_and_render(heights, units, source):
             next_position = position + direction
         water[position] += 1
 
-    final_heights = [height + added_water for height, added_water in zip(heights, water)]
-    rows = []
-    for row in range(max(final_heights, default=0), 0, -1):
-        cells = []
-        for index, height in enumerate(heights):
-            if row <= height:
-                cells.append("+")
-            elif row <= final_heights[index]:
-                cells.append("W")
-            else:
-                cells.append(" ")
-        rows.append("".join(cells).rstrip())
-    return "\n".join(rows)
+    return render_terrain(heights, water)
 
 
 def find_duplicate_indices(records):
