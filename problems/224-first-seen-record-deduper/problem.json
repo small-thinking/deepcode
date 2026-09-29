@@ -3,7 +3,7 @@
   "slug": "first-seen-record-deduper",
   "title": "First-Seen Record Deduper",
   "category": "Algorithms",
-  "difficulty": "hard",
+  "difficulty": "medium",
   "tags": [
     "hashing",
     "records",
@@ -13,10 +13,10 @@
   "companies": [
     "Airbnb"
   ],
-  "prompt": "Your team is processing account sign-ups in the order they arrive. Each record contains identifying attributes that must be unique for an accepted account, such as an email address or phone number. Once an account is accepted, later sign-ups cannot reuse any of those attribute values. Your task is to identify which sign-ups must be rejected as duplicates.\n\nWrite `find_duplicate_indices(records) -> list[int]`, where `records` is an ordered iterable of dictionaries containing only attributes that should be unique. Return the zero-based indices of rejected records in arrival order. An incoming record is rejected if any of its present `(field_name, value)` pairs was claimed by an earlier accepted record. Check every present field before accepting the record; a rejected record claims none of its values.\n\nThe set of attributes may vary, so do not hard-code email or phone. Values are unique within their own field: the same string in an `email` field and a `phone` field does not conflict. Assume records are uniformly formatted and attribute values are already consistently formatted; no email or phone normalization is required.",
+  "prompt": "Your team is processing account sign-ups in the order they arrive. Each record contains identifying attributes that must be unique for an accepted account, such as an email address or phone number. Once an account is accepted, later sign-ups cannot reuse any of those attribute values. Your task is to identify which sign-ups must be rejected as duplicates.\n\nWrite `find_duplicate_indices(records) -> list[int]`, where `records` is an ordered iterable of dictionaries containing only attributes that should be unique. Display-only information, such as a user name, is omitted from this practice input. Return the zero-based indices of rejected records in arrival order. An incoming record is rejected if any of its present `(field_name, value)` pairs was claimed by an earlier accepted record. Check every present field before accepting the record; a rejected record claims none of its values.\n\nThe set of attributes may vary, so do not hard-code email or phone. Values are unique within their own field: the same string in an `email` field and a `phone` field does not conflict. Assume records are uniformly formatted and attribute values are already consistently formatted; no email or phone normalization is required.",
   "starter_code": "def find_duplicate_indices(records):\n    # Return indexes of records that repeat a previously claimed same-field value.\n    pass\n",
   "example": {
-    "input": "find_duplicate_indices([{'name': 'Lara', 'email': 'lara@example.test', 'phone': '555-014'}, {'name': 'Noah', 'email': 'noah@example.test', 'phone': '555-014'}, {'name': 'Mina', 'email': 'lara@example.test', 'phone': '555-778'}])",
+    "input": "find_duplicate_indices([{'email': 'lara@example.test', 'phone': '555-014'}, {'email': 'noah@example.test', 'phone': '555-014'}, {'email': 'lara@example.test', 'phone': '555-778'}])",
     "output": "[1, 2]",
     "reasoning": "The second record repeats a claimed phone value and the third repeats a claimed email value."
   },
