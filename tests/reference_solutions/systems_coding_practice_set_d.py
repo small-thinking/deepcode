@@ -333,9 +333,9 @@ class Database:
             if not all(self._matches(stored[column], operator, value) for column, operator, value in conditions):
                 continue
             rows.append(dict(stored))
-        sort_columns, ascending = self._order_by(table, order_by)
-        if sort_columns:
-            rows.sort(key=cmp_to_key(lambda left, right: self._row_compare(left, right, sort_columns, ascending)))
+        sort_fields = self._order_by(table, order_by)
+        if sort_fields:
+            rows.sort(key=cmp_to_key(lambda left, right: self._row_compare(left, right, sort_fields)))
         return [{column: row[column] for column in projection} for row in rows]
 
     def _where(self, table, where):
@@ -361,16 +361,25 @@ class Database:
 
     def _order_by(self, table, order_by):
         if order_by is None:
-            return (), True
+            return ()
         if isinstance(order_by, str):
-            columns, ascending = (order_by,), True
-        elif isinstance(order_by, tuple) and len(order_by) == 2 and type(order_by[1]) is bool:
-            columns = self._names(order_by[0], "order columns")
-            ascending = order_by[1]
+            fields = ((order_by, True),)
+        elif isinstance(order_by, list) and order_by:
+            fields = []
+            for field in order_by:
+                if not isinstance(field, (tuple, list)) or len(field) != 2:
+                    raise ValueError("order_by field is invalid")
+                column, ascending = field
+                if not isinstance(column, str) or type(ascending) is not bool:
+                    raise ValueError("order_by field is invalid")
+                fields.append((column, ascending))
         else:
             raise ValueError("order_by is invalid")
+        columns = [column for column, _ in fields]
+        if len(set(columns)) != len(columns):
+            raise ValueError("order columns must be unique")
         self._validate_columns(table, columns, "order")
-        return columns, ascending
+        return fields
 
     @staticmethod
     def _matches(left, operator, right):
@@ -385,8 +394,8 @@ class Database:
         }[operator]
 
     @staticmethod
-    def _row_compare(left, right, columns, ascending):
-        for column in columns:
+    def _row_compare(left, right, fields):
+        for column, ascending in fields:
             comparison = _compare_values(left[column], right[column])
             if comparison:
                 return comparison if ascending else -comparison
