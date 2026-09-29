@@ -2,7 +2,6 @@ from bisect import bisect_left, bisect_right
 from collections import defaultdict, deque
 from collections.abc import Mapping
 from dataclasses import dataclass
-from decimal import Decimal, InvalidOperation
 from enum import Enum
 from functools import cmp_to_key
 
@@ -232,37 +231,8 @@ class Account:
         return 0 if index < 0 else self._balances[index]
 
 
-def _numeric(value):
-    if isinstance(value, bool):
-        return None
-    if isinstance(value, (int, float, Decimal)):
-        try:
-            converted = Decimal(str(value))
-        except InvalidOperation:
-            return None
-    elif isinstance(value, str) and value.strip():
-        try:
-            converted = Decimal(value.strip())
-        except InvalidOperation:
-            return None
-    else:
-        return None
-    return converted if converted.is_finite() else None
-
-
 def _compare_values(left, right):
-    if left is None or right is None:
-        if left is right:
-            return 0
-        return -1 if left is None else 1
-    left_numeric = _numeric(left)
-    right_numeric = _numeric(right)
-    if left_numeric is not None and right_numeric is not None:
-        return (left_numeric > right_numeric) - (left_numeric < right_numeric)
-    try:
-        return (left > right) - (left < right)
-    except TypeError as error:
-        raise ValueError("values are not comparable") from error
+    return (left > right) - (left < right)
 
 
 class _Table:
