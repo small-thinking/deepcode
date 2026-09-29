@@ -37,7 +37,30 @@ def find_split_pairs(listings, start_day, end_day):
     return pairs
 
 
-def _render_rows(heights, water):
+def render_terrain(heights, units=0, source=0):
+    water = [0] * len(heights)
+
+    for _ in range(units):
+        destinations = []
+        for direction in (-1, 1):
+            position = source
+            next_position = position + direction
+            while (
+                0 <= next_position < len(heights)
+                and heights[next_position] + water[next_position]
+                < heights[position] + water[position]
+            ):
+                position = next_position
+                next_position = position + direction
+            if position != source:
+                destinations.append(position)
+
+        if destinations:
+            position = min(destinations, key=lambda index: heights[index] + water[index])
+        else:
+            position = source
+        water[position] += 1
+
     final_heights = [height + added_water for height, added_water in zip(heights, water)]
     rows = []
     for row in range(max(final_heights, default=0), 0, -1):
@@ -51,36 +74,6 @@ def _render_rows(heights, water):
                 cells.append(" ")
         rows.append("".join(cells).rstrip())
     return "\n".join(rows)
-
-
-def render_terrain(heights):
-    return _render_rows(heights, [0] * len(heights))
-
-
-def pour_and_render(heights, units, source):
-    water = [0] * len(heights)
-
-    def resting_height(index):
-        return heights[index] + water[index]
-
-    for _ in range(units):
-        destinations = []
-        for direction in (-1, 1):
-            position = source
-            next_position = position + direction
-            while 0 <= next_position < len(heights) and resting_height(next_position) < resting_height(position):
-                position = next_position
-                next_position = position + direction
-            if position != source:
-                destinations.append(position)
-
-        if destinations:
-            position = min(destinations, key=lambda index: resting_height(index))
-        else:
-            position = source
-        water[position] += 1
-
-    return _render_rows(heights, water)
 
 
 def find_duplicate_indices(records):

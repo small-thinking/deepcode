@@ -13,10 +13,10 @@
   "companies": [
     "Airbnb"
   ],
-  "prompt": "A landscape is given as nonnegative column heights `heights`. Complete these two parts without changing the input array.\n\n## Part 1: Draw the terrain\n\nImplement `render_terrain(heights) -> str`. Draw rows from top to bottom using `+` for ground and spaces for empty cells.\n\n## Part 2: Pour water\n\nImplement `pour_and_render(heights, units, source) -> str`. Release `units` drops, one at a time, at column `source`. Show the final landscape using `+` for ground and `W` for water above it.\n\nFor this practice version, each drop follows an adjacent, strictly downhill path. If both sides lead downhill, use the side with the lower resting point; choose left on a tie. If neither side is lower, the drop stays at `source`. Water remains within the landscape.\n\nFor both parts, omit trailing spaces on each row and a final newline. An empty drawing returns `\"\"`. In the interview reports, the rows were printed; these functions return the drawing so it can be tested.",
-  "starter_code": "def render_terrain(heights):\n    pass\n\n\ndef pour_and_render(heights, units, source):\n    pass\n",
+  "prompt": "A landscape is given as nonnegative column heights `heights`. Complete these two stages without changing the input array.\n\n## Part 1: Draw the terrain\n\nImplement `render_terrain(heights, units=0, source=0) -> str`. With no water, draw rows from top to bottom using `+` for ground and spaces for empty cells.\n\n## Part 2: Pour water\n\nExtend the same function to accept `units` drops released one at a time at column `source`. Show the final landscape using `+` for ground and `W` for water above it.\n\nFor this practice version, each drop follows an adjacent, strictly downhill path. If both sides lead downhill, use the side with the lower resting point; choose left on a tie. If neither side is lower, the drop stays at `source`. Water remains within the landscape.\n\nOmit trailing spaces on each row and a final newline. An empty drawing returns `\"\"`. In the interview reports, rows were printed; this function returns the drawing so it can be tested.",
+  "starter_code": "def render_terrain(heights, units=0, source=0):\n    pass\n",
   "example": {
-    "input": "pour_and_render([2, 0, 2], 3, 0)",
+    "input": "render_terrain([2, 0, 2], 3, 0)",
     "output": "W\\n+W+\\n+W+",
     "reasoning": "The drawing shows ground as `+` and deposited water as `W`."
   },
