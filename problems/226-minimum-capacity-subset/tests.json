@@ -1,17 +1,22 @@
 [
   {
-    "name": "filters by neighborhood before choosing an exact fill",
-    "input": "an otherwise useful property outside the requested neighborhood",
-    "test": "properties = [\n    {'id': 'a', 'capacity': 6, 'neighborhood': 'north'},\n    {'id': 'b', 'capacity': 4, 'neighborhood': 'north'},\n    {'id': 'c', 'capacity': 10, 'neighborhood': 'south'},\n]\nassert best_capacity_subset(properties, 10, 'north') == [properties[0], properties[1]]"
+    "name": "matches the reported neighborhood and group-size examples",
+    "input": "properties with IDs 1–4 in two neighborhoods",
+    "test": "properties = [\n    {'id': 1, 'neighborhood': 'area1', 'capacity': 5},\n    {'id': 2, 'neighborhood': 'area1', 'capacity': 3},\n    {'id': 3, 'neighborhood': 'area1', 'capacity': 2},\n    {'id': 4, 'neighborhood': 'area2', 'capacity': 4},\n]\nassert best_capacity_subset(properties, 5, 'area1') == [1]\nassert best_capacity_subset(properties, 6, 'area1') == [1, 3]"
   },
   {
-    "name": "ranks capacity before property count and count before index ties",
-    "input": "a lower-capacity pair, a higher-capacity singleton, and equal-capacity alternatives",
-    "test": "properties = [\n    {'id': 'six-a', 'capacity': 6},\n    {'id': 'four', 'capacity': 4},\n    {'id': 'eleven', 'capacity': 11},\n]\nassert best_capacity_subset(properties, 10) == [properties[0], properties[1]]\nproperties = [\n    {'id': 'five-a', 'capacity': 5},\n    {'id': 'five-b', 'capacity': 5},\n    {'id': 'ten', 'capacity': 10},\n]\nassert best_capacity_subset(properties, 10) == [properties[2]]\nproperties = [{'id': 'first', 'capacity': 6}, {'id': 'second', 'capacity': 6}]\nassert best_capacity_subset(properties, 6) == [properties[0]]"
+    "name": "minimizes capacity before property count",
+    "input": "an exact-fill pair and a higher-capacity singleton",
+    "test": "properties = [\n    {'id': 'six', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'four', 'neighborhood': 'north', 'capacity': 4},\n    {'id': 'eleven', 'neighborhood': 'north', 'capacity': 11},\n    {'id': 'outside', 'neighborhood': 'south', 'capacity': 10},\n]\nassert best_capacity_subset(properties, 10, 'north') == ['six', 'four']"
   },
   {
-    "name": "returns an empty subset for zero or infeasible requirements",
-    "input": "a zero group size and a target beyond all eligible capacity",
-    "test": "properties = [{'capacity': 3}, {'capacity': 4, 'neighborhood': 'north'}]\nassert best_capacity_subset(properties, 0) == []\nassert best_capacity_subset(properties, 10, 'north') == []"
+    "name": "breaks equal-capacity ties by count then input positions",
+    "input": "a one-property exact fit and duplicate-capacity alternatives",
+    "test": "properties = [\n    {'id': 'five-a', 'neighborhood': 'north', 'capacity': 5},\n    {'id': 'five-b', 'neighborhood': 'north', 'capacity': 5},\n    {'id': 'ten', 'neighborhood': 'north', 'capacity': 10},\n]\nassert best_capacity_subset(properties, 10, 'north') == ['ten']\nproperties = [\n    {'id': 'later-id', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'earlier-id', 'neighborhood': 'north', 'capacity': 6},\n]\nassert best_capacity_subset(properties, 6, 'north') == ['later-id']"
+  },
+  {
+    "name": "returns an empty list when the target neighborhood cannot fit the group",
+    "input": "all eligible capacity below the target",
+    "test": "properties = [\n    {'id': 1, 'neighborhood': 'north', 'capacity': 3},\n    {'id': 2, 'neighborhood': 'south', 'capacity': 20},\n]\nassert best_capacity_subset(properties, 4, 'north') == []\nassert best_capacity_subset(properties, 1, 'east') == []"
   }
 ]
