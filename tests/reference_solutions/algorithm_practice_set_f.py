@@ -37,41 +37,28 @@ def find_split_pairs(listings, start_day, end_day):
     return pairs
 
 
-def pour_and_render(heights, units, source):
+def render_terrain(heights, amount=0, drop_column=0):
     water = [0] * len(heights)
 
-    def resting_height(index):
-        return heights[index] + water[index]
-
-    for _ in range(units):
-        source_height = resting_height(source)
-
-        left_minimum = None
-        index = source - 1
-        while index >= 0 and resting_height(index) < source_height:
-            value = resting_height(index)
-            left_minimum = value if left_minimum is None else min(left_minimum, value)
-            index -= 1
-
-        right_minimum = None
-        index = source + 1
-        while index < len(heights) and resting_height(index) < source_height:
-            value = resting_height(index)
-            right_minimum = value if right_minimum is None else min(right_minimum, value)
-            index += 1
-
-        if left_minimum is None and right_minimum is None:
-            water[source] += 1
-            continue
-
-        direction = -1 if right_minimum is None or (
-            left_minimum is not None and left_minimum <= right_minimum
-        ) else 1
-        position = source
-        next_position = position + direction
-        while 0 <= next_position < len(heights) and resting_height(next_position) < resting_height(position):
-            position = next_position
+    for _ in range(amount):
+        destinations = []
+        for direction in (-1, 1):
+            position = drop_column
             next_position = position + direction
+            while (
+                0 <= next_position < len(heights)
+                and heights[next_position] + water[next_position]
+                < heights[position] + water[position]
+            ):
+                position = next_position
+                next_position = position + direction
+            if position != drop_column:
+                destinations.append(position)
+
+        if destinations:
+            position = min(destinations, key=lambda index: heights[index] + water[index])
+        else:
+            position = drop_column
         water[position] += 1
 
     final_heights = [height + added_water for height, added_water in zip(heights, water)]

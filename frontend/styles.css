@@ -1084,6 +1084,12 @@ body.is-resizing {
   margin: 8px 0;
 }
 
+.problem-example-output {
+  white-space: pre;
+  word-break: normal;
+  overflow-x: auto;
+}
+
 .label {
   color: var(--muted);
   font-size: 13px;

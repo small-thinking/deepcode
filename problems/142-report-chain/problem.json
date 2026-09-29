@@ -10,7 +10,7 @@
   "starter_code": "from __future__ import annotations\n\n\ndef build_children(relations: list[list[str]]) -> tuple[dict[str, list[str]], str]:\n    pass\n\n\ndef render_full_chain(relations: list[list[str]]) -> str:\n    pass\n\n\ndef all_skip_level_pairs(relations: list[list[str]]) -> list[tuple[str, str]]:\n    pass\n\n\ndef render_chain_for(relations: list[list[str]], target: str) -> str:\n    pass\n\n\ndef lowest_common_manager(relations: list[list[str]], employee1: str, employee2: str) -> str:\n    pass\n",
   "example": {
     "input": "relations = [['R', 'S', 'T'], ['S', 'V'], ['T', 'U']]",
-    "output": "R\\n....S\\n........V\\n....T\\n........U",
+    "output": "R\n....S\n........V\n....T\n........U",
     "reasoning": "A pre-order DFS renders reports in the order given by each relation row."
   },
   "environment": {

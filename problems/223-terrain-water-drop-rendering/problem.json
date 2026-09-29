@@ -13,12 +13,12 @@
   "companies": [
     "Airbnb"
   ],
-  "prompt": "Implement `pour_and_render(heights, units, source) -> str`. `heights[i]` is the nonnegative ground height of terrain column `i`. Release `units` drops above `source`, one at a time, without mutating `heights`.\n\n## One drop\n\nA column's resting height is `heights[i] + deposited_water[i]`.\n\n- Scan left and right outward from `source`. On each side, include consecutive columns whose resting height is strictly below the source's resting height, and record that side's minimum resting height.\n- Choose the side with the smaller recorded minimum; on a tie choose left. If neither side has a recorded minimum, deposit at `source`.\n- Starting again at `source`, move one step at a time along the chosen side only while the next column's resting height is strictly lower than the current column's. Deposit at the final column reached. The side scan chooses the direction; a lower column beyond an ascent does not become the destination.\n\n## Rendering\n\nRender the final terrain from its highest occupied row down to row 1. Use `+` for original ground, `W` only above original ground, and spaces for empty cells. Strip trailing spaces from every row and do not include a final newline. Return an empty string for an empty terrain.",
-  "starter_code": "def pour_and_render(heights, units, source):\n    # Simulate each drop, then return the trimmed top-to-bottom terrain drawing.\n    pass\n",
+  "prompt": "A landscape is given as nonnegative column heights `heights`. Complete these two stages without changing the input array.\n\n## Part 1: Draw the terrain\n\nImplement `render_terrain(heights, amount=0, drop_column=0) -> str`. With no water, draw rows from top to bottom using `+` for ground and spaces for empty cells.\n\n## Part 2: Pour water\n\nExtend the same function to accept `amount` drops released one at a time at column `drop_column`. Show the final landscape using `+` for ground and `W` for water above it.\n\nFor this practice version, each drop follows an adjacent, strictly downhill path. If both sides lead downhill, use the side with the lower resting point; choose left on a tie. If neither side is lower, the drop stays at `drop_column`. Water remains within the landscape.\n\nOmit trailing spaces on each row and a final newline. An empty drawing returns `\"\"`. In the interview reports, rows were printed; this function returns the drawing so it can be tested.",
+  "starter_code": "def render_terrain(heights, amount=0, drop_column=0):\n    pass\n",
   "example": {
-    "input": "pour_and_render([2, 0, 2], 3, 0)",
-    "output": "W\\n+W+\\n+W+",
-    "reasoning": "The first two drops settle in the middle basin; the third can no longer descend and rests at the source."
+    "input": "render_terrain([2, 0, 2], amount=3, drop_column=0)",
+    "output": "W\n+W+\n+W+",
+    "reasoning": "The drawing shows ground as `+` and deposited water as `W`."
   },
   "environment": {
     "language": "python",

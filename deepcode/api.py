@@ -231,6 +231,18 @@ def _evaluation_request_from_body(
         raise ValueError("`custom_only` must be a boolean")
 
     test_index = payload.get("test_index")
+    test_indices = payload.get("test_indices")
+    if test_indices is not None:
+        if test_index is not None or custom_only or custom_tests:
+            raise ValueError("`test_indices` cannot be combined with other test selections")
+        if (
+            not isinstance(test_indices, list)
+            or not test_indices
+            or any(isinstance(index, bool) or not isinstance(index, int) or index < 0 or index >= len(tests) for index in test_indices)
+            or len(set(test_indices)) != len(test_indices)
+        ):
+            raise ValueError("`test_indices` must be distinct visible test indexes")
+        tests = [tests[index] for index in test_indices]
     if test_index is not None:
         if isinstance(test_index, bool) or not isinstance(test_index, int):
             raise ValueError("`test_index` must be an integer visible test index")
@@ -246,10 +258,10 @@ def _evaluation_request_from_body(
         tests = [*tests, *custom_tests]
 
     runtime = dict(problem.get("_runtime", {}))
-    if test_index is not None:
+    if test_index is not None or test_indices is not None:
         runtime["skip_hidden_harness"] = True
 
-    activity_scope = "selected" if test_index is not None else "custom" if custom_only or custom_tests else "full"
+    activity_scope = "selected" if test_index is not None or test_indices is not None else "custom" if custom_only or custom_tests else "full"
     completion_eligible = activity_scope == "full"
     return (
         problem,
