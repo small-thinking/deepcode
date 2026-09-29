@@ -1635,18 +1635,6 @@ async function runTests(testIndex = null) {
   await runPayload(payload, { testIndex });
 }
 
-async function runTestStage(stage) {
-  if (!state.selected) return;
-  const testIndices = (state.selected.tests || [])
-    .map((test, index) => test.stage === stage ? index : -1)
-    .filter((index) => index >= 0);
-  if (!testIndices.length) return;
-  const code = normalizePythonIndentation(editorCode());
-  setEditorCode(code);
-  saveCode(code);
-  await runPayload({ code, test_indices: testIndices });
-}
-
 async function runCustomTests(customIndex = null) {
   if (!state.selected || !isMlCodingProblem(state.selected)) return;
   collectCustomTestInputs();
@@ -3030,7 +3018,6 @@ function renderDetail() {
   const runButtonContent = state.running
     ? `<span class="button-spinner" aria-hidden="true"></span><span>Running checks</span>`
     : "Run all tests";
-  const stages = [...new Set((problem.tests || []).map((test) => test.stage).filter(Boolean))];
   app.innerHTML = `
     <main class="page page-detail">
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
@@ -3085,7 +3072,6 @@ function renderDetail() {
                 aria-expanded="${!state.layout.resultsCollapsed}"
               >${state.layout.resultsCollapsed ? "Show results" : "Hide results"}</button>
             </div>
-            ${stages.map((stage) => `<button class="ghost-button" data-run-stage="${escapeHtml(stage)}" ${runButtonState}>Run ${escapeHtml(stage)}</button>`).join("")}
             <button class="primary-button" id="run-tests" ${runButtonState} aria-busy="${state.running}">
               ${runButtonContent}
             </button>
@@ -4007,9 +3993,6 @@ function bindEvents() {
   document.querySelector("#problem-timer-toggle")?.addEventListener("click", toggleProblemTimer);
   document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
-  document.querySelectorAll("[data-run-stage]").forEach((button) => {
-    button.addEventListener("click", () => runTestStage(button.dataset.runStage));
-  });
   document.querySelector("#toggle-results")?.addEventListener("click", toggleResultsPanel);
   document.querySelector("#toggle-problem-pane")?.addEventListener("click", toggleProblemPaneCollapsed);
   document.querySelectorAll("[data-run-test-index]").forEach((button) => {

@@ -300,41 +300,6 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(status, 400)
             self.assertIn("test_index", payload["error"])
 
-    def test_runs_selected_stage_without_marking_problem_complete(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            store = ProblemStore(root / "problems")
-            user_state = UserStateStore(root / ".deepcode" / "user-state.json")
-            self._write_problem(
-                root / "problems", "toy", "1",
-                tests=[
-                    {"name": "first", "test": "print(identity(4))", "expected_output": "4"},
-                    {"name": "later", "test": "print(identity(5))", "expected_output": "5"},
-                    {"name": "boundary", "test": "print(identity(4))", "expected_output": "4"},
-                ],
-            )
-            context = ApiContext(store=store, user_state=user_state)
-            body = json.dumps({"code": "def identity(x):\n    return 4\n", "test_indices": [0, 2]}).encode("utf-8")
-            status, payload = handle_api_request(context, "POST", "/api/problems/toy/run", {}, body)
-
-            self.assertEqual(status, 200)
-            self.assertEqual(payload["status"], "passed")
-            self.assertEqual([result["name"] for result in payload["results"]], ["first", "boundary"])
-            self.assertFalse(user_state.status_for("toy")["completed"])
-
-    def test_rejects_invalid_selected_stage_indexes(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            store = ProblemStore(Path(tmp))
-            self._write_problem(Path(tmp), "toy", "1")
-            for indexes in ([], [0, 0], [1], [True], "0"):
-                with self.subTest(indexes=indexes):
-                    body = json.dumps({"code": "def identity(x):\n    return x\n", "test_indices": indexes}).encode("utf-8")
-                    status, payload = handle_api_request(
-                        ApiContext(store=store), "POST", "/api/problems/toy/run", {}, body
-                    )
-                    self.assertEqual(status, 400)
-                    self.assertIn("test_indices", payload["error"])
-
     def test_passing_submission_marks_problem_complete(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = ProblemStore(Path(tmp) / "problems")
