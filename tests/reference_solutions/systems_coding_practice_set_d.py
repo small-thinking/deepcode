@@ -2,7 +2,6 @@ from bisect import bisect_left, bisect_right
 from collections import defaultdict, deque
 from collections.abc import Mapping
 from dataclasses import dataclass
-from decimal import Decimal, InvalidOperation
 from enum import Enum
 from functools import cmp_to_key
 
@@ -232,37 +231,8 @@ class Account:
         return 0 if index < 0 else self._balances[index]
 
 
-def _numeric(value):
-    if isinstance(value, bool):
-        return None
-    if isinstance(value, (int, float, Decimal)):
-        try:
-            converted = Decimal(str(value))
-        except InvalidOperation:
-            return None
-    elif isinstance(value, str) and value.strip():
-        try:
-            converted = Decimal(value.strip())
-        except InvalidOperation:
-            return None
-    else:
-        return None
-    return converted if converted.is_finite() else None
-
-
 def _compare_values(left, right):
-    if left is None or right is None:
-        if left is right:
-            return 0
-        return -1 if left is None else 1
-    left_numeric = _numeric(left)
-    right_numeric = _numeric(right)
-    if left_numeric is not None and right_numeric is not None:
-        return (left_numeric > right_numeric) - (left_numeric < right_numeric)
-    try:
-        return (left > right) - (left < right)
-    except TypeError as error:
-        raise ValueError("values are not comparable") from error
+    return (left > right) - (left < right)
 
 
 class _Table:
@@ -325,52 +295,42 @@ class Database:
         table = self._table(table_name)
         projection = self._names(columns, "projection columns")
         self._validate_columns(table, projection, "projection")
-        predicate, conditions = self._where(table, where)
+        conditions = self._where(table, where)
         rows = []
         for stored in table.rows:
-            if predicate is not None and not predicate(dict(stored)):
-                continue
-            if not all(self._matches(stored[column], operator, value) for column, operator, value in conditions):
-                continue
-            rows.append(dict(stored))
-        sort_columns, ascending = self._order_by(table, order_by)
-        if sort_columns:
-            rows.sort(key=cmp_to_key(lambda left, right: self._row_compare(left, right, sort_columns, ascending)))
+            if all(self._matches(stored[column], operator, value) for column, operator, value in conditions):
+                rows.append(dict(stored))
+        sort_fields = self._order_by(table, order_by)
+        if sort_fields:
+            rows.sort(key=cmp_to_key(lambda left, right: self._row_compare(left, right, sort_fields)))
         return [{column: row[column] for column in projection} for row in rows]
 
     def _where(self, table, where):
         if where is None:
-            return None, ()
-        if callable(where):
-            return where, ()
-        if isinstance(where, (str, bytes)):
-            raise ValueError("where must be a callable or condition list")
-        try:
-            conditions = tuple(where)
-        except TypeError as error:
-            raise ValueError("where must be a callable or condition list") from error
-        validated = []
-        for condition in conditions:
-            if not isinstance(condition, (tuple, list)) or len(condition) != 3:
+            return ()
+        if not isinstance(where, list):
+            raise ValueError("where must be a list of conditions")
+        for condition in where:
+            if not isinstance(condition, tuple) or len(condition) != 3:
                 raise ValueError("condition is invalid")
-            column, operator, value = condition
-            if column not in table.column_set or operator not in {"=", "!=", "<", "<=", ">", ">="}:
+            column, operator, _ = condition
+            if (not isinstance(column, str) or column not in table.column_set
+                    or not isinstance(operator, str) or operator not in {"=", "!=", "<", "<=", ">", ">="}):
                 raise ValueError("condition is invalid")
-            validated.append((column, operator, value))
-        return None, tuple(validated)
+        return where
 
     def _order_by(self, table, order_by):
         if order_by is None:
-            return (), True
-        if isinstance(order_by, str):
-            columns, ascending = (order_by,), True
-        elif isinstance(order_by, tuple) and len(order_by) == 2 and type(order_by[1]) is bool:
-            columns = self._names(order_by[0], "order columns")
-            ascending = order_by[1]
-        else:
-            raise ValueError("order_by is invalid")
-        self._validate_columns(table, columns, "order")
-        return columns, ascending
+            return ()
+        if not isinstance(order_by, list):
+            raise ValueError("order_by must be a list of fields")
+        for field in order_by:
+            if not isinstance(field, tuple) or len(field) != 2:
+                raise ValueError("order_by field is invalid")
+            column, ascending = field
+            if not isinstance(column, str) or column not in table.column_set or type(ascending) is not bool:
+                raise ValueError("order_by field is invalid")
+        return order_by
 
     @staticmethod
     def _matches(left, operator, right):
@@ -385,8 +345,8 @@ class Database:
         }[operator]
 
     @staticmethod
-    def _row_compare(left, right, columns, ascending):
-        for column in columns:
+    def _row_compare(left, right, fields):
+        for column, ascending in fields:
             comparison = _compare_values(left[column], right[column])
             if comparison:
                 return comparison if ascending else -comparison
