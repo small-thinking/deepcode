@@ -2,7 +2,7 @@
   {
     "name": "finds conflicts from earlier accepted records",
     "input": "records with one repeated phone and one repeated email",
-    "test": "records = [{'name': 'Lara', 'email': 'lara@example.test', 'phone': '555-014'}, {'name': 'Noah', 'email': 'noah@example.test', 'phone': '555-014'}, {'name': 'Mina', 'email': 'lara@example.test', 'phone': '555-778'}]\nassert find_duplicate_indices(records) == [1, 2]"
+    "test": "records = [{'email': 'lara@example.test', 'phone': '555-014'}, {'email': 'noah@example.test', 'phone': '555-014'}, {'email': 'lara@example.test', 'phone': '555-778'}]\nassert find_duplicate_indices(records) == [1, 2]"
   },
   {
     "name": "does not let a rejected record claim another value",
