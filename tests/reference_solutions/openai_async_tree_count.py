@@ -26,7 +26,9 @@ class AsyncTreeCounter:
 
         if message["type"] != "count_reply":
             raise ValueError("unknown message type")
-        current = self.state[request_id]
+        current = self.state.get(request_id)
+        if current is None:
+            return
         if from_node_id not in current["pending_children"]:
             return
         current["pending_children"].remove(from_node_id)
