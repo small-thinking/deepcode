@@ -13,5 +13,60 @@
     "name": "returns no pair for a gap or a single-day window",
     "input": "unavailable middle days and an interval without a legal split",
     "test": "assert find_split_pairs({'A': [1, 3], 'B': [2, 4]}, 1, 4) == []\nassert find_split_pairs({'A': [5], 'B': [5]}, 5, 5) == []"
+  },
+  {
+    "name": "two-day stay allows reverse alphabetical travel order",
+    "input": "Z covers day 10 and A covers day 11",
+    "test": "assert find_split_pairs({'Z': [10], 'A': [11]}, 10, 11) == [('A', 'Z')]"
+  },
+  {
+    "name": "only the first split day works",
+    "input": "the first listing covers only the arrival day",
+    "test": "assert find_split_pairs({'A': [3], 'B': [4, 5, 6]}, 3, 6) == [('A', 'B')]"
+  },
+  {
+    "name": "only the last split day works",
+    "input": "the second listing covers only the final day",
+    "test": "assert find_split_pairs({'A': [3, 4, 5], 'B': [6]}, 3, 6) == [('A', 'B')]"
+  },
+  {
+    "name": "one missing night prevents an otherwise adjacent stay",
+    "input": "day 3 is unavailable at both listings",
+    "test": "assert find_split_pairs({'A': [1, 2], 'B': [4, 5]}, 1, 5) == []"
+  },
+  {
+    "name": "both trip endpoints must be covered",
+    "input": "separate missing-arrival and missing-final-day calendars",
+    "test": "assert find_split_pairs({'A': [2, 3], 'B': [4, 5]}, 1, 5) == []\nassert find_split_pairs({'A': [1, 2], 'B': [3, 4]}, 1, 5) == []"
+  },
+  {
+    "name": "requires two distinct listings",
+    "input": "empty catalog or a single listing covering the entire trip",
+    "test": "assert find_split_pairs({}, 1, 4) == []\nassert find_split_pairs({'A': [1, 2, 3, 4]}, 1, 4) == []"
+  },
+  {
+    "name": "neither leg can be empty",
+    "input": "one full-trip listing with empty or out-of-window partners",
+    "test": "assert find_split_pairs({'A': [1, 2, 3], 'B': [], 'C': [0, 4]}, 1, 3) == []"
+  },
+  {
+    "name": "full-trip listings produce one unordered pair",
+    "input": "both orientations and every split succeed for the same pair",
+    "test": "assert find_split_pairs({'B': [1, 2, 3, 4], 'A': [1, 2, 3, 4]}, 1, 4) == [('A', 'B')]"
+  },
+  {
+    "name": "unsorted repeated days do not mutate availability",
+    "input": "lists contain repeated days and availability outside the trip",
+    "test": "listings = {'Z': [9, 3, 1, 2, 2], 'A': [5, 4, 3, 4, 0]}\nbefore = {name: days[:] for name, days in listings.items()}\nassert find_split_pairs(listings, 1, 5) == [('A', 'Z')]\nassert listings == before"
+  },
+  {
+    "name": "accepts tuple set and range calendars",
+    "input": "different iterable types with a valid pair and an empty listing",
+    "test": "listings = {'A': (2, 1), 'B': {3, 4}, 'C': range(0)}\nassert find_split_pairs(listings, 1, 4) == [('A', 'B')]\nassert listings == {'A': (2, 1), 'B': {3, 4}, 'C': range(0)}"
+  },
+  {
+    "name": "sorts multiple valid pairs independently of insertion order",
+    "input": "two possible first legs and two possible second legs",
+    "test": "listings = {'Z': [1, 2], 'B': [3, 4], 'Y': [1, 2], 'A': [3, 4]}\nassert find_split_pairs(listings, 1, 4) == [('A', 'Y'), ('A', 'Z'), ('B', 'Y'), ('B', 'Z')]"
   }
 ]
