@@ -1,19 +1,10 @@
-def best_capacity_subset(properties, group_size, neighborhood=None):
-    if group_size < 0:
-        raise ValueError("group_size must be nonnegative")
-
+def best_capacity_subset(properties, group_size, neighborhood):
     indexed = list(enumerate(properties))
-    for _, property_ in indexed:
-        if property_["capacity"] < 0:
-            raise ValueError("capacities must be nonnegative")
-
     eligible = [
         (index, property_)
         for index, property_ in indexed
-        if neighborhood is None or property_.get("neighborhood") == neighborhood
+        if property_["neighborhood"] == neighborhood
     ]
-    if group_size == 0:
-        return []
 
     best_key = None
     best_indices = ()
@@ -31,7 +22,7 @@ def best_capacity_subset(properties, group_size, neighborhood=None):
             best_key = key
             best_indices = tuple(indices)
 
-    return [properties[index] for index in best_indices]
+    return [properties[index]["id"] for index in best_indices]
 
 
 def smallest_number(digits, lower_bound=None):
