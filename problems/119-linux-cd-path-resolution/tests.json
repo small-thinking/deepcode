@@ -18,5 +18,10 @@
     "name": "reapplies symlinks after each rewrite and detects cycles",
     "input": "target normalization creates another symlink match",
     "test": "assert cd(\"/\", \"a/c\", links={\"/a\": \"/b/..\", \"/c\": \"/d\"}) == \"/d\"\ntry:\n    cd(\"/a\", \"b\", links={\"/a/b\": \"/x\", \"/x\": \"/a/b\"})\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    assert False, \"expected input validation error\""
+  },
+  {
+    "name": "normalizes dot-dot before matching symlink prefixes",
+    "input": "a parent traversal cancels a link component before lookup",
+    "test": "assert cd(\"/a\", \"link/..\", links={\"/a/link\": \"/x/y\"}) == \"/a\"\nassert cd(\"/a\", \"link/../keep\", links={\"/a/link\": \"/x/y\", \"/a/keep\": \"/z\"}) == \"/z\""
   }
 ]
