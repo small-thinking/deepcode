@@ -13,5 +13,20 @@
     "name": "finds optimal chains across nonconsecutive time values",
     "input": "two weighted interval scheduling examples",
     "test": "assert job_scheduling([2, 4, 6, 6], [4, 7, 8, 10], [45, 15, 35, 80]) == 125\nassert job_scheduling([1, 3, 5, 6, 8], [3, 5, 9, 8, 11], [25, 30, 110, 65, 55]) == 175\nassert job_scheduling([], [], []) == 0"
+  },
+  {
+    "name": "compares one long job with a more profitable sequence",
+    "input": "one long job or three shorter jobs",
+    "test": "assert job_scheduling([1, 1, 3, 5], [7, 3, 5, 7], [95, 35, 40, 45]) == 120"
+  },
+  {
+    "name": "handles jobs supplied out of chronological order",
+    "input": "later job appears before earlier compatible jobs",
+    "test": "assert job_scheduling([6, 1, 4, 2], [8, 2, 6, 4], [30, 20, 40, 25]) == 115"
+  },
+  {
+    "name": "chooses a profitable chain over an overlapping alternative",
+    "input": "standard five-job scheduling example",
+    "test": "assert job_scheduling([1, 2, 3, 4, 6], [3, 5, 10, 6, 9], [20, 20, 100, 70, 60]) == 150"
   }
 ]
