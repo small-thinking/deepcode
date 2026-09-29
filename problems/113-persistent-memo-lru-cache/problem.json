@@ -27,7 +27,7 @@
     "stars": 3,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `MemoLRUCache`, a memoization cache with stable JSON keys, LRU eviction, and optional append-only persistence.\n\nRequired behavior:\n- `__init__(capacity, file_path=\"\")` creates an empty cache. Raise an error for non-positive capacity. If `file_path` is non-empty, replay the file if it exists.\n- `_cache_key(func_name, args=None, kwargs=None)` returns a stable tuple key. Equivalent keyword arguments in different orders must produce the same key. All args, kwargs, and return values are JSON-serializable.\n- `get_or_compute(func, args=None, kwargs=None)` returns the cached value on hit, or computes and caches `func(*args, **kwargs)` on miss. Hits and misses both update recency. Evict the least-recently-used item when capacity is exceeded.\n- When persistence is enabled, append one JSON line per access with enough information to restore both values and LRU order. Replaying the log should tolerate a malformed or truncated line by skipping it.\n\nUse only the Python standard library.\n\nInvalid inputs may be rejected with `assert`.",
+  "prompt": "An expensive function is called repeatedly with the same arguments. Implement `MemoLRUCache` so repeated calls reuse a stored result, the cache stays within its capacity, and an optional persistence file lets a new instance continue after a restart.\n\n- `MemoLRUCache(capacity, file_path=\"\")` creates a cache with positive integer capacity. An empty path disables persistence; otherwise restore any existing cache data from that file.\n- `_cache_key(func_name, args=None, kwargs=None)` returns a hashable tuple identifying a call. Arguments and results are JSON-serializable. Dictionary key order, including nested dictionaries, must not affect identity. Assume function names are unique and functions produce stable results.\n- `get_or_compute(func, args=None, kwargs=None)` returns a cached result or evaluates `func(*args, **kwargs)` and stores its result. Every successful access makes that call the most recently used entry. When capacity is exceeded, evict the least recently used entry.\n- Restoring a cache must preserve both results and recency, including accesses that were cache hits. Persistence work per access must not grow with the number of cached entries.\n\nFor this exercise, use an append-only JSON-lines file. Ignore malformed JSON lines or a truncated final record during recovery, and ensure accesses made after recovery can themselves be recovered on a later restart. The caller reopens the same file with the same capacity. Use the Python standard library.",
   "starter_code": "class MemoLRUCache:\n    def __init__(self, capacity, file_path=\"\"):\n        pass\n\n    def _cache_key(self, func_name, args=None, kwargs=None):\n        pass\n\n    def get_or_compute(self, func, args=None, kwargs=None):\n        pass\n",
   "example": {
     "input": "cache = MemoLRUCache(2); cache.get_or_compute(pow, args=[2, 3])",
@@ -53,8 +53,12 @@
       "url": "https://docs.python.org/3/library/json.html"
     },
     {
-      "label": "TrueInterview: In-Memory Cache Bug-Fix + Durability (free)",
-      "url": "https://trueinterview.io/questions/coding-q2-lru-cache-durability?company=anthropic"
+      "label": "Notion interview record; JSON-lines and malformed-record behavior are practice conventions",
+      "url": "https://app.notion.com/p/35c6ce51456d8108ae6fc360fae0be86"
+    },
+    {
+      "label": "Public candidate-report summary (secondary): argument keys and recovery after cache loss",
+      "url": "https://prachub.com/interview-experiences/anthropic-software-engineer-interview-experience-oa-a-python-lru-cache-phone-screen-and-rejection-after-a-full-onsite"
     }
   ],
   "created_at": "2026-06-15"

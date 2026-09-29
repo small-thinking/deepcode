@@ -771,8 +771,13 @@ class MemoLRUCache:
     def _append(self, key, value):
         if not self.file_path:
             return
-        with open(self.file_path, "a", encoding="utf-8") as handle:
-            handle.write(json.dumps({"key": list(key), "value": value}) + "\n")
+        record = json.dumps({"key": list(key), "value": value}).encode("utf-8")
+        with open(self.file_path, "ab+") as handle:
+            if handle.tell():
+                handle.seek(-1, 2)
+                if handle.read(1) != b"\n":
+                    handle.write(b"\n")
+            handle.write(record + b"\n")
 
     def _load(self):
         try:
