@@ -12,28 +12,20 @@
     "top-p"
   ],
   "companies": [
-    "Mistral AI",
-    "MicrosoftAI"
+    "Mistral AI"
   ],
   "interview_frequency": {
-    "MicrosoftAI": {
-      "source_record_ids": [
-        "35c6ce51456d810dbe68ca96d2720334"
-      ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
-    },
     "Mistral AI": {
       "source_record_ids": [
         "35c6ce51456d814f94a3dc188e7c6089"
       ],
       "stars": 2,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "Implement `top_p_sample(logits, top_p, temperature=1.0) -> int` for one LLM decoding step.\n\n`logits` is a non-empty one-dimensional list or NumPy array, `top_p` is in `(0, 1]`, and `temperature` is positive. Apply temperature scaling and softmax, keep the smallest set of highest-probability tokens whose cumulative probability reaches `top_p`, then sample from the renormalized probabilities of those tokens. Return the sampled token's original index as a Python `int`.\n\nYou may use NumPy, but implement the top-p logic yourself. Assume the inputs are valid. Top-k filtering and the full autoregressive decoding loop are outside this exercise.",
   "starter_code": "import numpy as np\n\n\ndef top_p_sample(logits, top_p, temperature=1.0):\n    pass\n",
