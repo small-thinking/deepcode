@@ -1,0 +1,57 @@
+{
+  "id": "412",
+  "slug": "canva-regularized-logistic-regression",
+  "title": "Add Pluggable Regularization to Logistic Regression",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "logistic-regression",
+    "regularization",
+    "code-extension"
+  ],
+  "companies": [
+    "Canva"
+  ],
+  "prompt": "A logistic-regression model performs well on training data but poorly in production. Discuss how you would distinguish distribution shift from overfitting, then extend the supplied training code to support regularization.\n\nImplement `L2Regularizer(lambda_param)` and complete the two missing integrations in `train_logistic`. The objective is mean binary cross-entropy plus `lambda_param * sum(coefficients ** 2)`; the model has no separate intercept. The training loop must also work with any object implementing `loss_penalty(coefficients)` and `gradiate_penalty(coefficients)`. Keep that supplied method spelling.\n\nReturn the fitted coefficients and the full-data objective after each epoch. Keep the provided batching and prediction behavior, include the final partial batch, and do not modify the inputs. The prediction helper labels a sample positive only when its probability is strictly greater than the threshold.",
+  "starter_code": "import numpy as np\n\n\n# PROVIDED: keep the source interface's spelling.\nclass Regularizer:\n    def loss_penalty(self, coefficients):\n        raise NotImplementedError\n\n    def gradiate_penalty(self, coefficients):\n        raise NotImplementedError\n\n\n# PROVIDED: numerically stable prediction for a model with no intercept.\ndef predict_logistic(features, coefficients, threshold=0.5):\n    z = np.asarray(features, dtype=float) @ coefficients\n    probabilities = np.exp(-np.logaddexp(0.0, -z))\n    return (probabilities > threshold).astype(int)\n\n\nclass L2Regularizer(Regularizer):\n    # PROVIDED: regularization strength.\n    def __init__(self, lambda_param):\n        self.lambda_param = lambda_param\n\n    def loss_penalty(self, coefficients):\n        # TODO: implement the L2 contribution to the objective.\n        raise NotImplementedError\n\n    def gradiate_penalty(self, coefficients):\n        # TODO: implement the L2 contribution to the gradient.\n        raise NotImplementedError\n\n\ndef train_logistic(features, targets, regularizer=None, epochs=8,\n                   learning_rate=0.01, batch_size=32, seed=42):\n    # PROVIDED: data preparation, zero initialization, and shuffled minibatches.\n    x = np.asarray(features, dtype=float)\n    y = np.asarray(targets, dtype=float)\n    coefficients = np.zeros(x.shape[1], dtype=float)\n    losses = []\n    rng = np.random.default_rng(seed)\n    for _ in range(epochs):\n        order = rng.permutation(len(x))\n        for start in range(0, len(x), batch_size):\n            indices = order[start:start + batch_size]\n            xb, yb = x[indices], y[indices]\n            logits = xb @ coefficients\n            probabilities = np.exp(-np.logaddexp(0.0, -logits))\n            gradient = xb.T @ (probabilities - yb) / len(indices)\n            if regularizer is not None:\n                # TODO: incorporate the injected regularizer in this update.\n                raise NotImplementedError\n            coefficients = coefficients - learning_rate * gradient\n        logits = x @ coefficients\n        loss = float(np.mean(np.logaddexp(0.0, logits) - y * logits))\n        if regularizer is not None:\n            # TODO: include the injected penalty in the reported objective.\n            raise NotImplementedError\n        losses.append(loss)\n    return coefficients, losses\n",
+  "example": {
+    "input": "L2Regularizer(0.25), coefficients=[2.0,-3.0]",
+    "output": "loss_penalty=3.25, gradiate_penalty=[1.0,-1.5]",
+    "reasoning": "The supplied strength scales the squared-coefficient penalty."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [
+      "numpy"
+    ],
+    "comparator": "numeric"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "interview_frequency": {
+    "Canva": {
+      "stars": 1,
+      "source_record_ids": [
+        "3d76ce51456d81b19b00e7df21ce6a82"
+      ],
+      "synced_at": "2026-09-22"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-22"
+  },
+  "references": [
+    {
+      "label": "Canonical source contract and local training conventions",
+      "url": "https://www.notion.so/3d76ce51456d81b19b00e7df21ce6a82"
+    },
+    {
+      "label": "Original candidate report and completed code (not untouched starter)",
+      "url": "https://www.1point3acres.com/interview/thread/1064047"
+    }
+  ],
+  "created_at": "2026-09-22"
+}
