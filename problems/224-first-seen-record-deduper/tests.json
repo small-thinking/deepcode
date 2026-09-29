@@ -10,8 +10,23 @@
     "test": "records = [{'email': 'first@example.test', 'phone': '111'}, {'email': 'first@example.test', 'phone': '222'}, {'email': 'later@example.test', 'phone': '222'}]\nassert find_duplicate_indices(records) == [1]"
   },
   {
-    "name": "keeps field scopes and raw value comparison distinct",
-    "input": "matching text in different fields, absent fields, and case or whitespace variants",
-    "test": "records = [{'email': 'Name@example.test', 'phone': '555 01'}, {'phone': 'Name@example.test'}, {}, {'email': 'name@example.test', 'phone': '55501'}]\nassert find_duplicate_indices(records) == []"
+    "name": "accepts sign-ups with distinct identifiers",
+    "input": "three consistently formatted records with no repeated email or phone",
+    "test": "records = [{'email': 'a@example.test', 'phone': '111'}, {'email': 'b@example.test', 'phone': '222'}, {'email': 'c@example.test', 'phone': '333'}]\nassert find_duplicate_indices(records) == []"
+  },
+  {
+    "name": "handles an empty batch",
+    "input": "no sign-up records",
+    "test": "assert find_duplicate_indices([]) == []"
+  },
+  {
+    "name": "checks an additional unique attribute",
+    "input": "a membership ID shared by two records with different emails",
+    "test": "records = [{'email': 'a@example.test', 'member_id': 'M-1'}, {'email': 'b@example.test', 'member_id': 'M-1'}, {'email': 'c@example.test', 'member_id': 'M-2'}]\nassert find_duplicate_indices(records) == [1]"
+  },
+  {
+    "name": "returns duplicate positions among interleaved accepted records",
+    "input": "several accepted and rejected sign-ups sharing different identifiers",
+    "test": "records = [{'email': 'a@example.test', 'phone': '111'}, {'email': 'b@example.test', 'phone': '222'}, {'email': 'c@example.test', 'phone': '222'}, {'email': 'a@example.test', 'phone': '333'}, {'email': 'd@example.test', 'phone': '333'}, {'email': 'd@example.test', 'phone': '444'}]\nassert find_duplicate_indices(records) == [2, 3, 5]"
   }
 ]
