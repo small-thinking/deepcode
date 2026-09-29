@@ -41,6 +41,9 @@ class TransferLedger:
             raise KeyError("unknown account")
         if source == destination:
             raise ValueError("self transfer")
+        if self._balances[source] < amount:
+            raise ValueError("insufficient available funds")
+        self._balances[source] -= amount
         transfer_id = f"transfer-{self._next_transfer}"
         self._next_transfer += 1
         self._transfers[transfer_id] = {
@@ -64,16 +67,14 @@ class TransferLedger:
 
     def accept(self, transfer_id):
         transfer = self._pending_transfer(transfer_id)
-        if self._balances[transfer["source"]] < transfer["amount"]:
-            transfer["status"] = "rejected"
-            return False
-        self._balances[transfer["source"]] -= transfer["amount"]
         self._balances[transfer["destination"]] += transfer["amount"]
         transfer["status"] = "accepted"
         return True
 
     def cancel(self, transfer_id):
-        self._pending_transfer(transfer_id)["status"] = "cancelled"
+        transfer = self._pending_transfer(transfer_id)
+        self._balances[transfer["source"]] += transfer["amount"]
+        transfer["status"] = "cancelled"
 
     def merge_accounts(self, keep, absorb):
         if not _is_nonempty_string(keep) or not _is_nonempty_string(absorb) or keep == absorb:
@@ -89,6 +90,7 @@ class TransferLedger:
             if transfer["destination"] == absorb:
                 transfer["destination"] = keep
             if transfer["source"] == transfer["destination"]:
+                self._balances[keep] += transfer["amount"]
                 transfer["status"] = "cancelled"
 
     def transfer(self, transfer_id):
