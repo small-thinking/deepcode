@@ -7,7 +7,7 @@
   {
     "name": "does not skip successors after removals that shift a row",
     "input": "rows = [[1, 2], [3], [4, 5, 6], []]",
-    "test": "rows = [[1, 2], [3], [4, 5, 6], []]\nit = NestedArrayListIterator(rows)\nassert it.next() == 1\nit.remove()\nassert rows == [[2], [3], [4, 5, 6], []]\nassert it.next() == 2\nassert it.next() == 3\nassert it.next() == 4\nit.remove()\nassert [it.next(), it.next()] == [5, 6]\nassert rows == [[2], [3], [5, 6], []]\nassert it.hasNext() is False"
+    "test": "rows = [[1, 2], [3], [4, 5, 6], []]\nit = NestedArrayListIterator(rows)\nassert it.next() == 1\nit.remove()\nassert rows == [[2], [3], [4, 5, 6], []]\nassert it.next() == 2\nassert it.next() == 3\nassert it.next() == 4\nit.remove()\nassert [it.next(), it.next()] == [5, 6]\nassert rows == [[2], [3], [5, 6], []]\nassert it.hasNext() is False\nrows = [[5], [5, 6]]\nit = NestedArrayListIterator(rows)\nassert it.next() == 5\nassert it.hasNext() is True\nassert it.hasNext() is True\nit.remove()\nassert rows == [[], [5, 6]]\nassert it.next() == 5\nit.remove()\nassert rows == [[], [6]]\nassert it.next() == 6\nassert it.hasNext() is False"
   },
   {
     "name": "normalizes across several empty inner rows without consuming values",
