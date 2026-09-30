@@ -14,6 +14,7 @@ class NavigationTest(unittest.TestCase):
 const assert = require('node:assert/strict');
 const callbacks = {};
 const rows = [];
+const filterFields = new Map();
 const location = {hash: ''};
 const historyEntries = [];
 const history = {
@@ -22,8 +23,8 @@ const history = {
 };
 const localStorage = {getItem() {return null;}};
 const document = {
-  querySelector() {return null;},
-  querySelectorAll(selector) {return selector === 'tbody tr[data-slug]' ? rows : [];},
+  querySelector(selector) {return filterFields.get(selector) || null;},
+  querySelectorAll(selector) {return selector === 'tbody tr[data-slug]' ? rows : selector === '#category, #difficulty, #company, #sort' ? ['#category', '#difficulty', '#company', '#sort'].map(key => filterFields.get(key)).filter(Boolean) : [];},
 };
 const window = {addEventListener(name, fn) {callbacks[name] = fn;}};
 ''' + source + r'''
@@ -89,6 +90,29 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
   assert.equal(location.hash, '#/');
   rowClick(click);
   assert.equal(location.hash, '#/problems/example');
+  // Native select changes apply every selected dimension without an Apply click.
+  state.filters = {...DEFAULT_PROBLEM_FILTERS};
+  for (const [key, value] of Object.entries({search: '', category: 'all', difficulty: 'all', company: 'all', sort: 'frequency'})) {
+    filterFields.set('#' + key, {value, handlers: {}, addEventListener(event, fn) {this.handlers[event] = fn;}});
+  }
+  bindEvents();
+  filterFields.get('#company').value = 'Airbnb';
+  filterFields.get('#company').handlers.change();
+  assert.equal(location.hash, '#/?company=Airbnb');
+  filterFields.get('#difficulty').value = 'easy';
+  filterFields.get('#difficulty').handlers.change();
+  await settle();
+  assert.equal(location.hash, '#/?difficulty=easy&company=Airbnb');
+  assert.match(requests.at(-1), /difficulty=easy&company=Airbnb/);
+  filterFields.get('#sort').value = 'title';
+  filterFields.get('#sort').handlers.change();
+  await settle();
+  assert.match(location.hash, /sort=title&order=asc/);
+  filterFields.get('#company').value = 'all';
+  filterFields.get('#company').handlers.change();
+  await settle();
+  assert.doesNotMatch(location.hash, /company=/);
+  assert.match(location.hash, /difficulty=easy/);
   // A stale filtered response cannot overwrite a newly opened detail page.
   let resolveRequest;
   api = () => new Promise(resolve => {resolveRequest = resolve;});
