@@ -683,6 +683,17 @@ function isPlainClick(event) {
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 }
 
+function applyProblemFilters() {
+  state.filters.search = document.querySelector("#search").value.trim();
+  state.filters.category = document.querySelector("#category").value;
+  state.filters.difficulty = document.querySelector("#difficulty").value;
+  state.filters.company = document.querySelector("#company").value;
+  const selectedSort = document.querySelector("#sort").value;
+  if (state.filters.sort !== selectedSort) state.filters.order = defaultProblemSortOrder(selectedSort);
+  state.filters.sort = selectedSort;
+  loadProblems();
+}
+
 function setProblemSort(sortKey) {
   const sameColumn = state.filters.sort === sortKey;
   state.filters.order = sameColumn
@@ -3940,16 +3951,11 @@ function bindEvents() {
   document.querySelectorAll("[data-delete-playground-session]").forEach((button) => {
     button.addEventListener("click", () => deletePlaygroundSession(button.dataset.deletePlaygroundSession));
   });
-  document.querySelector("#apply-filters")?.addEventListener("click", () => {
-    state.filters.search = document.querySelector("#search").value.trim();
-    state.filters.category = document.querySelector("#category").value;
-    state.filters.difficulty = document.querySelector("#difficulty").value;
-    state.filters.company = document.querySelector("#company").value;
-    const selectedSort = document.querySelector("#sort").value;
-    if (state.filters.sort !== selectedSort) state.filters.order = defaultProblemSortOrder(selectedSort);
-    state.filters.sort = selectedSort;
-    loadProblems();
+  document.querySelector("#apply-filters")?.addEventListener("click", applyProblemFilters);
+  document.querySelectorAll("#category, #difficulty, #company, #sort").forEach((field) => {
+    field.addEventListener("change", applyProblemFilters);
   });
+  document.querySelector("#search")?.addEventListener("change", applyProblemFilters);
   document.querySelectorAll("[data-progress-range]").forEach((button) => {
     button.addEventListener("click", () => {
       state.progress.range = button.dataset.progressRange;
