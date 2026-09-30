@@ -101,5 +101,5 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
   assert.notEqual(state.problems[0].slug, 'stale');
 })().catch(error => {console.error(error); process.exitCode = 1;});
 '''
-        result = subprocess.run(["node", "-e", script], capture_output=True, text=True)
+        result = subprocess.run(["node", "--input-type=commonjs"], input=script, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
