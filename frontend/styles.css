@@ -3202,3 +3202,14 @@ body[data-theme="light"] .progress-page {
   .version-preview pre { height: 180px; }
   .versions-footer { flex-wrap: wrap; }
 }
+
+/* Internal navigation retains native new-tab and keyboard behavior. */
+a.company-card, a.company-problem-card, a.company-label-link,
+a.progress-breakdown-link, a.progress-problem-link, .problem-title-link {
+  text-decoration: none;
+}
+.problem-title-link { color: inherit; }
+.problem-title-link:hover { color: var(--blue); }
+.problem-title-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+a.nav-tab, a.ghost-button { text-decoration: none; }
