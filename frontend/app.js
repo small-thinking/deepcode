@@ -228,6 +228,14 @@ function syncProblemTimer() {
   problemTimer = setInterval(updateProblemTimerDisplay, 1000);
 }
 
+function pauseProblemTimer(slug) {
+  const timer = problemTimerFor(slug);
+  if (!problemTimerIsRunning(timer)) return;
+  timer.elapsedMs = problemTimerElapsedMs(timer);
+  timer.startedAt = null;
+  saveProblemTimer(slug, timer);
+}
+
 function toggleProblemTimer() {
   if (!state.selected) return;
   const slug = state.selected.slug;
@@ -1694,6 +1702,7 @@ async function runCustomTests(customIndex = null) {
 
 async function runPayload(payload, { testIndex = null, customIndex = null } = {}) {
   if (!state.selected || state.running) return;
+  const problemSlug = state.selected.slug;
   try {
     saveSubmittedCodeVersion(localStorage, state.selected.slug, payload.code);
   } catch {
@@ -1722,6 +1731,10 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     }
     if (!state.runResult) {
       throw new Error("Runner stream ended before returning a result");
+    }
+    if (state.runResult.status === "passed" && payload.test_index == null &&
+        !payload.custom_only && !payload.custom_tests?.length) {
+      pauseProblemTimer(problemSlug);
     }
     if (state.runResult.problem_status) {
       syncProblemStatus(state.selected.slug, state.runResult.problem_status);
