@@ -134,7 +134,7 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn("function companyProfileSlug(companyName)", app_js)
         self.assertIn("function companyLabelList(values", app_js)
         self.assertIn("data-company-profile", app_js)
-        self.assertIn("event.stopPropagation()", app_js)
+        self.assertIn('event.target.closest("a, button")', app_js)
         self.assertIn(".company-label-link", styles_css)
 
     def test_company_hub_has_navigation_profiles_and_related_problem_routes(self):
@@ -636,7 +636,7 @@ class StaticUiTest(unittest.TestCase):
         app_js = Path("frontend/app.js").read_text(encoding="utf-8")
         styles_css = Path("frontend/styles.css").read_text(encoding="utf-8")
 
-        initial_filters = app_js.split("filters: {", maxsplit=1)[1].split("},", maxsplit=1)[0]
+        initial_filters = app_js.split("const DEFAULT_PROBLEM_FILTERS = Object.freeze({", maxsplit=1)[1].split("});", maxsplit=1)[0]
         self.assertIn('sort: "frequency"', initial_filters)
         self.assertIn('order: "desc"', initial_filters)
         self.assertIn("function setProblemSort(sortKey)", app_js)

@@ -55,6 +55,9 @@ const INTERACTIVE_DEMO_THEME_TOKEN_MAP = Object.freeze({
   danger: "--red",
   dangerSoft: "--red-soft",
 });
+const DEFAULT_PROBLEM_FILTERS = Object.freeze({
+  search: "", category: "all", difficulty: "all", company: "all", sort: "frequency", order: "desc",
+});
 const initialPlaygroundSessionState = loadPlaygroundSessionState();
 
 const state = {
@@ -65,14 +68,7 @@ const state = {
   companyNames: [],
   companyCounts: {},
   companyProfiles: [],
-  filters: {
-    search: "",
-    category: "all",
-    difficulty: "all",
-    company: "all",
-    sort: "frequency",
-    order: "desc",
-  },
+  filters: { ...DEFAULT_PROBLEM_FILTERS },
   companies: [],
   progress: {
     events: [],
@@ -268,10 +264,10 @@ function resetProblemTimer() {
 function mainNavigation() {
   return `
     <nav class="main-nav" aria-label="Main navigation">
-      <button class="nav-tab ${state.view === "problems" ? "active" : ""}" data-app-view="problems">Problems</button>
-      <button class="nav-tab ${state.view === "companies" ? "active" : ""}" data-app-view="companies">Companies</button>
-      <button class="nav-tab ${state.view === "progress" ? "active" : ""}" data-app-view="progress">Progress</button>
-      <button class="nav-tab ${state.view === "playground" ? "active" : ""}" data-app-view="playground">Playground</button>
+      <a class="nav-tab ${state.view === "problems" ? "active" : ""}" href="${escapeHtml(problemRoute())}" data-app-view="problems">Problems</a>
+      <a class="nav-tab ${state.view === "companies" ? "active" : ""}" href="${escapeHtml("#/companies")}" data-app-view="companies">Companies</a>
+      <a class="nav-tab ${state.view === "progress" ? "active" : ""}" href="${escapeHtml("#/progress")}" data-app-view="progress">Progress</a>
+      <a class="nav-tab ${state.view === "playground" ? "active" : ""}" href="${escapeHtml("#/playground")}" data-app-view="playground">Playground</a>
     </nav>
   `;
 }
@@ -659,6 +655,34 @@ function paramsFromFilters() {
   return params.toString();
 }
 
+// Filter context travels with problem links so new tabs can return to the same list.
+function problemRoute(slug = null, filters = state.filters) {
+  const params = new URLSearchParams();
+  Object.entries(DEFAULT_PROBLEM_FILTERS).forEach(([key, fallback]) => {
+    if (filters[key] !== fallback) params.set(key, filters[key]);
+  });
+  const query = params.toString();
+  const path = slug ? `#/problems/${encodeURIComponent(slug)}` : "#/";
+  return `${path}${query ? `?${query}` : ""}`;
+}
+
+function filtersFromHash() {
+  const params = new URLSearchParams(location.hash.split("?")[1] || "");
+  const filters = { ...DEFAULT_PROBLEM_FILTERS };
+  Object.keys(filters).forEach((key) => {
+    if (params.has(key)) filters[key] = params.get(key);
+  });
+  if (!["id", "title", "difficulty", "category", "frequency", "completed"].includes(filters.sort)) {
+    filters.sort = DEFAULT_PROBLEM_FILTERS.sort;
+  }
+  if (!["asc", "desc"].includes(filters.order)) filters.order = defaultProblemSortOrder(filters.sort);
+  return filters;
+}
+
+function isPlainClick(event) {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+}
+
 function setProblemSort(sortKey) {
   const sameColumn = state.filters.sort === sortKey;
   state.filters.order = sameColumn
@@ -675,6 +699,9 @@ function defaultProblemSortOrder(sortKey) {
 }
 
 async function loadProblems() {
+  const route = problemRoute();
+  if (location.hash !== route) history.pushState(null, "", route);
+  state.selected = null;
   state.view = "problems";
   state.selectedCompany = null;
   state.loading = true;
@@ -683,6 +710,7 @@ async function loadProblems() {
   try {
     const query = paramsFromFilters();
     const payload = await api(`/api/problems${query ? `?${query}` : ""}`);
+    if (location.hash !== route) return;
     state.problems = payload.problems;
     state.categories = payload.categories;
     state.difficulties = payload.difficulties;
@@ -690,10 +718,12 @@ async function loadProblems() {
     state.companyCounts = payload.company_counts || {};
     state.companyProfiles = payload.company_profiles || [];
   } catch (error) {
-    state.error = error.message;
+    if (location.hash === route) state.error = error.message;
   } finally {
-    state.loading = false;
-    render();
+    if (location.hash === route) {
+      state.loading = false;
+      render();
+    }
   }
 }
 
@@ -725,7 +755,7 @@ async function loadProblem(identifier) {
     } else {
       syncStarterCode(state.selected);
     }
-    location.hash = `#/problems/${state.selected.slug}`;
+    history.replaceState(null, "", problemRoute(state.selected.slug));
   } catch (error) {
     state.error = error.message;
   } finally {
@@ -1856,7 +1886,7 @@ function syncProblemStatus(slug, status) {
 function randomProblem() {
   if (!state.problems.length) return;
   const index = Math.floor(Math.random() * state.problems.length);
-  loadProblem(state.problems[index].slug);
+  location.hash = problemRoute(state.problems[index].slug);
 }
 
 function backToList() {
@@ -1868,7 +1898,7 @@ function backToList() {
   state.runResult = null;
   state.activeResultIndex = 0;
   state.error = null;
-  location.hash = "";
+  location.hash = problemRoute();
   if (needsProblemCatalog) {
     loadProblems();
     return;
@@ -1965,7 +1995,7 @@ function companyLabelList(values, className = "company-list", frequencies = {}) 
     .map((value) => {
       const profileSlug = companyProfileSlug(value);
       const label = profileSlug
-        ? `<button class="label company-label-link" type="button" data-company-profile="${escapeHtml(profileSlug)}">${escapeHtml(value)}</button>`
+        ? `<a class="label company-label-link" href="${escapeHtml(`#/companies/${encodeURIComponent(profileSlug)}`)}" data-company-profile="${escapeHtml(profileSlug)}">${escapeHtml(value)}</a>`
         : `<span class="label">${escapeHtml(value)}</span>`;
       return `<span class="company-label-with-frequency">${label}${companyFrequencyBadge(companyFrequencyFor(frequencies, value))}</span>`;
     })
@@ -2049,7 +2079,7 @@ function renderCompanies() {
       const stageSummary = companyStageSummary(stage);
       const funding = companyFundingSummary(stage);
       return `
-        <button class="company-card" data-company-slug="${escapeHtml(company.slug)}">
+        <a class="company-card" href="${escapeHtml(`#/companies/${encodeURIComponent(company.slug)}`)}" data-company-slug="${escapeHtml(company.slug)}">
           <div class="company-card-heading">
             <h2>${escapeHtml(company.name)}</h2>
             ${stageSummary ? `<span class="company-stage-badge">${escapeHtml(stageSummary)}</span>` : ""}
@@ -2057,7 +2087,7 @@ function renderCompanies() {
           <p class="company-card-summary">${escapeHtml(company.summary)}</p>
           ${funding ? `<p class="company-funding">${escapeHtml(funding)}</p>` : ""}
           <footer><strong>${escapeHtml(company.problem_count || 0)}</strong> related DeepCode problem${company.problem_count === 1 ? "" : "s"}</footer>
-        </button>
+        </a>
       `;
     })
     .join("");
@@ -2144,11 +2174,11 @@ function renderCompanyDetail() {
   const relatedProblems = (company.related_problems || [])
     .map(
       (problem) => `
-        <button class="company-problem-card" data-company-problem="${escapeHtml(problem.slug)}">
+        <a class="company-problem-card" href="${escapeHtml(problemRoute(problem.slug))}" data-company-problem="${escapeHtml(problem.slug)}">
           <span>#${escapeHtml(problem.display_id ?? problem.id)}</span>
           <strong>${escapeHtml(problem.title)}</strong>
           <small>${escapeHtml(problem.category)} · ${escapeHtml(problem.difficulty)}</small>
-        </button>
+        </a>
       `
     )
     .join("");
@@ -2157,7 +2187,7 @@ function renderCompanyDetail() {
     <main class="page company-page company-detail-page">
       <header class="topbar">
         <div class="company-detail-navigation">
-          <button class="ghost-button" id="company-back-button">← Companies</button>
+          <a class="ghost-button" id="company-back-button" href="#/companies">← Companies</a>
           ${mainNavigation()}
         </div>
         <div class="topbar-actions">${themeToggleButton()}</div>
@@ -2498,9 +2528,9 @@ function renderProgressBreakdown(title, entries, linkKind) {
             const profileSlug = linkKind === "company" ? companyProfileSlug(entry.name) : null;
             const label =
               linkKind === "category"
-                ? `<button class="progress-breakdown-link" data-progress-category="${escapeHtml(entry.name)}" aria-label="Show all ${escapeHtml(entry.name)} problems">${escapeHtml(entry.name)}</button>`
+                ? `<a class="progress-breakdown-link" href="${escapeHtml(problemRoute(null, { ...DEFAULT_PROBLEM_FILTERS, category: entry.name }))}" data-progress-category="${escapeHtml(entry.name)}" aria-label="Show all ${escapeHtml(entry.name)} problems">${escapeHtml(entry.name)}</a>`
                 : profileSlug
-                  ? `<button class="progress-breakdown-link" data-progress-company="${escapeHtml(profileSlug)}" aria-label="Open ${escapeHtml(entry.name)} company profile">${escapeHtml(entry.name)}</button>`
+                  ? `<a class="progress-breakdown-link" href="${escapeHtml(`#/companies/${encodeURIComponent(profileSlug)}`)}" data-progress-company="${escapeHtml(profileSlug)}" aria-label="Open ${escapeHtml(entry.name)} company profile">${escapeHtml(entry.name)}</a>`
                   : escapeHtml(entry.name);
             return `
             <tr>
@@ -2536,7 +2566,6 @@ function openProblemsForCategory(category) {
   };
   state.selected = null;
   state.selectedCompany = null;
-  if (location.hash !== "#/") location.hash = "#/";
   loadProblems();
 }
 
@@ -2553,7 +2582,7 @@ function renderProgressRecentActivity(events) {
       return `
         <tr>
           <td>${escapeHtml(formatProgressTime(event.at))}</td>
-          <td><button class="progress-problem-link" data-progress-problem="${escapeHtml(event.problem_slug)}">${escapeHtml(event.title || event.problem_slug || "Unknown problem")}</button><small>${escapeHtml(context)}</small></td>
+          <td><a class="progress-problem-link" href="${escapeHtml(problemRoute(event.problem_slug))}" data-progress-problem="${escapeHtml(event.problem_slug)}">${escapeHtml(event.title || event.problem_slug || "Unknown problem")}</a><small>${escapeHtml(context)}</small></td>
           <td>${escapeHtml(progressScopeLabel(event.scope))}${event.source === "status_backfill" ? `<small>Historical</small>` : ""}</td>
           <td><span class="progress-outcome ${event.outcome === "passed" ? "passed" : "not-passed"}">${event.outcome === "passed" ? "Passed" : "Not passed"}</span><small>${escapeHtml(result)}</small></td>
         </tr>
@@ -2925,7 +2954,7 @@ function problemTable() {
       <tr data-slug="${escapeHtml(problem.slug)}">
         <td class="num-cell">${escapeHtml(problemDisplayId(problem))}</td>
         <td class="status-cell">${problemStatusBadge(problem)}</td>
-        <td class="title-cell">${escapeHtml(problem.title)}</td>
+        <td class="title-cell"><a class="problem-title-link" href="${escapeHtml(problemRoute(problem.slug))}">${escapeHtml(problem.title)}</a></td>
         <td>${difficultyPill(problem.difficulty)}</td>
         <td class="category-cell">${escapeHtml(problem.category)}</td>
         <td>${companyLabelList(problem.companies, "company-list", problem.interview_frequency) || `<span class="muted-cell">-</span>`}</td>
@@ -3023,7 +3052,7 @@ function renderDetail() {
       ${state.error ? `<div class="error-banner">${escapeHtml(state.error)}</div>` : ""}
       <header class="problem-topbar">
         <div class="problem-navigation">
-          <button class="ghost-button" id="problem-back-button">← Problems</button>
+          <a class="ghost-button" id="problem-back-button" href="${escapeHtml(problemRoute())}">← Problems</a>
           ${mainNavigation()}
         </div>
         <div class="topbar-actions">
@@ -3876,17 +3905,14 @@ function renderResultCase(item, index) {
 function bindEvents() {
   document.querySelector("#random-problem")?.addEventListener("click", randomProblem);
   document.querySelector("#theme-toggle")?.addEventListener("click", toggleTheme);
-  document.querySelectorAll("[data-app-view]").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (button.dataset.appView === "playground") {
-        openPlayground();
-      } else if (button.dataset.appView === "companies") {
-        loadCompanies();
-      } else if (button.dataset.appView === "progress") {
-        openProgress();
-      } else {
-        backToList();
-      }
+  document.querySelectorAll("[data-app-view]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      if (!isPlainClick(event) || link.getAttribute("href") !== location.hash) return;
+      event.preventDefault();
+      if (link.dataset.appView === "problems") backToList();
+      else if (link.dataset.appView === "companies") loadCompanies();
+      else if (link.dataset.appView === "progress") loadProgress();
+      else openPlayground();
     });
   });
   document.querySelector("#playground-run")?.addEventListener("click", () => runPlayground());
@@ -3939,15 +3965,6 @@ function bindEvents() {
     render();
   });
   document.querySelector("#refresh-progress")?.addEventListener("click", loadProgress);
-  document.querySelectorAll("[data-progress-problem]").forEach((button) => {
-    button.addEventListener("click", () => loadProblem(button.dataset.progressProblem));
-  });
-  document.querySelectorAll("[data-progress-category]").forEach((button) => {
-    button.addEventListener("click", () => openProblemsForCategory(button.dataset.progressCategory));
-  });
-  document.querySelectorAll("[data-progress-company]").forEach((button) => {
-    button.addEventListener("click", () => loadCompany(button.dataset.progressCompany));
-  });
   document.querySelectorAll("[data-problem-sort]").forEach((button) => {
     button.addEventListener("click", () => setProblemSort(button.dataset.problemSort));
   });
@@ -3955,19 +3972,10 @@ function bindEvents() {
     if (event.key === "Enter") document.querySelector("#apply-filters").click();
   });
   document.querySelectorAll("tbody tr[data-slug]").forEach((row) => {
-    row.addEventListener("click", () => loadProblem(row.dataset.slug));
-  });
-  document.querySelectorAll("[data-company-profile]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      loadCompany(button.dataset.companyProfile);
+    row.addEventListener("click", (event) => {
+      if (event.target.closest("a, button") || !isPlainClick(event)) return;
+      location.hash = problemRoute(row.dataset.slug);
     });
-  });
-  document.querySelectorAll("[data-company-slug]").forEach((button) => {
-    button.addEventListener("click", () => loadCompany(button.dataset.companySlug));
-  });
-  document.querySelectorAll("[data-company-problem]").forEach((button) => {
-    button.addEventListener("click", () => loadProblem(button.dataset.companyProblem));
   });
   document.querySelectorAll(".tab[data-tab]").forEach((tab) => {
     tab.addEventListener("click", () => activateProblemTab(tab.dataset.tab));
@@ -3988,8 +3996,6 @@ function bindEvents() {
       render();
     });
   });
-  document.querySelector("#problem-back-button")?.addEventListener("click", backToList);
-  document.querySelector("#company-back-button")?.addEventListener("click", backToCompanies);
   document.querySelector("#problem-timer-toggle")?.addEventListener("click", toggleProblemTimer);
   document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
   document.querySelector("#run-tests")?.addEventListener("click", () => runTests());
@@ -4037,8 +4043,9 @@ function bootFromHash() {
     loadProgress();
     return;
   }
-  const match = location.hash.match(/^#\/problems\/(.+)$/);
+  const match = location.hash.match(/^#\/problems\/([^?]+)(?:\?.*)?$/);
   if (match) {
+    state.filters = filtersFromHash();
     loadProblem(decodeURIComponent(match[1]));
     return;
   }
@@ -4050,6 +4057,7 @@ function bootFromHash() {
   if (companyMatch) {
     loadCompany(decodeURIComponent(companyMatch[1]));
   } else {
+    state.filters = filtersFromHash();
     loadProblems();
   }
 }
@@ -4071,8 +4079,9 @@ window.addEventListener("hashchange", () => {
     if (state.view !== "progress") loadProgress();
     return;
   }
-  const match = location.hash.match(/^#\/problems\/(.+)$/);
+  const match = location.hash.match(/^#\/problems\/([^?]+)(?:\?.*)?$/);
   if (match) {
+    state.filters = filtersFromHash();
     const slug = decodeURIComponent(match[1]);
     if (!state.selected || state.selected.slug !== slug) {
       loadProblem(slug);
@@ -4091,8 +4100,10 @@ window.addEventListener("hashchange", () => {
     if (!state.selectedCompany || state.selectedCompany.slug !== slug) {
       loadCompany(slug);
     }
-  } else if (!location.hash && (state.selected || state.selectedCompany || state.view === "playground" || state.view === "progress")) {
-    backToList();
+  } else if (!location.hash || /^#\/(?:\?.*)?$/.test(location.hash)) {
+    state.filters = filtersFromHash();
+    state.runResult = null;
+    loadProblems();
   }
 });
 
