@@ -18,5 +18,35 @@
     "name": "returns an empty list when the target neighborhood cannot fit the group",
     "input": "all eligible capacity below the target",
     "test": "properties = [\n    {'id': 1, 'neighborhood': 'north', 'capacity': 3},\n    {'id': 2, 'neighborhood': 'south', 'capacity': 20},\n]\nassert best_capacity_subset(properties, 4, 'north') == []\nassert best_capacity_subset(properties, 1, 'east') == []"
+  },
+  {
+    "name": "prefers fewer properties when equal minimum capacity overshoots the target",
+    "input": "a three-property total of 11 and a two-property total of 11 for a group of 10",
+    "test": "properties = [\n    {'id': 'one', 'neighborhood': 'north', 'capacity': 1},\n    {'id': 'z-three', 'neighborhood': 'north', 'capacity': 3},\n    {'id': 'y-three', 'neighborhood': 'north', 'capacity': 3},\n    {'id': 'x-five', 'neighborhood': 'north', 'capacity': 5},\n    {'id': 'a-eight', 'neighborhood': 'north', 'capacity': 8},\n]\nassert best_capacity_subset(properties, 10, \"north\") == [\"z-three\", \"a-eight\"]"
+  },
+  {
+    "name": "uses the first input position before capacity order in tied pairs",
+    "input": "pairs 7+3 and 4+6 both total 10; the earlier pair starts with capacity 7",
+    "test": "properties = [\n    {'id': 'z-seven', 'neighborhood': 'north', 'capacity': 7},\n    {'id': 'a-four', 'neighborhood': 'north', 'capacity': 4},\n    {'id': 'b-six', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'y-three', 'neighborhood': 'north', 'capacity': 3},\n]\nassert best_capacity_subset(properties, 10, \"north\") == ['z-seven', 'y-three']"
+  },
+  {
+    "name": "compares later tuple positions when tied pairs share the first property",
+    "input": "two exact-fill pairs share their first input position and differ in the second",
+    "test": "properties = [\n    {'id': 'z-six', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'y-four', 'neighborhood': 'north', 'capacity': 4},\n    {'id': 'a-four', 'neighborhood': 'north', 'capacity': 4},\n]\nassert best_capacity_subset(properties, 10, \"north\") == ['z-six', 'y-four']"
+  },
+  {
+    "name": "compares the third tuple position for tied three-property subsets",
+    "input": "equal-capacity three-property combinations share their first two input positions",
+    "test": "properties = [\n    {'id': 'z-first', 'neighborhood': 'north', 'capacity': 3},\n    {'id': 'y-second', 'neighborhood': 'north', 'capacity': 3},\n    {'id': 'x-third', 'neighborhood': 'north', 'capacity': 3},\n    {'id': 'a-fourth', 'neighborhood': 'north', 'capacity': 3},\n]\nassert best_capacity_subset(properties, 9, \"north\") == ['z-first', 'y-second', 'x-third']"
+  },
+  {
+    "name": "uses input positions rather than sorting mixed-type IDs",
+    "input": "integer and string IDs on otherwise identical eligible properties",
+    "test": "properties = [\n    {'id': 20, 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'a', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 1, 'neighborhood': 'north', 'capacity': 6},\n]\nassert best_capacity_subset(properties, 12, \"north\") == [20, 'a']"
+  },
+  {
+    "name": "preserves input order and input data through filtered tie-breaking",
+    "input": "irrelevant neighborhoods interleaved with tied eligible combinations",
+    "test": "from copy import deepcopy\nproperties = [\n    {'id': 'outside-first', 'neighborhood': 'south', 'capacity': 10},\n    {'id': 'z-six', 'neighborhood': 'north', 'capacity': 6},\n    {'id': 'a-outside', 'neighborhood': 'south', 'capacity': 4},\n    {'id': 'y-four', 'neighborhood': 'north', 'capacity': 4},\n    {'id': 'b-four', 'neighborhood': 'north', 'capacity': 4},\n]\nbefore = deepcopy(properties)\nassert best_capacity_subset(properties, 10, \"north\") == [\"z-six\", \"y-four\"]\nassert properties == before\nassert best_capacity_subset(properties, 10, \"north\") == [\"z-six\", \"y-four\"]"
   }
 ]
