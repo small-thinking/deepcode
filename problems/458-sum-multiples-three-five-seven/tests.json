@@ -1,0 +1,42 @@
+[
+  {
+    "name": "below first multiple",
+    "input": "sum_multiples(1)",
+    "test": "assert sum_multiples(1) == 0"
+  },
+  {
+    "name": "first multiple",
+    "input": "sum_multiples(3)",
+    "test": "assert sum_multiples(3) == 3"
+  },
+  {
+    "name": "first multiple of five",
+    "input": "sum_multiples(5)",
+    "test": "assert sum_multiples(5) == 8"
+  },
+  {
+    "name": "first multiple of seven",
+    "input": "sum_multiples(7)",
+    "test": "assert sum_multiples(7) == 21"
+  },
+  {
+    "name": "mixed qualifying values",
+    "input": "sum_multiples(10)",
+    "test": "assert sum_multiples(10) == 40"
+  },
+  {
+    "name": "overlap at fifteen counted once",
+    "input": "sum_multiples(15)",
+    "test": "assert sum_multiples(15) == 81"
+  },
+  {
+    "name": "overlap at twenty-one counted once",
+    "input": "sum_multiples(21)",
+    "test": "assert sum_multiples(21) == 140"
+  },
+  {
+    "name": "larger ordinary input",
+    "input": "sum_multiples(100)",
+    "test": "assert sum_multiples(100) == 2838"
+  }
+]

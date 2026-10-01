@@ -1,0 +1,63 @@
+{
+  "id": "460",
+  "slug": "run-length-string-compression",
+  "title": "Run-Length String Compression",
+  "category": "Algorithms",
+  "difficulty": "easy",
+  "tags": [
+    "strings",
+    "two pointers",
+    "simulation"
+  ],
+  "companies": [
+    "Abridge"
+  ],
+  "prompt": "A string can be shortened by replacing each maximal run of identical consecutive characters with the character followed by its count. For a run of length one, keep just the character.\n\nImplement `compress_runs(s) -> str`. Return the compressed string. Counts greater than nine use all of their decimal digits. Characters in separate runs stay separate, even if they have the same value.\n\n**Constraints:** `1 <= len(s) <= 2000`; `s` may contain letters, digits, and symbols.\n",
+  "starter_code": "def compress_runs(s):\n    pass\n",
+  "example": {
+    "input": "compress_runs('aabcccccaaa')",
+    "output": "'a2bc5a3'",
+    "reasoning": "The consecutive groups have lengths 2, 1, 5, and 3."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Candidate interview report — Software Engineer OA; identifies problem numbers",
+      "url": "https://www.1point3acres.com/interview/thread/1191097"
+    },
+    {
+      "label": "1Point3Acres AI Insights reconstructed statement — detailed practice contract",
+      "url": "https://www.1point3acres.com/interview/problems/0c3720b7-d50d-5bf4-a195-7d97cbe344cd"
+    },
+    {
+      "label": "Notion question and occurrence ledger",
+      "url": "https://app.notion.com/p/3ec6ce51456d81fa9d0af00d8bfcbe2b"
+    },
+    {
+      "label": "Related official reference — LeetCode 443 run encoding (different in-place array and length interface)",
+      "url": "https://leetcode.com/problems/string-compression/description/"
+    }
+  ],
+  "created_at": "2026-09-30",
+  "interview_frequency": {
+    "Abridge": {
+      "source_record_ids": [
+        "3ec6ce51456d81fa9d0af00d8bfcbe2b"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-30"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-30"
+  }
+}

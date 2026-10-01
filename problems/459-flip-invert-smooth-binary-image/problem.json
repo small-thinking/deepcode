@@ -1,0 +1,67 @@
+{
+  "id": "459",
+  "slug": "flip-invert-smooth-binary-image",
+  "title": "Flip, Invert, and Smooth a Binary Image",
+  "category": "Algorithms",
+  "difficulty": "easy",
+  "tags": [
+    "arrays",
+    "matrix",
+    "simulation"
+  ],
+  "companies": [
+    "Abridge"
+  ],
+  "prompt": "A binary image is represented by a rectangular matrix `image`. Implement `flip_invert_smooth(image) -> list[list[int]]` to produce a new image in three steps:\n\n1. Reverse the order of the cells in every row.\n2. Invert every bit (`0` becomes `1`, and `1` becomes `0`).\n3. For each cell, take the floor of the average of that cell and its neighboring cells within the surrounding 3 × 3 area. Include only positions inside the image.\n\nAll averages use the image after **both** the row reversal and inversion are complete. Return the smoothed matrix with the same dimensions as the input.\n\n**Constraints:** `1 <= m, n <= 100`; `image` has `m` rows of `n` cells, and every cell is `0` or `1`.\n",
+  "starter_code": "def flip_invert_smooth(image):\n    pass\n",
+  "example": {
+    "input": "flip_invert_smooth([[1, 0, 0, 0],\n                    [0, 0, 0, 0],\n                    [0, 0, 0, 0],\n                    [0, 0, 0, 0]])",
+    "output": "[[1, 1, 0, 0],\n [1, 1, 0, 0],\n [1, 1, 1, 1],\n [1, 1, 1, 1]]",
+    "reasoning": "The isolated 1 moves to the top-right after reversal and becomes 0 after inversion. Only neighborhoods containing it average below 1."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Candidate interview report — Software Engineer OA; identifies problem numbers",
+      "url": "https://www.1point3acres.com/interview/thread/1191097"
+    },
+    {
+      "label": "1Point3Acres AI Insights reconstructed statement — detailed practice contract",
+      "url": "https://www.1point3acres.com/interview/problems/4a0cd588-1a4b-58c8-b2b0-21e9d82f1191"
+    },
+    {
+      "label": "Notion question and occurrence ledger",
+      "url": "https://app.notion.com/p/3ec6ce51456d81588675f589e462e069"
+    },
+    {
+      "label": "Related official reference — LeetCode 832 reverse rows and invert bits",
+      "url": "https://leetcode.com/problems/flipping-an-image/description/"
+    },
+    {
+      "label": "Related official reference — LeetCode 661 in-bounds image smoothing",
+      "url": "https://leetcode.com/problems/image-smoother/description/"
+    }
+  ],
+  "created_at": "2026-09-30",
+  "interview_frequency": {
+    "Abridge": {
+      "source_record_ids": [
+        "3ec6ce51456d81588675f589e462e069"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-30"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-30"
+  }
+}

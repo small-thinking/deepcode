@@ -1,0 +1,52 @@
+[
+  {
+    "name": "single zero becomes one",
+    "input": "[[0]]",
+    "test": "assert flip_invert_smooth([[0]]) == [[1]]"
+  },
+  {
+    "name": "single one becomes zero",
+    "input": "[[1]]",
+    "test": "assert flip_invert_smooth([[1]]) == [[0]]"
+  },
+  {
+    "name": "two cells in one row",
+    "input": "[[0, 1]]",
+    "test": "assert flip_invert_smooth([[0, 1]]) == [[0, 0]]"
+  },
+  {
+    "name": "one row with distinct flipped position",
+    "input": "[[1, 0, 0, 0]]",
+    "test": "assert flip_invert_smooth([[1, 0, 0, 0]]) == [[1, 1, 0, 0]]"
+  },
+  {
+    "name": "one column with a lower isolated one",
+    "input": "[[0], [1], [0], [0]]",
+    "test": "assert flip_invert_smooth([[0], [1], [0], [0]]) == [[0], [0], [0], [1]]"
+  },
+  {
+    "name": "all zeros retain all ones after smoothing",
+    "input": "[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]",
+    "test": "assert flip_invert_smooth([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]) == [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]"
+  },
+  {
+    "name": "all ones become all zeros",
+    "input": "[[1, 1], [1, 1]]",
+    "test": "assert flip_invert_smooth([[1, 1], [1, 1]]) == [[0, 0], [0, 0]]"
+  },
+  {
+    "name": "asymmetric corner changes only nearby cells",
+    "input": "[[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]",
+    "test": "assert flip_invert_smooth([[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]) == [[1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 1, 1], [1, 1, 1, 1]]"
+  },
+  {
+    "name": "large square image retains unaffected corners",
+    "input": "[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]",
+    "test": "assert flip_invert_smooth([[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]) == [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [0, 0, 1, 1, 1], [0, 0, 1, 1, 1]]"
+  },
+  {
+    "name": "interior neighborhoods use fully transformed image",
+    "input": "[[0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]",
+    "test": "assert flip_invert_smooth([[0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]) == [[1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]]"
+  }
+]
