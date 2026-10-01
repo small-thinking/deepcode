@@ -3,7 +3,7 @@ import random
 
 
 class WeightedSampler:
-    def __init__(self, values, weights, rng=random.random):
+    def __init__(self, values, weights):
         assert len(values) == len(weights) and len(values) > 0
         assert all(math.isfinite(weight) and weight >= 0 for weight in weights)
         self.values = list(values)
@@ -14,10 +14,9 @@ class WeightedSampler:
             self.cumulative.append(total)
         assert total > 0 and math.isfinite(total)
         self.total = total
-        self.rng = rng
 
     def sample(self):
-        unit = self.rng()
+        unit = random.random()
         assert 0 <= unit < 1
         target = unit * self.total
         left, right = 0, len(self.cumulative)

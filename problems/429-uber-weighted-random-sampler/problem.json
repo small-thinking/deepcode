@@ -9,15 +9,15 @@
     "binary-search",
     "sampling"
   ],
-  "prompt": "Implement `WeightedSampler(values, weights, rng=random.random)`. Each `sample()` call returns one value with probability proportional to its weight, independently of previous draws. Build cumulative weights once, then implement the lookup with your own binary search; do not call a library binary-search helper.\n\n`values` and `weights` have the same nonzero length. Weights are finite, nonnegative numbers with a positive total. Zero-weight values must never be returned. `rng()` supplies a uniform number in `[0, 1)`; keep it injectable for deterministic checks. Assert the input preconditions. Explain preprocessing cost and cost per draw.",
+  "prompt": "An experimentation service chooses a configured variant for each request. Variants have unequal traffic weights: a variant with weight 3 should be selected three times as often as one with weight 1. Build a reusable sampler for a fixed configuration; requests are sampled independently, so the same value may be returned repeatedly.\n\n**Sampling contract**\n\n`values` and `weights` have the same nonzero length. Each weight is finite and nonnegative, and their sum is finite and positive. A zero-weight entry is never chosen. Each draw returns an entry with probability `weight / total_weight`.\n\nGenerate the random draw inside your implementation using an appropriate standard-library random-number generator. Callers supply only the values and weights; they do not provide a random-number function. Each `sample()` call makes a fresh selection with replacement.\n\n**Coding interface:** `WeightedSampler(values, weights)` with a `sample()` method. Assert the input preconditions.\n\nSupport repeated requests with `O(n)` preprocessing and `O(log n)` lookup per draw. Write the search yourself rather than calling a library binary-search helper. Explain your storage cost and how you would check the sampling distribution.\n\n*The experimentation scenario and class interface are practice framing. Background links include candidate reports of weighted sampling and a follow-up requiring a handwritten search.*",
   "companies": [
     "Uber"
   ],
-  "starter_code": "import random\n\n\nclass WeightedSampler:\n    def __init__(self, values, weights, rng=random.random):\n        pass\n\n    def sample(self):\n        pass\n",
+  "starter_code": "class WeightedSampler:\n    def __init__(self, values, weights):\n        pass\n\n    def sample(self):\n        pass\n",
   "example": {
-    "input": "sampler = WeightedSampler(['A', 'B', 'C'], [1, 3, 0], rng=lambda: 0.6); sampler.sample()",
-    "output": "'B'",
-    "reasoning": "The cumulative intervals are [0, 1) for A and [1, 4) for B; 0.6 times the total weight is 2.4."
+    "input": "sampler = WeightedSampler(['A', 'B', 'C'], [1, 3, 0]); sampler.sample()",
+    "output": "'A' or 'B' (random)",
+    "reasoning": "Each call returns A with probability 1/4 and B with probability 3/4. C is never returned; no particular single-call result is required."
   },
   "environment": {
     "language": "python",
