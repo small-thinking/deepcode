@@ -16,20 +16,20 @@
     "General"
   ],
   "interview_frequency": {
-    "General": {
+    "Luma AI": {
       "source_record_ids": [
         "3cf6ce51456d817cb6c1e6f688d1f5fe"
       ],
       "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-10-01"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-10-01"
   },
-  "prompt": "Repair a diffusion model's training step so it learns to predict added noise.\n\nImplement `TinyDenoiser(channels, hidden_channels)`: two convolution layers separated by a nonlinear activation, preserving the input NCHW shape. Implement `diffusion_train_step(model, optimizer, clean_uint8, noise, alpha_bar) -> float` for one optimizer update.\n\nInputs are a non-empty uint8 NCHW image batch, a finite floating noise tensor of the same shape, and a finite scalar `alpha_bar` in `[0, 1]`. Normalize pixels to `[-1, 1]` and form `sqrt(alpha_bar) * clean + sqrt(1 - alpha_bar) * noise`. Train the model to predict the supplied noise using mean squared error; return the finite Python float loss.\n\nDo not mutate image or noise inputs. Reject incompatible tensors or model-output shape; `assert` is sufficient. Explain how you would check image normalization and gradient handling.",
-  "starter_code": "import torch\nfrom torch import nn\n\n\nclass TinyDenoiser(nn.Module):\n    def __init__(self, channels, hidden_channels):\n        super().__init__()\n        pass\n\n    def forward(self, noisy_images):\n        pass\n\n\ndef diffusion_train_step(model, optimizer, clean_uint8, noise, alpha_bar):\n    pass\n",
+  "prompt": "A teammate left a small denoising training step that runs but does not learn as intended. Debug the supplied code while keeping the `TinyDenoiser` and `diffusion_train_step` signatures.\n\n`TinyDenoiser(channels, hidden_channels)` takes NCHW tensors and returns the same shape. It should have two convolution layers with a nonlinear transformation between them.\n\n`diffusion_train_step(model, optimizer, clean_uint8, noise, alpha_bar)` performs one optimizer update and returns the pre-update mean squared noise-prediction loss as a finite Python float. `clean_uint8` is a non-empty NCHW uint8 image tensor. `noise` is a finite floating tensor with the same shape and device. `alpha_bar` is a finite real scalar in `[0, 1]`. Clean pixels map from `0..255` to `[-1, 1]`; the model input is `sqrt(alpha_bar) * clean + sqrt(1 - alpha_bar) * noise`, and its target is the supplied noise.\n\nReject invalid inputs or a model output with the wrong shape; an assertion is sufficient. Do not mutate the image or noise tensors. Be ready to explain how you checked the training behavior.",
+  "starter_code": "import torch\nfrom torch import nn\n\n\nclass TinyDenoiser(nn.Module):\n    def __init__(self, channels, hidden_channels):\n        super().__init__()\n        self.layers = nn.Sequential(\n            nn.Conv2d(channels, hidden_channels, kernel_size=3, padding=1),\n            nn.Conv2d(hidden_channels, channels, kernel_size=3, padding=1),\n        )\n\n    def forward(self, noisy_images):\n        return self.layers(noisy_images)\n\n\ndef diffusion_train_step(model, optimizer, clean_uint8, noise, alpha_bar):\n    clean = clean_uint8.float()\n    noisy = alpha_bar**0.5 * clean + (1 - alpha_bar)**0.5 * noise\n    prediction = model(noisy)\n    loss = torch.mean((prediction - noise) ** 2)\n    loss.backward()\n    optimizer.step()\n    return float(loss.detach().item())\n",
   "example": {
     "input": "model = TinyDenoiser(1, 4); diffusion_train_step(model, optimizer, images, noise, 0.8)",
     "output": "a finite float loss after one optimizer update",
@@ -45,8 +45,12 @@
   },
   "references": [
     {
-      "label": "1Point3Acres: Luma AI interview report",
-      "url": "https://www.1point3acres.com/interview/thread/1134165"
+      "label": "Canonical Luma AI question — diffusion training debug",
+      "url": "https://app.notion.com/3cf6ce51456d817cb6c1e6f688d1f5fe"
+    },
+    {
+      "label": "Original Luma AI interview report",
+      "url": "https://www.1point3acres.com/bbs/thread-1134165-1-1.html"
     }
   ],
   "evaluation": {
