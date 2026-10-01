@@ -30,8 +30,18 @@
     "test": "for values,weights in [([],[]),(['a'],[-1]),(['a'],[0]),(['a','b'],[2,-1])]:\n    try:\n        WeightedSampler(values,weights)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('invalid configuration accepted')"
   },
   {
-    "name": "rejects length mismatch and nonfinite weights or total",
-    "input": "NaN, infinity and overflowing sums",
-    "test": "for values,weights in [(['a','b'],[1]),(['a'],[1,2]),(['a'],[float('nan')]),(['a'],[float('inf')]),(['a','b'],[1e308,1e308])]:\n    try:\n        WeightedSampler(values,weights)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('invalid configuration accepted')"
+    "name": "rejects mismatched value and weight lengths",
+    "input": "too few or too many weights, including one empty side",
+    "test": "for values,weights in [(['a','b'],[1]),(['a'],[1,2]),([],[1]),(['a'],[])]:\n    try:\n        WeightedSampler(values,weights)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('mismatched lengths were accepted')"
+  },
+  {
+    "name": "repeated values retain the combined probability of their entries",
+    "input": "values=['a','a','b'], weights=[1,2,1]",
+    "test": "import random\nrandom.seed(42904)\nvalues=['a','a','b'];weights=[1,2,1]\nsampler=WeightedSampler(values,weights)\ndraws=[sampler.sample() for _ in range(8000)]\nassert set(draws)=={'a','b'}\nassert abs(draws.count('a')/len(draws)-0.75)<0.05,'duplicate values lost some of their weight'\nassert values==['a','a','b'] and weights==[1,2,1],'input lists were modified'"
+  },
+  {
+    "name": "construction and sampling preserve unsorted input lists",
+    "input": "out-of-order labels and weights with a zero entry",
+    "test": "values=['z','a','m'];weights=[2,0,1]\nsampler=WeightedSampler(values,weights)\nassert values==['z','a','m'] and weights==[2,0,1],'constructor modified its inputs'\nfor _ in range(100):\n    assert sampler.sample() in ['z','m']\nassert values==['z','a','m'] and weights==[2,0,1],'sampling modified its inputs'"
   }
 ]

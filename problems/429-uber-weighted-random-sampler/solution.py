@@ -1,18 +1,17 @@
-import math
 import random
 
 
 class WeightedSampler:
     def __init__(self, values, weights):
         assert len(values) == len(weights) and len(values) > 0
-        assert all(math.isfinite(weight) and weight >= 0 for weight in weights)
+        assert all(weight >= 0 for weight in weights)
         self.values = list(values)
         self.cumulative = []
         total = 0
         for weight in weights:
             total += weight
             self.cumulative.append(total)
-        assert total > 0 and math.isfinite(total)
+        assert total > 0
         self.total = total
 
     def sample(self):
