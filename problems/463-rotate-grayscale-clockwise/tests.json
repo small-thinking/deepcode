@@ -1,0 +1,32 @@
+[
+  {
+    "name": "non-square clockwise turn",
+    "input": "[[1, 2, 3], [4, 5, 6]]",
+    "test": "assert rotate_clockwise([[1, 2, 3], [4, 5, 6]]) == [[4, 1], [5, 2], [6, 3]]"
+  },
+  {
+    "name": "single pixel",
+    "input": "[[7]]",
+    "test": "assert rotate_clockwise([[7]]) == [[7]]"
+  },
+  {
+    "name": "one row becomes one column",
+    "input": "[[2, 4, 6]]",
+    "test": "assert rotate_clockwise([[2, 4, 6]]) == [[2], [4], [6]]"
+  },
+  {
+    "name": "one column becomes one row",
+    "input": "[[2], [4], [6]]",
+    "test": "assert rotate_clockwise([[2], [4], [6]]) == [[6, 4, 2]]"
+  },
+  {
+    "name": "four turns return to original",
+    "input": "[[1, 2], [3, 4], [5, 6]]",
+    "test": "image = [[1, 2], [3, 4], [5, 6]]\nturned = image\nfor _ in range(4):\n    turned = rotate_clockwise(turned)\nassert turned == image"
+  },
+  {
+    "name": "input and output rows are independent",
+    "input": "[[1, 2], [3, 4]]",
+    "test": "image = [[1, 2], [3, 4]]\nturned = rotate_clockwise(image)\nassert image == [[1, 2], [3, 4]]\nturned[0][0] = 99\nassert image == [[1, 2], [3, 4]]"
+  }
+]

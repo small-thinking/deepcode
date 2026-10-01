@@ -1,0 +1,54 @@
+{
+  "id": "462",
+  "slug": "centered-grayscale-crop",
+  "title": "Center a Crop in a Grayscale Image",
+  "category": "ML Coding",
+  "difficulty": "easy",
+  "tags": [
+    "image-processing",
+    "arrays"
+  ],
+  "companies": [
+    "Luma AI"
+  ],
+  "interview_frequency": {
+    "Luma AI": {
+      "source_record_ids": [
+        "3ec6ce51456d81a287cadb63ccd08d8a"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Canonical Luma AI interview question",
+      "url": "https://app.notion.com/3ec6ce51456d81a287cadb63ccd08d8a"
+    },
+    {
+      "label": "Original Luma AI MLE assessment report",
+      "url": "https://www.1point3acres.com/bbs/thread-1180000-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-01",
+  "prompt": "An image preprocessing step needs a centered crop. Implement `center_crop(image, crop_h, crop_w)` for a nonempty rectangular 2D list of integer grayscale pixels. Return a new 2D list with exactly `crop_h` rows and `crop_w` columns, centered in the input.\n\nThe requested dimensions are positive and fit inside the image. On each axis, the input and crop dimensions have the same parity, so the margins on that axis are equal. Leave the input unchanged.",
+  "starter_code": "def center_crop(image, crop_h, crop_w):\n    pass\n",
+  "example": {
+    "input": "center_crop([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]], 1, 2)",
+    "output": "[[6, 7]]",
+    "reasoning": "The requested region sits in the middle of the image."
+  }
+}

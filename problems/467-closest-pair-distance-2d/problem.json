@@ -1,0 +1,46 @@
+{
+  "id": "467",
+  "slug": "closest-pair-distance-2d",
+  "title": "Find the Closest Pair of Points",
+  "category": "General Coding",
+  "difficulty": "hard",
+  "tags": ["geometry", "points", "distance"],
+  "companies": ["Luma AI"],
+  "prompt": "Given a collection of points on a plane, implement `closest_pair_distance(points)` to return the smallest Euclidean distance between two different entries. Points may share coordinates, so the answer can be zero. Leave the input unchanged.\n\nThere are 2 to 20,000 integer-coordinate points; each coordinate is between -10,000,000 and 10,000,000. Answers within an absolute error of 1e-5 are accepted. Be ready to discuss the time and space costs of your approach.",
+  "starter_code": "def closest_pair_distance(points):\n    pass\n",
+  "example": {
+    "input": "closest_pair_distance([[0, 11], [-7, 1], [-5, -3]])",
+    "output": "4.472135955",
+    "reasoning": "The closest two entries are (-7, 1) and (-5, -3)."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 8,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {"type": "ml_modeling"},
+  "references": [
+    {
+      "label": "Original Luma AI MLE online assessment report — exact point-distance task",
+      "url": "https://www.1point3acres.com/bbs/thread-1180000-1-1.html"
+    },
+    {
+      "label": "Second Luma AI MLE assessment report — corroborates closest-pair family",
+      "url": "https://www.1point3acres.com/bbs/thread-1180120-1-1.html"
+    },
+    {
+      "label": "Canonical Notion interview question and occurrence record",
+      "url": "https://app.notion.com/3ec6ce51456d8101994fd9da5fba30a8"
+    }
+  ],
+  "interview_frequency": {
+    "Luma AI": {
+      "source_record_ids": ["3ec6ce51456d8101994fd9da5fba30a8"],
+      "stars": 2,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {"stars": 2, "synced_at": "2026-10-01"},
+  "created_at": "2026-10-01"
+}

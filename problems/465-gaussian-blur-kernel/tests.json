@@ -1,0 +1,37 @@
+[
+  {
+    "name": "unit kernel",
+    "input": "k=1",
+    "test": "out = gaussian_kernel(1, 2.0)\nassert len(out) == 1 and len(out[0]) == 1 and abs(out[0][0] - 1.0) < 1e-12"
+  },
+  {
+    "name": "analytic center and corner",
+    "input": "k=3, sigma=1",
+    "test": "import math\nout = gaussian_kernel(3, 1.0)\nscale = 1 + 4*math.exp(-0.5) + 4*math.exp(-1.0)\nassert len(out) == 3 and all(len(row) == 3 for row in out)\nassert abs(out[1][1] - 1/scale) < 1e-9\nassert abs(out[0][0] - math.exp(-1)/scale) < 1e-9"
+  },
+  {
+    "name": "five by five symmetry and normalization",
+    "input": "k=5, sigma=1.3",
+    "test": "import math\nout = gaussian_kernel(5, 1.3)\nassert len(out) == 5 and all(len(row) == 5 for row in out)\nassert all(math.isfinite(x) and x >= 0 for row in out for x in row)\nassert abs(sum(map(sum, out)) - 1) < 1e-9\nassert all(abs(out[r][c] - out[4-r][4-c]) < 1e-12 for r in range(5) for c in range(5))"
+  },
+  {
+    "name": "radial equality",
+    "input": "k=5, sigma=2",
+    "test": "out = gaussian_kernel(5, 2.0)\nassert abs(out[1][2] - out[2][1]) < 1e-12\nassert abs(out[0][2] - out[2][0]) < 1e-12\nassert out[2][2] > out[1][2] > out[0][2]"
+  },
+  {
+    "name": "sigma changes concentration",
+    "input": "sigma=0.4 vs 2",
+    "test": "narrow = gaussian_kernel(5, 0.4)\nwide = gaussian_kernel(5, 2.0)\nassert narrow[2][2] > wide[2][2]\nassert narrow[0][0] < wide[0][0]\nassert abs(sum(map(sum, narrow)) - 1) < 1e-9"
+  },
+  {
+    "name": "off-center weights depend on both axes",
+    "input": "k=3, sigma=0.7",
+    "test": "out = gaussian_kernel(3, 0.7)\nassert out[1][1] > out[0][1] > out[0][0] > 0\nassert abs(out[0][0] - out[2][2]) < 1e-12"
+  },
+  {
+    "name": "extreme finite spread",
+    "input": "k=3, sigma=1e-200 and 1e200",
+    "test": "import math\nnarrow = gaussian_kernel(3, 1e-200)\nwide = gaussian_kernel(3, 1e200)\nassert all(math.isfinite(x) for row in narrow + wide for x in row)\nassert narrow[1][1] == 1.0 and abs(sum(map(sum, narrow)) - 1) < 1e-12\nassert all(abs(x - 1/9) < 1e-12 for row in wide for x in row)"
+  }
+]

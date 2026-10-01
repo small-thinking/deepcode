@@ -17,15 +17,15 @@
   ],
   "interview_frequency": {
     "Luma AI": {
+      "stars": 2,
       "source_record_ids": [
         "3cf6ce51456d810eafeffdb29aec6fb4"
       ],
-      "stars": 1,
       "synced_at": "2026-10-01"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
+    "stars": 2,
     "synced_at": "2026-10-01"
   },
   "prompt": "An image training notebook needs three small crop augmentations. Implement `center_crop(image, crop_h, crop_w)`, `random_crop(image, crop_h, crop_w, rng)`, and `random_crop_paste_on_white(image, crop_h, crop_w, rng)`.\n\n`image` is a non-empty numeric NumPy array with shape `[H, W]` or `[H, W, C]`, where `C` is 1, 3, or 4. Crop dimensions must be positive and fit within the source image. An assertion is sufficient for invalid inputs. Preserve the image's dtype and leave the input unchanged.\n\nFor `center_crop`, if a dimension has an odd number of pixels outside the crop, place the extra pixel on the bottom or right. For `random_crop`, use the supplied `np.random.Generator` to choose a valid top row, then a valid left column, uniformly. For `random_crop_paste_on_white`, choose a crop the same way, make a canvas with the original shape, then choose a valid paste top and left in that order. White is `1.0` for floating dtypes and the maximum value for integer dtypes.",

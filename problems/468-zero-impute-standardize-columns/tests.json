@@ -1,0 +1,32 @@
+[
+  {
+    "name": "two observations",
+    "input": "[[2],[6]]",
+    "test": "out = impute_and_standardize([[2.0],[6.0]])\nassert len(out) == 2 and all(len(row) == 1 for row in out)\nassert abs(out[0][0] + 1) < 1e-5 and abs(out[1][0] - 1) < 1e-5"
+  },
+  {
+    "name": "imputation uses observed mean",
+    "input": "[[1],[0],[5]]",
+    "test": "out = impute_and_standardize([[1.0],[0.0],[5.0]])\nassert len(out) == 3 and abs(out[0][0] + 1.224744871) < 1e-5\nassert abs(out[1][0]) < 1e-5 and abs(out[2][0] - 1.224744871) < 1e-5"
+  },
+  {
+    "name": "multiple missing values",
+    "input": "[[1],[0],[0],[5]]",
+    "test": "out = impute_and_standardize([[1.0],[0.0],[0.0],[5.0]])\nassert len(out) == 4 and abs(out[0][0] + 1.414213562) < 1e-5\nassert abs(out[1][0]) < 1e-5 and abs(out[2][0]) < 1e-5\nassert abs(out[3][0] - 1.414213562) < 1e-5"
+  },
+  {
+    "name": "different missing patterns by column",
+    "input": "3 × 3 matrix",
+    "test": "matrix = [[1.0,2.0,0.0],[0.0,1.0,1.0],[5.0,6.0,5.0]]\nout = impute_and_standardize(matrix)\nassert len(out) == 3 and all(len(row) == 3 for row in out)\nassert abs(out[1][0]) < 1e-5 and abs(out[0][2]) < 1e-5\nassert out[0][0] < out[1][0] < out[2][0]\nassert out[1][1] < out[0][1] < out[2][1]"
+  },
+  {
+    "name": "completed-column population moments",
+    "input": "4 × 2 matrix",
+    "test": "matrix = [[1.0,0.0],[0.0,2.0],[4.0,8.0],[7.0,0.0]]\nout = impute_and_standardize(matrix)\nassert len(out) == 4 and all(len(row) == 2 for row in out)\nfor j in range(2):\n    col = [row[j] for row in out]\n    assert abs(sum(col) / 4) < 1e-5\n    assert abs(sum(x*x for x in col) / 4 - 1.0) < 1e-5"
+  },
+  {
+    "name": "input remains unchanged",
+    "input": "3 × 2 matrix",
+    "test": "matrix = [[1.0,0.0],[0.0,2.0],[5.0,8.0]]\nbefore = [row[:] for row in matrix]\nout = impute_and_standardize(matrix)\nassert matrix == before and out is not matrix\nassert all(a is not b for a,b in zip(out,matrix))"
+  }
+]

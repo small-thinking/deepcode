@@ -1,0 +1,32 @@
+[
+  {
+    "name": "unequal logits",
+    "input": "[0, ln(3)]",
+    "test": "import math\nout = softmax([0.0, math.log(3.0)])\nassert len(out) == 2 and abs(out[0] - 0.25) < 1e-9 and abs(out[1] - 0.75) < 1e-9"
+  },
+  {
+    "name": "equal logits",
+    "input": "three equal values",
+    "test": "out = softmax([4.0, 4.0, 4.0])\nassert len(out) == 3 and all(abs(x - 1/3) < 1e-9 for x in out)"
+  },
+  {
+    "name": "single logit",
+    "input": "[7]",
+    "test": "assert softmax([7.0]) == [1.0]"
+  },
+  {
+    "name": "large positive offset",
+    "input": "[1000, 1000]",
+    "test": "import math\nout = softmax([1000.0, 1000.0])\nassert len(out) == 2 and all(math.isfinite(x) and abs(x - 0.5) < 1e-9 for x in out)"
+  },
+  {
+    "name": "large negative offset",
+    "input": "[-1000, -1001]",
+    "test": "import math\nout = softmax([-1000.0, -1001.0])\nexpected = 1.0 / (1.0 + math.exp(-1.0))\nassert len(out) == 2 and abs(out[0] - expected) < 1e-9 and abs(sum(out) - 1) < 1e-9"
+  },
+  {
+    "name": "shift invariance and immutability",
+    "input": "same logits plus 500",
+    "test": "base = [-2.0, 0.5, 3.0]\nbefore = base[:]\na = softmax(base)\nb = softmax([x + 500 for x in base])\nassert base == before and len(a) == len(b) == 3\nassert all(abs(x - y) < 1e-9 for x, y in zip(a, b))\nassert all(0 <= x <= 1 for x in a) and abs(sum(a) - 1) < 1e-9"
+  }
+]

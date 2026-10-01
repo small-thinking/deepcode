@@ -1,0 +1,58 @@
+{
+  "id": "468",
+  "slug": "zero-impute-standardize-columns",
+  "title": "Impute Missing Values and Standardize Features",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "data-preprocessing",
+    "imputation",
+    "standardization"
+  ],
+  "companies": [
+    "Luma AI"
+  ],
+  "interview_frequency": {
+    "Luma AI": {
+      "source_record_ids": [
+        "3ec6ce51456d8154ba61d6a368a978bc"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [
+      "numpy",
+      "pandas"
+    ],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Canonical Luma AI interview question",
+      "url": "https://app.notion.com/3ec6ce51456d8154ba61d6a368a978bc"
+    },
+    {
+      "label": "Original Luma AI MLE assessment report",
+      "url": "https://www.1point3acres.com/bbs/thread-1180000-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-01",
+  "prompt": "A numeric dataset uses zero to mark missing values. Implement `impute_and_standardize(matrix)`. For each column, replace every zero with the mean of that column's nonzero values. Then standardize the completed column by subtracting its completed-column mean and dividing by its population standard deviation. Return a 2D list of floats with the original shape.\n\nThe matrix has 2–50 rows and 1–50 columns. Values are positive numbers or zero sentinels. Every column has at least two different nonzero values, so its standard deviation after filling is nonzero. You may use NumPy or pandas. Leave the input unchanged. Results within `1e-5` absolute error are accepted.",
+  "starter_code": "def impute_and_standardize(matrix):\n    pass\n",
+  "example": {
+    "input": "impute_and_standardize([[1.0], [0.0], [5.0]])",
+    "output": "[[-1.224744871], [0.0], [1.224744871]]",
+    "reasoning": "The missing value is filled with 3, then the completed column is standardized."
+  }
+}
