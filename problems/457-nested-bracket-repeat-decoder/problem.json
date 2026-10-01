@@ -1,0 +1,63 @@
+{
+  "category": "Algorithms",
+  "difficulty": "medium",
+  "companies": [
+    "Abridge"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-09-30",
+  "id": "457",
+  "slug": "nested-bracket-repeat-decoder",
+  "title": "Decode Nested Bracket Repeats",
+  "tags": [
+    "strings",
+    "parsing",
+    "stack"
+  ],
+  "prompt": "An encoded message contains lowercase letters and repeats written as `k[encoded]`, where the positive integer `k` repeats the text inside the brackets. Repeats can be nested or placed next to ordinary letters and other repeats. Implement `decode_bracket_repeats(encoded: str) -> str` and return the fully decoded message.\n\nThe input is valid. Its length is from 1 to 30 characters, each repeat count is from 1 to 300, and the decoded result has at most 100,000 characters. Numbers appear only as repeat counts immediately before `[`. A repeat count can have multiple digits.",
+  "starter_code": "def decode_bracket_repeats(encoded: str) -> str:\n    pass\n",
+  "example": {
+    "input": "decode_bracket_repeats('3[a2[c]]')",
+    "output": "'accaccacc'",
+    "reasoning": "The bracketed text in the outer repeat is `acc`, so the result contains three copies."
+  },
+  "references": [
+    {
+      "label": "Candidate interview report — Software Engineer OA; lists LC 394, not full statement",
+      "url": "https://www.1point3acres.com/interview/thread/1191097"
+    },
+    {
+      "label": "1Point3Acres AI Insights reconstructed question statement",
+      "url": "https://www.1point3acres.com/interview/problems/0a0ad913-6eec-5510-928a-c899264e626b"
+    },
+    {
+      "label": "Official LeetCode 394 Decode String contract",
+      "url": "https://leetcode.com/problems/decode-string/description/"
+    },
+    {
+      "label": "Canonical Notion record and occurrence ledger",
+      "url": "https://app.notion.com/p/3ec6ce51456d818f88b7e12147f69e5f"
+    }
+  ],
+  "interview_frequency": {
+    "Abridge": {
+      "source_record_ids": [
+        "3ec6ce51456d818f88b7e12147f69e5f"
+      ],
+      "stars": 1,
+      "synced_at": "2026-09-30"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-09-30"
+  }
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "name": "nested repeats",
+    "input": "decode_bracket_repeats('3[a2[c]]')",
+    "test": "assert decode_bracket_repeats('3[a2[c]]') == 'accaccacc'"
+  },
+  {
+    "name": "adjacent repeated groups and trailing letters",
+    "input": "decode_bracket_repeats('2[abc]3[cd]ef')",
+    "test": "assert decode_bracket_repeats('2[abc]3[cd]ef') == 'abcabccdcdcdef'"
+  },
+  {
+    "name": "multi-digit repeat count",
+    "input": "decode_bracket_repeats('10[a]')",
+    "test": "assert decode_bracket_repeats('10[a]') == 'aaaaaaaaaa'"
+  },
+  {
+    "name": "plain letters",
+    "input": "decode_bracket_repeats('abc')",
+    "test": "assert decode_bracket_repeats('abc') == 'abc'"
+  },
+  {
+    "name": "single repeat",
+    "input": "decode_bracket_repeats('1[xyz]')",
+    "test": "assert decode_bracket_repeats('1[xyz]') == 'xyz'"
+  },
+  {
+    "name": "literal between groups",
+    "input": "decode_bracket_repeats('2[a]b3[c]')",
+    "test": "assert decode_bracket_repeats('2[a]b3[c]') == 'aabccc'"
+  },
+  {
+    "name": "nested group with trailing literal",
+    "input": "decode_bracket_repeats('2[3[a]b]')",
+    "test": "assert decode_bracket_repeats('2[3[a]b]') == 'aaabaaab'"
+  },
+  {
+    "name": "repeat containing adjacent groups",
+    "input": "decode_bracket_repeats('2[a2[b]c]')",
+    "test": "assert decode_bracket_repeats('2[a2[b]c]') == 'abbcabbc'"
+  },
+  {
+    "name": "nested count with surrounding letters",
+    "input": "decode_bracket_repeats('x2[y3[z]]q')",
+    "test": "assert decode_bracket_repeats('x2[y3[z]]q') == 'xyzzzyzzzq'"
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "single character",
+    "input": "'a'",
+    "test": "assert compress_runs('a') == 'a'"
+  },
+  {
+    "name": "all singletons",
+    "input": "'abc'",
+    "test": "assert compress_runs('abc') == 'abc'"
+  },
+  {
+    "name": "mixed runs and singleton",
+    "input": "'aabcccccaaa'",
+    "test": "assert compress_runs('aabcccccaaa') == 'a2bc5a3'"
+  },
+  {
+    "name": "same character in separated runs",
+    "input": "'aaabbaaa'",
+    "test": "assert compress_runs('aaabbaaa') == 'a3b2a3'"
+  },
+  {
+    "name": "double-digit run",
+    "input": "'aaaaaaaaaaaa'",
+    "test": "assert compress_runs('aaaaaaaaaaaa') == 'a12'"
+  },
+  {
+    "name": "run above twenty",
+    "input": "'zzzzzzzzzzzzzzzzzzzzz'",
+    "test": "assert compress_runs('zzzzzzzzzzzzzzzzzzzzz') == 'z21'"
+  },
+  {
+    "name": "digit characters remain data",
+    "input": "'1112223333'",
+    "test": "assert compress_runs('1112223333') == '132334'"
+  },
+  {
+    "name": "symbols and letters",
+    "input": "'$$$A!!'",
+    "test": "assert compress_runs('$$$A!!') == '$3A!2'"
+  },
+  {
+    "name": "case is significant",
+    "input": "'aaAAa'",
+    "test": "assert compress_runs('aaAAa') == 'a2A2a'"
+  },
+  {
+    "name": "punctuation and digit runs",
+    "input": "'..--777'",
+    "test": "assert compress_runs('..--777') == '.2-273'"
+  }
+]
