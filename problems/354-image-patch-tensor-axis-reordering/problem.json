@@ -11,16 +11,15 @@
     "tensor-layout"
   ],
   "companies": [
-    "xAI",
-    "SpaceX"
+    "xAI"
   ],
   "interview_frequency": {
-    "SpaceX": {
+    "xAI": {
       "source_record_ids": [
         "3cf6ce51456d8168a32cce3d19089cdd"
       ],
       "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
