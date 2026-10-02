@@ -1,0 +1,49 @@
+{
+  "id": "474",
+  "slug": "uber-budgeted-promotion-ml-system",
+  "title": "Design Budget-Constrained Promotion Recommendations",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "promotion-targeting",
+    "causal-inference",
+    "budget-allocation",
+    "marketplace",
+    "experimentation"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Design an ML system that recommends discount promotions under a given budget, with the goal of maximizing profit.\nClarify who can receive an offer, which promotions are available, the budget period, and how profit is measured. Explain the data you would collect, how the system would choose promotions, how decisions would be served, and how you would evaluate and monitor the result.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with the promotion decision, budget accounting, and profit objective; then explain data, modeling, serving, and evaluation.",
+    "reference_answer": "## Clarify the decision and assumptions\nThe reported task specifies discount promotions, a budget, and profit. It does not fix the recipient, offer menu, budget period, accounting convention, or latency target. For this practice design, assume rider-facing offers chosen from a finite approved menu, including no offer, with a campaign budget and delayed redemption. These are design assumptions, not additional reported interview requirements.\nAsk whether the budget caps issued liability or redeemed spend, who funds each discount, whether offers can stack, and whether profit means immediate contribution margin or longer-term value. Choose one evaluation horizon before discussing a model.\n## Objective and a baseline\nStart with eligible users, a small offer menu, a rules-based policy, and a randomized no-offer holdout. Define net contribution consistently: margin after variable fulfillment costs, refunds, and the platform-funded promotion cost, without subtracting the same discount twice.\nOptimize incremental expected net contribution relative to no offer, rather than redemption probability or revenue alone. A user who would have purchased anyway can redeem a coupon while reducing profit. A high predicted conversion rate is therefore not sufficient evidence that an offer is valuable. Monitor total spend, retained customers, cancellations, abuse, supply pressure, and concentration across markets as guardrails.\n## Data and causal modeling\nLog every eligible decision, including no-offer assignments: user/context features available at that time, candidate offers, eligibility reasons, assignment probability, model/policy version, exposure, redemption, completed transactions, costs, refunds, and expiration. Join outcomes over the predefined horizon and keep immature outcomes separate from negatives.\nUse randomized offer assignment within operational limits to estimate treatment response and cost. Begin with stratified treatment-effect estimates or simple per-offer outcome models, and move to an uplift or conditional treatment-effect model only when data support it. Features and splits must be point-in-time correct; separate users across evaluation partitions where repeated decisions would leak information.\nHistorical targeted promotions are confounded. Propensity weighting or doubly robust evaluation requires supported actions, known or defensibly estimated assignment probabilities, and the relevant causal assumptions; it cannot recover outcomes for offers never assigned to a segment. Preserve uncertainty and validate the eventual policy in a randomized experiment.\n## Allocation and serving\nAn offline pipeline builds mature training examples, validates profit and cost estimates, and versions the models. Online, a decision API checks campaign and user eligibility, obtains current context, scores the permitted offers and no-offer action, and chooses an offer under campaign pacing and exposure constraints.\nFor a first version, score incremental net contribution and incremental expected spend for each eligible offer. A budget-aware allocator can adjust a shadow price for scarce budget and select positive-value actions; a batch optimizer is an alternative when all recipients are known in advance. State the approximation and uncertainty rather than claiming greedy value-per-cost ranking is always optimal.\nExpected-spend optimization does not enforce a hard budget. If all issued offers must remain redeemable, atomically reserve the maximum platform liability before issuing an offer. Track available, reserved, redeemed, and released amounts in a budget ledger. Use a stable decision/offer key for retries, reconcile redemption idempotently, release reservations at expiration, and define refund and stacking rules. If redemption is instead subject to a cap, state that customer-facing contract and enforce it atomically. On budget or eligibility uncertainty, return no offer.\n## Evaluation and rollout\nOffline, check cost/profit calibration, temporal slices, treatment-effect uncertainty, and a supported policy-value estimate. These checks are screening evidence, not proof of business lift.\nOnline, compare mature net contribution per pre-treatment eligible user under the new policy versus the baseline, keeping eligibility, observation horizon, and campaign resources comparable. Include a no-offer holdout when estimating incremental promotion value. Choose persistent user randomization when interference is limited; use a justified market-cluster design when shared supply or budget creates spillovers. Switchbacks require attention to coupon expiry and carryover, so do not alternate rapidly while outstanding offers cross treatment windows.\nRoll out with budget and outcome guardrails, monitor ledger reconciliation, reservation expiry, feature freshness, score/cost drift, latency, fallback rate, and delayed outcome completeness. Rollback stops new allocations while honoring valid outstanding offers.\n## Follow-up questions\n1. How would you learn whether a coupon changes behavior rather than subsidizing an existing purchase?\n2. How would you handle delayed redemption, concurrent decisions, and a strict campaign cap?\n3. What changes if the offer cost is funded partly by a merchant?\n4. How would you evaluate a new offer that has no overlap with historical actions?\n5. How would marketplace spillovers and long-lived offers affect randomization?\n## Progressive Hints\n1. Include no offer as a decision.\n2. Prediction of redemption is not an estimate of incremental profit.\n3. Separate model-based expected spend from enforceable budget accounting.\n4. Log assignment before observing redemption.\n5. Choose an experiment unit that matches interference and carryover."
+  },
+  "references": [
+    {
+      "label": "Notion: Uber | Budget-Constrained Discount Promotion ML Design",
+      "url": "https://app.notion.com/p/3ed6ce51456d81aabf4ed515f4d770cb"
+    },
+    {
+      "label": "Original interview report — budget-constrained discount promotions",
+      "url": "https://www.1point3acres.com/interview/thread/1048175"
+    }
+  ],
+  "created_at": "2026-10-02",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3ed6ce51456d81aabf4ed515f4d770cb"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-02"
+  }
+}

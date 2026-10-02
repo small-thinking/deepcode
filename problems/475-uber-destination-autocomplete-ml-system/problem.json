@@ -1,0 +1,49 @@
+{
+  "id": "475",
+  "slug": "uber-destination-autocomplete-ml-system",
+  "title": "Design Destination Address Prediction",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "autocomplete",
+    "destination-prediction",
+    "retrieval",
+    "ranking",
+    "geospatial"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Design an ML system for destination suggestions in a ride-hailing app. Given the first three characters of an address entered by a user, predict the full destination address the user intends to reach.\nClarify the available context and expected output. Explain how you would collect training data, make predictions while the user types, serve useful suggestions, and evaluate and monitor the system.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with the destination and suggestion contract; then explain data, prediction, serving, and evaluation.",
+    "reference_answer": "## Clarify the contract and assumptions\nThe reported task is to predict the intended full destination from the first three address characters. The source describes suggestions in the Uber app; it does not mandate a particular list size, latency, architecture, or feature set. A small ranked suggestion list is a practice design choice, not an additional reported requirement.\nClarify whether candidates are street addresses, buildings, landmarks, or all three; whether current location, locale, and consented history are available; and whether the UI needs one prediction or several suggestions. Assume stable place identifiers and an address catalog. Preserve the three-character request as the core task, while treating later keystrokes as an extension.\n## Objective and a baseline\nOptimize correct destination selection with low typing effort and fast responses, rather than suggestion clicks alone. A tap may be corrected or abandoned. Define success using the user's confirmed destination, and separately measure selection accuracy, reformulation, additional keystrokes, abandonment, coverage, and latency.\nBegin with normalized prefix matching over a place/address index, ranked by local popularity and distance when location is available. This gives a useful cold-start baseline and a fallback. Handle unicode, address abbreviations, locale-specific token order, ambiguous names, and multiple entrances without losing the original input.\n## Candidate retrieval and ranking\nIndex stable place IDs, address tokens, aliases, locale, and geographic coordinates. Retrieve prefix-compatible candidates from an index such as a trie or edge n-gram index. Add bounded typo-tolerant candidates when useful, then merge and deduplicate by place or entrance identity. Geographic context is a ranking signal or an explicitly agreed service-area constraint; do not silently remove every far-away destination.\nRank a bounded candidate set using prefix compatibility, location and time context, recent or frequent destinations where permitted, and local popularity. Start with a simple calibrated or learning-to-rank model before considering heavier representations. Exact textual evidence and location priors must remain observable so a strong popularity prior does not hide a rare intended address.\nMeasure candidate recall before tuning ranking. For an unseen user, use query, locale, and geographic context. For a new address, use catalog text and geography until interaction evidence accumulates. Return a limited, clearly labeled list only after agreeing that output contract.\n## Labels, logging, and bias\nAt each request, log session/request IDs, prefix, the context actually available, candidate IDs and positions, exposure, selection, later destination corrections, model/index versions, and consented feature versions. Construct examples from real prefixes observed during the session; use the eventual confirmed destination as a delayed label under a defined attribution rule.\nThe final destination is a label, never a request-time feature. Do not assume every synthetic three-character truncation of a completed address represents a real user query. Distinguish typed full-address entry, suggestion selection, corrected choices, no selection, and abandoned sessions. Unshown candidates and abandonment are not automatically negative relevance labels.\nUse temporal evaluation with grouped sessions/users where needed. Logged clicks have exposure and position bias; limited randomized exposure and known propensities can help evaluate supported alternatives. Keep confirmed-destination metrics separate from click-based diagnostics, and audit missing-label and privacy-deletion effects.\n## Serving and failure handling\nRoute each prefix/context request to candidate retrieval, lightweight feature lookup, and bounded ranking under an agreed latency budget. Use request sequence IDs so a slow response for an older prefix cannot overwrite a newer result. Debouncing and cancellation are client optimizations, not substitutes for this correctness rule.\nVersion the address catalog, index, model, and feature definitions. Incremental indexing needs tombstones and freshness checks for closed or renamed places and changed entrances. Cache public prefix/locale/geographic candidates where appropriate; keep personal-history features out of shared cache keys and shared responses.\nWhen personalization or ranking is unavailable, fall back to prefix matching plus public local popularity. Avoid empty or stale suggestions silently masquerading as confident predictions. Enforce consent and retention rules for precise locations and home/work history; user-history deletion must propagate to feature stores and personal caches.\n## Evaluation and rollout\nOffline, measure candidate recall at the agreed list size, top-one accuracy or MRR, and end-to-end confirmed-destination accuracy. Report these metrics specifically for the initial three-character request; report later-keystroke results separately so they cannot hide failure on the core task. Slice by city, language, ambiguous prefixes, sparse/new places, distant destinations, new users, and absent location. Monitor coverage, feature/index freshness, tail latency, out-of-order responses, fallbacks, and destination-correction rates.\nRun a user- or session-randomized online experiment depending on personalization carryover. Measure successful destination selection per eligible search session, time/keystrokes to selection, abandonment, and corrections, with latency and geographic coverage guardrails. A CTR gain accompanied by more destination corrections is not success. Shadow retrieval/model changes, canary by locale, and keep independent rollback for index and model versions.\n## Follow-up questions\n1. How would you distinguish a ranking failure from a missing candidate?\n2. What labels would you use when users correct a selected destination or abandon the session?\n3. How would you handle a popular nearby address and a rare distant address sharing a prefix?\n4. What prevents responses from earlier keystrokes replacing the current suggestion list?\n5. How would new places, missing location, and deleted personal history affect serving?\n## Progressive Hints\n1. The object is a destination, not an Eats restaurant or a coding-only prefix dictionary.\n2. Clarify one prediction versus a suggestion list before fixing a metric.\n3. Measure retrieval coverage independently of ranking.\n4. A future confirmed destination can label an example but cannot be an input feature.\n5. A fast wrong-prefix response is still incorrect."
+  },
+  "references": [
+    {
+      "label": "Notion: Uber | Destination Address Prediction from a Three-Character Prefix",
+      "url": "https://app.notion.com/p/3ed6ce51456d815b8b91eabdeb31dbcb"
+    },
+    {
+      "label": "Original interview report — destination prediction from a three-character prefix",
+      "url": "https://www.1point3acres.com/interview/thread/1173317"
+    }
+  ],
+  "created_at": "2026-10-02",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3ed6ce51456d815b8b91eabdeb31dbcb"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-02"
+  }
+}
