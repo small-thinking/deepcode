@@ -9,8 +9,8 @@
     "depth-first-search",
     "weighted-paths"
   ],
-  "prompt": "Implement `solution(pairs, ratios, src, dst)`. Each pair `(a, b)` is a directed conversion: one unit of `a` becomes the corresponding positive number of units of `b`. Find a path from `src` to `dst` and return the product of its ratios. Return `-1.0` if no path exists, and `1.0` when `src == dst`. The input rates are consistent: whenever multiple paths connect the same currencies, they have the same product. A pair does not imply its reverse conversion.\n\n`pairs` and `ratios` have equal lengths. Explain the search and its time and space costs.",
-  "starter_code": "def solution(pairs, ratios, src, dst):\n    pass\n",
+  "prompt": "You are given currency pairs and their positive conversion ratios. For each pair `(a, b)`, one unit of `a` converts to `ratios[i]` units of `b`. Every edge is directed: its reverse exists only if separately supplied, and the reverse rate need not be reciprocal. `pairs` and `ratios` have equal lengths; currency codes are non-empty strings.\n\n## Part 1: Convert along consistent rates\n\nImplement `solution(pairs, ratios, src, dst)`. Return the product of the rates along a directed route from `src` to `dst`. In this part, rates are consistent: all routes connecting the same currencies give the same product. Return `-1.0` if the destination is unreachable.\n\nExample: `solution([('USD', 'CAD'), ('CAD', 'EUR')], [2.0, 1.5], 'USD', 'EUR')` returns `3.0`.\n\n## Part 2: Find the best conversion rate\n\nImplement `best_rate(pairs, ratios, src, dst)`. Rates may now disagree across routes. Return the largest product achievable on a directed path from `src` to `dst` that visits each currency at most once. Return `-1.0` if no such path exists. Rates can exceed `1.0`, and the graph can contain cycles, including cycles whose rates multiply to more than one. A route cannot repeat a currency to take advantage of a cycle.\n\nExample: `best_rate([('A', 'B'), ('A', 'C'), ('C', 'B')], [2.0, 4.0, 3.0], 'A', 'B')` returns `12.0`: the route through `C` beats the direct rate of `2.0`.\n\nFor both parts, `src == dst` returns `1.0`, even if that currency is absent from the pairs. Otherwise, a missing source or destination returns `-1.0`. Inputs are valid, and tested path products fit in a finite Python float. Results are compared with floating-point tolerance.\n\nPart 1 accepts up to 10,000 pairs. Part 2 practice cases use at most 10 distinct currencies and 20 pairs, so exhaustive search is acceptable. Explain the time and space costs of both implementations.",
+  "starter_code": "def solution(pairs, ratios, src, dst):\n    pass\n\n\ndef best_rate(pairs, ratios, src, dst):\n    pass\n",
   "example": {
     "input": "solution([('USD', 'CAD'), ('CAD', 'EUR')], [2.0, 1.5], 'USD', 'EUR')",
     "output": "3.0",
@@ -36,6 +36,18 @@
     {
       "label": "Canonical Notion question and source ledger",
       "url": "https://app.notion.com/p/3e56ce51456d817cbc26fa987cdcdd7c"
+    },
+    {
+      "label": "LeetCode: Uber SDE2 candidate report \u2014 highest-value route follow-up; cycle rules unspecified",
+      "url": "https://leetcode.com/discuss/post/6947609/uber-sde2-chances-by-anonymous_user-h4vb/"
+    },
+    {
+      "label": "LeetCode: non-reciprocal simple-path variant \u2014 company unspecified",
+      "url": "https://leetcode.com/discuss/post/497693/onsite-interview-question-maximum-value-after-currency-conversion/"
+    },
+    {
+      "label": "LeetCode: Uber L4 candidate report \u2014 reciprocal-rate variant",
+      "url": "https://leetcode.com/discuss/post/1975772/uber-software-engineer-l4-bangalore-mar-2022-reject/"
     }
   ],
   "created_at": "2026-09-24",
