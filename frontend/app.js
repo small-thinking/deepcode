@@ -774,6 +774,7 @@ async function loadProblem(identifier) {
     } else {
       syncStarterCode(state.selected);
     }
+    saveProblemTimer(state.selected.slug, { elapsedMs: 0, startedAt: Date.now() });
     history.replaceState(null, "", problemRoute(state.selected.slug));
   } catch (error) {
     state.error = error.message;
