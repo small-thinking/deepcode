@@ -583,6 +583,7 @@ class ProblemStoreTest(unittest.TestCase):
                 ("spacex-only", "1", ["SpaceX"]),
                 ("xai-only", "2", ["xAI"]),
                 ("both-labels", "3", ["SpaceX", "xAI"]),
+                ("current-name", "4", ["SpaceX AI"]),
             ):
                 self._write_problem(
                     root,
@@ -603,21 +604,21 @@ class ProblemStoreTest(unittest.TestCase):
                 )
 
             store = ProblemStore(root)
-            company = "SpaceXAI / xAI-related roles"
+            company = "SpaceX AI"
 
             self.assertEqual(store.companies(), [company])
-            self.assertEqual(store.company_counts(), {company: 3})
+            self.assertEqual(store.company_counts(), {company: 4})
             self.assertEqual(
                 [problem["slug"] for problem in store.list_problems(company=company)],
-                ["spacex-only", "xai-only", "both-labels"],
+                ["spacex-only", "xai-only", "both-labels", "current-name"],
             )
             self.assertEqual(
                 [problem["slug"] for problem in store.list_problems(company="SpaceX")],
-                ["spacex-only", "xai-only", "both-labels"],
+                ["spacex-only", "xai-only", "both-labels", "current-name"],
             )
             self.assertEqual(
                 [problem["slug"] for problem in store.list_problems(search="xai")],
-                ["spacex-only", "xai-only", "both-labels"],
+                ["spacex-only", "xai-only", "both-labels", "current-name"],
             )
 
     def test_committed_frequency_tiers_are_per_company_and_source_neutral(self):

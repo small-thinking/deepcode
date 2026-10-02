@@ -10,7 +10,7 @@
     "arrays"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Given a list of distinct items and an integer `k` with `0 <= k <= len(items)`, return `k` items selected uniformly without replacement. Every subset of `k` input items must have the same probability. The returned order does not matter. You may rearrange the input list.\n\nImplement `sample_without_replacement(items, k, rng)`. The supplied `rng.randrange(stop)` returns a uniformly distributed integer from `0` through `stop - 1`. Aim for O(k) time; space for the returned sample is allowed.",
   "starter_code": "def sample_without_replacement(items, k, rng):\n    pass\n",
@@ -40,7 +40,7 @@
   ],
   "created_at": "2026-10-01",
   "interview_frequency": {
-    "xAI": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3ed6ce51456d81328952d870cc85b338"
       ],

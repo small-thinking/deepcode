@@ -45,5 +45,12 @@
       }
     }
   ],
-  "created_at": "2026-09-04"
+  "created_at": "2026-09-04",
+  "background_note": "User-created educational exercise from Playground. No interview occurrence or company attribution is claimed.",
+  "references": [
+    {
+      "label": "PyTorch documentation — scaled dot-product attention",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html"
+    }
+  ]
 }

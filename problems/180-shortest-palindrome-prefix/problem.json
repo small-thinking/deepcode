@@ -13,6 +13,19 @@
   "companies": [
     "Reddit"
   ],
+  "interview_frequency": {
+    "Reddit": {
+      "source_record_ids": [
+        "3eb6ce51456d8119bdecf65ab0ba7d3e"
+      ],
+      "stars": 0,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-01"
+  },
   "prompt": "Implement `shortest_palindrome_prefix(s)` to form the shortest palindrome obtainable by adding characters only before `s`. You may not append or insert characters elsewhere. Return the resulting string.\n\nThe input may contain any Python string character, including punctuation.\n\nTarget O(n) time and O(n) space. Empty and already-palindromic strings should be returned unchanged.",
   "starter_code": "def shortest_palindrome_prefix(s):\n    # Add the fewest characters to the front so the result is a palindrome.\n    pass\n",
   "example": {
@@ -20,6 +33,12 @@
     "output": "'baab'",
     "reasoning": "The longest palindromic prefix is `'aa'`; reversing the remaining suffix `'b'` gives the only needed prefix."
   },
+  "references": [
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3eb6ce51456d8119bdecf65ab0ba7d3e"
+    }
+  ],
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
@@ -29,5 +48,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
 }

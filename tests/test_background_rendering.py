@@ -28,5 +28,11 @@ assert.match(html, /Interview &lt;report&gt;/);
 assert.match(html, /href="https:\/\/example.org\/post\?a=1&amp;b=2"/);
 assert.match(html, /rel="noopener noreferrer"/);
 assert.doesNotMatch(html, /has not been linked/);
+const noted = renderReferences([], 'Practice extension <not an exact report>');
+assert.match(noted, /Practice extension &lt;not an exact report&gt;/);
+assert.doesNotMatch(noted, /has not been linked/);
+const notedWithLink = renderReferences([{label: 'Source', url: 'https://example.org/source'}], 'Original scope is narrower.');
+assert.match(notedWithLink, /Original scope is narrower/);
+assert.match(notedWithLink, /https:\/\/example.org\/source/);
 """
         subprocess.run(["node", "-e", script], check=True, capture_output=True, text=True)

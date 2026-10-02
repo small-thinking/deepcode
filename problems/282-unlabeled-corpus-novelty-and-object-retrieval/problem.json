@@ -21,5 +21,29 @@
   "evaluation": {
     "type": "system_design"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "references": [
+    {
+      "label": "OpenAI candidate report: mine novel images from unlabeled data; retrieval extension is local practice",
+      "url": "https://prachub.com/interview-experiences/openai-machine-learning-engineer-interview-experience-four-one-hour-rounds-in-a-single-phone-screen"
+    },
+    {
+      "label": "Canonical source and local practice boundary",
+      "url": "https://app.notion.com/p/3ed6ce51456d8167a14ec42d5f844e4e"
+    }
+  ],
+  "background_note": "Candidate report supports novelty mining from an unlabeled image corpus. The object-retrieval extension here is DeepCode practice; its interview origin is unverified.",
+  "interview_frequency": {
+    "OpenAI": {
+      "stars": 0,
+      "source_record_ids": [
+        "3ed6ce51456d8167a14ec42d5f844e4e"
+      ],
+      "synced_at": "2026-10-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-02"
+  }
 }

@@ -17,7 +17,7 @@ class XAICatalogQualityTest(unittest.TestCase):
     def test_every_xai_associated_starter_parses(self):
         for path in (ROOT / "problems").glob("*/problem.json"):
             problem = json.loads(path.read_text(encoding="utf-8"))
-            if "xAI" in problem.get("companies", []):
+            if "SpaceX AI" in problem.get("companies", []):
                 with self.subTest(slug=problem["slug"]):
                     ast.parse(problem.get("starter_code", ""))
 

@@ -3238,7 +3238,7 @@ function renderProblemDescription(problem) {
     renderProblemDataInfo(problem.data),
     renderProblemExample(problem.example),
     renderProblemMetadata(problem),
-    renderReferences(problem.references),
+    renderReferences(problem.references, problem.background_note),
   ].join("");
 }
 
@@ -3766,7 +3766,7 @@ function renderDataLinkSetup(problem) {
   );
 }
 
-function renderReferences(references) {
+function renderReferences(references, backgroundNote) {
   const links = (Array.isArray(references) ? references : [])
     .filter((reference) => reference && reference.label && reference.url)
     .map(
@@ -3781,9 +3781,9 @@ function renderReferences(references) {
   return renderProblemBlock(
     PROBLEM_SECTION_CLASSES.references,
     "Background",
-    links
+    `${backgroundNote ? `<p class="muted">${escapeHtml(backgroundNote)}</p>` : ""}${links
       ? `<div class="reference-list" aria-label="Background references">${links}</div>`
-      : `<p class="muted">An original interview source has not been linked for this exercise.</p>`
+      : backgroundNote ? "" : `<p class="muted">An original interview source has not been linked for this exercise.</p>`}`
   );
 }
 

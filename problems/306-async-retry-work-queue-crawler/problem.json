@@ -30,5 +30,29 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-19"
+  "created_at": "2026-08-19",
+  "references": [
+    {
+      "label": "Related Anthropic concurrent-crawler question; local async retry-queue API is practice",
+      "url": "https://prachub.com/interview-questions/design-a-concurrent-web-crawler-3"
+    },
+    {
+      "label": "Canonical source and local practice boundary",
+      "url": "https://app.notion.com/p/3ed6ce51456d81e6a8cef95d5c23f0a1"
+    }
+  ],
+  "background_note": "The linked page is a broader published concurrent-crawler practice question, not a verified first-person report. This async retry-queue API excludes host filtering and URL normalization; its interview origin is unverified.",
+  "interview_frequency": {
+    "Anthropic": {
+      "stars": 0,
+      "source_record_ids": [
+        "3ed6ce51456d81e6a8cef95d5c23f0a1"
+      ],
+      "synced_at": "2026-10-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-02"
+  }
 }

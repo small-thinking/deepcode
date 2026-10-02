@@ -11,10 +11,10 @@
     "experimentation"
   ],
   "companies": [
-    "SpaceX"
+    "SpaceX AI"
   ],
   "interview_frequency": {
-    "SpaceX": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3bd6ce51456d814d8c2fc46ac304fee6"
       ],
@@ -44,5 +44,6 @@
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3bd6ce51456d814d8c2fc46ac304fee6"
     }
-  ]
+  ],
+  "background_note": "The canonical source concerns a historical SpaceX interview. The catalog groups its company label under SpaceX AI; this source is not evidence that xAI asked the same question."
 }

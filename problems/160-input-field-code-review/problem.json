@@ -12,7 +12,7 @@
     "security"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Review a text-input component that formats text and validates it asynchronously as a person types. Users report typing lag and validation results that sometimes refer to older input. Keep the review framework-neutral.\n\nDescribe likely failure mechanisms, the evidence you would inspect, and a prioritized set of fixes and tests. Consider input composition, accessibility, and the component's lifecycle. A replacement implementation is not required.",
   "response": {
@@ -22,5 +22,6 @@
   "evaluation": {
     "type": "system_design"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

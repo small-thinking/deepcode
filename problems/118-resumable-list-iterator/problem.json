@@ -13,7 +13,7 @@
   ],
   "companies": [
     "OpenAI",
-    "xAI"
+    "SpaceX AI"
   ],
   "interview_frequency": {
     "OpenAI": {
@@ -21,12 +21,19 @@
         "35c6ce51456d81b595c6cda32444171f"
       ],
       "stars": 2,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-10-01"
+    },
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ed6ce51456d812d8279c74d03191b42"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-10-01"
   },
   "prompt": "Implement a resumable iterator interface.\n\nCreate a base `ResumableIterator` class with `__iter__`, `__next__`, `next`, `get_state`, and `set_state`. Support both Python iteration and explicit `next()` calls.\n\nImplement `ListIterator(items)`. It should snapshot the input items in the constructor, return one item at a time, raise `StopIteration` after exhaustion, return serializable state as `{\"index\": next_index}`, and restore only valid states where `index` is an integer between `0` and `len(items)` inclusive. Invalid states should raise an error.\n\nAlso implement `CompositeIterator(iterators)`, which chains resumable iterators in order. Its state should include the active child index and every child iterator's state. Restoring a composite state should restore both the active index and all child states.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class ResumableIterator:\n    def __iter__(self):\n        pass\n\n    def __next__(self):\n        pass\n\n    def next(self):\n        pass\n\n    def get_state(self):\n        pass\n\n    def set_state(self, state):\n        pass\n\n\nclass ListIterator(ResumableIterator):\n    def __init__(self, items):\n        pass\n\n\nclass CompositeIterator(ResumableIterator):\n    def __init__(self, iterators):\n        pass\n",
@@ -60,7 +67,16 @@
     {
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/35c6ce51456d81b595c6cda32444171f"
+    },
+    {
+      "label": "Original xAI candidate report: Aced Senior Safety interview",
+      "url": "https://www.tryexponent.com/experiences/x-ai-senior-software-engineer-interview-3c2a0d"
+    },
+    {
+      "label": "SpaceX AI canonical interview record (practice contract differs in composite-state shape)",
+      "url": "https://app.notion.com/p/3ed6ce51456d812d8279c74d03191b42"
     }
   ],
-  "created_at": "2026-06-15"
+  "created_at": "2026-06-15",
+  "background_note": "The OpenAI and xAI reports support the resumable-iterator family. The xAI report uses a global index for chained iterators; this exercise uses a composite state containing the active child and each child state. That state format is a practice choice, not a recovered xAI requirement."
 }

@@ -12,7 +12,7 @@
     "algorithm"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "A sorting service can divide work among a limited number of workers. Implement `parallel_merge_sort(values, workers)` using merge sort and return a new list of integers in nondecreasing order.\n\n`workers` is a positive logical worker budget; actual threads or processes are not required for this exercise. Preserve duplicates and leave the input unchanged. Empty input returns `[]`; the budget may exceed the number of values.\n\nFollow-up: how would you choose between threads, processes, and native libraries for CPU-bound sorting?",
   "starter_code": "def parallel_merge_sort(values, workers):\n    # Return a freshly allocated sorted list.\n    pass\n",
@@ -30,5 +30,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

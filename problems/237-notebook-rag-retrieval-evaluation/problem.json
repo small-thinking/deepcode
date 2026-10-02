@@ -15,6 +15,33 @@
   "companies": [
     "Harvey"
   ],
+  "interview_frequency": {
+    "Harvey": {
+      "source_record_ids": [
+        "3ed6ce51456d810fb699f29e5fa85e00"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "references": [
+    {
+      "label": "Original Harvey onsite interview report (notebook RAG; exact API reconstructed)",
+      "url": "https://www.1point3acres.com/interview/thread/1179903"
+    },
+    {
+      "label": "Related 1Point3Acres RAG notebook study page (editorial)",
+      "url": "https://www.1point3acres.com/interview/post/7100538"
+    },
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3ed6ce51456d810fb699f29e5fa85e00"
+    }
+  ],
   "prompt": "Build and evaluate a small vector-retrieval pipeline. `documents` is a pandas DataFrame with unique `doc_id` values, a `text` column, and optional metadata. The injected `embed_texts(texts)` returns an `(N, d)` NumPy matrix for `N` strings.\n\n- `embed_documents(documents, embed_texts)` embeds all texts in one call, preserving row order, and returns `(N, d)` embeddings.\n- `retrieve_top_k(query, documents, document_embeddings, embed_texts, k=10)` returns up to `k` copied document rows with a `score` column, sorted by descending cosine similarity. Break ties by original row position and define zero-norm cosine scores as `0.0`. Preserve metadata and keep rows aligned with their embedding positions, regardless of DataFrame index labels.\n- `evaluate_retrieval(evaluation_pairs, documents, document_embeddings, embed_texts, k=10)` reuses retrieval for `(query, relevant_doc_id)` pairs and returns `{\"recall_at_k\": ..., \"mrr\": ...}`. Recall is the fraction of queries retrieving the relevant document; MRR averages its reciprocal rank, with misses contributing zero.\n\nVectorize similarity calculations with NumPy and do not mutate inputs.",
   "starter_code": "import numpy as np\nimport pandas as pd\n\n\ndef embed_documents(documents, embed_texts):\n    # Embed the entire text column in one batch.\n    pass\n\n\ndef retrieve_top_k(query, documents, document_embeddings, embed_texts, k=10):\n    # Return copied DataFrame rows with a score, ordered by relevance.\n    pass\n\n\ndef evaluate_retrieval(evaluation_pairs, documents, document_embeddings, embed_texts, k=10):\n    # Return recall_at_k and mrr for the labeled queries.\n    pass\n",
   "example": {

@@ -10,7 +10,7 @@
     "four-directions"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "An `n × n` grid initially contains ones. Each coordinate in `mines` is a zero. Return the largest order of an axis-aligned plus sign made entirely of ones, or 0 if none exists. An order-`k` plus consists of its center and four arms of length `k - 1`, extending up, down, left, and right. A lone one has order 1.\n\nAssume `n >= 1` and unique, in-bounds mine coordinates.",
   "starter_code": "def largest_plus_sign(n, mines):\n    # Return the largest plus order.\n    pass\n",
@@ -29,7 +29,7 @@
     "type": "ml_modeling"
   },
   "interview_frequency": {
-    "xAI": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3ed6ce51456d815e83fde494968758b7"
       ],
