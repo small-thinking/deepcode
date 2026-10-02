@@ -1,0 +1,6 @@
+[
+  {"name":"sorts the outer ring clockwise from its top-left", "input":"three-by-three matrix with an unchanged center", "test":"matrix = [[9, 7, 3], [8, 5, 1], [6, 4, 2]]\nassert sort_concentric_borders(matrix) == [[1, 2, 3], [9, 5, 4], [8, 7, 6]]"},
+  {"name":"sorts inner and outer rings separately", "input":"four-by-four matrix with two borders", "test":"matrix = [[16, 15, 14, 13], [5, 4, 3, 12], [6, 1, 2, 11], [7, 8, 9, 10]]\nassert sort_concentric_borders(matrix) == [[5, 6, 7, 8], [16, 1, 2, 9], [15, 4, 3, 10], [14, 13, 12, 11]]"},
+  {"name":"keeps a one-cell center", "input":"one-by-one matrix", "test":"assert sort_concentric_borders([[7]]) == [[7]]"},
+  {"name":"preserves input while sorting duplicate values", "input":"matrix with duplicate values", "test":"matrix = [[4, 1], [4, 2]]\nassert sort_concentric_borders(matrix) == [[1, 2], [4, 4]]\nassert matrix == [[4, 1], [4, 2]]"}
+]

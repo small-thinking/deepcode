@@ -1,0 +1,7 @@
+[
+  {"name":"finds a contiguous match despite a mismatch", "input":"two five-character strings", "test":"assert longest_common_substring_length('abcde', 'abfde') == 2"},
+  {"name":"does not count a subsequence", "input":"matches separated by other characters", "test":"assert longest_common_substring_length('abc', 'aXbYc') == 1"},
+  {"name":"handles an empty input", "input":"one empty string", "test":"assert longest_common_substring_length('', 'abc') == 0\nassert longest_common_substring_length('abc', '') == 0"},
+  {"name":"handles no common characters", "input":"disjoint strings", "test":"assert longest_common_substring_length('abc', 'XYZ') == 0"},
+  {"name":"can match an entire repeated string", "input":"same text in both strings", "test":"assert longest_common_substring_length('banana', 'banana') == 6"}
+]
