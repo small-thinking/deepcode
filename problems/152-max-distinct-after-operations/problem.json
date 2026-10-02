@@ -12,7 +12,7 @@
     "algorithm"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Implement `max_distinct_after_adjustments(nums, k)`. Each integer `x` in `nums` may independently be replaced once by any integer in the inclusive interval `[x - k, x + k]`. Return the largest number of distinct values achievable after making zero or one adjustment per element.\n\n`nums` is nonempty, `k` is nonnegative, and the input list must not be mutated. The answer is a count, not the adjusted array. Values and adjustment ranges can be large; avoid work proportional to the numeric range.",
   "starter_code": "def max_distinct_after_adjustments(nums, k):\n    # Return the largest achievable number of distinct integers.\n    pass\n",
@@ -30,5 +30,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

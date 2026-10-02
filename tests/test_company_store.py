@@ -55,7 +55,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "Reflection AI",
                 "Runway",
                 "Sierra",
-                "SpaceXAI / xAI-related roles",
+                "SpaceX AI",
                 "Thinking Machines Lab",
                 "Uber",
                 "Waymo",
@@ -119,12 +119,11 @@ class CompanyStoreTest(unittest.TestCase):
         )
 
         xai = companies.get_company("xAI", problems)
-        self.assertEqual(xai["name"], "SpaceXAI / xAI-related roles")
+        self.assertEqual(xai["name"], "SpaceX AI")
         self.assertEqual(companies.get_company("SpaceX", problems)["name"], xai["name"])
         self.assertTrue(
             {
                 "distributed-token-bucket-rate-limiter",
-                "notification-system-event-batch",
                 "sliding-window-rate-limiter",
                 "data-parallel-fsdp-matrix-multiplication",
                 "nested-structure-flatten-unflatten",
@@ -135,10 +134,12 @@ class CompanyStoreTest(unittest.TestCase):
             }.issubset({problem["slug"] for problem in xai["related_problems"]})
         )
 
+        self.assertNotIn("notification-system-event-batch", {p["slug"] for p in xai["related_problems"]})
+        self.assertNotIn("durable-in-memory-kv-store", {p["slug"] for p in xai["related_problems"]})
+
         airbnb = companies.get_company("Airbnb", problems)
         self.assertTrue(
             {
-                "notification-system-event-batch",
                 "distributed-kv-store",
             }.issubset({problem["slug"] for problem in airbnb["related_problems"]})
         )

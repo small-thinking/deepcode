@@ -13,6 +13,19 @@
   "companies": [
     "Reddit"
   ],
+  "interview_frequency": {
+    "Reddit": {
+      "source_record_ids": [
+        "3eb6ce51456d8135baf1f68bd83a29fd"
+      ],
+      "stars": 0,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-01"
+  },
   "prompt": "You receive a start word, a target word, and a collection of permitted dictionary words. Decide whether a legal sequence of word changes links start to target.\n\nEvery eligible word has the same length. Start and target contain lowercase letters. Repeated dictionary entries have no additional effect. Start need not be in the dictionary, target is an allowed final destination even when it is absent from the dictionary.\n\nPart 1: implement solve(start: str, target: str, words: list[str], part: int) -> bool. A transition changes exactly one character. All words between the endpoints must be in the dictionary.\n\nExample: solve(\"cold\", \"warm\", [\"cord\", \"card\", \"ward\"], 1) returns True through cold -> cord -> card -> ward -> warm.\n\nPart 2: one move may change exactly one or exactly two characters. Example: solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 2) returns True through bake -> bore -> tone -> torn.\n\nPart 3: return one shortest legal chain, including start and target, or [] when none exists. For solve(\"bake\", \"torn\", [\"bore\", \"tone\"], 3), one valid result is [\"bake\", \"bore\", \"torn\"].",
   "starter_code": "def solve(start: str, target: str, words: list[str], part: int):\n    # TODO: implement the requested part\n    pass\n",
   "example": {
@@ -20,6 +33,12 @@
     "output": "True",
     "reasoning": "Changing one character at a time gives cold -> cord -> card -> ward -> warm. The target may be the final word even though it is absent from the dictionary."
   },
+  "references": [
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3eb6ce51456d8135baf1f68bd83a29fd"
+    }
+  ],
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
@@ -29,5 +48,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
 }

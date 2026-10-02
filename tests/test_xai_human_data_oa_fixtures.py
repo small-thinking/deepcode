@@ -39,9 +39,9 @@ class XaiHumanDataOAFixtureTest(unittest.TestCase):
         for slug in SLUGS:
             with self.subTest(slug=slug):
                 problem = store.get_problem(slug)
-                self.assertIn("xAI", problem["companies"])
+                self.assertIn("SpaceX AI", problem["companies"])
                 self.assertIn(SOURCE, {ref["url"] for ref in problem["references"]})
-                frequency = problem["interview_frequency"]["xAI"]
+                frequency = problem["interview_frequency"]["SpaceX AI"]
                 self.assertEqual(frequency["stars"], 1)
                 self.assertEqual(len(frequency["source_record_ids"]), 1)
                 notion_ids.update(frequency["source_record_ids"])

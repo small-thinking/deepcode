@@ -12,7 +12,7 @@
     "rebalancing"
   ],
   "companies": [
-    "xAI",
+    "SpaceX AI",
     "Airbnb"
   ],
   "prompt": "Design a distributed key-value store with `put(key, value)`, `get(key)`, and `delete(key)`. Data must remain durable through node failures, and the service must add capacity while serving traffic.\n\nChoose a consistency contract for single-key operations. Explain routing, storage, replication, recovery, and capacity growth, including behavior during network partitions. Discuss the trade-offs of extending the service across regions.",

@@ -12,7 +12,7 @@
     "hash-map"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Implement a weighted least-recently-used cache. Capacity is measured by the sum of entry weights, not by entry count.\n\nCreate `WeightedLRUCache(capacity)` with:\n\n- `get(key) -> int | None`: return the stored integer or `None` when absent. A hit makes the key most recently used.\n- `put(key, value, weight)`: insert or replace an entry. A successful insert or replacement makes the key most recently used.\n\nKeys are strings, values are integers, and capacity and weights are positive integers. Raise an error for an invalid capacity or weight. If a new weight is greater than capacity, raise an error *before changing the cache*; existing entries must remain intact.\n\nWhen an insertion would exceed capacity, evict least-recently-used entries until the weighted total fits. A replacement counts only its new weight and is most recently used before any necessary evictions. `get` and a non-evicting `put` should be O(1); evicting `k` entries may take O(k).\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "from collections import OrderedDict\n\n\nclass WeightedLRUCache:\n    def __init__(self, capacity):\n        pass\n\n    def get(self, key):\n        # Return None for a missing key and promote a hit to MRU.\n        pass\n\n    def put(self, key, value, weight):\n        # Insert or replace one value, evicting LRU entries when necessary.\n        pass\n",
@@ -30,5 +30,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

@@ -4,8 +4,28 @@
   "title": "Logger Rate Limiter",
   "category": "Systems Coding",
   "difficulty": "easy",
-  "tags": ["hash-map", "stateful", "cooldown", "rate-limiting"],
-  "companies": ["Reddit"],
+  "tags": [
+    "hash-map",
+    "stateful",
+    "cooldown",
+    "rate-limiting"
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "interview_frequency": {
+    "Reddit": {
+      "source_record_ids": [
+        "3eb6ce51456d81dd93faf9185982ca7e"
+      ],
+      "stars": 0,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-01"
+  },
   "prompt": "Design a logger system that receives a stream of messages with timestamps. The system enforces a 10-second cooldown: if an identical message was printed within the last 10 seconds, suppress the current message. Otherwise allow it and record its timestamp as the most recent printed time.\n\nImplement the Logger class.\n\nLogger() initializes the logger object.\nshouldPrintMessage(timestamp: int, message: str) -> bool returns True if the message should be printed at the given timestamp, and False otherwise.\n\nConstraints:\n\n- 0 <= timestamp <= 10^9.\n- 1 <= message.length <= 30.\n- message contains lowercase English letters only.\n- Timestamps are supplied in non-decreasing order across calls.\n- At most 10^4 calls are made to shouldPrintMessage.\n\nTarget: O(1) time and O(m) space.",
   "starter_code": "class Logger:\n    def __init__(self):\n        # TODO: initialize your data structures here\n        pass\n\n    def shouldPrintMessage(self, timestamp: int, message: str) -> bool:\n        # TODO: implement the 10-second cooldown logic\n        pass\n",
   "example": {
@@ -13,6 +33,12 @@
     "output": "[null, true, true, false, true, true]",
     "reasoning": "The logger suppresses hello at timestamp 7 because it was printed at timestamp 1; the calls at timestamps 12 and 15 are allowed."
   },
+  "references": [
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3eb6ce51456d81dd93faf9185982ca7e"
+    }
+  ],
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
@@ -22,5 +48,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
 }

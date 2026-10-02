@@ -99,14 +99,14 @@ class ApiTest(unittest.TestCase):
                 ApiContext(store=store),
                 "GET",
                 "/api/problems",
-                {"company": ["SpaceXAI / xAI-related roles"]},
+                {"company": ["SpaceX AI"]},
                 None,
             )
 
             self.assertEqual(status, 200)
             self.assertEqual([problem["slug"] for problem in payload["problems"]], ["spacex", "xai"])
-            self.assertEqual(payload["companies"], ["SpaceXAI / xAI-related roles"])
-            self.assertEqual(payload["company_counts"], {"SpaceXAI / xAI-related roles": 2})
+            self.assertEqual(payload["companies"], ["SpaceX AI"])
+            self.assertEqual(payload["company_counts"], {"SpaceX AI": 2})
 
     def test_lists_problems_in_requested_sort_direction(self):
         with tempfile.TemporaryDirectory() as tmp:

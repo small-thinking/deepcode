@@ -12,7 +12,7 @@
     "data-structures"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Implement a compressed radix tree for non-empty sequences of integers. Unlike an ordinary trie, each edge stores a list of one or more integers. A node's terminal flag records whether a complete sequence was inserted there; a structural prefix alone is not a stored sequence.\n\nImplement `RadixCache` with:\n\n- `insert(sequence)`\n- `search(sequence) -> bool` for exact membership\n- `prefix_match(sequence) -> list[int]` for the longest inserted sequence that is a prefix of the query\n- `get_all_sequences() -> list[list[int]]`\n\nInsertion is idempotent. An empty sequence is a no-op and is never stored. Reject a non-list input or an element that is not an integer with an error. Copy input data so mutating the caller's list cannot change the cache.\n\n`prefix_match` may return only a complete terminal sequence: a query ending in the middle of an edge does not qualify. Return all stored sequences in lexicographic order for deterministic output.\n\nAim for O(L) work for search, prefix matching, and an insertion path of length L, aside from copying the edge fragments created by a split.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class _Node:\n    def __init__(self):\n        self.children = {}\n        self.terminal = False\n\n\nclass RadixCache:\n    def __init__(self):\n        pass\n\n    def insert(self, sequence):\n        pass\n\n    def search(self, sequence):\n        pass\n\n    def prefix_match(self, sequence):\n        pass\n\n    def get_all_sequences(self):\n        pass\n",
@@ -30,5 +30,29 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "references": [
+    {
+      "label": "Original xAI candidate report: 1Point3Acres 1146398 (compressed insert core)",
+      "url": "https://www.1point3acres.com/interview/thread/1146398"
+    },
+    {
+      "label": "SpaceX AI canonical interview record (search and enumeration are practice extensions)",
+      "url": "https://app.notion.com/p/3ed6ce51456d814c9074f9269363d068"
+    }
+  ],
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ed6ce51456d814c9074f9269363d068"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "background_note": "The original xAI report specifies compressed-radix insert milestones. Search, prefix matching, enumeration, validation, and ordering APIs in this exercise are local practice extensions."
 }

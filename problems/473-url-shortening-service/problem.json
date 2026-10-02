@@ -4,10 +4,18 @@
   "title": "Design a URL Shortening Service",
   "category": "System Design",
   "difficulty": "medium",
-  "tags": ["system-design", "redirects", "storage"],
-  "companies": ["xAI"],
+  "tags": [
+    "system-design",
+    "redirects",
+    "storage"
+  ],
+  "companies": [
+    "SpaceX AI"
+  ],
   "prompt": "Design a service that turns a long URL into a short URL and redirects visitors from the short URL to its destination. Start by clarifying the product behavior and expected usage, then explain your API, data model, code generation, request path, and how you would handle failures and growth.",
-  "evaluation": {"type": "system_design"},
+  "evaluation": {
+    "type": "system_design"
+  },
   "response": {
     "placeholder": "State your assumptions, then describe the design and key tradeoffs.",
     "reference_answer": "## Assumptions\nFor practice, assume anyone may create links, redirects greatly outnumber creations, and links persist unless the product explicitly supports expiry or removal. The interview report names only the URL-shortener task; these assumptions and any scale estimates must be confirmed with the interviewer.\n\n## Core flow\nExpose a create endpoint that validates a destination and stores a mapping from a unique short code to the long URL. A redirect endpoint looks up the code, handles missing or expired entries, and returns a redirect. Choose a code-generation policy: allocated IDs encoded compactly avoid collisions but expose sequence, while random codes need a uniqueness constraint and retry. Define whether repeated long URLs reuse a code and whether custom aliases are supported.\n\n## Storage and growth\nKeep the durable code-to-destination mapping authoritative. Cache popular codes for the read-heavy redirect path; partition by code when storage or traffic grows, and ensure cache invalidation follows edits or expiry. Keep analytics asynchronous so click recording does not delay redirects. Discuss capacity and latency only after choosing concrete traffic and retention assumptions.\n\n## Reliability and safety\nDecide between temporary and permanent redirects based on whether destinations can change and whether browser caching is acceptable. Handle code collisions, unknown codes, storage/cache outages, abuse, and harmful destinations. Test creation, duplicate/alias policies, redirects, expiry if offered, and failure recovery. This is a practice answer, not a reported interview solution."
@@ -24,8 +32,10 @@
   ],
   "created_at": "2026-10-01",
   "interview_frequency": {
-    "xAI": {
-      "source_record_ids": ["3e46ce51456d81568467cff51f0f3c23"],
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3e46ce51456d81568467cff51f0f3c23"
+      ],
       "stars": 1,
       "synced_at": "2026-10-01"
     }

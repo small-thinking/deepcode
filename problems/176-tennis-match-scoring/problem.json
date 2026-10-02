@@ -6,6 +6,19 @@
   "difficulty": "hard",
   "tags": ["state-machine", "object-modeling", "simulation", "game-engine", "rules"],
   "companies": ["Reddit"],
+  "interview_frequency": {
+    "Reddit": {
+      "source_record_ids": [
+        "3eb6ce51456d818c95e9d9f56af09a4e"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
   "prompt": "Create an object-oriented tennis scoring system whose rules are introduced in stages.\n\nPart 1: represent one tennis game. Use the standard display 0 / 15 / 30 / 40 / game. When both players reach 40, the score is deuce. From deuce, a player needs a two-point lead to take the game, passing through advantage when appropriate. Provide an operation to record a point for a named player and another to obtain the current displayed score.\n\nPart 2: build set management on top of completed games. The first player to reach at least 6 games while ahead by 2 or more wins the set. At 6-6, start a tiebreak; its winner must reach at least 7 points and lead by 2.\n\nPart 3: extend the design to best-of-three or best-of-five matches. Maintain sets won by each player, expose current match status, and mark the match finished when a player reaches ceil(N / 2) set victories.\n\nExamples: in a new game, recording A, A, B, B, A produces 40-30. Recording A, A, A, B, B, B, A, B, B produces advantage B. Giving A and B six games each and then seven tiebreak points to A produces set score 7-6, with A winning the set.",
   "starter_code": "class Game:\n    def record_point(self, player: str) -> None:\n        # TODO: implement\n        pass\n\n    def get_score(self) -> str:\n        # TODO: implement\n        return \"\"\n\n\nclass Set:\n    def record_point(self, player: str) -> None:\n        # TODO: implement\n        pass\n\n    def get_score(self) -> str:\n        # TODO: implement\n        return \"\"\n\n    def is_finished(self) -> bool:\n        # TODO: implement\n        return False\n\n    def get_winner(self) -> str | None:\n        # TODO: implement\n        return None\n\n\nclass Match:\n    def __init__(self, best_of: int = 3) -> None:\n        # TODO: implement\n        pass\n\n    def record_point(self, player: str) -> None:\n        # TODO: implement\n        pass\n\n    def get_score(self) -> str:\n        # TODO: implement\n        return \"\"\n\n    def is_finished(self) -> bool:\n        # TODO: implement\n        return False\n",
   "example": {
@@ -13,6 +26,16 @@
     "output": "40-30",
     "reasoning": "A earns two points to reach 30, B earns two points, and A's final point moves the score to 40-30."
   },
+  "references": [
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3eb6ce51456d818c95e9d9f56af09a4e"
+    },
+    {
+      "label": "Original 1Point3Acres interview report (1179997)",
+      "url": "https://www.1point3acres.com/bbs/thread-1179997-1-1.html"
+    }
+  ],
   "environment": {
     "language": "python",
     "timeout_seconds": 3,

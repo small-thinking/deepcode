@@ -10,7 +10,7 @@
     "ring-traversal"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Implement `sort_concentric_borders(matrix)` for a nonempty `n × n` matrix of integers. Sort the values on each concentric border independently. Start at the upper-left corner of each border and write its sorted values in ascending order while walking clockwise: top edge left to right, right edge top to bottom, bottom edge right to left, then left edge bottom to top. Return a new matrix and leave the input unchanged. For odd `n`, the center cell is a one-cell border.",
   "starter_code": "def sort_concentric_borders(matrix):\n    # Return a new matrix with each border independently sorted.\n    pass\n",
@@ -29,7 +29,7 @@
     "type": "ml_modeling"
   },
   "interview_frequency": {
-    "xAI": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3ed6ce51456d813aa2e2ff492f66d003"
       ],

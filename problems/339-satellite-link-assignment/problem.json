@@ -11,10 +11,10 @@
     "geometry"
   ],
   "companies": [
-    "SpaceX"
+    "SpaceX AI"
   ],
   "interview_frequency": {
-    "SpaceX": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3bd6ce51456d81f38241f1d9871ae3de"
       ],
@@ -44,5 +44,6 @@
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3bd6ce51456d81f38241f1d9871ae3de"
     }
-  ]
+  ],
+  "background_note": "The canonical source concerns a historical SpaceX interview. The catalog groups its company label under SpaceX AI; this source is not evidence that xAI asked the same question."
 }

@@ -49,6 +49,11 @@
     {
       "label": "Notion interview record (original source not recorded)",
       "url": "https://app.notion.com/p/37b6ce51456d81cbaa76e35fa0b66765"
+    },
+    {
+      "label": "Related original Runway report — file-fit/generate variant; local API differs",
+      "url": "https://www.1point3acres.com/bbs/thread-1140478-1-1.html",
+      "source_kind": "related_interview_report"
     }
   ],
   "environment": {

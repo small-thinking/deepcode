@@ -12,7 +12,7 @@
     "stateful"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Implement an in-memory key-value store with arbitrarily nested transactions. Keys are strings and values may be any Python object, including `None`.\n\nImplement:\n\n- `get(key) -> object | None`\n- `contains(key) -> bool`\n- `set(key, value)`\n- `delete(key)`\n- `begin()`\n- `commit()`\n- `rollback()`\n\nWith no active transaction, `set` and `delete` change committed state immediately. Each `begin` opens a nested transaction. Reads reflect the latest visible write or deletion: `set('k', None)` creates a present key whose `get` result is `None`, while `delete('k')` makes `contains('k')` false.\n\nAn inner `commit` merges its changes into its parent only. Therefore an outer `rollback` must still discard changes that a child committed. An outermost `commit` makes its changes permanent. `rollback` discards only the active transaction. Calling `commit` or `rollback` with no active transaction raises `RuntimeError`; non-string keys raise an error.\n\nFor a single-threaded implementation, target O(1) begin and rollback, O(transaction depth) reads, and commit work proportional to the keys changed in the active transaction.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class TransactionalKVStore:\n    def __init__(self):\n        pass\n\n    def get(self, key):\n        pass\n\n    def contains(self, key):\n        pass\n\n    def set(self, key, value):\n        pass\n\n    def delete(self, key):\n        pass\n\n    def begin(self):\n        pass\n\n    def commit(self):\n        pass\n\n    def rollback(self):\n        pass\n",
@@ -30,5 +30,29 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "references": [
+    {
+      "label": "Original xAI candidate report: Aced Senior Safety interview (set and nested transactions)",
+      "url": "https://www.tryexponent.com/experiences/x-ai-senior-software-engineer-interview-3c2a0d"
+    },
+    {
+      "label": "SpaceX AI canonical interview record (read, delete, and error semantics are practice extensions)",
+      "url": "https://app.notion.com/p/3ed6ce51456d810cb1c3ea363b221974"
+    }
+  ],
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ed6ce51456d810cb1c3ea363b221974"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "background_note": "The original xAI report covers set/start/commit/abort with nested transactions as a follow-up. Additional methods and detailed error/value semantics in this exercise are practice choices."
 }

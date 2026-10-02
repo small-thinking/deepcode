@@ -4,8 +4,16 @@
   "title": "Live Room Activity Tracker",
   "category": "Systems Coding",
   "difficulty": "medium",
-  "tags": ["event-processing", "sessions", "streaming", "top-k", "stateful"],
-  "companies": ["xAI"],
+  "tags": [
+    "event-processing",
+    "sessions",
+    "streaming",
+    "top-k",
+    "stateful"
+  ],
+  "companies": [
+    "SpaceX AI"
+  ],
   "prompt": "Build two related utilities for live audio rooms.\n\n### Part 1: accumulated participant time\n\nImplement `calculate_active_time(events, current_time=None)`. Each event is `[action, room_id, user_id, timestamp]`, where `action` is `create`, `join`, or `leave`. A create event also starts its creator's session. Return the total participant-seconds per room: overlapping participants contribute independently, so this is not a union-of-time calculation.\n\nEvents may be unordered; process them by timestamp while preserving input order for equal timestamps. Ignore duplicate copies of the exact same event. A leave without an open session is ignored. A user may leave and later join again, creating another interval. If `current_time` is supplied, close every remaining open session at that time; otherwise omit unfinished sessions. Return only rooms with at least one completed interval.\n\n### Part 2: current room population\n\nImplement `LiveRoomTracker`. `process_event(action, room_id, user_id, timestamp)` consumes one arriving event. `get_top_k(k)` returns up to `k` `(room_id, active_user_count)` pairs for nonempty rooms, ordered by descending count and then ascending room ID. An unmatched leave and a duplicate active event for an already active `(room_id, user_id)` are no-ops.\n\nThe timestamp is retained in the streaming API for a realistic event contract; Part 2 reports current membership rather than time-windowed membership.",
   "starter_code": "def calculate_active_time(events, current_time=None):\n    # Return completed participant-seconds by room.\n    pass\n\n\nclass LiveRoomTracker:\n    def __init__(self):\n        pass\n\n    def process_event(self, action, room_id, user_id, timestamp):\n        pass\n\n    def get_top_k(self, k):\n        pass\n",
   "example": {
@@ -22,5 +30,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

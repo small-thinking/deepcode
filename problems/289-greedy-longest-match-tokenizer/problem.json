@@ -12,7 +12,7 @@
   ],
   "companies": [
     "Anthropic",
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Build a tokenizer for text using a vocabulary of nonempty strings. Implement `tokenize_longest_match(text, vocabulary, unknown='<UNK>') -> list[str]`. Scan left to right. At each position, emit the longest vocabulary token that matches there; if none matches, emit `unknown` and advance by one character. Return the token strings in order. The empty vocabulary is allowed, and empty text returns an empty list. Matching is case-sensitive on the original Unicode characters. Avoid testing every vocabulary entry at every position.",
   "starter_code": "def tokenize_longest_match(text, vocabulary, unknown='<UNK>'):\n    # Emit maximal-munch vocabulary tokens, or unknown for one unmatched character.\n    pass\n",
@@ -46,7 +46,7 @@
     }
   ],
   "interview_frequency": {
-    "xAI": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3ed6ce51456d81e2bd6cf3a9da3d8e80"
       ],

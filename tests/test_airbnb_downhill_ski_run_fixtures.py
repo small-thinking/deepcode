@@ -15,14 +15,12 @@ class AirbnbDownhillSkiRunFixtureTest(unittest.TestCase):
     def test_reference_solution_passes_all_downhill_ski_run_cases(self):
         problem = ProblemStore(ROOT / "problems").get_problem("longest-downhill-ski-run")
         self.assertEqual(problem["companies"], ["Airbnb"])
-        self.assertEqual(
+        self.assertIn(
+            {
+                "label": "PracHub: Airbnb downhill ski-run interview question",
+                "url": "https://prachub.com/interview-questions/find-best-downhill-ski-run-from-a-start",
+            },
             problem["references"],
-            [
-                {
-                    "label": "PracHub: Airbnb downhill ski-run interview question",
-                    "url": "https://prachub.com/interview-questions/find-best-downhill-ski-run-from-a-start",
-                }
-            ],
         )
         result = evaluate_submission(
             EvaluationRequest(

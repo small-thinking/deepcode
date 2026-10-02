@@ -15,6 +15,33 @@
   "companies": [
     "Harvey"
   ],
+  "interview_frequency": {
+    "Harvey": {
+      "source_record_ids": [
+        "3ed6ce51456d811f81ebf096f310b163"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "references": [
+    {
+      "label": "Original Harvey onsite interview report (law-firm memo AI agent)",
+      "url": "https://www.1point3acres.com/interview/thread/1180969"
+    },
+    {
+      "label": "Related 1Point3Acres memo-agent study page (editorial)",
+      "url": "https://www.1point3acres.com/interview/post/7100507"
+    },
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3ed6ce51456d811f81ebf096f310b163"
+    }
+  ],
   "prompt": "Design a research assistant that discovers public professional memoranda from an approved source catalog and answers questions with citations. New material should become searchable within hours. Online answers are latency-sensitive, but consumer-scale throughput is not required.\n\nDescribe discovery, ingestion, searchable storage, and the question-to-answer path. Explain updates, failed imports, source/date filters, citation verification, and insufficient-evidence behavior. Model training, private authenticated sources, and conversation memory are out of scope.",
   "response": {
     "placeholder": "Start by fixing the public-source boundary and answer contract. Then separate a polite, versioned ingestion pipeline from hybrid retrieval and explain why citations are evidence references rather than guarantees.",

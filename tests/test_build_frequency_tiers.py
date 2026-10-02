@@ -76,3 +76,19 @@ class BuildFrequencyTiersTest(unittest.TestCase):
         entry = plan["problems"]["toy"]
         self.assertEqual(entry["companies"], ["Google DeepMind"])
         self.assertEqual(entry["interview_frequency"]["Google DeepMind"]["stars"], 1)
+
+    def test_merges_legacy_space_labels_before_calculating_stars(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder = root / "toy"
+            folder.mkdir()
+            (folder / "problem.json").write_text('{"slug":"toy","companies":["SpaceX AI"]}')
+            plan = build_plan([
+                {"record_id":"old-xai","company":"xAI","seen_count":3,"slug":"toy"},
+                {"record_id":"old-spacex","company":"SpaceX","seen_count":3,"slug":"toy"},
+            ], root, "2026-10-02")
+        entry = plan["problems"]["toy"]
+        self.assertEqual(entry["companies"], ["SpaceX AI"])
+        self.assertEqual(set(entry["interview_frequency"]), {"SpaceX AI"})
+        self.assertEqual(entry["interview_frequency"]["SpaceX AI"]["stars"], 3)
+        self.assertEqual(entry["interview_frequency_total"]["stars"], 3)

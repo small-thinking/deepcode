@@ -12,7 +12,7 @@
     "failover"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Design a quota service for an API platform with different per-user sustained limits and burst allowances. Gateways submit a user identity and token cost; the service returns an atomic allow/deny decision and retry guidance.\n\nExplain how quotas are enforced across gateways, how policy changes take effect, and what happens during failures or partitions. State whether enforcement is strict or approximate and quantify any allowed overshoot.",
   "response": {

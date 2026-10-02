@@ -24,6 +24,10 @@ REQUIRED_KEYS = {"record_id", "company", "seen_count", "slug"}
 LEGACY_COMPANY_LABELS = {
     "gdm": "Google DeepMind",
     "mistraai": "Mistral AI",
+    "xai": "SpaceX AI",
+    "spacex": "SpaceX AI",
+    "spacexai": "SpaceX AI",
+    "spacexai / xai-related roles": "SpaceX AI",
 }
 
 
