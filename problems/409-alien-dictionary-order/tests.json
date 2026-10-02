@@ -1,17 +1,122 @@
 [
   {
-    "name": "returns a complete order satisfying all adjacent constraints",
+    "name": "recovers the unique order across several word pairs",
     "input": "['wrt', 'wrf', 'er', 'ett', 'rftt']",
-    "test": "words=['wrt','wrf','er','ett','rftt']\norder=alien_order(words)\nassert set(order)==set('wertf') and len(order)==5\npos={c:i for i,c in enumerate(order)}\nassert pos['w']<pos['e']<pos['r']<pos['t']<pos['f']"
+    "test": "words = ['wrt', 'wrf', 'er', 'ett', 'rftt']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
   },
   {
-    "name": "detects cycles and invalid prefix ordering",
-    "input": "cyclic constraints and a longer word before its prefix",
-    "test": "assert alien_order(['z','x','z'])==''\nassert alien_order(['abc','ab'])==''"
+    "name": "single character needs no precedence evidence",
+    "input": "['z']",
+    "test": "words = ['z']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
   },
   {
-    "name": "includes unconstrained characters and ignores duplicate edges",
-    "input": "independent letters plus repeated precedence evidence",
-    "test": "for words in [['za','zb','ca','cb'],['abc'],['a','a']]:\n order=alien_order(words)\n assert len(order)==len(set(''.join(words))) and set(order)==set(''.join(words))\n pos={c:i for i,c in enumerate(order)}\n for first,second in zip(words,words[1:]):\n  for a,b in zip(first,second):\n   if a!=b:\n    assert pos[a]<pos[b]; break"
+    "name": "single word keeps distinct letters without ordering its contents",
+    "input": "['cbacbc']",
+    "test": "words = ['cbacbc']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "identical repeated words do not create self edges",
+    "input": "['aba', 'aba', 'aba']",
+    "test": "words = ['aba', 'aba', 'aba']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "repeated single-letter words still produce one character",
+    "input": "['a', 'a']",
+    "test": "words = ['a', 'a']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "valid prefix chain introduces no precedence edges",
+    "input": "['c', 'ca', 'cab', 'caba']",
+    "test": "words = ['c', 'ca', 'cab', 'caba']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "identical neighbors preserve surrounding constraints",
+    "input": "['a', 'a', 'b', 'b', 'c']",
+    "test": "words = ['a', 'a', 'b', 'b', 'c']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "rejects a longer word immediately before its prefix",
+    "input": "['abc', 'ab']",
+    "test": "words = ['abc', 'ab']\norder = alien_order(words)\nassert order == \"\", \"No alphabet can sort these words\""
+  },
+  {
+    "name": "rejects a prefix violation after valid earlier comparisons",
+    "input": "['a', 'bc', 'b']",
+    "test": "words = ['a', 'bc', 'b']\norder = alien_order(words)\nassert order == \"\", \"No alphabet can sort these words\""
+  },
+  {
+    "name": "rejects a prefix violation even with duplicate neighbors",
+    "input": "['ab', 'ab', 'a']",
+    "test": "words = ['ab', 'ab', 'a']\norder = alien_order(words)\nassert order == \"\", \"No alphabet can sort these words\""
+  },
+  {
+    "name": "uses only the first mismatch even when later letters reverse it",
+    "input": "['ab', 'ba']",
+    "test": "words = ['ab', 'ba']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "different word lengths are valid when a mismatch decides order",
+    "input": "['abca', 'bc']",
+    "test": "words = ['abca', 'bc']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "finds the first mismatch after a long shared prefix",
+    "input": "['aaaaaaaaaaaac', 'aaaaaaaaaaaab']",
+    "test": "words = ['aaaaaaaaaaaac', 'aaaaaaaaaaaab']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "deduplicates the same edge inferred from different word pairs",
+    "input": "['za', 'zb', 'ca', 'cb']",
+    "test": "words = ['za', 'zb', 'ca', 'cb']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "includes letters appearing only in equal prefixes or ignored suffixes",
+    "input": "['xaz', 'xbz']",
+    "test": "words = ['xaz', 'xbz']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "allows independent precedence components to interleave",
+    "input": "['za', 'zb', 'yc', 'yd']",
+    "test": "words = ['za', 'zb', 'yc', 'yd']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "waits for both branches before releasing a diamond successor",
+    "input": "['aa', 'ab', 'cb', 'cd', 'dd']",
+    "test": "words = ['aa', 'ab', 'cb', 'cd', 'dd']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "handles a direct constraint also implied by a longer path",
+    "input": "['aa', 'ab', 'ac', 'ba', 'bc']",
+    "test": "words = ['aa', 'ab', 'ac', 'ba', 'bc']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "rejects a two-character precedence cycle",
+    "input": "['z', 'x', 'z']",
+    "test": "words = ['z', 'x', 'z']\norder = alien_order(words)\nassert order == \"\", \"No alphabet can sort these words\""
+  },
+  {
+    "name": "rejects a longer cycle without a directly reversed edge",
+    "input": "['a', 'b', 'c', 'a']",
+    "test": "words = ['a', 'b', 'c', 'a']\norder = alien_order(words)\nassert order == \"\", \"No alphabet can sort these words\""
+  },
+  {
+    "name": "rejects a cycle even when an independent component can finish",
+    "input": "['xa', 'xb', 'ya', 'yb', 'yc', 'ya']",
+    "test": "words = ['xa', 'xb', 'ya', 'yb', 'yc', 'ya']\norder = alien_order(words)\nassert order == \"\", \"No alphabet can sort these words\""
+  },
+  {
+    "name": "rejects a cycle reached from an initially available character",
+    "input": "['a', 'b', 'c', 'b']",
+    "test": "words = ['a', 'b', 'c', 'b']\norder = alien_order(words)\nassert order == \"\", \"No alphabet can sort these words\""
+  },
+  {
+    "name": "orders all 26 letters in reverse of the English alphabet",
+    "input": "['z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']",
+    "test": "words = ['z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
+  },
+  {
+    "name": "keeps all 26 unconstrained letters from a single word",
+    "input": "['zyxwvutsrqponmlkjihgfedcba']",
+    "test": "words = ['zyxwvutsrqponmlkjihgfedcba']\norder = alien_order(words)\nassert isinstance(order, str), \"Return a string\"\ncharacters = set(\"\".join(words))\nassert len(order) == len(characters) and set(order) == characters, \"Include every distinct character exactly once\"\nposition = {char: index for index, char in enumerate(order)}\nfor first, second in zip(words, words[1:]):\n    for left, right in zip(first, second):\n        if left != right:\n            assert position[left] < position[right], f\"{left} must precede {right}\"\n            break\n    else:\n        assert len(first) <= len(second), \"A longer word cannot precede its prefix\""
   }
 ]
