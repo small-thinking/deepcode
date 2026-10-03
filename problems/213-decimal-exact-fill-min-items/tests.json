@@ -13,5 +13,60 @@
     "name": "handles duplicate values without treating them as single-use",
     "input": "duplicate available durations and a target needing repeated use",
     "test": "assert min_exact_items([1.5, 1.5, 4.0], 8.0) == 2\nassert min_exact_items([4.0], 12.0) == 3"
+  },
+  {
+    "name": "handles empty options for zero and positive targets",
+    "input": "no available experiences and both zero and positive layovers",
+    "test": "assert min_exact_items([], 0.0) == 0\nassert min_exact_items([], 2.5) == 0"
+  },
+  {
+    "name": "uses one exact experience when available",
+    "input": "an exact single-duration match among shorter alternatives",
+    "test": "assert min_exact_items([2.5, 4.0, 5.5], 5.5) == 1"
+  },
+  {
+    "name": "ignores durations above the target while keeping usable choices",
+    "input": "a duration above the target alongside a reusable exact option",
+    "test": "assert min_exact_items([1.0, 4.0], 2.0) == 2"
+  },
+  {
+    "name": "returns zero when every duration exceeds the target",
+    "input": "all positive durations are larger than the layover",
+    "test": "assert min_exact_items([4.0, 5.5], 3.5) == 0"
+  },
+  {
+    "name": "finds a short exact fill after the largest choice dead-ends",
+    "input": "a largest-first greedy choice cannot complete the target",
+    "test": "assert min_exact_items([7.0, 6.0, 4.0], 12.0) == 2"
+  },
+  {
+    "name": "finds a smaller fill than largest-first greedy",
+    "input": "a greedy solution reaches the target but uses more experiences than necessary",
+    "test": "assert min_exact_items([1.0, 3.0, 4.0], 6.0) == 2"
+  },
+  {
+    "name": "detects impossible fills even when the duration gcd divides the target",
+    "input": "a target divisible by the common divisor but outside the reachable sums",
+    "test": "assert min_exact_items([6.0, 10.0], 14.0) == 0"
+  },
+  {
+    "name": "treats decimal sums exactly and reuses a duration",
+    "input": "decimal values whose binary floating-point sum differs from the target",
+    "test": "assert min_exact_items([0.1, 0.2], 0.3) == 2\nassert min_exact_items([0.1], 0.3) == 3"
+  },
+  {
+    "name": "handles decimal values around eight and twelve hours exactly",
+    "input": "one-decimal durations and target whose direct float sum can round differently",
+    "test": "assert min_exact_items([4.1, 8.2], 12.3) == 2"
+  },
+  {
+    "name": "keeps duplicate reusable values and input order from changing the minimum",
+    "input": "the same choices in a different order with a repeated exact duration",
+    "test": "assert min_exact_items([1.2, 2.4, 2.4], 4.8) == 2\nassert min_exact_items([2.4, 1.2, 2.4], 4.8) == 2"
+  },
+  {
+    "name": "fills a moderate target with the fewest mixed decimal durations",
+    "input": "a larger exact decimal target requiring dynamic programming beyond a single duration",
+    "test": "assert min_exact_items([7.3, 4.1, 2.8], 100.0) == 18"
   }
 ]
