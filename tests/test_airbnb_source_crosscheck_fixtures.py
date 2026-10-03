@@ -57,11 +57,9 @@ class AirbnbSourceCrosscheckFixtureTest(unittest.TestCase):
                 "https://www.1point3acres.com/interview/thread/1171020",
             },
             "cover-photo-conversion-evaluation": {
-                "https://www.1point3acres.com/interview/thread/1162688",
                 "https://www.1point3acres.com/interview/thread/1171020",
             },
             "listing-quality-evaluation-design": {
-                "https://www.1point3acres.com/interview/thread/1162688",
                 "https://www.1point3acres.com/interview/thread/1171020",
             },
             "airbnb-motivation-reflection": {
