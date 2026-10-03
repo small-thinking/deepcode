@@ -2,7 +2,7 @@
   "id": "152",
   "slug": "max-distinct-after-operations",
   "title": "Maximize Distinct Values After Bounded Adjustments",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "greedy",

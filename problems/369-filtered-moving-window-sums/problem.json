@@ -2,7 +2,7 @@
   "id": "369",
   "slug": "filtered-moving-window-sums",
   "title": "Filtered Timestamped Moving-Window Sums",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "sliding-window",

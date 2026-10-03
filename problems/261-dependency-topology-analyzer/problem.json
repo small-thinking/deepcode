@@ -2,7 +2,7 @@
   "id": "261",
   "slug": "dependency-topology-analyzer",
   "title": "Dependency Topology Analyzer",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "graphs",

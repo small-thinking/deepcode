@@ -2,7 +2,7 @@
   "id": "175",
   "slug": "memcached-protocol-parser",
   "title": "Pseudo-Memcached Protocol Server",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "protocol",

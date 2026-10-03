@@ -2,7 +2,7 @@
   "id": "145",
   "slug": "distributed-token-bucket-rate-limiter",
   "title": "Distributed Token-Bucket Rate Limiter",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "rate-limiting",

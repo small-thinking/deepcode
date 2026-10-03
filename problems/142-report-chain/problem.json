@@ -2,7 +2,7 @@
   "id": "142",
   "slug": "report-chain",
   "title": "Report Chain",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": ["tree", "hierarchy", "dfs", "lowest-common-ancestor", "low-level-design", "reddit"],
   "companies": ["Reddit"],

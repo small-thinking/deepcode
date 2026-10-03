@@ -2,7 +2,7 @@
   "id": "171",
   "slug": "message-cooldown-logger",
   "title": "Logger Rate Limiter",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "easy",
   "tags": [
     "hash-map",

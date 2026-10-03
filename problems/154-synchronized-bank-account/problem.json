@@ -2,7 +2,7 @@
   "id": "154",
   "slug": "synchronized-bank-account",
   "title": "Synchronized Bank Account Wrapper",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "concurrency",

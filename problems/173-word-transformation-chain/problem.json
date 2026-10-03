@@ -2,7 +2,7 @@
   "id": "173",
   "slug": "word-transformation-chain",
   "title": "Dictionary Word Transformation Path",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "breadth-first-search",

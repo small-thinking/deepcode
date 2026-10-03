@@ -12,6 +12,25 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ArchitectureTest(unittest.TestCase):
+    def test_catalog_uses_five_task_categories(self):
+        store = ProblemStore(ROOT / "problems")
+        self.assertEqual(store.categories(), [
+            "Behavioral", "Coding", "ML Coding", "ML System Design", "System Design",
+        ])
+        expected = {
+            "text-editor": "Coding",
+            "blocking-db-connection-pool": "Coding",
+            "memcached-protocol-parser": "Coding",  # Written code, no runnable harness.
+            "ml-configuration-registry": "Coding",
+            "gpu-node-group-testing": "Coding",
+            "dynamic-batch-inference": "ML Coding",
+            "data-parallel-fsdp-matrix-multiplication": "ML Coding",
+            "multiprocessing-vs-multithreading-ml-agents": "ML System Design",
+        }
+        for slug, category in expected.items():
+            with self.subTest(slug=slug):
+                self.assertEqual(store.get_problem(slug)["category"], category)
+
     def test_backend_serves_frontend_directory(self):
         self.assertEqual(server.FRONTEND_DIR.name, "frontend")
         self.assertTrue((server.FRONTEND_DIR / "index.html").exists())

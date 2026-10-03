@@ -2,7 +2,7 @@
   "id": "114",
   "slug": "coalescing-memory-allocator",
   "title": "Coalescing Memory Allocator",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "allocator",

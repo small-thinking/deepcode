@@ -2,7 +2,7 @@
   "id": "126",
   "slug": "infection-spread-recovery",
   "title": "Infection Spread Simulation III — Recovery Timer",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": ["infection-spread", "series", "part-3", "simulation", "state-machine"],
   "companies": ["OpenAI", "Anthropic"],

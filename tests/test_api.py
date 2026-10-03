@@ -384,6 +384,34 @@ class ApiTest(unittest.TestCase):
             _, progress = handle_api_request(context, "GET", "/api/progress", {}, None)
             self.assertEqual(len(progress["events"]), 2)
 
+    def test_progress_uses_current_category_without_rewriting_activity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(root / "problems", "toy", "1", {"category": "ML System Design"})
+            store = ProblemStore(root / "problems")
+            activity = ActivityLogStore(root / "activity.json")
+            historical = store.get_problem("toy")
+            historical["category"] = "ML Systems"
+            activity.record_submission(historical, scope="full", result={"passed": 1, "total": 1})
+            removed = {**historical, "slug": "removed-problem"}
+            activity.record_submission(removed, scope="selected", result={"passed": 0, "total": 1})
+            original = activity.path.read_bytes()
+            context = ApiContext(store=store, activity_log=activity)
+
+            status, payload = handle_api_request(context, "GET", "/api/progress", {}, None)
+            self.assertEqual(status, 200)
+            events = {event["problem_slug"]: event for event in payload["events"]}
+            self.assertEqual(events["toy"]["category"], "ML System Design")
+            self.assertEqual(payload["problems"][0]["category"], "ML System Design")
+            self.assertEqual(events["removed-problem"]["category"], "ML Systems")
+            for stored in activity.list_events():
+                rendered = events[stored["problem_slug"]]
+                self.assertEqual(
+                    {key: value for key, value in rendered.items() if key != "category"},
+                    {key: value for key, value in stored.items() if key != "category"},
+                )
+            self.assertEqual(activity.path.read_bytes(), original)
+
     def test_progress_endpoint_backfills_existing_statuses_and_returns_catalog_metadata(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -2,7 +2,7 @@
   "id": "177",
   "slug": "concurrent-bill-status-tracker",
   "title": "Bill Status",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "concurrency",

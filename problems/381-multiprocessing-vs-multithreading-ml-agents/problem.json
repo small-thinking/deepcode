@@ -2,7 +2,7 @@
   "id": "381",
   "slug": "multiprocessing-vs-multithreading-ml-agents",
   "title": "Multiprocessing vs Multithreading for ML and Agent Systems",
-  "category": "ML Systems",
+  "category": "ML System Design",
   "difficulty": "medium",
   "tags": [
     "concurrency",

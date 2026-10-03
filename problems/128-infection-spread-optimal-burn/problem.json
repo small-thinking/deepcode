@@ -2,7 +2,7 @@
   "id": "128",
   "slug": "infection-spread-optimal-burn",
   "title": "Infection Spread Simulation V — Optimal Initial Burn",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": ["infection-spread", "series", "part-5", "simulation", "optimization"],
   "companies": ["OpenAI", "Anthropic"],

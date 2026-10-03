@@ -2,7 +2,7 @@
   "id": "435",
   "slug": "datadog-buffered-file-writer",
   "title": "Buffer File Writes with a Capacity Limit",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "buffer",

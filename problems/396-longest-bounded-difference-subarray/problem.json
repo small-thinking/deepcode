@@ -2,7 +2,7 @@
   "id": "396",
   "slug": "longest-bounded-difference-subarray",
   "title": "Longest Subarray with Bounded Difference",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "sliding-window",

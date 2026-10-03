@@ -2,7 +2,7 @@
   "id": "215",
   "slug": "query-parameter-decoder",
   "title": "Query Parameter Decoder",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "parsing",

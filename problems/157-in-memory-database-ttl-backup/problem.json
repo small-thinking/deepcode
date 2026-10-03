@@ -2,7 +2,7 @@
   "id": "157",
   "slug": "in-memory-database-ttl-backup",
   "title": "In-Memory Database with TTL Backups",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "key-value-store",

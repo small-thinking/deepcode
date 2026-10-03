@@ -2,7 +2,7 @@
   "id": "239",
   "slug": "blocking-db-connection-pool",
   "title": "Blocking Database Connection Pool",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "low-level-design",

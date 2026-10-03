@@ -2,7 +2,7 @@
   "id": "153",
   "slug": "gpu-node-group-testing",
   "title": "Find Faulty Nodes with Group Tests",
-  "category": "ML Systems",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "fault-isolation",

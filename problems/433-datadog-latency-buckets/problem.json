@@ -2,7 +2,7 @@
   "id": "433",
   "slug": "datadog-latency-buckets",
   "title": "Count Latencies in Fixed-Width Buckets",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "easy",
   "tags": [
     "arrays",

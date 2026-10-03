@@ -2,7 +2,7 @@
   "id": "419",
   "slug": "uber-room-progression-topk-leaderboard",
   "title": "Track Room Progression and a Top-K Leaderboard",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": ["simulation", "heaps", "leaderboard", "lazy-deletion"],
   "companies": ["Uber"],

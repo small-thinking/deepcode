@@ -2,7 +2,7 @@
   "id": "319",
   "slug": "idempotent-worker-recovery",
   "title": "Idempotent Worker Recovery",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "idempotency",

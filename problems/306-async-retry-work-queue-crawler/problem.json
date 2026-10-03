@@ -2,7 +2,7 @@
   "id": "306",
   "slug": "async-retry-work-queue-crawler",
   "title": "Async Retry Work-Queue Crawler",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "asyncio",

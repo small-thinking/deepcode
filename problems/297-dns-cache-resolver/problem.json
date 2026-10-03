@@ -2,7 +2,7 @@
   "id": "297",
   "slug": "dns-cache-resolver",
   "title": "DNS Cache Resolver with CNAME Chains",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "dns",
