@@ -1,7 +1,7 @@
 {
   "id": "213",
   "slug": "decimal-exact-fill-min-items",
-  "title": "Decimal Exact-Fill Minimum Items",
+  "title": "Airbnb Layover: Fill the Time with the Fewest Experiences",
   "category": "Coding",
   "difficulty": "medium",
   "tags": [
@@ -25,12 +25,12 @@
     "stars": 2,
     "synced_at": "2026-09-10"
   },
-  "prompt": "Implement `min_exact_items(durations, target) -> int`. Each duration and the target has at most one decimal place. Select durations with unlimited reuse and return the fewest selections whose sum is exactly `target`.\n\nReturn `0` when no exact selection exists; `target == 0` also returns `0`. Treat values exactly at their stated one-decimal precision. Duplicate duration values do not change what totals are reachable, and one duration may be selected more than once. Assume every duration is positive and the target is nonnegative.",
+  "prompt": "You have an `X`-hour layover in Paris and a list of experiences, each with a duration given to one decimal place. You may repeat an experience any number of times. Fill the layover exactly with as few experiences as possible; if no combination totals exactly `X`, book nothing.\n\nImplement `min_exact_items(durations, target) -> int`, returning that minimum count or `0` when an exact fill is impossible. For this coding exercise, assume all durations are positive, the target is nonnegative, and both have at most one decimal place. Treat tenths exactly rather than relying on binary floating-point equality. A zero target returns `0`.",
   "starter_code": "def min_exact_items(durations, target):\n    # Return the fewest reusable durations that sum to target exactly, or 0.\n    pass\n",
   "example": {
-    "input": "min_exact_items([2.5, 1.5], 6.5)",
+    "input": "min_exact_items([3.0, 2.0], 7.0)",
     "output": "3",
-    "reasoning": "Two 2.5 durations and one 1.5 duration make 6.5 with three selections."
+    "reasoning": "One 3.0-hour experience and two 2.0-hour experiences fill the seven-hour layover with three selections."
   },
   "environment": {
     "language": "python",

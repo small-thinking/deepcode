@@ -18,20 +18,16 @@
       "source_record_ids": [
         "3cf6ce51456d81d0b09dff13010393c8"
       ],
-      "stars": 2,
-      "synced_at": "2026-09-03"
+      "stars": 1,
+      "synced_at": "2026-10-03"
     }
   },
   "interview_frequency_total": {
-    "stars": 2,
-    "synced_at": "2026-09-03"
+    "stars": 1,
+    "synced_at": "2026-10-03"
   },
-  "prompt": "How would you define and detect high-quality accommodation listings? Potential signals include retention, bad reviews, cancellations, disputes, refunds, and NPS.\n\nPropose a quality measure and how it would be used. Explain data collection, prediction timing, validation, and monitoring, including how you avoid using future outcomes as input features.",
+  "prompt": "Airbnb wants to improve guest experience by identifying high-quality listings. How would you define listing quality and design an ML system to identify it?\n\nThe reported question gives no prescribed metric, label, or model; the following is practice scaffolding. First choose the action this signal would support, such as host guidance, review, a badge, or ranking. Define the decision unit, prediction time, output, and eligible population for each outcome. Explain candidate labels, data and point-in-time features, a baseline and model, serving and refresh behavior, and validation. Distinguish predictive accuracy from the effect of the action in an online test. Address missing feedback, new listings, market differences, and host safeguards. State assumptions where the report is silent.",
   "references": [
-    {
-      "label": "1Point3Acres: Airbnb ML coding report",
-      "url": "https://www.1point3acres.com/interview/thread/1162688"
-    },
     {
       "label": "1Point3Acres: Airbnb MLE interview report",
       "url": "https://www.1point3acres.com/interview/thread/1171020"
@@ -41,8 +37,8 @@
     "type": "system_design"
   },
   "response": {
-    "placeholder": "Begin with a time-bound, multi-objective definition of quality; do not collapse every reported outcome into an unexamined label.",
-    "reference_answer": "## Assumptions and target\n\nTreat listing quality as a time-bound, multi-objective estimate of guest experience and transaction reliability, not as one universal score. As an exercise assumption, define outcome windows after a completed stay and keep the listed signals separate long enough to inspect their trade-offs. Retention, reviews, cancellations, disputes, refunds, and NPS are source-reported candidate signals, not a fixed formula.\n\n## Labels and features\n\nBuild delayed labels from post-stay outcomes and freeze features as of the decision time. Exclude future reviews, support actions, and any information created after a booking from training inputs. Separate controllable listing attributes from request context and market conditions so a scarce market is not automatically judged low quality. Start with interpretable calibrated component scores or a multi-task model, using structured listing data plus permitted text or image features.\n\n## Validation and use\n\nUse time-based and market-held-out evaluation, then inspect calibration and error by listing age, geography, availability, and outcome completeness. A threshold should correspond to a concrete, reviewable action such as guidance, verification, or additional support; it should not silently become a permanent inventory-suppression rule. Test interventions against an appropriate control to distinguish score accuracy from the effect of acting on the score.\n\n## Monitoring and safeguards\n\nMonitor label delay, missingness, score drift, calibration, action rates, and downstream guest, host, and trust outcomes. Give new listings an uncertainty-aware fallback rather than treating no history as poor quality. Provide a review and appeal path, audit sensitive slices, and roll back an intervention when its guardrails worsen even if the headline score improves."
+    "placeholder": "Begin with a time-bound, multi-objective definition of quality; do not collapse every candidate signal into an unexamined label.",
+    "reference_answer": "## Assumptions and decision\n\nThe report asks how to identify quality listings to improve the guest experience; it does not specify labels or a scoring formula. For this proposed design, estimate quality before a listing is shown and tie the score to a reviewable action, such as extra verification or guidance. Separate guest stay experience from whether a booking is fulfilled, and choose outcome windows for each. Retention, reviews, cancellations, disputes, refunds, and NPS are possible practice signals to evaluate, not source-reported requirements or interchangeable labels.\n\n## Labels and features\n\nDefine eligible populations before calculating rates. Measure fulfillment failures among confirmed reservations, attributing host-caused and guest-caused cancellations separately. Measure stay issues among started stays, including early departures; a reservation that never starts has no stay-issue label. Assign refunds and disputes to the relevant fulfillment or stay issue according to their timing and cause rather than treating every refund as a booking-stage failure. Record missing feedback and label delay rather than treating them as positive outcomes. Freeze all input features at the pre-display decision time; later reviews, bookings, and support actions are outcomes, not inputs. Separate listing attributes from market and request context. Start with transparent component baselines before considering calibrated multi-task models or permitted text and image features.\n\n## Validation and use\n\nUse time-based and market-held-out evaluation, then inspect calibration and error by listing age, geography, availability, and outcome completeness. Compare any decision rule with a simple baseline and test the proposed intervention against a control: predictive accuracy alone does not establish an improvement in guest experience. Avoid automatically penalizing a new listing for lacking history.\n\n## Serving and monitoring\n\nServe the score with its uncertainty and a fallback for missing data. Monitor label delay, missingness, score drift, calibration, action rates, and downstream guest, host, and trust outcomes. Offer a review path for consequential host actions, audit relevant slices, and roll back an intervention when its guardrails worsen."
   },
   "interactive_demos": [
     {
