@@ -2,7 +2,7 @@
   "id": "176",
   "slug": "tennis-match-scoring",
   "title": "Tennis Match Scoring",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": ["state-machine", "object-modeling", "simulation", "game-engine", "rules"],
   "companies": ["Reddit"],

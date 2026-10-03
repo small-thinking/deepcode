@@ -2,7 +2,7 @@
   "id": "259",
   "slug": "ipv4-cidr-iterator",
   "title": "IPv4 CIDR Iterator",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "iterator",

@@ -2,7 +2,7 @@
   "id": "147",
   "slug": "sliding-window-rate-limiter",
   "title": "Sliding-Window Rate Limiter",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "rate-limiting",

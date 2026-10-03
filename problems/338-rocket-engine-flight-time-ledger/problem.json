@@ -2,7 +2,7 @@
   "id": "338",
   "slug": "rocket-engine-flight-time-ledger",
   "title": "Rocket Engine Flight-Time Ledger",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "event-sourcing",

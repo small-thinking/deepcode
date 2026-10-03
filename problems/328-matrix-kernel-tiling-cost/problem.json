@@ -2,7 +2,7 @@
   "id": "328",
   "slug": "matrix-kernel-tiling-cost",
   "title": "Matrix Kernel Tiling Cost Optimizer",
-  "category": "ML Systems",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
     "matrix-multiplication",

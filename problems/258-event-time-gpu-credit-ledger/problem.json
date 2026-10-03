@@ -2,7 +2,7 @@
   "id": "258",
   "slug": "event-time-gpu-credit-ledger",
   "title": "Event-Time GPU Credit Ledger",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "event-sourcing",

@@ -2,7 +2,7 @@
   "id": "155",
   "slug": "weighted-lru-cache",
   "title": "Weighted LRU Cache",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "cache",

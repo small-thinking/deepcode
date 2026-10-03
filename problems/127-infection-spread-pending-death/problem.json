@@ -2,7 +2,7 @@
   "id": "127",
   "slug": "infection-spread-pending-death",
   "title": "Infection Spread Simulation IV — Pending Death",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": ["infection-spread", "series", "part-4", "simulation", "state-machine"],
   "companies": ["OpenAI", "Anthropic"],

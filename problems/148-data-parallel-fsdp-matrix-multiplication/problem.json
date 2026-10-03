@@ -2,7 +2,7 @@
   "id": "148",
   "slug": "data-parallel-fsdp-matrix-multiplication",
   "title": "Data-Parallel and FSDP Matrix Multiplication",
-  "category": "ML Systems",
+  "category": "ML Coding",
   "difficulty": "hard",
   "tags": [
     "numpy",

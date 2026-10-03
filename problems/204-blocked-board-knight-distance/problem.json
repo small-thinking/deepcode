@@ -2,7 +2,7 @@
   "id": "204",
   "slug": "blocked-board-knight-distance",
   "title": "Blocked Board Knight Distance",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "breadth-first-search",

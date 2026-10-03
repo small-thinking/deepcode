@@ -2,7 +2,7 @@
   "id": "156",
   "slug": "dynamic-batch-inference",
   "title": "Dynamic Batch Inference Scheduler",
-  "category": "ML Systems",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
     "llm-serving",

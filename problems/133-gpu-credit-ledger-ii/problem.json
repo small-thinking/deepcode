@@ -2,7 +2,7 @@
   "id": "133",
   "slug": "gpu-credit-ledger-ii",
   "title": "GPU Credit Ledger II: Expiring Grants & Event Replay",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "event-sourcing",

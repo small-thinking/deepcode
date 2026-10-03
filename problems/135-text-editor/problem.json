@@ -2,7 +2,7 @@
   "id": "135",
   "slug": "text-editor",
   "title": "Design a Text Editor",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": ["low-level-design", "stateful", "string", "cursor", "two-stacks"],
   "companies": ["Harvey"],

@@ -2,7 +2,7 @@
   "id": "334",
   "slug": "snapshot-set-historical-reads",
   "title": "Snapshot Set with Historical Reads",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "persistent-data-structures",

@@ -2,7 +2,7 @@
   "id": "122",
   "slug": "bootloader-instruction-interpreter",
   "title": "Bootloader Instruction Interpreter",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "interpreter",

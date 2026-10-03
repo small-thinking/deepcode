@@ -2,7 +2,7 @@
   "id": "268",
   "slug": "length-prefixed-chunked-kv-store",
   "title": "Length-Prefixed Chunked Key-Value Store",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "serialization",

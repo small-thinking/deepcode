@@ -2,7 +2,7 @@
   "id": "356",
   "slug": "indexed-message-chunks",
   "title": "Split a Message into Indexed Chunks",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "strings",

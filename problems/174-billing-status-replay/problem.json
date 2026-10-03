@@ -2,7 +2,7 @@
   "id": "174",
   "slug": "billing-status-replay",
   "title": "Billing Status Replay",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": ["event-replay", "undo-redo", "stateful", "object-modeling", "transactions"],
   "companies": ["Reddit"],

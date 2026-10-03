@@ -2,7 +2,7 @@
   "id": "313",
   "slug": "concurrent-template-registry",
   "title": "Concurrent Template Registry",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "concurrency",

@@ -309,6 +309,12 @@ def _progress_payload(context: ApiContext) -> dict[str, Any]:
     if context.activity_log is not None:
         context.activity_log.backfill_problem_statuses(problems)
         events = context.activity_log.list_events()
+        # Render historical activity using today's catalog taxonomy without
+        # rewriting the append-only ledger or changing event identity/timing.
+        categories = {problem["slug"]: problem["category"] for problem in problems}
+        for event in events:
+            if event.get("problem_slug") in categories:
+                event["category"] = categories[event["problem_slug"]]
     return {
         "events": events,
         "problems": [_progress_problem_summary(problem) for problem in problems],

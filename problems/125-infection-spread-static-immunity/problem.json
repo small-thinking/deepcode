@@ -2,7 +2,7 @@
   "id": "125",
   "slug": "infection-spread-static-immunity",
   "title": "Infection Spread Simulation II — Static Immunity",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": ["infection-spread", "series", "part-2", "simulation", "grid"],
   "companies": ["OpenAI", "Anthropic"],

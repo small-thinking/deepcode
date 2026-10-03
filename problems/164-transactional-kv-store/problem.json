@@ -2,7 +2,7 @@
   "id": "164",
   "slug": "transactional-kv-store",
   "title": "Nested Transactional Key-Value Store",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "transactions",

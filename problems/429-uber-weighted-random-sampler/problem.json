@@ -2,7 +2,7 @@
   "id": "429",
   "slug": "uber-weighted-random-sampler",
   "title": "Sample Values by Weight",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "prefix-sums",

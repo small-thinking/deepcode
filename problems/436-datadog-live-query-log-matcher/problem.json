@@ -2,7 +2,7 @@
   "id": "436",
   "slug": "datadog-live-query-log-matcher",
   "title": "Match Registered Queries Against a Log Stream",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "streaming",
