@@ -1,12 +1,12 @@
 {
   "id": "150",
   "slug": "parallel-merge-sort",
-  "title": "Parallel Merge Sort",
+  "title": "Parallel Array Sorting",
   "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "sorting",
-    "merge-sort",
+    "threading",
     "parallelism",
     "workers",
     "algorithm"
@@ -14,12 +14,12 @@
   "companies": [
     "SpaceX AI"
   ],
-  "prompt": "A sorting service can divide work among a limited number of workers. Implement `parallel_merge_sort(values, workers)` using merge sort and return a new list of integers in nondecreasing order.\n\n`workers` is a positive logical worker budget; actual threads or processes are not required for this exercise. Preserve duplicates and leave the input unchanged. Empty input returns `[]`; the budget may exceed the number of values.\n\nFollow-up: how would you choose between threads, processes, and native libraries for CPU-bound sorting?",
-  "starter_code": "def parallel_merge_sort(values, workers):\n    # Return a freshly allocated sorted list.\n    pass\n",
+  "prompt": "Implement `parallel_merge_sort(values, workers)` to sort an integer list in nondecreasing order using at most `workers` threads. When there are at least two values and `workers > 1`, split the values into independent chunks, sort the chunks in bounded threads, and combine them into one sorted result. You may choose the chunk-sorting and combining algorithms; merge sort is not required. A single worker may sort sequentially.\n\n`workers` is a positive integer and may exceed the number of values. Return a new list, preserve duplicates, and leave the input unchanged. Empty input returns `[]`.\n\nFollow-up: how would you choose between threads, processes, and native libraries for CPU-bound sorting in Python? Do not assume threads make this workload faster.",
+  "starter_code": "def parallel_merge_sort(values, workers):\n    # Sort independent chunks in bounded threads, then combine them.\n    pass\n",
   "example": {
     "input": "parallel_merge_sort([41, 7, 29, 14, 3, 36], workers=2)",
     "output": "[3, 7, 14, 29, 36, 41]",
-    "reasoning": "Each worker can sort a contiguous chunk before the two ordered chunks are merged."
+    "reasoning": "Independent chunks can be sorted by bounded workers, then combined in sorted order."
   },
   "environment": {
     "language": "python",
@@ -31,5 +31,28 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-17",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "The original report asks for multithreaded array sorting and allowed pseudocode for thread mechanics. The exact API, integer-list input, fresh-list return, and bounded worker budget are local practice choices. This runnable exercise requires threads when multiple workers and values are available, but does not prescribe merge sort or claim a Python GIL speedup. Functional output tests cannot verify scheduling or parallel execution.",
+  "references": [
+    {
+      "label": "Original xAI candidate report — 1146523",
+      "url": "https://www.1point3acres.com/interview/thread/1146523"
+    },
+    {
+      "label": "Canonical Notion question and source boundaries",
+      "url": "https://app.notion.com/p/3ef6ce51456d81918e52d65410857758"
+    }
+  ],
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ef6ce51456d81918e52d65410857758"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  }
 }

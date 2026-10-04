@@ -1,0 +1,50 @@
+{
+  "id": "476",
+  "slug": "ai-chat-file-upload-experience",
+  "title": "Design File Uploads for an AI Chat Product",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "file-upload",
+    "ai-chat",
+    "product-design",
+    "latency",
+    "storage"
+  ],
+  "companies": [
+    "SpaceX AI"
+  ],
+  "prompt": "Design file uploads for an AI chat product so people can ask questions about the files they provide. Walk through the user experience from selection to a usable answer, how you would handle waiting and failures, and the limits you would put on the feature. Explain how you would evaluate perceived latency and quality, and how product or monetization choices affect the design. State your assumptions about file types, size, scale, and privacy.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then describe the design and its trade-offs.",
+    "reference_answer": "## Clarify the experience\nChoose the first supported user journey and file types. Establish upload size, concurrent demand, retention, who may access a file, and whether the chat can start before processing completes. These are design assumptions to negotiate, not constraints recovered from the interview report.\n\n## One workable design\nSeparate upload acceptance from processing readiness. Issue an authenticated upload session scoped to the user and intended conversation, transfer bytes to object storage, and keep durable metadata for status and ownership. A completion signal schedules asynchronous validation and extraction. Use an idempotent file/version identifier so retries do not duplicate processing. The chat path should use only a ready, authorized version and should explain when a file is still processing or unsupported.\n\n## Waiting, failure, and access\nShow meaningful stages and progress, allow cancellation and retry, and keep the uploaded file visible while it is processing. Resume interrupted large transfers where the client and storage support it. Decide explicitly whether a partial preview can be shown before full processing; never present unprocessed content as an answer. Bound worker resource consumption and inspect untrusted files in isolated processing. Enforce ownership on every access path, including derived content, and propagate deletion through retained artifacts.\n\n## Product trade-offs and validation\nMeasure upload completion, time to usable content, time to first useful answer, abandonment by stage, retry rate, processing failures, and cost per successful file conversation. Compare paid capacity or richer file support with conversion, retention, cost, and trust; do not assume a price. Walk through a small file, a large interrupted upload, repeated completion callbacks, an unsupported file, and revoked access. This is an illustrative practice answer, not the candidate's reported solution."
+  },
+  "references": [
+    {
+      "label": "Original xAI candidate report — reported question and product follow-ups",
+      "url": "https://www.tryexponent.com/experiences/x-ai-software-engineer-interview-4dda03"
+    },
+    {
+      "label": "Canonical Notion question and occurrence ledger",
+      "url": "https://app.notion.com/p/3ef6ce51456d814fb50fce6cef6afdda"
+    }
+  ],
+  "background_note": "The report does not establish exact file formats, limits, storage/indexing architecture, pricing, or metrics definitions; a DeepCode implementation should label these as practice assumptions.",
+  "created_at": "2026-10-03",
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ef6ce51456d814fb50fce6cef6afdda"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  }
+}
