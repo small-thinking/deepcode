@@ -34,7 +34,29 @@
     {
       "label": "Third-party practice listing — interview attribution unverified",
       "url": "https://trueinterview.io/questions/distributed-rate-limiter?company=xai"
+    },
+    {
+      "label": "Original xAI candidate report — 1146523",
+      "url": "https://www.1point3acres.com/interview/thread/1146523"
+    },
+    {
+      "label": "Canonical Notion question and source boundaries",
+      "url": "https://app.notion.com/p/3ef6ce51456d81319ff4d8a5db480280"
     }
   ],
-  "created_at": "2026-08-16"
+  "created_at": "2026-08-16",
+  "background_note": "The original report asks for lazy bucket refill and per-user cached allow/debit logic using supplied classes. Exact Python signatures, cache keys, default values, and clock-skew behavior are local practice conventions.",
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ef6ce51456d81319ff4d8a5db480280"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  }
 }

@@ -1,0 +1,50 @@
+{
+  "id": "477",
+  "slug": "grok-chat-bot-abuse-protection",
+  "title": "Design Bot and Abuse Protection for an AI Chat Product",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "ai-chat",
+    "abuse-prevention",
+    "security",
+    "risk-signals",
+    "system-design"
+  ],
+  "companies": [
+    "SpaceX AI"
+  ],
+  "prompt": "Design safeguards for an AI chat product that faces bots and abusive automated use. Explain how you would recognize suspicious activity, protect legitimate users, decide when and how to intervene, and measure whether the system is working. State your scale and threat assumptions, and describe how the design responds as attackers adapt.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "State your assumptions, then describe the design and its trade-offs.",
+    "reference_answer": "## Define the abuse and success criteria\nClarify whether the primary problem is automated resource consumption, account farming, spam, scraping, or other misuse. State what legitimate behavior must continue to work and set targets for harm reduction, false positives, user friction, response latency, and operational cost. High volume alone is not proof of abuse.\n\n## Signals and decisions\nCollect proportionate signals available at account, session, request, and service levels. Examples include request cadence, repeated failed challenges, repeated payload patterns, account history, and aggregate resource use. Combine evidence rather than treating one identifier as reliable identity. Establish retention and access limits for these signals. Separate cheap synchronous checks from slower analysis and keep a versioned decision trail.\n\n## Intervention and recovery\nA policy layer can allow, throttle, challenge, temporarily restrict, or send cases for review according to risk and confidence. Protect shared capacity with quotas and backpressure while keeping abuse decisions distinct from ordinary overload control. Make restrictions explainable enough for users to recover, support appeal or review for consequential decisions, and choose explicit behavior when the risk service is unavailable.\n\n## Evaluation and adaptation\nBegin with shadow decisions, review representative examples, then roll out gradually. Track verified abuse prevented, legitimate users affected, challenge completion, appeal outcomes, inference cost, and added latency. Test normal heavy users, coordinated bursts, compromised accounts, changing request patterns, and risk-service outages. Revisit rules as behavior changes; avoid assuming that a permanent device fingerprint is either accurate or necessary. This is a defensive practice design, not a reconstruction of the candidate's implementation."
+  },
+  "references": [
+    {
+      "label": "Original xAI candidate report — reported question and product follow-ups",
+      "url": "https://www.tryexponent.com/experiences/x-ai-software-engineer-interview-4dda03"
+    },
+    {
+      "label": "Canonical Notion question and occurrence ledger",
+      "url": "https://app.notion.com/p/3ef6ce51456d81e1b662d145f878665a"
+    }
+  ],
+  "background_note": "The exact signals, enforcement rules, thresholds, data schema, and implementation architecture are not stated in the report; any DeepCode version is a practice reconstruction.",
+  "created_at": "2026-10-03",
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ef6ce51456d81e1b662d145f878665a"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  }
+}
