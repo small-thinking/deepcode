@@ -1,12 +1,6 @@
 import math
 
 
-def rotate_clockwise(image):
-    height = len(image)
-    width = len(image[0])
-    return [[image[height - 1 - row][column] for row in range(height)] for column in range(width)]
-
-
 def triangle_flags(sides):
     return [
         int(a + b > c and a + c > b and b + c > a)

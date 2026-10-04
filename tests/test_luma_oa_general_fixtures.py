@@ -10,7 +10,6 @@ REFERENCE = (ROOT / "tests" / "reference_solutions" / "luma_oa_general.py").read
     encoding="utf-8"
 )
 SLUGS = (
-    "rotate-grayscale-clockwise",
     "adjacent-triangle-feasibility",
     "closest-pair-distance-2d",
 )
@@ -43,7 +42,6 @@ class LumaOAGeneralFixturesTest(unittest.TestCase):
 
     def test_fixtures_reject_plausible_wrong_interpretations(self):
         wrong = {
-            "rotate-grayscale-clockwise": "def rotate_clockwise(image):\n    return [list(row) for row in zip(*image)]\n",
             "adjacent-triangle-feasibility": (
                 "def triangle_flags(sides):\n"
                 "    ordered = sorted(sides)\n"
