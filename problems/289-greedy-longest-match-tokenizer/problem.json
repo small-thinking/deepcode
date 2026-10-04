@@ -14,7 +14,7 @@
     "Anthropic",
     "SpaceX AI"
   ],
-  "prompt": "Build a tokenizer for text using a vocabulary of nonempty strings. Implement `tokenize_longest_match(text, vocabulary, unknown='<UNK>') -> list[str]`. Scan left to right. At each position, emit the longest vocabulary token that matches there; if none matches, emit `unknown` and advance by one character. Return the token strings in order. The empty vocabulary is allowed, and empty text returns an empty list. Matching is case-sensitive on the original Unicode characters. Avoid testing every vocabulary entry at every position.",
+  "prompt": "Build a tokenizer for text using a vocabulary of nonempty strings. Implement `tokenize_longest_match(text, vocabulary, unknown='<UNK>') -> list[str]`. Scan left to right. At each position, emit the longest vocabulary token that matches there; if none matches, emit `unknown` and advance by one character. Return the token strings in order. The empty vocabulary is allowed, and empty text returns an empty list. Matching is case-sensitive on the original Unicode characters. Discuss the runtime and memory costs as the text and vocabulary grow.",
   "starter_code": "def tokenize_longest_match(text, vocabulary, unknown='<UNK>'):\n    # Emit maximal-munch vocabulary tokens, or unknown for one unmatched character.\n    pass\n",
   "example": {
     "input": "tokenize_longest_match('thereafter', ['the', 'there', 'after', 'her'])",
@@ -57,5 +57,6 @@
   "interview_frequency_total": {
     "stars": 1,
     "synced_at": "2026-10-01"
-  }
+  },
+  "background_note": "The original xAI pretraining MLE report describes an LLM data-processing tokenizer task and mentions a trie. The exact longest-match rule, return type, unknown marker, and Unicode behavior here are practice conventions; the prompt does not require a particular data structure. This is Coding because its required work is a string-processing algorithm, not model training or numerical ML."
 }

@@ -15,7 +15,7 @@
     "SpaceX AI"
   ],
   "prompt": "Implement `parallel_merge_sort(values, workers)` to sort an integer list in nondecreasing order using at most `workers` threads. When there are at least two values and `workers > 1`, distribute sorting work across a bounded group of threads and coordinate their work safely. You may choose the sorting algorithm. A single worker may sort sequentially.\n\n`workers` is a positive integer and may exceed the number of values. Return a new list, preserve duplicates, and leave the input unchanged. Empty input returns `[]`.\n\nFollow-up: how would you choose between threads, processes, and native libraries for CPU-bound sorting in Python? Do not assume threads make this workload faster.",
-  "starter_code": "def parallel_merge_sort(values, workers):\n    # Sort independent chunks in bounded threads, then combine them.\n    pass\n",
+  "starter_code": "def parallel_merge_sort(values, workers):\n    # Return a new sorted list using bounded threads when applicable.\n    pass\n",
   "example": {
     "input": "parallel_merge_sort([41, 7, 29, 14, 3, 36], workers=2)",
     "output": "[3, 7, 14, 29, 36, 41]",

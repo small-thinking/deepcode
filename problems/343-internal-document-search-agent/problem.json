@@ -12,22 +12,22 @@
     "access-control"
   ],
   "companies": [
-    "Google DeepMind"
+    "Google"
   ],
   "interview_frequency": {
-    "Google DeepMind": {
+    "Google": {
+      "stars": 1,
       "source_record_ids": [
         "3cc6ce51456d817aa927cad04694aa29"
       ],
-      "stars": 2,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-10-03"
     }
   },
   "interview_frequency_total": {
-    "stars": 2,
-    "synced_at": "2026-09-03"
+    "stars": 1,
+    "synced_at": "2026-10-03"
   },
-  "prompt": "Design an agent for searching internal documents and answering questions with retrieved evidence. It must preserve document permissions and serve up to 100,000 users within cost and latency budgets that you define.\n\nDescribe ingestion, updates, the query path, and the tools the agent can use. Explain access enforcement, quality evaluation, and failure behavior, and justify whether an agent framework is needed.",
+  "prompt": "Design an agent for searching internal documents and answering questions with retrieved evidence. Explain how you would optimize cost and latency and scale it to 100,000 users. Discuss an agent framework you know and how it would fit your design.\n\nDescribe the retrieval and tool decisions the agent makes, how document permissions are preserved, and how you would evaluate the result. State the assumptions you need about the corpus and workload.",
   "evaluation": {
     "type": "system_design"
   },
@@ -42,12 +42,13 @@
       "url": "https://www.1point3acres.com/bbs/thread-1187428-1-1.html"
     },
     {
-      "label": "Source question / study page: 1Point3Acres 7100150",
+      "label": "Related generated xAI RAG study page — not an original interview report",
       "url": "https://www.1point3acres.com/interview/post/7100150"
     },
     {
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3cc6ce51456d817aa927cad04694aa29"
     }
-  ]
+  ],
+  "background_note": "The original Google AI/ML SWE first-round report asks for an internal-document search agent, cost and latency optimization, scaling to 100,000 users, and familiarity with an agent framework. It does not identify Google DeepMind. Permissions, exact tool APIs, and evaluation details here are practice clarifications. The generated xAI RAG study page is related preparation material, not another candidate event. This agent-focused source is retained separately from the broad xAI RAG question."
 }

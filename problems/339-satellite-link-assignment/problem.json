@@ -1,8 +1,8 @@
 {
   "id": "339",
   "slug": "satellite-link-assignment",
-  "title": "Design a Satellite Link Assignment Under Frequency Constraints",
-  "category": "System Design",
+  "title": "Satellite Link Assignment Under Frequency Constraints",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "optimization",
@@ -26,13 +26,9 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Design a service that assigns users to visible satellites and one of four radio frequencies, maximizing coverage within a fixed runtime budget. Each satellite has limited capacity, and nearby links on the same satellite cannot share a frequency. Some users may have no visible satellite.\n\nDefine the inputs and assignment output, including the geometric visibility and separation assumptions you need. Explain your strategy, how you verify feasibility, and how you handle changing demand and limited computation time.",
+  "prompt": "Write `assign_links(users, satellites)` to connect as many users as you can to satellites. Both inputs map identifiers to three-dimensional coordinates. Treat Earth as a sphere centered at the origin; a user's outward surface normal points from the origin to the user. Return a dictionary mapping each served user to `(satellite_id, frequency)`, where frequency is one of `1, 2, 3, 4`.\n\nEach user may connect to at most one satellite. A satellite must be within 45 degrees of the user's outward normal, measured along the user-to-satellite direction. Each satellite may serve at most 32 users. Two links from the same satellite separated by less than 10 degrees, measured at that satellite, must use different frequencies. Users with no feasible assignment may be omitted.\n\nAssume valid coordinates with no zero-length vectors used in these angle calculations. Aim for high coverage while keeping the program efficient; a globally optimal solution is not required. Explain how you verify that every returned assignment is feasible.",
   "evaluation": {
-    "type": "system_design"
-  },
-  "response": {
-    "placeholder": "Define the visibility and interference predicates before selecting an assignment algorithm.",
-    "reference_answer": "## Normalize constraints\n\nPrecompute a bipartite visibility graph using the stated Earth and elevation geometry; edge generation is separate from assignment. For each satellite, build a conflict graph over candidate users whose beam directions violate the angular separation rule. Validate capacity, frequency count, and numeric tolerances before optimization.\n\n## Assignment strategy\n\nFor small instances, a mixed-integer or constraint-programming formulation maximizes covered users subject to one satellite per user, capacity, and per-satellite graph coloring constraints. For large or time-bounded instances, use a deterministic heuristic: prioritize scarce users, choose a satellite by residual capacity and conflict degree, then assign the lowest feasible frequency. Local swaps or augmenting moves can recover coverage after the initial pass.\n\n## Correctness and operations\n\nA validator independently checks visibility, one assignment per user, capacity, and frequency conflicts before returning a plan. The response includes uncovered users with a reason such as no visibility, capacity exhaustion, or frequency conflict. Cache geometry by position version, recompute only affected neighborhoods on movement, and use stable tie-breakers for reproducible plans. Track coverage, constraint rejection reasons, solve time, approximation quality on sampled optimal baselines, and topology churn."
+    "type": "ml_modeling"
   },
   "created_at": "2026-08-30",
   "references": [
@@ -45,5 +41,17 @@
       "url": "https://app.notion.com/p/3bd6ce51456d81f38241f1d9871ae3de"
     }
   ],
-  "background_note": "The canonical source concerns a historical SpaceX interview. The catalog groups its company label under SpaceX AI; this source is not evidence that xAI asked the same question."
+  "background_note": "The original is a 2022 SpaceX Starlink SWE programming OA, not an xAI system-design interview. The 45-degree visibility, 32-user satellite capacity, four frequencies, and 10-degree separation are reported constraints. The original used a 60-second runtime limit and coverage-based grading; this local Python API and small functional tests are practice conventions, not the original six-case grader. The visible tests use small local coverage targets as smoke tests; they are not the original assessment’s grading cutoffs or a guarantee of global optimality.",
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "starter_code": "def assign_links(users, satellites):\n    # Return {user_id: (satellite_id, frequency)}.\n    pass\n",
+  "example": {
+    "input": "assign_links({'north': (0, 0, 1), 'south': (0, 0, -1)}, {'N': (0, 0, 2), 'S': (0, 0, -2)})",
+    "output": "{'north': ('N', 1), 'south': ('S', 1)}",
+    "reasoning": "Each user can see the satellite directly above it. Different satellites may reuse a frequency."
+  }
 }

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "duplicates and both ranking orders",
+    "input": "three events, two equal values",
+    "test": "w = WindowKth(10)\nw.add(0, 7)\nw.add(1, 3)\nw.add(2, 7)\nassert w.kth(2, 1) == 3\nassert w.kth(2, 2) == 7\nassert w.kth(2, 3, 'largest') == 3\nassert w.kth(2, 4) is None"
+  },
+  {
+    "name": "inclusive lower boundary and later expiration",
+    "input": "events at times 2 and 3, five-unit window",
+    "test": "w = WindowKth(5)\nw.add(2, 10)\nw.add(3, 20)\nassert w.kth(7, 1) == 10\nassert w.kth(8, 1) == 20\nassert w.kth(9, 2) is None"
+  },
+  {
+    "name": "current window excludes old stream history",
+    "input": "one hundred increasing events, short window",
+    "test": "w = WindowKth(3)\nfor i in range(100):\n    w.add(i, i)\nassert w.kth(99, 1) == 96\nassert w.kth(99, 4) == 99\nassert w.kth(99, 2, 'largest') == 98\nassert w.kth(99, 5) is None\nassert w.kth(1000, 1) is None"
+  },
+  {
+    "name": "empty stream and single item",
+    "input": "query before and after one event",
+    "test": "w = WindowKth(2)\nassert w.kth(0, 1) is None\nw.add(1, -5)\nassert w.kth(1, 1, 'largest') == -5\nassert w.kth(4, 1) is None"
+  }
+]

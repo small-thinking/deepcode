@@ -53,5 +53,6 @@
       "url": "https://app.notion.com/p/3d06ce51456d800a81f5f9e2e00878d7"
     }
   ],
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "A public, curated first-person xAI MLE account reports identifying faulty GPU nodes using a group-test oracle: a group passes only when all included nodes are healthy, tests need at least two nodes, and concurrent groups cannot overlap. This is the same candidate event that reports dynamic batching; source URLs or practice cards do not add occurrences. DeepCode assumes at least two healthy nodes and permits a quadratic sequential strategy so the executable task is well defined; those choices are not confirmed interview constraints."
 }

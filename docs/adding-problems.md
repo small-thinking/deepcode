@@ -110,7 +110,7 @@ Current limitations:
 Choose one broad interview task category; put narrower topics in `tags`:
 
 - **Coding**: algorithms, data structures, general programming, systems coding,
-  and low-level design that asks for an implementation.
+  low-level design that asks for an implementation, code reviews, and CS fundamentals.
 - **ML Coding**: executable ML, numerical, tensor, training, and inference exercises.
 - **System Design**: architecture or component-design discussions, including
   low-level design that asks for a written design rather than an implementation.
@@ -124,6 +124,8 @@ specifics such as `low-level-design`, `concurrency`, and `inference` as tags.
 Classify by the requested answer, not just `evaluation.type`: a code-writing
 prompt may use the written-response editor when there is no executable harness
 (for example, Pseudo-Memcached Protocol Server is still **Coding**).
+Code-review and CS-fundamentals questions may also use that editor; an ML role
+or an AI product does not by itself make a question **ML System Design**.
 
 ## Evaluator Types
 

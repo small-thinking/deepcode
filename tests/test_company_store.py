@@ -98,6 +98,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "canva",
                 "cohere",
                 "datadog",
+                "google",  # Original AI/ML SWE report does not establish DeepMind.
                 "notion",
                 "spotify",
             },

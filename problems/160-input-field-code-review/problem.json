@@ -2,7 +2,7 @@
   "id": "160",
   "slug": "input-field-code-review",
   "title": "Review an Asynchronous Text Field",
-  "category": "System Design",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "code-review",
@@ -14,7 +14,7 @@
   "companies": [
     "SpaceX AI"
   ],
-  "prompt": "Review a text-input component that formats text and validates it asynchronously as a person types. Users report typing lag and validation results that sometimes refer to older input. Keep the review framework-neutral.\n\nDescribe likely failure mechanisms, the evidence you would inspect, and a prioritized set of fixes and tests. Consider input composition, accessibility, and the component's lifecycle. A replacement implementation is not required.",
+  "prompt": "Review a text-input component that formats text and validates it asynchronously as a person types. Users report typing lag and validation results that sometimes refer to older input. Keep the review framework-neutral.\n\nDescribe likely failure mechanisms, the evidence you would inspect, and a prioritized set of fixes and tests. A replacement implementation is not required.",
   "response": {
     "placeholder": "Organize the review as finding → user impact → targeted remediation. Begin with state, threading, and stale validation behavior before lower-risk polish.",
     "reference_answer": "## 1. Separate input states before judging callbacks\n\nI would first identify whether the component distinguishes draft composition text, committed field text, local validation state, and the latest remote-validation result. Treating every transient composition update as committed text breaks input methods and can move the caret unexpectedly. The component should preserve selection and composition ranges, delay irreversible formatting until composition ends, and make formatting transformations explicit and reversible.\n\n## 2. Keep interactive work within the UI budget\n\nTyping should perform only cheap synchronous work on the UI thread: update local state, run bounded local checks, and schedule downstream work. Parsing large payloads, synchronous storage, image processing, or network waits on the interaction path can produce dropped frames. Move expensive work off the UI thread and return only a small, immutable result needed to update presentation.\n\n## 3. Version, debounce, and cancel asynchronous validation\n\nEach committed text version should receive a monotonically increasing revision. Debounce remote validation when the product permits it, attach the revision to the request, cancel previous work when a newer revision supersedes it, and ignore a response unless its revision still matches the current field and the owner is alive. Cancellation reduces waste; revision checking preserves correctness when cancellation loses a race. The loading state should describe the current revision, not an earlier request.\n\n## 4. Define ownership and teardown\n\nObservers, timers, tasks, and subscriptions need a single owner and an explicit disposal path. A screen transition must cancel or detach work so callbacks cannot update a recycled field or retain a controller. I would test unmounting during a request, rapidly replacing the field model, and reopening the screen after an error.\n\n## 5. Make failures understandable and safe\n\nThe field needs a programmatic label, instructions for format requirements, keyboard-focus visibility, and error text that assistive technology announces when it changes. Do not encode validity with color alone. Password and secret fields should use the appropriate obscured input mode, avoid logging values or full validation payloads, minimize telemetry, and redact error reporting. Server validation remains authoritative; local validation is a usability aid, not a security boundary.\n\n## 6. Review checklist and tests\n\nI would add tests for composition followed by formatting, paste and delete, a slow older response arriving after a fast newer response, cancellation on teardown, network failures and retries, keyboard-only navigation, screen-reader error announcement, and secret-value redaction. The highest-priority fix is versioned async validation with safe lifecycle ownership, because it prevents incorrect user-visible state and callbacks into released UI."
@@ -23,5 +23,28 @@
     "type": "system_design"
   },
   "created_at": "2026-08-17",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "Only a secondary curated topic about reviewing code for a text input has been recovered. The original candidate report and supplied code are unavailable. Asynchronous validation, typing lag, and stale responses are a local educational scenario, not verified xAI interview defects. This is Coding/code-review practice using a written response, not system design; the source adds no verified interview occurrence.",
+  "references": [
+    {
+      "label": "Secondary code-review topic — original code and candidate post unavailable",
+      "url": "https://www.1point3acres.com/interview/problems/dcef89ff-9f57-4c98-bbcf-10692b3248af"
+    },
+    {
+      "label": "Canonical Notion question and source boundaries",
+      "url": "https://app.notion.com/p/3ef6ce51456d8105bfade2726fdb5b42"
+    }
+  ],
+  "interview_frequency": {
+    "SpaceX AI": {
+      "stars": 0,
+      "source_record_ids": [
+        "3ef6ce51456d8105bfade2726fdb5b42"
+      ],
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-03"
+  }
 }

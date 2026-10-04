@@ -1,15 +1,14 @@
 {
   "id": "381",
   "slug": "multiprocessing-vs-multithreading-ml-agents",
-  "title": "Multiprocessing vs Multithreading for ML and Agent Systems",
-  "category": "ML System Design",
+  "title": "Multiprocessing vs Multithreading",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "concurrency",
     "multiprocessing",
     "multithreading",
-    "agents",
-    "runtime"
+    "cs-fundamentals"
   ],
   "companies": [
     "SpaceX AI"
@@ -27,7 +26,7 @@
     "stars": 1,
     "synced_at": "2026-10-01"
   },
-  "prompt": "Explain the difference between multiprocessing and multithreading, when each is appropriate, and how you would make the choice for an ML or agent system. Address CPU-bound and I/O-bound work, memory and data transfer, shared state, failure isolation, and observability.\n\nUse a real project or a clearly marked hypothetical workload to explain your choice. Return a short written design with its tradeoffs; no concurrency library implementation is required.",
+  "prompt": "Explain how multiprocessing differs from multithreading. When would you choose each? Give an example of how you used threads in a project and explain why they suited the work.",
   "references": [
     {
       "label": "1Point3Acres: xAI 15-minute machine learning interview overview",
@@ -42,8 +41,9 @@
     "type": "system_design"
   },
   "response": {
-    "placeholder": "Start with the workload and isolation boundary. Processes and threads are mechanisms; the right choice depends on CPU work, I/O waits, shared-state cost, and failure behavior.",
-    "reference_answer": "## Core distinction\n\nProcesses have separate address spaces, stronger fault isolation, and explicit communication through files, queues, sockets, shared memory, or another IPC mechanism. Threads share one process address space, which makes in-process sharing cheap but makes races, lock ordering, and accidental mutation easier. Threads are lighter to create and coordinate, while processes incur startup, serialization, and memory overhead.\n\nIn CPython, CPU-bound Python bytecode generally does not gain parallel execution from ordinary threads because of the interpreter lock. Native numerical kernels, external services, and I/O have different behavior, so I would describe the actual hot path instead of making a blanket rule about all ML work.\n\n## Choosing for ML and agents\n\nUse processes for independent CPU-heavy preprocessing, isolated model workers, untrusted tools, or jobs whose crash and memory leak must not corrupt a controller. Bound the worker pool and avoid repeatedly copying large tensors; use batching, shared memory, a data loader, or a service boundary only after measuring serialization and device-transfer costs.\n\nUse threads or async I/O for concurrent network calls, tool invocations, database requests, log streaming, and orchestration work that spends most time waiting. Guard shared mutable state with ownership boundaries or short, well-defined synchronization. For a GPU service, the process boundary is often chosen around device context and deployment isolation, while a thread or async layer multiplexes request I/O; device concurrency should be governed by the serving runtime rather than assumed from the host-language abstraction.\n\n## A truthful example structure\n\nA candidate can say: \"In [my project], the coordinator spent most of its time waiting for [external tools or APIs], so I used [threads or async tasks] with bounded concurrency, timeouts, and per-request tracing. The [CPU-bound parsing or independent worker] stage used [processes or a separate service] because [measured or operational reason]. We passed [immutable request data or IDs], avoided shared mutable state, and monitored [queue age, retry rate, error rate, and resource use].\" Every bracket must be replaced with the candidate's own facts.\n\n## Reliability and observability\n\nDefine cancellation, deadlines, retries, idempotency, backpressure, and ownership before adding concurrency. A worker crash should have a clear supervisor and recovery policy; a thread exception should not disappear silently. Trace work across queue, worker, tool call, and result; monitor active work, queue wait, lock contention, CPU and memory saturation, request timeouts, and duplicated side effects.\n\n## Progressive Hints\n\n1. Begin with whether the work is CPU-bound, I/O-bound, or device-bound.\n2. Processes isolate memory; threads share it.\n3. The cost of copying tensors or serializing messages can change the answer.\n4. Concurrency needs bounded queues, deadlines, and cancellation.\n5. Make shared-state ownership explicit before adding locks.\n6. Use only a truthful project example; a generic pattern is not evidence of personal work."
+    "placeholder": "Compare the mechanisms, explain when you would choose each, then use a truthful project example.",
+    "reference_answer": "## Core distinction\n\nProcesses usually have separate address spaces and communicate explicitly. Threads share an address space, making data sharing inexpensive but requiring coordination for mutable state. Compare isolation, startup cost, memory use, and communication overhead.\n\n## Choosing\n\nFor CPU-heavy work, ask whether the runtime permits parallel execution and measure communication overhead. In a conventional GIL-enabled CPython build, threads do not generally execute Python bytecode in parallel; native extensions and free-threaded builds change that boundary. Threads can overlap I/O waits, while processes can isolate independent work and failures. Neither choice removes the need to manage cancellation and shared external resources.\n\n## Project example\n\nDescribe a project you actually worked on: what waited or ran in parallel, why threads fit, what state was shared, how you synchronized it, and what evidence showed an improvement. Do not present a hypothetical example as personal experience."
   },
-  "created_at": "2026-09-02"
+  "created_at": "2026-09-02",
+  "background_note": "The original xAI 15-minute ML screen reports a basic processes-versus-threads question and asks for a project example using threads. The role does not turn this CS fundamentals question into ML system design. The written response is a practice format; no implementation task was reported."
 }

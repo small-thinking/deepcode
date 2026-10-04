@@ -25,7 +25,10 @@ class ArchitectureTest(unittest.TestCase):
             "gpu-node-group-testing": "Coding",
             "dynamic-batch-inference": "ML Coding",
             "data-parallel-fsdp-matrix-multiplication": "ML Coding",
-            "multiprocessing-vs-multithreading-ml-agents": "ML System Design",
+            "multiprocessing-vs-multithreading-ml-agents": "Coding",  # Oral CS fundamentals.
+            "streaming-window-kth": "Coding",
+            "satellite-link-assignment": "Coding",
+            "input-field-code-review": "Coding",
         }
         for slug, category in expected.items():
             with self.subTest(slug=slug):
