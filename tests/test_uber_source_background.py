@@ -7,6 +7,8 @@ from deepcode.problem_store import ProblemStore
 ROOT = Path(__file__).resolve().parents[1]
 
 NOTION_TO_SLUG = {
+    "3ed6ce51456d81aabf4ed515f4d770cb": "uber-budgeted-promotion-ml-system",
+    "3ed6ce51456d815b8b91eabdeb31dbcb": "uber-destination-autocomplete-ml-system",
     "3df6ce51456d81b68bf1cb300ebece77": "numpy-kmeans-clustering",
     "3d76ce51456d819fbf16f5b4950fcf03": "clip-symmetric-contrastive-loss",
     "3d66ce51456d8116a8e8f796e2e5f158": "l1-k-medoids-pickup-locations",

@@ -2,7 +2,7 @@
   "id": "417",
   "slug": "replay-buffer-debugging",
   "title": "Debug a Bounded Replay Buffer",
-  "category": "General Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "python",

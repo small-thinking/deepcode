@@ -2,7 +2,7 @@
   "id": "227",
   "slug": "digit-permutation-lower-bound",
   "title": "Smallest List-Digit Permutation at a Lower Bound",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "backtracking",

@@ -18,20 +18,16 @@
       "source_record_ids": [
         "3cf6ce51456d81e8a216ef3ee7ba9bf1"
       ],
-      "stars": 2,
-      "synced_at": "2026-09-03"
+      "stars": 1,
+      "synced_at": "2026-10-03"
     }
   },
   "interview_frequency_total": {
-    "stars": 2,
-    "synced_at": "2026-09-03"
+    "stars": 1,
+    "synced_at": "2026-10-03"
   },
-  "prompt": "Given candidate images for an accommodation listing, design a system that chooses the cover photo to improve booking conversion.\n\nDefine the decision and success metric, describe the data and model you would use, and explain offline evaluation and an online experiment. State assumptions about conversion and traffic, and discuss product and trust guardrails.",
+  "prompt": "Airbnb wants to increase bookings by choosing a better cover photo for each listing. A listing can have several candidate photos, but guests first see one cover. How would you design an ML system to decide which photo to show?\n\nThe reported question asks how to improve bookings by selecting the cover photo; the following is practice scaffolding, not a reported interview requirement. Clarify the display surface, whether the decision is global per listing or personalized, and the success measure. Explain eligible candidates, data and labels, point-in-time features, a baseline and model, serving and fallback behavior, offline evaluation, and an online experiment. Discuss historical-selection bias, cold start, misleading images, and other product guardrails. State assumptions where the report is silent.",
   "references": [
-    {
-      "label": "1Point3Acres: Airbnb ML coding report",
-      "url": "https://www.1point3acres.com/interview/thread/1162688"
-    },
     {
       "label": "1Point3Acres: Airbnb MLE interview report",
       "url": "https://www.1point3acres.com/interview/thread/1171020"
@@ -42,7 +38,7 @@
   },
   "response": {
     "placeholder": "State the decision and outcome contract first; a historical booking label alone cannot prove that one photo caused conversion.",
-    "reference_answer": "## Assumptions and objective\n\nAssume one eligible cover image is selected before a qualified listing impression, and define conversion as a booking after that impression within a fixed attribution window. Keep eligibility, availability, price, and policy filters outside the image ranker. The exact objective and window are product assumptions to validate, not reported Airbnb requirements.\n\n## Data and offline loop\n\nLog the request context, eligible candidates, displayed image and position, model version, and delayed outcomes. Build point-in-time examples only from qualified exposures; post-exposure behavior cannot be an input feature. A practical ranker can combine image representations with listing and request context, but it should be compared against simple image-quality and current-cover baselines. Evaluate ranking quality and calibration by listing type, market, device, and new-listing slices, while recognizing that observational logs are biased by the previous selection policy.\n\n## Causal validation\n\nRun a bounded randomized or interleaved allocation among policy-safe candidate images, with a stable assignment unit chosen to avoid excessive user or host inconsistency. Measure booking conversion and supporting funnel metrics against the current policy, with predeclared stop, rollout, and rollback rules. Analyze confidence intervals and important slices before broadening traffic.\n\n## Guardrails\n\nFilter policy-violating, misleading, inaccessible, or rights-problematic images before selection. Monitor cancellation, guest and host complaints, bounce, coverage, and listing-level concentration alongside conversion. Preserve a fallback image and an auditable reason for every selection so a bad rollout can be reversed without losing the evidence needed to diagnose it."
+    "reference_answer": "## Assumptions and objective\n\nThe report gives the cover-photo booking question without a detailed metric or system contract. For this proposed design, select one eligible image before a qualified listing impression and define conversion as a booking attributed to that impression within a fixed window. Agree on the surface, denominator, window, and whether completed or requested bookings count before building the label. Keep availability, price, and policy eligibility checks explicit.\n\n## Data and offline loop\n\nLog the request context, eligible candidates, displayed image and position, model version, selection probability where applicable, and delayed outcomes. Build point-in-time examples from qualified exposures; post-exposure behavior cannot be an input feature. Compare an image-and-context ranker with simple image-quality and existing-cover baselines. Inspect calibration and performance by listing type, market, device, and new-listing slices. Historical bookings are selected by the previous display policy, so offline ranking metrics alone cannot establish the photo's causal effect.\n\n## Causal validation\n\nRandomly assign eligible guests before photo selection, using a stable assignment unit that limits guest or host inconsistency. Keep every assigned guest in the experiment denominator, including load failures, nonclickers, and nonbookers. Measure booking conversion and supporting funnel metrics against the current policy; also measure platform-wide bookings to distinguish growth from shifting bookings between listings. Predeclare stop, rollout, and rollback rules, then analyze uncertainty and important slices before broadening traffic.\n\n## Serving and guardrails\n\nAt request time, filter ineligible photos, score the rest, and use a safe fallback if ranking or image delivery fails. Reject misleading or rights-problematic images. Monitor cancellation, guest and host complaints, bounce, coverage, and listing-level concentration alongside conversion. Log the selection and model version so a rollout can be reversed and diagnosed."
   },
   "interactive_demos": [
     {

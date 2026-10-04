@@ -2,7 +2,7 @@
   "id": "383",
   "slug": "longest-downhill-ski-run",
   "title": "Longest Downhill Ski Run from One or More Starts",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "graphs",
@@ -44,6 +44,10 @@
     {
       "label": "PracHub: Airbnb downhill ski-run interview question",
       "url": "https://prachub.com/interview-questions/find-best-downhill-ski-run-from-a-start"
+    },
+    {
+      "label": "Notion interview record",
+      "url": "https://app.notion.com/p/3d06ce51456d8085ab36f0ebda6e06d3"
     }
   ],
   "evaluation": {

@@ -2,7 +2,7 @@
   "id": "156",
   "slug": "dynamic-batch-inference",
   "title": "Dynamic Batch Inference Scheduler",
-  "category": "ML Systems",
+  "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
     "llm-serving",
@@ -12,10 +12,10 @@
     "stateful"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "interview_frequency": {
-    "xAI": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3cf6ce51456d81ab93cdf20fb33771cc"
       ],
@@ -46,7 +46,7 @@
   "created_at": "2026-08-17",
   "references": [
     {
-      "label": "Original interview report: prachub.com",
+      "label": "PracHub curated secondary interview report — event lineage unverified",
       "url": "https://prachub.com/interview-experiences/xai-machine-learning-engineer-interview-experience-three-tech-rounds-in-two-days-rejected-at-the-offer-stage"
     },
     {

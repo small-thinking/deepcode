@@ -1,22 +1,102 @@
 [
   {
-    "name": "multiplies along a directed path",
+    "name": "Part 1: multiplies along a directed path",
     "input": "USD to EUR through CAD",
     "test": "assert solution([('USD','CAD'),('CAD','EUR')],[2.0,1.5],'USD','EUR') == 3.0"
   },
   {
-    "name": "does not infer reverse rates",
+    "name": "Part 1: does not infer reverse rates",
     "input": "EUR to USD with only USD-to-EUR edges",
     "test": "assert solution([('USD','CAD'),('CAD','EUR')],[2.0,1.5],'EUR','USD') == -1.0"
   },
   {
-    "name": "same currency needs no edge",
+    "name": "Part 1: same currency needs no edge",
     "input": "JPY to JPY with no pairs",
     "test": "assert solution([],[],'JPY','JPY') == 1.0"
   },
   {
-    "name": "handles a cycle without revisiting forever",
+    "name": "Part 1: handles a cycle without revisiting forever",
     "input": "A to C via a cycle",
     "test": "assert solution([('A','B'),('B','A'),('B','C')],[2.0,0.5,3.0],'A','C') == 6.0"
+  },
+  {
+    "name": "Part 2: indirect route beats the direct rate",
+    "input": "best_rate([('A', 'B'), ('A', 'C'), ('C', 'B')], [2.0, 4.0, 3.0], 'A', 'B')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('A', 'C'), ('C', 'B')], [2.0, 4.0, 3.0], 'A', 'B'), 12.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: direct route can be optimal",
+    "input": "best_rate([('A', 'C'), ('C', 'B'), ('A', 'B')], [2.0, 3.0, 8.0], 'A', 'B')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'C'), ('C', 'B'), ('A', 'B')], [2.0, 3.0, 8.0], 'A', 'B'), 8.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: fractional rates and floating-point products",
+    "input": "best_rate([('A', 'B'), ('A', 'C'), ('C', 'B')], [0.1, 0.3, 0.7], 'A', 'B')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('A', 'C'), ('C', 'B')], [0.1, 0.3, 0.7], 'A', 'B'), 0.21, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: reverse rates are independent",
+    "input": "best_rate([('USD', 'CAD'), ('CAD', 'USD')], [2.0, 0.4], 'CAD', 'USD')",
+    "test": "import math\nassert math.isclose(best_rate([('USD', 'CAD'), ('CAD', 'USD')], [2.0, 0.4], 'CAD', 'USD'), 0.4, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: does not invent a reverse conversion",
+    "input": "best_rate([('USD', 'CAD')], [2.0], 'CAD', 'USD')",
+    "test": "import math\nassert math.isclose(best_rate([('USD', 'CAD')], [2.0], 'CAD', 'USD'), -1.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: disconnected known currencies",
+    "input": "best_rate([('A', 'B'), ('C', 'D')], [2.0, 3.0], 'A', 'D')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('C', 'D')], [2.0, 3.0], 'A', 'D'), -1.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: unknown source",
+    "input": "best_rate([('A', 'B')], [2.0], 'X', 'B')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B')], [2.0], 'X', 'B'), -1.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: unknown destination",
+    "input": "best_rate([('A', 'B')], [2.0], 'A', 'X')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B')], [2.0], 'A', 'X'), -1.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: empty graph with different endpoints",
+    "input": "best_rate([], [], 'A', 'B')",
+    "test": "import math\nassert math.isclose(best_rate([], [], 'A', 'B'), -1.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: same unknown currency",
+    "input": "best_rate([], [], 'JPY', 'JPY')",
+    "test": "import math\nassert math.isclose(best_rate([], [], 'JPY', 'JPY'), 1.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: same currency cannot profit from a cycle",
+    "input": "best_rate([('A', 'B'), ('B', 'A')], [2.0, 3.0], 'A', 'A')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('B', 'A')], [2.0, 3.0], 'A', 'A'), 1.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: profitable cycle cannot repeat a currency",
+    "input": "best_rate([('A', 'B'), ('B', 'A'), ('B', 'C'), ('A', 'C')], [2.0, 3.0, 4.0, 1.0], 'A', 'C')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('B', 'A'), ('B', 'C'), ('A', 'C')], [2.0, 3.0, 4.0, 1.0], 'A', 'C'), 8.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: self-loop cannot increase the rate",
+    "input": "best_rate([('A', 'A'), ('A', 'B')], [4.0, 2.0], 'A', 'B')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'A'), ('A', 'B')], [4.0, 2.0], 'A', 'B'), 2.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: shared vertices must be reconsidered for each route",
+    "input": "best_rate([('A', 'B'), ('A', 'C'), ('C', 'B'), ('B', 'D')], [2.0, 4.0, 3.0, 2.0], 'A', 'D')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('A', 'C'), ('C', 'B'), ('B', 'D')], [2.0, 4.0, 3.0, 2.0], 'A', 'D'), 24.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: smaller prefix can leave a better legal continuation",
+    "input": "best_rate([('A', 'B'), ('B', 'C'), ('A', 'C'), ('C', 'B'), ('B', 'D'), ('C', 'D')], [4.0, 4.0, 2.0, 8.0, 4.0, 1.0], 'A', 'D')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('B', 'C'), ('A', 'C'), ('C', 'B'), ('B', 'D'), ('C', 'D')], [4.0, 4.0, 2.0, 8.0, 4.0, 1.0], 'A', 'D'), 64.0, rel_tol=1e-9, abs_tol=1e-12)"
+  },
+  {
+    "name": "Part 2: cycle with unreachable destination terminates",
+    "input": "best_rate([('A', 'B'), ('B', 'A'), ('C', 'D')], [2.0, 3.0, 4.0], 'A', 'D')",
+    "test": "import math\nassert math.isclose(best_rate([('A', 'B'), ('B', 'A'), ('C', 'D')], [2.0, 3.0, 4.0], 'A', 'D'), -1.0, rel_tol=1e-9, abs_tol=1e-12)"
   }
 ]

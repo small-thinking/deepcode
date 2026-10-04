@@ -2,7 +2,7 @@
   "id": "194",
   "slug": "battleship-state-machine",
   "title": "Battleship State Machine",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "state-machine",
@@ -49,5 +49,6 @@
       "label": "Notion interview record (original source not recorded)",
       "url": "https://app.notion.com/p/3df6ce51456d81798ffdc8ccc0dbc666"
     }
-  ]
+  ],
+  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
 }

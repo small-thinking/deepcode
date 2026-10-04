@@ -2,7 +2,7 @@
   "id": "318",
   "slug": "workspace-layout-state-reducer",
   "title": "Workspace Layout State Reducer",
-  "category": "Low-Level Design",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "ui-state",
@@ -30,5 +30,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-19"
+  "created_at": "2026-08-19",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

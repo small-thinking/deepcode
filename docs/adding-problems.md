@@ -62,7 +62,7 @@ Required fields:
 - `id`: Stable catalog id used for ordering and lookup. Numeric strings sort numerically.
 - `slug`: Stable URL identifier. Users can open `/problems/<slug>`.
 - `title`: Human-readable problem title.
-- `category`: Broad topic such as `Linear Algebra`, `Machine Learning`, `System Design`, or `ML System Design`.
+- `category`: One of `Coding`, `ML Coding`, `System Design`, `ML System Design`, or `Behavioral` (see the classification rules below).
 - `difficulty`: Use `easy`, `medium`, or `hard`.
 - `prompt`: The full task statement shown to the user.
 - `starter_code`: Initial Python code loaded into the editor.
@@ -104,6 +104,26 @@ Current limitations:
 - Current problems may rely on dependencies declared in `pyproject.toml`. NumPy is available by default.
 - `packages` documents the packages a problem expects, but the runner does not install per-problem dependencies yet.
 - The `ml_coding` runner evaluates printed output from test snippets.
+
+## Category Rules
+
+Choose one broad interview task category; put narrower topics in `tags`:
+
+- **Coding**: algorithms, data structures, general programming, systems coding,
+  and low-level design that asks for an implementation.
+- **ML Coding**: executable ML, numerical, tensor, training, and inference exercises.
+- **System Design**: architecture or component-design discussions, including
+  low-level design that asks for a written design rather than an implementation.
+- **ML System Design**: written ML system architecture, evaluation, serving, and
+  engineering-tradeoff discussions.
+- **Behavioral**: experience, collaboration, and project-story questions.
+
+Do not introduce `Algorithms`, `General Coding`, `Systems Coding`, `ML System`,
+`ML Systems`, or `Low Level Design` as additional categories. Preserve useful
+specifics such as `low-level-design`, `concurrency`, and `inference` as tags.
+Classify by the requested answer, not just `evaluation.type`: a code-writing
+prompt may use the written-response editor when there is no executable harness
+(for example, Pseudo-Memcached Protocol Server is still **Coding**).
 
 ## Evaluator Types
 

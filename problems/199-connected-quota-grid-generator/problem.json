@@ -2,7 +2,7 @@
   "id": "199",
   "slug": "connected-quota-grid-generator",
   "title": "Connected Quota Grid Generator",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "grid",
@@ -48,5 +48,6 @@
       "label": "Notion interview record (original source not recorded)",
       "url": "https://app.notion.com/p/3df6ce51456d811791c4ec4a34f90f3a"
     }
-  ]
+  ],
+  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
 }

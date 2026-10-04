@@ -13,7 +13,7 @@
     "evaluation"
   ],
   "companies": [
-    "xAI",
+    "SpaceX AI",
     "OpenAI"
   ],
   "prompt": "Design a multi-tenant retrieval-augmented generation system for private, changing documents. It ingests documents asynchronously and answers questions with citations, metadata filters, and semantic search. Answers must respect tenant boundaries and document permissions.\n\nDescribe the document and query APIs, update and deletion behavior, and the path from a question to a supported answer. State freshness, latency, and scale assumptions, and explain failure handling and how you would evaluate answer quality and access isolation.",
@@ -24,5 +24,6 @@
   "evaluation": {
     "type": "system_design"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

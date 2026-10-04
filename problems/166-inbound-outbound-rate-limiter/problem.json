@@ -12,7 +12,7 @@
     "distributed-systems"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Design an API gateway whose public endpoint receives about 100 requests per second while the downstream service can start only about 10 per second. It should absorb short bursts, reject excess work promptly, and prevent one user from monopolizing capacity.\n\nDefine what an accepted or rejected request means. Explain buffering, fairness, downstream protection, and failure behavior, first in one process and then across multiple gateway instances. State the limits of the guarantees you offer.",
   "response": {
@@ -22,5 +22,29 @@
   "evaluation": {
     "type": "system_design"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "references": [
+    {
+      "label": "Original xAI candidate report: 1Point3Acres 1158273 (inbound/outbound limiters in take-home)",
+      "url": "https://www.1point3acres.com/interview/thread/1158273"
+    },
+    {
+      "label": "SpaceX AI canonical interview record (100:10 gateway is practice reconstruction)",
+      "url": "https://app.notion.com/p/3ed6ce51456d819dae66d9ee70a7e976"
+    }
+  ],
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ed6ce51456d819dae66d9ee70a7e976"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "background_note": "The original xAI report describes implementing inbound and outbound rate limiters in a take-home. This architecture discussion is a related practice reconstruction; its gateway, queue, and fairness requirements were not disclosed in that report."
 }

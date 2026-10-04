@@ -2,10 +2,9 @@
   "id": "138",
   "slug": "recipe-manager",
   "title": "Recipe Manager",
-  "category": "Low-Level Design",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
-    "low-level-design",
     "crud",
     "search",
     "stateful",

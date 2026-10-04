@@ -15,6 +15,29 @@
   "companies": [
     "Harvey"
   ],
+  "interview_frequency": {
+    "Harvey": {
+      "source_record_ids": [
+        "3ed6ce51456d81ccaa8de304db87ea51"
+      ],
+      "stars": 0,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-01"
+  },
+  "references": [
+    {
+      "label": "Related 1Point3Acres Vault system-design study page (original report unverified)",
+      "url": "https://www.1point3acres.com/interview/post/7100535"
+    },
+    {
+      "label": "Notion practice record (original report unverified)",
+      "url": "https://app.notion.com/p/3ed6ce51456d81ccaa8de304db87ea51"
+    }
+  ],
   "prompt": "Design a document repository for a professional-services organization. Users browse folders, upload and download PDFs of several gigabytes, and share files or folders with users or organizations using read or read-write access. Interrupted transfers must be resumable.\n\nDescribe the APIs, storage, permissions, and upload-completion behavior. Explain retries, revocation, folder moves, and abandoned transfers. Documents are immutable after upload; editing, revisions, device synchronization, and live collaboration are out of scope.",
   "response": {
     "placeholder": "Begin with tenant and authorization invariants, then separate metadata control from direct object transfer. Explain the upload state machine before discussing scaling.",

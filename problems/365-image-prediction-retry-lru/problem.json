@@ -2,7 +2,7 @@
   "id": "365",
   "slug": "image-prediction-retry-lru",
   "title": "Image Prediction Service with Retry and LRU Caching",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "retry",

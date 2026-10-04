@@ -2,7 +2,7 @@
   "id": "434",
   "slug": "datadog-filesystem-path-size",
   "title": "Compute File-System Size for a Given Path",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "easy",
   "tags": [
     "trees",

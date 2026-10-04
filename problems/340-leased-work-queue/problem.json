@@ -2,7 +2,7 @@
   "id": "340",
   "slug": "leased-work-queue",
   "title": "Leased Work Queue with Retries and Dead Letters",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "queue",

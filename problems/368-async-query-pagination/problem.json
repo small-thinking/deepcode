@@ -2,7 +2,7 @@
   "id": "368",
   "slug": "async-query-pagination",
   "title": "Asynchronous Warehouse Query with Polling and Pagination",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "asyncio",

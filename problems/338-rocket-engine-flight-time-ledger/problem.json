@@ -2,7 +2,7 @@
   "id": "338",
   "slug": "rocket-engine-flight-time-ledger",
   "title": "Rocket Engine Flight-Time Ledger",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "event-sourcing",
@@ -11,10 +11,10 @@
     "aggregation"
   ],
   "companies": [
-    "SpaceX"
+    "SpaceX AI"
   ],
   "interview_frequency": {
-    "SpaceX": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3bd6ce51456d81d4b8b6c096565bec22"
       ],
@@ -52,5 +52,6 @@
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3bd6ce51456d81d4b8b6c096565bec22"
     }
-  ]
+  ],
+  "background_note": "The canonical source concerns a historical SpaceX interview. The catalog groups its company label under SpaceX AI; this source is not evidence that xAI asked the same question."
 }

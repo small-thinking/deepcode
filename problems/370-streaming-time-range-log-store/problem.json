@@ -2,7 +2,7 @@
   "id": "370",
   "slug": "streaming-time-range-log-store",
   "title": "Time-Range Log Queries with Streaming Results",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "iterators",

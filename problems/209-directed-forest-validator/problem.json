@@ -2,7 +2,7 @@
   "id": "209",
   "slug": "directed-forest-validator",
   "title": "Directed Forest Validator",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "graphs",
@@ -48,5 +48,6 @@
       "label": "Notion interview record (original source not recorded)",
       "url": "https://app.notion.com/p/3df6ce51456d81a4a150e818fa2fd5f4"
     }
-  ]
+  ],
+  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
 }

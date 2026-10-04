@@ -2,10 +2,16 @@
   "id": "463",
   "slug": "rotate-grayscale-clockwise",
   "title": "Rotate a Grayscale Image Clockwise",
-  "category": "General Coding",
+  "category": "Coding",
   "difficulty": "easy",
-  "tags": ["arrays", "matrices", "image-processing"],
-  "companies": ["Luma AI"],
+  "tags": [
+    "arrays",
+    "matrices",
+    "image-processing"
+  ],
+  "companies": [
+    "Luma AI"
+  ],
   "prompt": "An image utility receives a nonempty rectangular 2D list of integer pixels. Implement `rotate_clockwise(image)` and return a new 2D list representing the image rotated 90 degrees clockwise. An H by W image becomes W by H. Leave the input unchanged. Python built-ins and NumPy may be used, but `np.rot90` may not be used.",
   "starter_code": "def rotate_clockwise(image):\n    pass\n",
   "example": {
@@ -16,13 +22,17 @@
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
-    "packages": ["numpy"],
+    "packages": [
+      "numpy"
+    ],
     "comparator": "assertions"
   },
-  "evaluation": {"type": "ml_modeling"},
+  "evaluation": {
+    "type": "ml_modeling"
+  },
   "references": [
     {
-      "label": "Original Luma AI MLE online assessment report — seven tasks",
+      "label": "Original Luma AI MLE online assessment report \u2014 seven tasks",
       "url": "https://www.1point3acres.com/bbs/thread-1180000-1-1.html"
     },
     {
@@ -32,11 +42,16 @@
   ],
   "interview_frequency": {
     "Luma AI": {
-      "source_record_ids": ["3ec6ce51456d819bac52f6a96e293293"],
+      "source_record_ids": [
+        "3ec6ce51456d819bac52f6a96e293293"
+      ],
       "stars": 1,
       "synced_at": "2026-10-01"
     }
   },
-  "interview_frequency_total": {"stars": 1, "synced_at": "2026-10-01"},
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
   "created_at": "2026-10-01"
 }

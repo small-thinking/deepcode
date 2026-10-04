@@ -2,7 +2,7 @@
   "id": "258",
   "slug": "event-time-gpu-credit-ledger",
   "title": "Event-Time GPU Credit Ledger",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "event-sourcing",
@@ -30,5 +30,16 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "references": [
+    {
+      "label": "OpenAI candidate report: time-windowed GPU credits and historical balance; debt/replay rules are local practice",
+      "url": "https://prachub.com/interview-experiences/openai-software-engineer-interview-experience-gpu-credits-and-a-photo-storage-system"
+    },
+    {
+      "label": "Related canonical question family — practice variant mapping",
+      "url": "https://app.notion.com/p/38c6ce51456d81cab872e4d366e7d24b"
+    }
+  ],
+  "background_note": "Candidate report supports time-windowed GPU credits and historical balance. The closed interval, debt, and None rules here are DeepCode practice choices; their interview origin is unverified."
 }

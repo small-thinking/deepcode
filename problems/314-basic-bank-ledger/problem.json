@@ -2,7 +2,7 @@
   "id": "314",
   "slug": "basic-bank-ledger",
   "title": "Basic Bank Ledger",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "banking",
@@ -42,6 +42,18 @@
     {
       "label": "Notion interview record (practice variant)",
       "url": "https://app.notion.com/p/35c6ce51456d81efa5ebd29f95c32d4d"
+    },
+    {
+      "label": "Original 1Point3Acres interview report (1179842)",
+      "url": "https://www.1point3acres.com/bbs/thread-1179842-1-1.html"
+    },
+    {
+      "label": "Original 1Point3Acres interview report (1180295)",
+      "url": "https://www.1point3acres.com/bbs/thread-1180295-1-1.html"
+    },
+    {
+      "label": "Original 1Point3Acres interview report (1183423)",
+      "url": "https://www.1point3acres.com/bbs/thread-1183423-1-1.html"
     }
   ]
 }

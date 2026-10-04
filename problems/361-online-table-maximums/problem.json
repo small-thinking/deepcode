@@ -2,7 +2,7 @@
   "id": "361",
   "slug": "online-table-maximums",
   "title": "Maintain Per-Table and Global Maximums",
-  "category": "General Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "heap",

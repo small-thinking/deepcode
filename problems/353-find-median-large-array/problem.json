@@ -2,7 +2,7 @@
   "id": "353",
   "slug": "find-median-large-array",
   "title": "Find Median in a Large Unsorted Array",
-  "category": "Algorithms",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "arrays",
@@ -48,5 +48,6 @@
       "label": "Notion interview record (original source not recorded)",
       "url": "https://app.notion.com/p/3d06ce51456d81afac52fb2a873bdf21"
     }
-  ]
+  ],
+  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
 }

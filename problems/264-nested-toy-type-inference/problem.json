@@ -2,7 +2,7 @@
   "id": "264",
   "slug": "nested-toy-type-inference",
   "title": "Nested Toy Type Inference",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "parsing",
@@ -29,5 +29,29 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "references": [
+    {
+      "label": "OpenAI candidate report: toy-language type system; local parser/unification details are practice",
+      "url": "https://leetcode.com/discuss/post/7572435/openai-interview-do-they-just-not-hire-n-lwpb/"
+    },
+    {
+      "label": "Canonical source and local practice boundary",
+      "url": "https://app.notion.com/p/3ed6ce51456d81028e2fd6155af92216"
+    }
+  ],
+  "background_note": "First-person report supports a toy-language type-system task. The parser grammar and generic-unification API here are DeepCode practice details; their interview origin is unverified.",
+  "interview_frequency": {
+    "OpenAI": {
+      "stars": 1,
+      "source_record_ids": [
+        "3ed6ce51456d81028e2fd6155af92216"
+      ],
+      "synced_at": "2026-10-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-02"
+  }
 }

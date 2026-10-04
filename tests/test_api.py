@@ -99,14 +99,14 @@ class ApiTest(unittest.TestCase):
                 ApiContext(store=store),
                 "GET",
                 "/api/problems",
-                {"company": ["SpaceXAI / xAI-related roles"]},
+                {"company": ["SpaceX AI"]},
                 None,
             )
 
             self.assertEqual(status, 200)
             self.assertEqual([problem["slug"] for problem in payload["problems"]], ["spacex", "xai"])
-            self.assertEqual(payload["companies"], ["SpaceXAI / xAI-related roles"])
-            self.assertEqual(payload["company_counts"], {"SpaceXAI / xAI-related roles": 2})
+            self.assertEqual(payload["companies"], ["SpaceX AI"])
+            self.assertEqual(payload["company_counts"], {"SpaceX AI": 2})
 
     def test_lists_problems_in_requested_sort_direction(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -383,6 +383,34 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(user_state.status_for("toy")["last_submission"]["status"], "in_progress")
             _, progress = handle_api_request(context, "GET", "/api/progress", {}, None)
             self.assertEqual(len(progress["events"]), 2)
+
+    def test_progress_uses_current_category_without_rewriting_activity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_problem(root / "problems", "toy", "1", {"category": "ML System Design"})
+            store = ProblemStore(root / "problems")
+            activity = ActivityLogStore(root / "activity.json")
+            historical = store.get_problem("toy")
+            historical["category"] = "ML Systems"
+            activity.record_submission(historical, scope="full", result={"passed": 1, "total": 1})
+            removed = {**historical, "slug": "removed-problem"}
+            activity.record_submission(removed, scope="selected", result={"passed": 0, "total": 1})
+            original = activity.path.read_bytes()
+            context = ApiContext(store=store, activity_log=activity)
+
+            status, payload = handle_api_request(context, "GET", "/api/progress", {}, None)
+            self.assertEqual(status, 200)
+            events = {event["problem_slug"]: event for event in payload["events"]}
+            self.assertEqual(events["toy"]["category"], "ML System Design")
+            self.assertEqual(payload["problems"][0]["category"], "ML System Design")
+            self.assertEqual(events["removed-problem"]["category"], "ML Systems")
+            for stored in activity.list_events():
+                rendered = events[stored["problem_slug"]]
+                self.assertEqual(
+                    {key: value for key, value in rendered.items() if key != "category"},
+                    {key: value for key, value in stored.items() if key != "category"},
+                )
+            self.assertEqual(activity.path.read_bytes(), original)
 
     def test_progress_endpoint_backfills_existing_statuses_and_returns_catalog_metadata(self):
         with tempfile.TemporaryDirectory() as tmp:

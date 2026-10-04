@@ -2,7 +2,7 @@
   "id": "148",
   "slug": "data-parallel-fsdp-matrix-multiplication",
   "title": "Data-Parallel and FSDP Matrix Multiplication",
-  "category": "ML Systems",
+  "category": "ML Coding",
   "difficulty": "hard",
   "tags": [
     "numpy",
@@ -13,10 +13,10 @@
     "matrix-multiplication"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "interview_frequency": {
-    "xAI": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3cf6ce51456d81e59be5d870979a439f"
       ],
@@ -28,12 +28,12 @@
     "stars": 2,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Use NumPy and the supplied `Communicator` to simulate two ways of distributing `A @ B` across devices.\n\n`A` is `(M, K)`, `B` is `(K, N)`, and `num_devices` is a positive divisor of both `M` and `N`. Each function returns the full `(M, N)` result on rank 0:\n\n- `dp_mat_mul(a, b, num_devices)`: divide `A` by rows, replicate `B`, and assemble output rows in rank order.\n- `fsdp_mat_mul(a, b, num_devices)`: divide `A` by rows and `B` by columns; all-gather the weight shards so every rank can compute its output rows.\n\nRoute all simulated transfers through `Communicator.send` and `Communicator.recv`. Reject incompatible dimensions or partitions; `assert` is sufficient. Discuss the different communication and memory costs. This is a data-flow simulation, not a performance model of production FSDP.",
-  "starter_code": "from queue import Queue\nimport numpy as np\n\n\n+class Communicator:\n+    def __init__(self, num_devices):\n+        self.num_devices = num_devices\n+        self.inboxes = [Queue() for _ in range(num_devices)]\n\n+    def send(self, src, dst, data):\n+        self.inboxes[dst].put((src, data))\n\n+    def recv(self, dst):\n+        return self.inboxes[dst].get()\n\n\n+def dp_mat_mul(a, b, num_devices):\n+    # Split A by rows and gather result rows at rank 0.\n+    pass\n\n\n+def fsdp_mat_mul(a, b, num_devices):\n+    # Split A by rows and B by columns; all-gather B shards via Communicator.\n+    pass\n",
+  "prompt": "Use NumPy and the supplied `Communicator` to simulate matrix multiplication across devices. Given `A` with shape `(M, K)`, `B` with shape `(K, N)`, and a positive `num_devices` that divides both `M` and `N`, implement:\n\n- `dp_mat_mul(a, b, num_devices)`: split `A` by rows, make `B` available to each rank, and assemble the full result in row order.\n- `fsdp_mat_mul(a, b, num_devices)`: split `A` by rows and `B` by columns. Each rank initially owns one `B` shard. Choose how to exchange shards so every rank can compute its output rows.\n\nBoth functions return the full `(M, N)` result on rank 0. Route simulated inter-rank transfers through `Communicator.send` and `Communicator.recv`. Reject incompatible matrix dimensions or partitions; `assert` is sufficient. Explain the communication and per-rank memory trade-offs.",
+  "starter_code": "from queue import Queue\nimport numpy as np\n\n\nclass Communicator:\n    def __init__(self, num_devices):\n        self.num_devices = num_devices\n        self.inboxes = [Queue() for _ in range(num_devices)]\n\n    def send(self, src, dst, data):\n        self.inboxes[dst].put((src, data))\n\n    def recv(self, dst):\n        return self.inboxes[dst].get()\n\n\ndef dp_mat_mul(a, b, num_devices):\n    # Split A by rows and gather result rows at rank 0.\n    pass\n\n\ndef fsdp_mat_mul(a, b, num_devices):\n    # Split A by rows and B by columns; exchange shards via Communicator.\n    pass\n",
   "example": {
-    "input": "a = np.arange(12).reshape(3, 4); b = np.arange(8).reshape(4, 2); dp_mat_mul(a, b, 1)",
-    "output": "a @ b",
-    "reasoning": "With one device both parallel strategies reduce to ordinary matrix multiplication."
+    "input": "a = np.array([[1, 2], [3, 4]])\nb = np.array([[5, 6], [7, 8]])\nfsdp_mat_mul(a, b, 2)",
+    "output": "np.array([[19, 22], [43, 50]])",
+    "reasoning": "The sharded computation returns the same matrix product as a @ b."
   },
   "environment": {
     "language": "python",
@@ -48,8 +48,12 @@
   },
   "references": [
     {
-      "label": "TrueInterview: Data Parallel & FSDP Matrix Multiplication (free)",
-      "url": "https://trueinterview.io/questions/data-parallel-fsdp-matrix-multiplication?company=xai"
+      "label": "xAI ML/Infra interview report — distributed matrix multiplication",
+      "url": "https://www.1point3acres.com/interview/thread/1171574"
+    },
+    {
+      "label": "Canonical Notion question — DP and FSDP matrix multiplication",
+      "url": "https://app.notion.com/p/3cf6ce51456d81e59be5d870979a439f"
     }
   ],
   "created_at": "2026-08-16"

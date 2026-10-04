@@ -44,13 +44,14 @@ PROBLEM_DEMO_PRESENTATION_FIELDS = frozenset(
     {"theme", "fallback_theme", "height", "fallback_height"}
 )
 
-# Keep source labels on each problem intact while exposing one selector for the
-# SpaceX/xAI scope that is curated in the Company Hub.
+# Preserve old bookmarked filters while using the current catalog company name.
 COMPANY_FACET_LABELS = {
-    "spacex": "SpaceXAI / xAI-related roles",
-    "xai": "SpaceXAI / xAI-related roles",
-    "spacexai / xai-related roles": "SpaceXAI / xAI-related roles",
-    "spacexai-xai-related-roles": "SpaceXAI / xAI-related roles",
+    "spacex": "SpaceX AI",
+    "xai": "SpaceX AI",
+    "spacexai / xai-related roles": "SpaceX AI",
+    "spacexai-xai-related-roles": "SpaceX AI",
+    "spacexai": "SpaceX AI",
+    "spacex ai": "SpaceX AI",
 }
 
 
@@ -91,6 +92,7 @@ class ProblemStore:
             ]
         if search:
             needle = search.casefold()
+            company_needle = self._canonical_company_label(search).casefold()
             problems = [
                 problem
                 for problem in problems
@@ -99,7 +101,7 @@ class ProblemStore:
                 or any(needle in tag.casefold() for tag in problem.get("tags", []))
                 or any(
                     needle in str(value).casefold()
-                    or needle in self._canonical_company_label(str(value)).casefold()
+                    or company_needle in self._canonical_company_label(str(value)).casefold()
                     for value in problem.get("companies", [])
                 )
             ]
@@ -492,6 +494,9 @@ class ProblemStore:
             raise ValueError(f"{problem_dir}/problem.json Lab harness not found: {harness}")
 
     def _validate_references(self, problem: dict[str, Any], problem_dir: Path) -> None:
+        note = problem.get("background_note")
+        if note is not None and (not isinstance(note, str) or not note.strip()):
+            raise ValueError(f"{problem_dir}/problem.json field `background_note` must be non-empty text")
         references = problem.get("references")
         if references is None:
             return

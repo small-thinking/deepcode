@@ -2,7 +2,7 @@
   "id": "157",
   "slug": "in-memory-database-ttl-backup",
   "title": "In-Memory Database with TTL Backups",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "key-value-store",
@@ -12,7 +12,7 @@
     "stateful"
   ],
   "companies": [
-    "xAI"
+    "SpaceX AI"
   ],
   "prompt": "Build an in-memory database of string keys, each containing string field/value pairs.\n\n### Basic operations\n\nImplement `set(key, field, value)`, `get(key, field)`, `delete(key, field)`, `scan(key)`, and `scan_by_prefix(key, prefix)`. Missing reads return `None`; delete returns whether a field existed. Scans return `field(value)` strings in lexicographic field order.\n\n### Time and expiry\n\nAdd `set_at(key, field, value, timestamp)` and `set_at_with_ttl(key, field, value, timestamp, ttl)`, plus timestamped `get_at`, `delete_at`, `scan_at`, and `scan_by_prefix_at`. Timestamps are nonnegative integers, supplied in nondecreasing order; TTLs are positive integers. A TTL value exists in `[timestamp, timestamp + ttl)`. Basic and timestamped operations are not mixed in one scenario.\n\n### Backup and restore\n\n`backup(timestamp)` snapshots only live values and their remaining TTLs. `restore(timestamp, timestamp_to_restore)` replaces data with the latest backup at or before `timestamp_to_restore`, restarting its remaining TTLs at `timestamp`. With no qualifying backup, leave data unchanged. Backups must remain independent of later changes.\n\nTarget average O(1) point operations and O(f log f) scans over f fields. Invalid inputs may be rejected with `assert`.",
   "starter_code": "class InMemoryDatabase:\n    def __init__(self):\n        pass\n\n    def set(self, key, field, value):\n        pass\n\n    def get(self, key, field):\n        pass\n\n    def delete(self, key, field):\n        pass\n\n    def scan(self, key):\n        pass\n\n    def scan_by_prefix(self, key, prefix):\n        pass\n\n    def set_at(self, key, field, value, timestamp):\n        pass\n\n    def set_at_with_ttl(self, key, field, value, timestamp, ttl):\n        pass\n\n    def get_at(self, key, field, timestamp):\n        pass\n\n    def delete_at(self, key, field, timestamp):\n        pass\n\n    def scan_at(self, key, timestamp):\n        pass\n\n    def scan_by_prefix_at(self, key, prefix, timestamp):\n        pass\n\n    def backup(self, timestamp):\n        pass\n\n    def restore(self, timestamp, timestamp_to_restore):\n        pass\n",
@@ -30,5 +30,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-17"
+  "created_at": "2026-08-17",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

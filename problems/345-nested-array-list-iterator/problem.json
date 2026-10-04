@@ -2,7 +2,7 @@
   "id": "345",
   "slug": "nested-array-list-iterator",
   "title": "Iterator over Nested Array Lists with Remove",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "iterator",

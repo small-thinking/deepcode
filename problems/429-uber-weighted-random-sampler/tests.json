@@ -1,22 +1,47 @@
 [
   {
-    "name": "uses half-open cumulative intervals",
-    "input": "fixed draws at zero and a boundary",
-    "test": "sampler=WeightedSampler(['A','B'],[1,3],rng=lambda:0)\nassert sampler.sample()=='A'\nsampler.rng=lambda:0.25\nassert sampler.sample()=='B'"
+    "name": "single positive weight always selects its value",
+    "input": "one choice, or zero weights on either side",
+    "test": "for values,weights,expected in [(['only'],[1],'only'),(['a','b','c','d'],[0,2,0,0],'b'),(['a','b','c','d'],[0,0,0.125,0],'c')]:\n    sampler=WeightedSampler(values,weights)\n    assert all(sampler.sample()==expected for _ in range(100))"
   },
   {
-    "name": "skips zero-weight values",
-    "input": "zero weights before and between positive weights",
-    "test": "sampler=WeightedSampler(['A','B','C','D'],[0,2,0,3],rng=lambda:0)\nassert sampler.sample()=='B'\nsampler.rng=lambda:0.4\nassert sampler.sample()=='D'"
+    "name": "zero-weight entries never appear among multiple positive choices",
+    "input": "leading, interior and trailing zeros",
+    "test": "import random\nrandom.seed(429)\nsampler=WeightedSampler(['zero1','a','zero2','b','zero3'],[0,2,0,3,0])\ndraws=[sampler.sample() for _ in range(2000)]\nassert set(draws)=={'a','b'},'zero-weight or unknown value returned, or a positive-weight value never sampled'"
   },
   {
-    "name": "uses a new draw on each sample",
-    "input": "two deterministic draws",
-    "test": "draws=iter([0.1,0.9])\nsampler=WeightedSampler([10,20],[1,1],rng=lambda:next(draws))\nassert [sampler.sample(),sampler.sample()]==[10,20]"
+    "name": "observed proportions follow unequal fractional weights",
+    "input": "12000 draws at probabilities 1/8, 3/8 and 1/2",
+    "test": "import random\nfrom collections import Counter\nrandom.seed(42901)\nsampler=WeightedSampler(['a','b','c'],[0.125,0.375,0.5])\nn=12000;counts=Counter(sampler.sample() for _ in range(n))\nassert set(counts)=={'a','b','c'}\nfor value,expected in [('a',0.125),('b',0.375),('c',0.5)]:\n    assert abs(counts[value]/n-expected)<0.04,(value,counts)"
   },
   {
-    "name": "rejects invalid weight inputs",
-    "input": "empty, negative, or zero-total weights",
-    "test": "for values,weights in [([],[]),(['A'],[-1]),(['A'],[0])]:\n    try:\n        WeightedSampler(values,weights)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('invalid weights were accepted')"
+    "name": "fresh sampling permits repeats and varied transitions",
+    "input": "balanced draws should neither be cached nor alternate mechanically",
+    "test": "import random\nrandom.seed(42902)\nsampler=WeightedSampler([10,20],[1,1]);n=8000\ndraws=[sampler.sample() for _ in range(n)]\nassert set(draws)=={10,20}\nassert abs(draws.count(10)/n-0.5)<0.05\nsame=sum(a==b for a,b in zip(draws,draws[1:]))/(n-1)\nassert 0.4<same<0.6,'draws appear cached, alternating, or strongly correlated'"
+  },
+  {
+    "name": "skewed distribution still samples the rare positive-weight entry",
+    "input": "large imbalance with zero-weight distractors",
+    "test": "import random\nfrom collections import Counter\nrandom.seed(42903)\nsampler=WeightedSampler(['zero','rare','common'],[0,1,99])\ncounts=Counter(sampler.sample() for _ in range(20000))\nassert counts['zero']==0\nassert 80<counts['rare']<320,counts\nassert counts['rare']+counts['common']==20000"
+  },
+  {
+    "name": "rejects empty, negative and zero-total configurations",
+    "input": "invalid weight inputs",
+    "test": "for values,weights in [([],[]),(['a'],[-1]),(['a'],[0]),(['a','b'],[2,-1])]:\n    try:\n        WeightedSampler(values,weights)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('invalid configuration accepted')"
+  },
+  {
+    "name": "rejects mismatched value and weight lengths",
+    "input": "too few or too many weights, including one empty side",
+    "test": "for values,weights in [(['a','b'],[1]),(['a'],[1,2]),([],[1]),(['a'],[])]:\n    try:\n        WeightedSampler(values,weights)\n    except AssertionError:\n        pass\n    else:\n        raise AssertionError('mismatched lengths were accepted')"
+  },
+  {
+    "name": "repeated values retain the combined probability of their entries",
+    "input": "values=['a','a','b'], weights=[1,2,1]",
+    "test": "import random\nrandom.seed(42904)\nvalues=['a','a','b'];weights=[1,2,1]\nsampler=WeightedSampler(values,weights)\ndraws=[sampler.sample() for _ in range(8000)]\nassert set(draws)=={'a','b'}\nassert abs(draws.count('a')/len(draws)-0.75)<0.05,'duplicate values lost some of their weight'\nassert values==['a','a','b'] and weights==[1,2,1],'input lists were modified'"
+  },
+  {
+    "name": "construction and sampling preserve unsorted input lists",
+    "input": "out-of-order labels and weights with a zero entry",
+    "test": "values=['z','a','m'];weights=[2,0,1]\nsampler=WeightedSampler(values,weights)\nassert values==['z','a','m'] and weights==[2,0,1],'constructor modified its inputs'\nfor _ in range(100):\n    assert sampler.sample() in ['z','m']\nassert values==['z','a','m'] and weights==[2,0,1],'sampling modified its inputs'"
   }
 ]

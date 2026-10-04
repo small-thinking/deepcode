@@ -2,7 +2,7 @@
   "id": "381",
   "slug": "multiprocessing-vs-multithreading-ml-agents",
   "title": "Multiprocessing vs Multithreading for ML and Agent Systems",
-  "category": "ML Systems",
+  "category": "ML System Design",
   "difficulty": "medium",
   "tags": [
     "concurrency",
@@ -12,27 +12,30 @@
     "runtime"
   ],
   "companies": [
-    "xAI",
-    "SpaceX"
+    "SpaceX AI"
   ],
   "interview_frequency": {
-    "SpaceX": {
+    "SpaceX AI": {
       "source_record_ids": [
         "3cf6ce51456d81289301f54c07fdd321"
       ],
       "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-10-01"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-10-01"
   },
   "prompt": "Explain the difference between multiprocessing and multithreading, when each is appropriate, and how you would make the choice for an ML or agent system. Address CPU-bound and I/O-bound work, memory and data transfer, shared state, failure isolation, and observability.\n\nUse a real project or a clearly marked hypothetical workload to explain your choice. Return a short written design with its tradeoffs; no concurrency library implementation is required.",
   "references": [
     {
       "label": "1Point3Acres: xAI 15-minute machine learning interview overview",
       "url": "https://www.1point3acres.com/interview/thread/1162858"
+    },
+    {
+      "label": "Canonical Notion question — xAI multiprocessing versus multithreading",
+      "url": "https://app.notion.com/p/3cf6ce51456d81289301f54c07fdd321"
     }
   ],
   "evaluation": {

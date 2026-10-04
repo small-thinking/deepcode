@@ -2,7 +2,7 @@
   "id": "134",
   "slug": "in-memory-unix-file-system",
   "title": "In-Memory Unix File System",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "medium",
   "tags": [
     "low-level-design",

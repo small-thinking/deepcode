@@ -13,7 +13,6 @@
     "localization"
   ],
   "companies": [
-    "xAI",
     "Airbnb"
   ],
   "prompt": "Design a notification platform for real-time product events and scheduled bulk campaigns. It supports email, SMS, mobile push, and partner channels, respects user preferences and quiet hours, and uses localized templates. Expect tens of millions of messages per day with bursts.\n\nGiven an event or campaign and its intended recipients, the platform should deliver eligible notifications and expose their status. Explain the APIs, delivery flow, retries, and how you prevent duplicate transactional notifications. Walk through a scheduled arrival reminder and discuss provider failures and delivery SLOs.",
@@ -26,9 +25,10 @@
   },
   "references": [
     {
-      "label": "TrueInterview: Notification System (Event + Batch) (free)",
+      "label": "Third-party practice listing — interview attribution unverified",
       "url": "https://trueinterview.io/questions/notification-system-design?company=xai"
     }
   ],
-  "created_at": "2026-08-16"
+  "created_at": "2026-08-16",
+  "background_note": "This exercise covers event and campaign notifications. The discovered xAI follower-push question has a different scope and does not establish an xAI occurrence of this contract. The linked third-party listing is unverified preparation material, not an original interview report."
 }

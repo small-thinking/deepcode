@@ -22,5 +22,33 @@
   "evaluation": {
     "type": "system_design"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "background_note": "The candidate report confirms Airbnb uses a code-review interview. The patch series in this exercise is synthetic; its bugs and required response format are not recovered interview material.",
+  "references": [
+    {
+      "label": "First-person Airbnb report — code-review interview format, not this synthetic patch",
+      "url": "https://www.linkedin.com/posts/syscoder_i-took-the-airbnb-code-review-exercise-interview-activity-7128898691196731392-28OX"
+    },
+    {
+      "label": "Secondary preparation — code-review exercise",
+      "url": "https://prachub.com/interview-questions/how-do-you-conduct-a-code-review-exercise"
+    },
+    {
+      "label": "Canonical Airbnb code-review source and practice boundary",
+      "url": "https://app.notion.com/p/3ed6ce51456d8120ba27cd30b1d8502b"
+    }
+  ],
+  "interview_frequency": {
+    "Airbnb": {
+      "stars": 1,
+      "source_record_ids": [
+        "3ed6ce51456d8120ba27cd30b1d8502b"
+      ],
+      "synced_at": "2026-10-02"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-02"
+  }
 }

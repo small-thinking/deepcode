@@ -1,0 +1,7 @@
+[
+  {"name":"finds a plus around one mine", "input":"five-by-five grid with one mine", "test":"assert largest_plus_sign(5, [[4, 2]]) == 2"},
+  {"name":"all-one grid permits an order-two plus", "input":"three-by-three grid without mines", "test":"assert largest_plus_sign(3, []) == 2"},
+  {"name":"mine removes the only cell", "input":"one-by-one grid with a mine", "test":"assert largest_plus_sign(1, [[0, 0]]) == 0"},
+  {"name":"single live cell has order one", "input":"one-by-one grid without mines", "test":"assert largest_plus_sign(1, []) == 1"},
+  {"name":"long arms require all four directions", "input":"five-by-five grid with a missing center", "test":"assert largest_plus_sign(5, [[2, 2]]) == 2"}
+]

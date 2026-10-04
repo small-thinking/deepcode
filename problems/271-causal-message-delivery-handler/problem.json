@@ -2,7 +2,7 @@
   "id": "271",
   "slug": "causal-message-delivery-handler",
   "title": "Causal Message Delivery Handler",
-  "category": "Systems Coding",
+  "category": "Coding",
   "difficulty": "hard",
   "tags": [
     "distributed-systems",
@@ -29,5 +29,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-08-18"
+  "created_at": "2026-08-18",
+  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
 }

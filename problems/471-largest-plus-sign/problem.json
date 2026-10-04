@@ -1,0 +1,59 @@
+{
+  "id": "471",
+  "slug": "largest-plus-sign",
+  "title": "Largest Plus Sign",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "grid",
+    "dynamic-programming",
+    "four-directions"
+  ],
+  "companies": [
+    "SpaceX AI"
+  ],
+  "prompt": "An `n × n` grid initially contains ones. Each coordinate in `mines` is a zero. Return the largest order of an axis-aligned plus sign made entirely of ones, or 0 if none exists. An order-`k` plus consists of its center and four arms of length `k - 1`, extending up, down, left, and right. A lone one has order 1.\n\nAssume `n >= 1` and unique, in-bounds mine coordinates.",
+  "starter_code": "def largest_plus_sign(n, mines):\n    # Return the largest plus order.\n    pass\n",
+  "example": {
+    "input": "largest_plus_sign(5, [[4, 2]])",
+    "output": "2",
+    "reasoning": "A plus with one cell in each arm fits, while no order-three plus survives."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ed6ce51456d815e83fde494968758b7"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "references": [
+    {
+      "label": "Original xAI Human Data OA report",
+      "url": "https://www.1point3acres.com/interview/thread/1129671"
+    },
+    {
+      "label": "LeetCode 764 public problem statement",
+      "url": "https://leetcode.com/problems/largest-plus-sign/"
+    },
+    {
+      "label": "Canonical question and source boundaries",
+      "url": "https://app.notion.com/p/3ed6ce51456d815e83fde494968758b7"
+    }
+  ],
+  "created_at": "2026-10-01"
+}
