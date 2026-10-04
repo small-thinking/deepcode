@@ -57,5 +57,6 @@
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3cf6ce51456d81ab93cdf20fb33771cc"
     }
-  ]
+  ],
+  "background_note": "A public, curated first-person xAI MLE account describes batched next-token decoding with requests completing at a token limit or stop condition and empty slots refilled as decoding proceeds. Its original post URL and independence from the linked 1Point3Acres study page are unresolved. DeepCode's exact class API, padded-batch mode, stop-sequence rules, callback payload, and validation cases are practice specifications; the existing count tier is a historical Notion baseline rather than newly verified independent events."
 }

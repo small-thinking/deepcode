@@ -32,7 +32,7 @@
       "url": "https://app.notion.com/p/3ef6ce51456d814fb50fce6cef6afdda"
     }
   ],
-  "background_note": "The report does not establish exact file formats, limits, storage/indexing architecture, pricing, or metrics definitions; a DeepCode implementation should label these as practice assumptions.",
+  "background_note": "The first-person Exceptional Engineer (SWE) report places this question in a onsite whiteboard system-design discussion about file uploads, user experience, perceived latency, monetization, and metrics. It asks for product/backend design, not a model-training or ML-evaluation pipeline, so the category is System Design. Exact limits, schemas, thresholds, and architecture choices are practice assumptions.",
   "created_at": "2026-10-03",
   "interview_frequency": {
     "SpaceX AI": {

@@ -36,5 +36,6 @@
       "url": "https://trueinterview.io/questions/nested-structure-flatten-and-unflatten?company=xai"
     }
   ],
-  "created_at": "2026-08-16"
+  "created_at": "2026-08-16",
+  "background_note": "This flatten/unflatten exercise is linked to a third-party practice listing labeled xAI. No first-person xAI interview report or original task contract has been verified; the exact container traversal, reconstruction API, and validation behavior are DeepCode practice conventions."
 }

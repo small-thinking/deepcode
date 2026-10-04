@@ -1,7 +1,7 @@
 {
   "id": "337",
   "slug": "model-evaluation-regression-diagnosis",
-  "title": "Design a Model Evaluation and Regression Diagnosis Loop",
+  "title": "Model Evaluation and Debugging",
   "category": "ML System Design",
   "difficulty": "medium",
   "tags": [
@@ -26,13 +26,13 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "A production classifier's overall accuracy improved after a release, but a costly rare failure is occurring more often. How would you decide whether to roll back, tune the model, or collect more data?\n\nDescribe the metrics, data checks, and experiments you would use, including how you distinguish a model regression from a labeling, pipeline, or serving change. Explain your release and monitoring criteria.",
+  "prompt": "How would you evaluate a machine-learning model before using it downstream? Explain how you would choose between precision and recall, validate performance in production, investigate an accuracy drop, and handle class imbalance. How would you tune and validate hyperparameters?",
   "evaluation": {
     "type": "system_design"
   },
   "response": {
-    "placeholder": "Start with error cost and the decision threshold; accuracy alone is not the release criterion.",
-    "reference_answer": "## Decision and evaluation contract\n\nChoose a cost-sensitive objective such as recall at a precision floor, expected cost, or a calibrated risk threshold. Build a time-aware evaluation set with rare-event slices and record label delay, provenance, feature availability, and the model and threshold version. Accuracy is reported but cannot hide a harmful class-specific regression.\n\n## Diagnosis\n\nCompare the candidate with the prior model on paired examples, then slice by source, geography, device, cohort, label age, and feature completeness. Audit data volume, label joins, schema changes, training/serving skew, feature freshness, threshold configuration, and traffic routing before attributing the issue to model weights. Examine calibration and score distributions as well as thresholded outcomes.\n\n## Validation and rollout\n\nUse a frozen holdout for a release gate and, where safe, shadow or limited traffic to validate production behavior. The owner defines rollback thresholds in advance for rare-event misses, latency, and data-quality alarms. Retraining or reweighting is evaluated against the same cost-based metric; collect labels where uncertainty or coverage is the limiting factor.\n\n## Monitoring\n\nMonitor input and feature drift, prediction and calibration drift, outcome delay, slice coverage, label quality, threshold changes, and realized cost. Every alert links a model version to its data snapshot, feature version, serving configuration, and traffic allocation so the diagnosis is reproducible."
+    "placeholder": "Define the decision and evaluation metric, then explain validation, diagnosis, class imbalance, and tuning.",
+    "reference_answer": "## Evaluation contract\n\nStart with the downstream decision, available labels, and cost of different errors. Choose precision, recall, or a cost-based metric accordingly, and examine thresholds and calibration rather than relying on accuracy alone. Keep a representative holdout with relevant time, user, or group boundaries; check leakage and label quality.\n\n## Production validation\n\nCompare a candidate against a baseline on the same examples and meaningful slices. Where appropriate, use shadow or limited traffic to measure quality and operational behavior before wider release. Define success and stopping criteria in advance, including latency, missing features, and delayed outcomes.\n\n## Investigating an accuracy drop\n\nCheck whether traffic, labels, evaluation code, data joins, schemas, features, or serving configuration changed. Compare score distributions and affected slices; test a specific hypothesis before attributing the issue to model weights. Use versioned data and configurations to reproduce the change.\n\n## Class imbalance\n\nMeasure per-class and decision-relevant outcomes. Compare threshold changes, weighting, or sampling against a simple baseline using untouched representative validation data. A better aggregate score can hide a worse outcome for one class; the appropriate tradeoff depends on the product's error costs.\n\n## Hyperparameter tuning\n\nChoose a validation scheme reflecting deployment, isolate the final test set, and tune against the decision metric within a stated compute budget. Account for leakage and variability across runs. Recheck the selected configuration on held-out data and monitor performance after deployment."
   },
   "created_at": "2026-08-30",
   "references": [
@@ -45,5 +45,5 @@
       "url": "https://app.notion.com/p/3bd6ce51456d814d8c2fc46ac304fee6"
     }
   ],
-  "background_note": "The canonical source concerns a historical SpaceX interview. The catalog groups its company label under SpaceX AI; this source is not evidence that xAI asked the same question."
+  "background_note": "The original report describes a historical SpaceX MLE technical phone interview, conducted by a SWE interviewer. It covers model evaluation, hyperparameter tuning, production validation, accuracy drops, and class imbalance. These ML judgment topics are grouped under ML System Design. The earlier rare-failure rollout scenario was a local invention and is not part of the recovered question. SpaceX AI is the catalog label; this historical SpaceX report does not establish an xAI occurrence."
 }
