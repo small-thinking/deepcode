@@ -12,20 +12,20 @@
     "access-control"
   ],
   "companies": [
-    "Google DeepMind"
+    "Google"
   ],
   "interview_frequency": {
-    "Google DeepMind": {
+    "Google": {
       "source_record_ids": [
         "3cc6ce51456d817aa927cad04694aa29"
       ],
-      "stars": 2,
-      "synced_at": "2026-09-03"
+      "stars": 1,
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
-    "stars": 2,
-    "synced_at": "2026-09-03"
+    "stars": 1,
+    "synced_at": "2026-09-22"
   },
   "prompt": "Design an agent for searching internal documents and answering questions with retrieved evidence. It must preserve document permissions and serve up to 100,000 users within cost and latency budgets that you define.\n\nDescribe ingestion, updates, the query path, and the tools the agent can use. Explain access enforcement, quality evaluation, and failure behavior, and justify whether an agent framework is needed.",
   "evaluation": {
