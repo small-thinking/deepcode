@@ -1,0 +1,27 @@
+[
+  {
+    "name": "least-used entry is evicted",
+    "input": "read one of two entries, then insert a third",
+    "test": "cache = LFUCache(2)\ncache.put('a', 10)\ncache.put('b', 20)\nassert cache.get('a') == 10\ncache.put('c', 30)\nassert cache.get('b') is None\nassert cache.get('a') == 10\nassert cache.get('c') == 30"
+  },
+  {
+    "name": "least-recently-used key breaks a frequency tie",
+    "input": "both keys reach frequency two, then insert a third",
+    "test": "cache = LFUCache(2)\ncache.put('a', 1)\ncache.put('b', 2)\nassert cache.get('a') == 1\nassert cache.get('b') == 2\ncache.put('c', 3)\nassert cache.get('a') is None\nassert cache.get('b') == 2\nassert cache.get('c') == 3"
+  },
+  {
+    "name": "updating an existing key changes its value and frequency",
+    "input": "update the older of two keys before a new insertion",
+    "test": "cache = LFUCache(2)\ncache.put('a', 1)\ncache.put('b', 2)\ncache.put('a', 11)\ncache.put('c', 3)\nassert cache.get('a') == 11\nassert cache.get('b') is None\nassert cache.get('c') == 3"
+  },
+  {
+    "name": "misses do not affect use and one-slot cache replaces its entry",
+    "input": "read a missing key, then insert into capacity one",
+    "test": "cache = LFUCache(1)\nassert cache.get('missing') is None\ncache.put('a', 7)\nassert cache.get('a') == 7\nassert cache.get('missing') is None\ncache.put('b', 8)\nassert cache.get('a') is None\nassert cache.get('b') == 8"
+  },
+  {
+    "name": "frequency stays decisive across several insertions",
+    "input": "a frequently read entry survives successive evictions",
+    "test": "cache = LFUCache(2)\ncache.put('anchor', 1)\ncache.put('old', 2)\nassert cache.get('anchor') == 1\nassert cache.get('anchor') == 1\ncache.put('new', 3)\nassert cache.get('old') is None\ncache.put('later', 4)\nassert cache.get('new') is None\nassert cache.get('anchor') == 1\nassert cache.get('later') == 4"
+  }
+]

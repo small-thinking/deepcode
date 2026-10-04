@@ -12,9 +12,10 @@
     "stateful"
   ],
   "companies": [
-    "Anthropic"
+    "Anthropic",
+    "SpaceX AI"
   ],
-  "prompt": "Implement `ManualLRUCache` using a hash map from keys to nodes and a manually maintained doubly linked list. Do not use `OrderedDict`, persistence, memoized functions, or a cache-key serializer.\n\n- `ManualLRUCache(capacity)` requires a positive integer capacity.\n- `get(key, default=None)` returns the value and promotes an existing key to most-recently-used. A missing key returns `default` and does not change the list.\n- `put(key, value)` inserts or replaces a key and promotes it to most-recently-used. Return `None` when no eviction occurs; otherwise return the evicted `(key, value)` pair. Updating an existing key must not evict another key.\n- `remove(key) -> bool` removes a key when present and reports whether it existed.\n- `keys_mru_to_lru() -> list` returns keys from most to least recently used.\n\nKeys must be hashable. Values may be arbitrary Python objects. A `get`, `put`, or `remove` on an unhashable key raises an error. Operations should be O(1) average time, excluding the list materialized by `keys_mru_to_lru()`.\n\nInvalid inputs may be rejected with `assert`.",
+  "prompt": "A fixed-capacity cache should keep recently used entries available and evict the least recently used entry when it fills up. Implement `ManualLRUCache` with the following behavior.\n\n- `ManualLRUCache(capacity)` requires a positive integer capacity.\n- `get(key, default=None)` returns the value and promotes an existing key to most-recently-used. A missing key returns `default` and does not change the access order.\n- `put(key, value)` inserts or replaces a key and promotes it to most-recently-used. Return `None` when no eviction occurs; otherwise return the evicted `(key, value)` pair. Updating an existing key must not evict another key.\n- `remove(key) -> bool` removes a key when present and reports whether it existed.\n- `keys_mru_to_lru() -> list` returns keys from most to least recently used.\n\nKeys must be hashable. Values may be arbitrary Python objects. A `get`, `put`, or `remove` on an unhashable key raises an error. Operations should be O(1) average time, excluding the list materialized by `keys_mru_to_lru()`.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class ManualLRUCache:\n    def __init__(self, capacity):\n        pass\n\n    def get(self, key, default=None):\n        pass\n\n    def put(self, key, value):\n        pass\n\n    def remove(self, key):\n        pass\n\n    def keys_mru_to_lru(self):\n        pass\n",
   "example": {
     "input": "cache = ManualLRUCache(2); cache.put('a', 1); cache.put('b', 2); cache.get('a'); cache.put('c', 3)",
@@ -31,5 +32,32 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-19",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "Two separate xAI candidate accounts support a standard LRU cache with constant-time get/put. The remove and order-inspection methods, return conventions, and validation rules here are local extensions. The inherited Anthropic association remains unverified; these reports add only SpaceX AI evidence.",
+  "references": [
+    {
+      "label": "Original xAI candidate report — standard LRU, software-engineer interview",
+      "url": "https://www.tryexponent.com/experiences/x-ai-software-engineer-interview-2fe9c1"
+    },
+    {
+      "label": "Original xAI candidate report — standard LRU, Exceptional Engineer interview",
+      "url": "https://www.tryexponent.com/experiences/x-ai-software-engineer-interview-4dda03"
+    },
+    {
+      "label": "Canonical SpaceX AI LRU record and independent-event ledger",
+      "url": "https://app.notion.com/p/3ef6ce51456d811b8c3fd5d03654e3fc"
+    }
+  ],
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ef6ce51456d811b8c3fd5d03654e3fc"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-03"
+  }
 }

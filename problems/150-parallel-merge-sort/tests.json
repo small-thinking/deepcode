@@ -1,7 +1,7 @@
 [
   {
     "name": "sorts uneven chunks and keeps duplicate values",
-    "input": "six values with two logical workers",
+    "input": "six values with two workers",
     "test": "values = [41, 7, 29, 14, 3, 36]\nassert parallel_merge_sort(values, 2) == [3, 7, 14, 29, 36, 41]\nassert values == [41, 7, 29, 14, 3, 36]\nassert parallel_merge_sort([9, -2, 9, 0, -2], 3) == [-2, -2, 0, 9, 9]"
   },
   {

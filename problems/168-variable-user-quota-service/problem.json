@@ -31,6 +31,24 @@
     {
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/3cf6ce51456d819799aaf48683f65074"
+    },
+    {
+      "label": "Original xAI candidate report — 1146523",
+      "url": "https://www.1point3acres.com/interview/thread/1146523"
     }
-  ]
+  ],
+  "background_note": "The original xAI report asks for different per-user rate quotas. Burst allowances, retry guidance, partition behavior, and exact guarantees are practice discussion points to clarify with the interviewer.",
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3cf6ce51456d819799aaf48683f65074"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  }
 }

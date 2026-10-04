@@ -39,6 +39,10 @@
     {
       "label": "SpaceX AI canonical interview record (read, delete, and error semantics are practice extensions)",
       "url": "https://app.notion.com/p/3ed6ce51456d810cb1c3ea363b221974"
+    },
+    {
+      "label": "Original xAI candidate report — 1148420",
+      "url": "https://www.1point3acres.com/interview/thread/1148420"
     }
   ],
   "interview_frequency": {
@@ -46,13 +50,13 @@
       "source_record_ids": [
         "3ed6ce51456d810cb1c3ea363b221974"
       ],
-      "stars": 1,
-      "synced_at": "2026-10-01"
+      "stars": 2,
+      "synced_at": "2026-10-03"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
-    "synced_at": "2026-10-01"
+    "stars": 2,
+    "synced_at": "2026-10-03"
   },
-  "background_note": "The original xAI report covers set/start/commit/abort with nested transactions as a follow-up. Additional methods and detailed error/value semantics in this exercise are practice choices."
+  "background_note": "The Aced report covers set/start/commit/abort with a nested-transaction follow-up. A separate xAI onsite report names versioned state with start/commit/rollback but does not establish nesting. Extra methods, exact visibility rules, and error/value semantics are local practice choices."
 }

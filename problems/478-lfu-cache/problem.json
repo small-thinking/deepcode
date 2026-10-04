@@ -1,0 +1,57 @@
+{
+  "id": "478",
+  "slug": "lfu-cache",
+  "title": "LFU Cache",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "cache",
+    "lfu",
+    "eviction",
+    "low-level-design"
+  ],
+  "companies": [
+    "SpaceX AI"
+  ],
+  "prompt": "Implement `LFUCache(capacity)` with `get(key)` and `put(key, value)`. The cache can hold at most `capacity` entries. `get` returns the stored value or `None` if the key is absent. `put` inserts or updates a key. A new entry starts with use frequency 1; a successful `get` or update of an existing key raises that key's frequency by 1. When adding a new key to a full cache, evict an entry with the lowest frequency. If several entries have that frequency, evict the least recently used among them. Assume `capacity` is a positive integer and values are integers. Aim for average O(1) time per operation.",
+  "starter_code": "class LFUCache:\n    def __init__(self, capacity):\n        pass\n\n    def get(self, key):\n        pass\n\n    def put(self, key, value):\n        pass\n",
+  "example": {
+    "input": "cache = LFUCache(2); cache.put('a', 10); cache.put('b', 20); cache.get('a'); cache.put('c', 30)",
+    "output": "cache.get('b') is None; cache.get('a') == 10; cache.get('c') == 30",
+    "reasoning": "The read raises `a`'s frequency, so adding `c` evicts `b`."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Original xAI interview report — LFU cache mentioned; detailed rules reconstructed for practice",
+      "url": "https://www.1point3acres.com/interview/thread/1146971"
+    },
+    {
+      "label": "Canonical Notion question and source boundary",
+      "url": "https://app.notion.com/p/3ef6ce51456d81478564ef451c7480f9"
+    }
+  ],
+  "background_note": "The original interview report names an LFU cache exercise without an exact interface or tie policy. The `get`/`put` API, frequency changes on updates, LRU tie-breaker, positive capacity, and average O(1) target are explicit local practice assumptions.",
+  "interview_frequency": {
+    "SpaceX AI": {
+      "source_record_ids": [
+        "3ef6ce51456d81478564ef451c7480f9"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  },
+  "created_at": "2026-10-03"
+}
