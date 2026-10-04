@@ -11,21 +11,20 @@
     "validation"
   ],
   "companies": [
-    "Canva",
-    "General"
+    "Canva"
   ],
   "interview_frequency": {
-    "General": {
+    "Canva": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d816cbabecd62e737bde1"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-09-22"
   },
   "prompt": "A grayscale preprocessing stage receives one flat 8-bit image. Implement `sanitize_image(image) -> np.ndarray`. `image` must be a non-empty, one-dimensional NumPy array with dtype `uint8`, and its length must be a perfect square.\n\nReturn a new square `float32` array. Min-max normalize the pixel values so the smallest value becomes `0.0` and the largest becomes `1.0`, then reshape to `(side, side)`. If every pixel has the same value, return an all-zero image of the required shape instead of dividing by zero. Reject an empty image, a non-1-D input, a non-`uint8` dtype, or a length that is not a perfect square. Input validation may use `assert`. Do not mutate `image`.",
   "starter_code": "import numpy as np\n\n\ndef sanitize_image(image):\n    pass\n",
@@ -46,6 +45,10 @@
     {
       "label": "1Point3Acres: Canva Senior Machine Learning Engineer technical phone screen",
       "url": "https://www.1point3acres.com/interview/thread/1064047"
+    },
+    {
+      "label": "Canonical question and source/practice boundaries",
+      "url": "https://www.notion.so/3cf6ce51456d816cbabecd62e737bde1"
     }
   ],
   "evaluation": {
