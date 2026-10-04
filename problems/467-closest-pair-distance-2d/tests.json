@@ -1,0 +1,37 @@
+[
+  {
+    "name": "source example",
+    "input": "[[0, 11], [-7, 1], [-5, -3]]",
+    "test": "assert abs(closest_pair_distance([[0, 11], [-7, 1], [-5, -3]]) - 4.472135955) <= 1e-5"
+  },
+  {
+    "name": "two points with extreme coordinates",
+    "input": "[[-10000000, -10000000], [10000000, 10000000]]",
+    "test": "import math\nassert abs(closest_pair_distance([[-10000000, -10000000], [10000000, 10000000]]) - math.hypot(20000000, 20000000)) <= 1e-5"
+  },
+  {
+    "name": "duplicate coordinates yield zero",
+    "input": "[[8, -3], [0, 0], [8, -3]]",
+    "test": "assert closest_pair_distance([[8, -3], [0, 0], [8, -3]]) == 0"
+  },
+  {
+    "name": "closest pair not adjacent in x order",
+    "input": "[[0, 0], [1, 1000], [2, 0]]",
+    "test": "assert abs(closest_pair_distance([[0, 0], [1, 1000], [2, 0]]) - 2) <= 1e-5"
+  },
+  {
+    "name": "repeated x and cross-partition pair",
+    "input": "[[0, 20], [0, -20], [1, 0], [2, 0], [4, 20], [4, -20]]",
+    "test": "assert abs(closest_pair_distance([[0, 20], [0, -20], [1, 0], [2, 0], [4, 20], [4, -20]]) - 1) <= 1e-5"
+  },
+  {
+    "name": "random small cases match exhaustive oracle",
+    "input": "30 seeded point sets of size 2 to 12",
+    "test": "import math\nimport random\nrng = random.Random(20261001)\nfor size in range(2, 12):\n    for _ in range(3):\n        points = [[rng.randrange(-20, 21), rng.randrange(-20, 21)] for _ in range(size)]\n        expected = min(math.dist(points[i], points[j]) for i in range(size) for j in range(i + 1, size))\n        assert abs(closest_pair_distance(points) - expected) <= 1e-5"
+  },
+  {
+    "name": "twenty thousand points with a known nearest pair",
+    "input": "20,000 points with one distance-one pair",
+    "test": "points = [[index * 500, 0] for index in range(20000)]\npoints[10000][0] = points[9999][0] + 1\nbefore = [point[:] for point in points]\nassert abs(closest_pair_distance(points) - 1) <= 1e-5\nassert points == before"
+  }
+]

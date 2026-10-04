@@ -1,0 +1,32 @@
+[
+  {
+    "name": "source example with mixed windows",
+    "input": "[1, 2, 2, 4]",
+    "test": "assert triangle_flags([1, 2, 2, 4]) == [1, 0]"
+  },
+  {
+    "name": "exactly three feasible sides",
+    "input": "[3, 4, 5]",
+    "test": "assert triangle_flags([3, 4, 5]) == [1]"
+  },
+  {
+    "name": "equality is degenerate",
+    "input": "[2, 3, 5]",
+    "test": "assert triangle_flags([2, 3, 5]) == [0]"
+  },
+  {
+    "name": "check each consecutive window only",
+    "input": "[2, 10, 2, 10, 2]",
+    "test": "assert triangle_flags([2, 10, 2, 10, 2]) == [0, 1, 0]"
+  },
+  {
+    "name": "longest side can occur anywhere",
+    "input": "[9, 2, 3, 2, 9, 3, 2, 3, 9]",
+    "test": "assert triangle_flags([9, 2, 3, 2, 9, 3, 2, 3, 9]) == [0, 1, 0, 0, 0, 1, 0]"
+  },
+  {
+    "name": "largest allowed values and strict boundary",
+    "input": "[1000000000, 1000000000, 1000000000, 1]",
+    "test": "assert triangle_flags([1000000000, 1000000000, 1000000000, 1]) == [1, 1]"
+  }
+]

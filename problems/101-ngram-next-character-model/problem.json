@@ -47,13 +47,17 @@
       "url": "https://en.wikipedia.org/wiki/Perplexity"
     },
     {
-      "label": "Notion interview record (original source not recorded)",
-      "url": "https://app.notion.com/p/37b6ce51456d81cbaa76e35fa0b66765"
+      "label": "Notion interview record \u2014 character model, perplexity, and top-k variant",
+      "url": "https://app.notion.com/37b6ce51456d81cbaa76e35fa0b66765"
     },
     {
-      "label": "Related original Runway report — file-fit/generate variant; local API differs",
+      "label": "Related original Runway report \u2014 file-fit/generate variant; local API differs",
       "url": "https://www.1point3acres.com/bbs/thread-1140478-1-1.html",
       "source_kind": "related_interview_report"
+    },
+    {
+      "label": "PracHub repost of the linked RunwayML fit/generate report",
+      "url": "https://prachub.com/interview-experiences/runway-machine-learning-engineer-interview-experience-two-phone-screens-rejected-in-ml-system-design"
     }
   ],
   "environment": {

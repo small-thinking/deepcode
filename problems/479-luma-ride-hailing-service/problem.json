@@ -1,0 +1,49 @@
+{
+  "id": "479",
+  "slug": "luma-ride-hailing-service",
+  "title": "Design a Ride-Hailing Service",
+  "category": "System Design",
+  "difficulty": "hard",
+  "tags": [
+    "ride-hailing",
+    "geospatial",
+    "payments",
+    "distributed-systems",
+    "reliability"
+  ],
+  "companies": [
+    "Luma AI"
+  ],
+  "prompt": "Design a ride-hailing service where riders request trips and drivers receive and accept offers. Explain the experience from request through pickup, completion, payment, and cancellation. Clarify the scope and scale you would design for, then discuss the data and APIs, how a rider is matched with an available driver, how clients learn about trip progress, and how the service handles retries, concurrent actions, failures, and growth.\n\nState your assumptions and the tradeoffs behind them. No traffic target, latency target, or fixed architecture is supplied.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Clarify scope, then trace one trip from request through matching, payment, recovery, and scaling.",
+    "reference_answer": "## Clarify the service\n\nAsk whether this is a single city or a multi-region product, whether a rider chooses a destination before requesting, how pricing and payment are handled, and whether drivers can hold multiple offers. The source gives no traffic or latency numbers, so agree on availability and response-time goals before sizing. For a baseline, assume one city, one active trip per rider and driver, upfront fare estimate, card authorization at pickup and capture at completion. The rider sees nearby supply, requests a trip, tracks assignment and progress, and can cancel under a stated policy. A driver publishes availability and location, receives an offer, and explicitly accepts it.\n\n## Core records and APIs\n\nKeep rider, driver, vehicle, trip, assignment offer, fare quote, payment attempt, and location-event records with stable IDs. A trip has an explicit lifecycle such as requested → offered → accepted → arriving → in progress → completed, plus cancellation and failure branches. Define which actor can make each transition. Store the authoritative trip state and version in a transactional database; location history and live positions can use a different store because they have different freshness and retention needs.\n\nIllustrative APIs are POST /trips with a client-generated idempotency key, GET /trips/{id}, POST /trips/{id}/cancel, POST /offers/{id}/accept, and driver location/availability updates. Responses include trip/offer IDs, current state, version, and timestamps. Authentication binds a rider or driver to authorized records; drivers cannot accept offers addressed to someone else. Public map data is separate from precise user location, which requires retention and access controls.\n\n## Request and match flow\n\nOn request, validate rider state and pickup/destination, create a trip with a stable request ID, and return a trackable state. Use recent driver positions and availability to obtain a small eligible candidate set. The first version can query drivers near pickup, rank by estimated pickup time and simple fairness constraints, then make short-lived offers. This is a baseline, not a reported interviewer requirement. A location service may be eventually consistent; a final assignment must be authoritative.\n\nPrevent double assignment with an atomic transition on driver availability and the trip version, or a database uniqueness constraint for an active driver assignment. A distributed lock alone is insufficient if it expires or a process crashes before writing the trip. Make offer acceptance conditional on both offer expiry and the current trip/driver version. If two drivers accept simultaneously, exactly one succeeds and the other receives a clear expired/unavailable result. Re-offer after timeout; preserve the transition history for investigation.\n\n## Payments, cancellation, and retries\n\nSeparate fare estimation from the final charge. Use a payment attempt ID and provider idempotency key so retries after a client timeout do not create a second authorization or capture. Persist intended payment transitions before invoking the provider and reconcile provider results when the call succeeds but the response is lost. A trip transition and an external card charge cannot generally share one database transaction. A durable workflow/outbox records the next action, retries safely, and moves exceptions to an operations queue. Do not claim exactly-once delivery from a message broker; obtain exactly-once *effects* through idempotency and state checks.\n\nDefine cancellation behavior by state: before driver acceptance, after acceptance, and after pickup need different policies and potential fee treatment. A cancelled trip must not later become accepted because a delayed offer reply arrives. Refunds or voids follow recorded payment state; never infer charge status solely from a local timeout. Keep an append-only audit trail with causation IDs for trip, offer, fare, and payment transitions, and reconcile it with provider statements. A support agent should be able to answer why a rider was charged and what compensation remains due.\n\n## Updates, failure recovery, and growth\n\nSend state changes to rider and driver clients through a subscription mechanism such as SSE or WebSocket, or use push notifications when the app is backgrounded. Treat these channels as hints, not the authority: include sequence/version numbers and let clients resync from GET /trips/{id} after reconnect. Location updates can be sampled or throttled; stale positions must not imply a driver is still available. Guard against duplicated and out-of-order updates.\n\nOn process restart, replay pending outbox work and inspect timed-out offers, unmatched trips, and unresolved payment attempts. Reconciliation jobs compare authoritative trip state, active-driver assignments, payment provider status, and the event trail. Dead-letter cases need an operator path and metrics, not silent loss. Test a crash between assignment and notification, lost payment responses, concurrent accepts, cancellation racing with acceptance, and a stale client reconnect.\n\nPartition only after measuring demand. A city or geographic cell can scope driver discovery, but riders near cell borders must see neighboring supply. Keep authoritative trip writes for one trip on one partition at a time; use stable IDs and routing so a retry reaches the same state. Read-heavy map/location traffic can scale separately from transactional trip/payment traffic. Capacity planning should consider active drivers, location-update rate, ride-request bursts, match fan-out, and event delivery. Monitor successful match rate, time to assignment, stale-driver offers, double-assignment attempts, cancellation outcomes, payment reconciliation backlog, and user-visible update delay. Degrade gracefully when the location stream or notification channel fails while preserving trip and payment correctness.\n\n## Review scenarios\n\n- Two drivers accept competing offers for the same trip milliseconds apart; explain the winning write and what both clients see.\n- A payment provider captures funds, but its response times out; trace the retry and reconciliation without a second charge.\n- A rider cancels while an offer is accepted and an old location update arrives; show the final trip, driver, and payment states.\n- A server restarts after writing a trip but before delivering a notification; show how the rider recovers and pending work resumes.\n- The product grows from one city to many; identify which measured bottleneck warrants each split and how cross-boundary matching works.\n\n## Source boundary\n\nThe [original candidate report](https://www.1point3acres.com/bbs/thread-1190793-1-1.html) identifies a Build Uber onsite design round for a General SWE/product-engineering role and lists areas discussed: requirements, entities/APIs, idempotent transactions and double charges, scaling/sharding, locks, geospatial search, recovery/replay, reconciliation, cancellation, and client update options. It gives no specific numerical scale, SLA, schema, or required architecture. The concrete lifecycle, API examples, storage choices, failure handling, and review scenarios above are local design elaborations. Its later curated/reposted versions describe the same candidate event and do not add frequency."
+  },
+  "references": [
+    {
+      "label": "Canonical Luma AI interview question — ride-hailing system design",
+      "url": "https://app.notion.com/p/3ef6ce51456d813a978df20902a4f76a"
+    },
+    {
+      "label": "Original candidate report — Build Uber onsite design round (General SWE/product engineering)",
+      "url": "https://www.1point3acres.com/bbs/thread-1190793-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-03",
+  "interview_frequency": {
+    "Luma AI": {
+      "stars": 1,
+      "source_record_ids": [
+        "3ef6ce51456d813a978df20902a4f76a"
+      ],
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  }
+}

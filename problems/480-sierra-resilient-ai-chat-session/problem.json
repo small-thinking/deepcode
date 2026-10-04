@@ -1,0 +1,52 @@
+{
+  "id": "480",
+  "slug": "sierra-resilient-ai-chat-session",
+  "title": "Design a Resilient AI Chat Session",
+  "category": "System Design",
+  "difficulty": "hard",
+  "tags": [
+    "streaming",
+    "session-recovery",
+    "audio",
+    "reliability"
+  ],
+  "companies": [
+    "Sierra"
+  ],
+  "prompt": "Design an AI chat experience that streams the assistant's reply as audio. A user may lose the connection, and the service may be deployed while a reply is in progress. When the user returns, the conversation should resume coherently while minimizing skipped or unnecessarily replayed audio.\n\nClarify the user-visible recovery behavior and what state must survive a disconnect or deployment. Explain the request and response flow, how the service distinguishes audio that was generated, delivered, and actually heard, and how it handles retries, partial replies, and failures. Discuss how you would verify the experience works during a rolling deployment. No traffic target or latency budget is specified; state any assumptions you need.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Clarify the recovery contract, then trace an audio reply through disconnect, deployment, and reconnection.",
+    "reference_answer": "## Clarify the user contract\n\nAsk whether playback resumes within the current reply or from a complete sentence, whether the same conversation can be open on several devices, how long a disconnected user may return, and whether a partial reply should finish generating while they are away. The source did not specify traffic, latency, retention, or an exact delivery guarantee. For a baseline, assume one active playback device per conversation, a bounded reconnect window, and a user experience that resumes at the first audio segment the client has not acknowledged as played. State those choices rather than presenting them as reported constraints.\n\nA successful answer separates three positions: what the model or speech pipeline generated, what the server transmitted, and what the playback client confirmed the user heard. A network write proves neither receipt nor playback. If acknowledgements are missing, replay may be necessary; the system cannot promise both zero loss and zero duplicate sound through every crash without a well-defined client playback acknowledgement boundary.\n\n## A concrete baseline\n\nGive each conversation a durable ID and each user turn a stable, idempotent turn ID. A session service authenticates the user, accepts a turn, records the turn and reply status, and starts the model/audio stream. Split the resulting audio into ordered segments with reply ID and monotonically increasing sequence number or timestamp range. Persist segment metadata and audio bytes for the reconnect window before considering a segment replayable; keep a clear state for generation still in progress, completed, cancelled, or failed. The exact storage technology follows the retention and volume assumptions.\n\nA streaming gateway sends available segments to the client and may hold per-connection buffers, but it is not the authority for conversation progress. The client acknowledges the highest contiguous segment it has actually played, not merely downloaded. Persist that cursor under conversation, reply, and playback-device identity. An acknowledgement should be monotonic and idempotent, so retries cannot move the cursor backwards. If multiple devices are allowed, define whether each has its own cursor or whether one device owns playback; a single global cursor would silently skip audio on a second device.\n\nOn reconnect, the client presents an authenticated session and its last local playback cursor. The service reconciles it with the durable server cursor, checks that the reply and retained segments still exist, and replays from the agreed safe point before forwarding newly generated segments. It must reject a cursor for another user's conversation or an invalid reply. A gap in retained audio needs explicit recovery behavior, such as restarting the reply or presenting the text transcript with a clear notice; never silently jump over missing sound. A transcript can help users inspect what was generated, but it does not prove what they heard.\n\n## Deployments, retries, and failures\n\nDuring a rolling deployment, stop routing new sessions to a draining instance, allow a bounded time for active writes and acknowledgements, then close connections with a reconnect signal. A termination handler and grace period help reduce abrupt cuts, but correctness depends on durable reply state and playback cursor, not on a particular orchestrator. A reconnect to another instance should find the same conversation state. The client uses backoff and jitter; the service should avoid reissuing the same user turn or creating a second model generation when a request is retried. Stable turn IDs and a clear in-progress ownership/lease rule prevent duplicate generation.\n\nConsider the crash boundaries explicitly. If generation occurred but a segment was not persisted, it cannot be replayed and must be regenerated or surfaced as a failed partial reply. If a segment was persisted but not sent, replay it. If sent but not acknowledged, replay conservatively; a brief duplicate may be preferable to lost audio unless the client can safely resume within a segment. If acknowledged locally but the acknowledgement was not stored remotely, the client can resend its cursor on reconnect. If the client reports a cursor beyond durable audio, validate and reconcile rather than trusting it blindly. Expire audio and cursors together under a documented retention policy, while retaining any necessary conversation record separately.\n\nThe client-to-service and service-to-model links may use different streaming protocols. The original candidate account discussed WebSocket for the client and SSE toward the model API, along with graceful shutdown, reconnection, and Kubernetes termination behavior. Those were details of that discussion, not mandatory components of the problem. Choose protocols according to bidirectional needs, intermediary behavior, and operational support.\n\n## Verification and operating signals\n\nRun a controlled rolling-deploy test with a reply playing, then reconnect the same client to a different instance. Compare generated, transmitted, and acknowledged segment IDs and confirm audible continuation. Repeat with the disconnect immediately before and after a playback acknowledgement, during model generation, after generation completes, and after retention expires. Test a duplicate turn submission and a second-device connection if supported. Verify unauthorized reconnection cannot fetch another conversation's audio.\n\nMonitor reconnect completion, time to resumed playback, replayed or missing segments, duplicate generation, cursor lag, audio-retention gaps, and draining sessions that outlive the grace period. Sample end-to-end playback traces with privacy-safe identifiers; request success alone does not reveal whether a listener heard a seamless reply. Measure under the actual deployment strategy and expected concurrency once those targets are known.\n\n## Provenance\n\nThe original Sierra candidate described an Infra onsite AI-chat-box design discussion involving client streaming, deployment reliability, reconnection, stateless service behavior, and acknowledgement of audio frames already heard. The source did not give scale numbers or a fixed architecture. Segment sequencing, durable replay storage, idempotent turn IDs, cursor reconciliation, retention behavior, and test scenarios above are a practical design elaboration for study, not verbatim reported interviewer follow-ups."
+  },
+  "references": [
+    {
+      "label": "Notion: Sierra | Design a Resilient AI Chat Session",
+      "url": "https://app.notion.com/p/3ef6ce51456d813e9cedef34b3787794"
+    },
+    {
+      "label": "Original Sierra Infra onsite report — AI chat box and deployment recovery",
+      "url": "https://www.1point3acres.com/bbs/forum.php?mod=redirect&goto=findpost&ptid=1155857&pid=20870732"
+    },
+    {
+      "label": "Original author follow-up — audio playback acknowledgement and reconnection",
+      "url": "https://www.1point3acres.com/bbs/forum.php?mod=redirect&goto=findpost&ptid=1155857&pid=20899795"
+    }
+  ],
+  "created_at": "2026-10-03",
+  "interview_frequency": {
+    "Sierra": {
+      "source_record_ids": [
+        "3ef6ce51456d813e9cedef34b3787794"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-03"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-03"
+  }
+}

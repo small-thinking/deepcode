@@ -1,0 +1,55 @@
+{
+  "id": "466",
+  "slug": "adjacent-triangle-feasibility",
+  "title": "Check Consecutive Triples of Side Lengths",
+  "category": "Coding",
+  "difficulty": "easy",
+  "tags": [
+    "arrays",
+    "geometry",
+    "consecutive-triples"
+  ],
+  "companies": [
+    "Luma AI"
+  ],
+  "prompt": "Given a sequence of possible side lengths, implement `triangle_flags(sides)` to decide whether each consecutive group of three can form a nondegenerate triangle. Return a list of 0s and 1s: result position `i` describes `sides[i]`, `sides[i + 1]`, and `sides[i + 2]`. A group whose longest side equals the sum of the other two is degenerate and returns 0.\n\nThere are 3 to 1,000 positive integer sides, each at most 1,000,000,000.",
+  "starter_code": "def triangle_flags(sides):\n    pass\n",
+  "example": {
+    "input": "triangle_flags([1, 2, 2, 4])",
+    "output": "[1, 0]",
+    "reasoning": "The first consecutive triple forms a triangle; the second does not."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Original Luma AI MLE online assessment report \u2014 consecutive triples",
+      "url": "https://www.1point3acres.com/bbs/thread-1180000-1-1.html"
+    },
+    {
+      "label": "Canonical Notion interview question and occurrence record",
+      "url": "https://app.notion.com/3ec6ce51456d810190a9c9e14fd49f3e"
+    }
+  ],
+  "interview_frequency": {
+    "Luma AI": {
+      "source_record_ids": [
+        "3ec6ce51456d810190a9c9e14fd49f3e"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-01"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-01"
+  },
+  "created_at": "2026-10-01"
+}

@@ -71,6 +71,11 @@
     {
       "label": "Notion interview record",
       "url": "https://app.notion.com/p/37c6ce51456d8110902dc0612ab26f2c"
+    },
+    {
+      "label": "Related Agent Engineer report — spreadsheet cycle detection; exact practice API and event independence unconfirmed",
+      "url": "https://www.aced.io/experiences/sierra-ai-machine-learning-engineer-interview-8549fc",
+      "source_kind": "related_interview_report"
     }
   ],
   "created_at": "2026-06-15"
