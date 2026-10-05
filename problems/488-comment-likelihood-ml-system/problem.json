@@ -1,0 +1,50 @@
+{
+  "id": "488",
+  "slug": "comment-likelihood-ml-system",
+  "title": "Design a Comment Likelihood ML System",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "user-modeling",
+    "classification",
+    "feature-serving",
+    "model-serving",
+    "calibration",
+    "experimentation"
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "prompt": "Design an ML system that scores how likely a user is to comment on a post, for use in a community feed. Define the prediction target and how the score affects ranking. Explain your training data, features, model and evaluation, with particular attention to feature and model serving. Discuss freshness, latency, failure handling, and how you would test the system's effect on the quality of discussion. State any scale or timing assumptions you need. The available reports establish the topic and serving emphasis; this full design scope is a practice reconstruction.",
+  "response": {
+    "placeholder": "Define the target and assumptions, then develop the modeling, serving, and evaluation decisions.",
+    "reference_answer": "## Define the prediction and label\n\nClarify whether the unit is a user-post impression and whether the score feeds ranking, notification selection, or analysis. Define an observation window, for example a comment within 24 hours of an eligible impression, as an assumption. Define attribution for repeated impressions and replies; deduplicate logging and exclude exposures without observable outcomes. Wait for labels to mature rather than treating recent impressions as negatives.\n\nA prediction is made before exposure, so realized votes, future replies, and post-exposure dwell time cannot be features. Retain event time and availability time. Split by time and inspect user/community slices; a random row split can hide temporal leakage.\n\n## Features, model, and evaluation\n\nStart with a simple calibrated classifier using user activity and commenting history, topic/community affinity, post age/content, and user-post interactions. Compute historical aggregates from information available at the prediction time. Explain how new users and posts receive usable defaults. Introduce richer user/content representations or a sequence model only if they improve an identified failure of the baseline.\n\nImbalance and negative sampling change probability interpretation. If negatives are sampled, preserve their sampling rates and correct or recalibrate before presenting the score as a population probability. Compare PR-AUC, log loss and calibration with simple baselines. Inspect slices and prediction errors. AUC alone does not measure probability accuracy or the quality of the resulting conversations.\n\n## Feature serving\n\nSeparate reproducible offline feature history from the current online projection. Training examples require point-in-time joins using availability timestamps. Pin feature definitions and model versions together. Serve fresh user actions through streaming updates and stable content features through batch materialization, choosing freshness budgets based on their effect on decisions.\n\nAt request time, use bounded multi-get calls or cached/precomputed vectors to avoid a remote call per candidate. Return freshness metadata and use declared defaults for missing features. Validate the same transformation semantics offline and online; sharing a library is useful but does not by itself prove parity. Monitor lag, null/default rates and distribution changes.\n\n## Model serving and reliability\n\nKeep model versions, feature schemas, preprocessing and thresholds in one release manifest. A scoring service can batch user-post candidates, reuse the user representation within a request, and apply an explicit deadline. Quantify network and feature-fetch time separately from inference time. State request volume, candidate count and latency targets before choosing hardware or caching.\n\nWhen features are stale or inference times out, use a compatible simpler model or the declared ranking fallback. A stale embedding needs a bounded freshness policy; silently joining features from incompatible versions is not a fallback. Shadow new releases, canary them, and retain an atomic rollback path. Log the exposure, score, feature/model versions and outcome so serving failures and training drift can be separated.\n\n## Product experiments and trade-offs\n\nA propensity to comment can reward controversy. Decide how the score interacts with relevance, visibility and safety rules rather than maximizing raw comment volume. Evaluate online meaningful discussion, retention, hide/report rates and latency alongside comment rate. Address position/exposure bias and feedback loops with appropriate logging and controlled experiments; observational offline gains alone do not justify launch.\n\nDiscuss cost versus freshness, richer models versus latency, and shared representations versus team-specific objectives. Present measurable evidence before introducing more model complexity.\n\n## Source boundary\n\nThe source reports support a user-and-post comment-probability theme for feed ranking and emphasize feature and model serving. The label window, detailed features, metrics, scale, and architecture above are practice assumptions, not a recovered original prompt."
+  },
+  "evaluation": {
+    "type": "system_design"
+  },
+  "references": [
+    {
+      "label": "Firsthand Staff MLE report: user and post IDs to comment probabilities for feed ranking; serving/modeling design",
+      "url": "https://www.1point3acres.com/bbs/thread-1180006-1-1.html"
+    },
+    {
+      "label": "Independent MLE onsite report: comment likelihood with feature/model serving focus; detailed design exercise reconstructed",
+      "url": "https://www.1point3acres.com/bbs/thread-1190825-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-04",
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 2,
+      "source_record_ids": [
+        "3eb6ce51456d81b0abe3eceebc5227cf"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-04"
+  }
+}

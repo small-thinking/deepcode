@@ -1,0 +1,42 @@
+[
+  {
+    "name": "cycles through healthy backends",
+    "input": "three healthy backends",
+    "test": "r=Router([\"a\",\"b\",\"c\"])\nassert [r.choose() for _ in range(7)] == [\"a\",\"b\",\"c\",\"a\",\"b\",\"c\",\"a\"]"
+  },
+  {
+    "name": "skips unhealthy positions across wraparound",
+    "input": "four backends with two gaps",
+    "test": "r=Router([\"a\",\"b\",\"c\",\"d\"])\nassert r.choose() == \"a\"\nr.set_health(\"b\", False)\nr.set_health(\"d\", False)\nassert [r.choose() for _ in range(4)] == [\"c\",\"a\",\"c\",\"a\"]"
+  },
+  {
+    "name": "all unhealthy and later recovery",
+    "input": "no healthy backend, then one recovers",
+    "test": "r=Router([\"a\",\"b\"])\nr.set_health(\"a\", False)\nr.set_health(\"b\", False)\nassert r.choose() is None\nr.set_health(\"b\", True)\nassert [r.choose() for _ in range(3)] == [\"b\",\"b\",\"b\"]"
+  },
+  {
+    "name": "single backend health changes",
+    "input": "one backend toggled off and on",
+    "test": "r=Router([\"only\"])\nassert r.choose() == \"only\"\nr.set_health(\"only\", False)\nassert r.choose() is None\nr.set_health(\"only\", True)\nassert r.choose() == \"only\""
+  },
+  {
+    "name": "recovered backend rejoins original order",
+    "input": "health toggles during routing",
+    "test": "r=Router([\"a\",\"b\",\"c\"])\nassert r.choose() == \"a\"\nr.set_health(\"b\", False)\nassert r.choose() == \"c\"\nr.set_health(\"b\", True)\nassert [r.choose() for _ in range(4)] == [\"a\",\"b\",\"c\",\"a\"]"
+  },
+  {
+    "name": "latency lookup skips unhealthy and unknown backends",
+    "input": "available health and latency readings",
+    "test": "r=Router([\"a\",\"b\",\"c\"])\nr.set_health(\"b\", False)\nassert r.choose_lowest_latency({\"a\":5,\"b\":1,\"c\":3,\"unknown\":0}) == \"c\"\nassert r.choose_lowest_latency({\"b\":1,\"unknown\":0}) is None\nassert r.choose_lowest_latency({}) is None"
+  },
+  {
+    "name": "latency ties follow original order without changing cursor",
+    "input": "equal readings after one round-robin call",
+    "test": "r=Router([\"a\",\"b\",\"c\"])\nassert r.choose() == \"a\"\nassert r.choose_lowest_latency({\"c\":2,\"b\":2}) == \"b\"\nassert r.choose() == \"b\""
+  },
+  {
+    "name": "empty backend pool is rejected",
+    "input": "Router([])",
+    "test": "try:\n    Router([])\nexcept ValueError:\n    pass\nelse:\n    assert False, \"empty backend pool should be rejected\""
+  }
+]

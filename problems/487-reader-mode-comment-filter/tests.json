@@ -1,0 +1,42 @@
+[
+  {
+    "name": "cat reader excludes dog subtree",
+    "input": "flagged child and neutral grandchildren",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\ncomments={1:row(1),2:row(2,1,dog=True),3:row(3,2),4:row(4,3),5:row(5,1)}\nassert get_comments_to_exclude(comments,\"CAT_PERSON\") == {2,3,4}"
+  },
+  {
+    "name": "dog reader excludes cat subtree",
+    "input": "flagged root and neutral descendant",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\ncomments={1:row(1,cat=True),2:row(2,1),3:row(3),4:row(4,3,dog=True)}\nassert get_comments_to_exclude(comments,\"DOG_PERSON\") == {1,2}"
+  },
+  {
+    "name": "separate roots remain independent",
+    "input": "two flagged branches and a neutral root",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\ncomments={1:row(1,dog=True),2:row(2,1),3:row(3),4:row(4,3,cat=True),5:row(5)}\nassert get_comments_to_exclude(comments,\"CAT_PERSON\") == {1,2}\nassert get_comments_to_exclude(comments,\"DOG_PERSON\") == {4}"
+  },
+  {
+    "name": "both animal flags affect both modes",
+    "input": "one comment has cat and dog flags",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\ncomments={1:row(1,cat=True,dog=True),2:row(2,1),3:row(3)}\nassert get_comments_to_exclude(comments,\"CAT_PERSON\") == {1,2}\nassert get_comments_to_exclude(comments,\"DOG_PERSON\") == {1,2}"
+  },
+  {
+    "name": "propagates through a deeper reply chain",
+    "input": "twelve comments with flag in middle",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\ncomments={i:row(i,i-1 if i else None,dog=(i==4)) for i in range(12)}\nassert get_comments_to_exclude(comments,\"CAT_PERSON\") == set(range(4,12))\nassert get_comments_to_exclude(comments,\"DOG_PERSON\") == set()"
+  },
+  {
+    "name": "child-before-parent order gives same excluded IDs",
+    "input": "reordered comment dictionary",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\nrows=[row(3,2),row(2,1,dog=True),row(4,1,cat=True),row(1)]\ncomments={item[\"id\"]:item for item in rows}\nassert get_comments_to_exclude(comments,\"CAT_PERSON\") == {2,3}\nassert get_comments_to_exclude(comments,\"DOG_PERSON\") == {4}"
+  },
+  {
+    "name": "empty and neutral comments exclude nothing",
+    "input": "no records or only neutral roots",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\nassert get_comments_to_exclude({},\"CAT_PERSON\") == set()\ncomments={1:row(1),2:row(2)}\nassert get_comments_to_exclude(comments,\"CAT_PERSON\") == set()\nassert get_comments_to_exclude(comments,\"DOG_PERSON\") == set()"
+  },
+  {
+    "name": "does not mutate comment records",
+    "input": "two modes read the same forest",
+    "test": "def row(i,parent=None,cat=False,dog=False):\n    return {\"id\":i,\"parent_comment\":parent,\"body\":\"text\",\"cat\":cat,\"dog\":dog}\nimport copy\ncomments={1:row(1),2:row(2,1,dog=True),3:row(3,2)}\nbefore=copy.deepcopy(comments)\nassert get_comments_to_exclude(comments,\"CAT_PERSON\") == {2,3}\nassert get_comments_to_exclude(comments,\"DOG_PERSON\") == set()\nassert comments == before"
+  }
+]

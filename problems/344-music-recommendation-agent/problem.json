@@ -11,20 +11,28 @@
     "evaluation"
   ],
   "companies": [
-    "Google DeepMind"
+    "Google",
+    "Spotify"
   ],
   "interview_frequency": {
-    "Google DeepMind": {
+    "Google": {
+      "stars": 1,
       "source_record_ids": [
         "3cc6ce51456d81bab4e6ecba1d88799c"
       ],
-      "stars": 2,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-10-04"
+    },
+    "Spotify": {
+      "stars": 1,
+      "source_record_ids": [
+        "3e36ce51456d815587bbc6f62d5074e4"
+      ],
+      "synced_at": "2026-10-04"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-10-04"
   },
   "prompt": "Design a music recommendation system, then extend it with an LLM agent that understands natural-language requests.\n\nDefine the request and recommendation outputs and explain learning from feedback, cold start, diversity, and evaluation. Describe the agent's tools and responsibilities, including how results remain within catalog and eligibility rules. Discuss latency, cost, and unsupported recommendations.",
   "evaluation": {
