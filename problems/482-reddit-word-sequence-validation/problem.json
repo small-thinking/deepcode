@@ -1,0 +1,51 @@
+{
+  "companies": [
+    "Reddit"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-10-04",
+  "id": "482",
+  "slug": "reddit-word-sequence-validation",
+  "title": "Validate a Word Transformation Sequence",
+  "category": "Coding",
+  "difficulty": "easy",
+  "tags": [
+    "strings",
+    "sequence-validation",
+    "hamming-distance"
+  ],
+  "prompt": "Given an ordered sequence of lowercase words, implement `valid_word_sequence(words) -> bool`. Every neighboring pair must have equal length and differ in exactly one position; repeating a word is not a step. An empty sequence or a single word is valid.\n\nFor example, `['hot', 'dot', 'dog']` is valid, while `['hot', 'dot', 'cog']` skips a step and `['hot', 'dot', 'dot']` repeats one.",
+  "starter_code": "def valid_word_sequence(words):\n    pass\n",
+  "example": {
+    "input": "valid_word_sequence(['hot', 'dot', 'dog'])",
+    "output": "True",
+    "reasoning": "Each neighboring pair changes exactly one position."
+  },
+  "references": [
+    {
+      "label": "First-person Reddit phone report; local zero/one-word contract added for practice",
+      "url": "https://www.1point3acres.com/bbs/thread-1189085-1-1.html"
+    }
+  ],
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 1,
+      "source_record_ids": [
+        "3eb6ce51456d815bbba7ef4af24bdc14"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-04"
+  }
+}

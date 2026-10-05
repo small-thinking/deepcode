@@ -1,0 +1,57 @@
+{
+  "id": "487",
+  "slug": "reader-mode-comment-filter",
+  "title": "Exclude Cat or Dog Comment Subtrees",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "tree",
+    "forest",
+    "dfs",
+    "ancestor-filtering",
+    "reader-mode"
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "prompt": "A comment reader chooses `CAT_PERSON` or `DOG_PERSON`. Cat readers hide dog-related comments, and dog readers hide cat-related comments. Hiding a comment also hides all its descendants.\n\nImplement `get_comments_to_exclude(comments, mode) -> set`, returning the excluded comment IDs. `comments` is keyed by ID; each record contains `parent_comment`, `body`, and boolean `cat` and `dog` fields. A root has `parent_comment=None`, and every other parent exists in the input. The records form an acyclic forest and may appear in any order. Discuss the time and space complexity. The Python API and forest guarantees are practice assumptions.",
+  "starter_code": "def get_comments_to_exclude(comments, mode):\n    pass\n",
+  "example": {
+    "input": "comments={1: neutral root, 2: dog-related child of 1, 3: neutral child of 2}; mode=CAT_PERSON",
+    "output": "{2, 3}",
+    "reasoning": "The dog-related comment and its descendant are excluded."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Original candidate recollection, itself AI rewritten: keyed comments and excluded IDs; forest guarantees and Python API adapted",
+      "url": "https://www.1point3acres.com/bbs/thread-1190825-1-1.html"
+    },
+    {
+      "label": "Edited mirror of the same candidate event; not another occurrence",
+      "url": "https://prachub.com/interview-experiences/reddit-machine-learning-engineer-interview-experience-onsite-with-a-cat-dog-comment-tree-filter-and-a-comment-likelihood-ml-design"
+    }
+  ],
+  "created_at": "2026-10-04",
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 1,
+      "source_record_ids": [
+        "3eb6ce51456d810e9068d414c6995e8a"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-04"
+  }
+}

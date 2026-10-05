@@ -1,0 +1,45 @@
+{
+  "id": "486",
+  "slug": "reddit-next-post-recommendation",
+  "title": "Recommend the Next Post in a Subreddit",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "recommendation",
+    "ranking",
+    "subreddit",
+    "feedback-loops",
+    "cold-start"
+  ],
+  "prompt": "A user is browsing a subreddit. How would you choose the next post to recommend to that user? Explain your objective, what information is available at decision time, how you would rank eligible posts, and how you would learn whether the choice worked. Discuss new users or posts and one important failure mode. State any scale and latency assumptions you need.",
+  "response": {
+    "placeholder": "Clarify the surface and goal, then trace a single recommendation decision and its feedback loop.",
+    "reference_answer": "First clarify whether the user is reading one post, scrolling a subreddit feed, or opening a next-post slot. Choose a concrete goal such as a satisfying continuation of the visit, and define hard eligibility: visible posts only, moderation and block rules, no repeats. The candidate set is bounded to the current subreddit, which makes this different from a global video recommendation service.\n\nUse a simple baseline such as recent high-quality posts within the community, then introduce user-community history, topic affinity, current-session behavior, post age, discussion activity, and content representation as available. Avoid features created after the recommendation decision. Retrieve a manageable candidate set, filter policy constraints, score it, then rerank for diversity and freshness. A new user can use community trends and session signals; a new post needs a path to exploration without waiting for engagement history.\n\nRecord the actual visible exposure, position, candidate source, model version, and downstream actions. Clicks alone can reward bait; consider meaningful reading, return visits, negative actions, and community health. Offline data is biased by the previous ranker, so compare baselines on a time split, examine coverage and slices, and use a controlled experiment for product impact. Bound serving latency with cached features and a policy-safe fallback. Watch for repeated recommendations and a popularity loop that suppresses new posts.\n\nThe public candidate recollection supplies only the next-post-in-subreddit theme and an oral ML system-design format. This answer is a practice elaboration."
+  },
+  "evaluation": {
+    "type": "system_design"
+  },
+  "references": [
+    {
+      "label": "First-hand Reddit MLE candidate recollection: spoken next-post recommendation question in a subreddit; detailed contract adapted for practice",
+      "url": "https://www.reddit.com/r/leetcode/comments/1bzvh3s/reddit_ml_interview/"
+    }
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "created_at": "2026-10-04",
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 1,
+      "source_record_ids": [
+        "3eb6ce51456d8155afdad105992ecbb1"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-04"
+  }
+}

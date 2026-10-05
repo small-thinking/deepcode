@@ -1,0 +1,49 @@
+{
+  "id": "485",
+  "slug": "ranking-position-bias",
+  "title": "Explain Position Bias in Click-Based Ranking",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "ranking",
+    "position-bias",
+    "click-models",
+    "evaluation",
+    "causal-inference"
+  ],
+  "prompt": "A ranking model learns from clicks on previously displayed posts. The team notices that items shown near the top receive more clicks. How would you determine whether this reflects relevance or display position? Explain what data and assumptions you need, how you would reduce the bias in training or evaluation, and when your proposed approach would fail.",
+  "response": {
+    "placeholder": "Separate exposure from relevance, then give one defensible correction and its limits.",
+    "reference_answer": "A click requires both examination and interest. A top position can increase examination even when the post is no more relevant, and the old ranker determines which posts reach each position. Raw click-through rate by slot therefore cannot identify relevance. Unshown posts have unknown outcomes, not negative labels.\n\nFirst confirm the impression definition, position, viewport visibility, old ranking policy, item and user context, and click window are logged. Diagnose position effects in a randomized or interleaved bucket where comparable items can appear at different positions. If randomization is unavailable, observational adjustment needs stronger assumptions and cannot eliminate unobserved confounding by assertion.\n\nOne approach estimates examination propensity by position from controlled swaps, then uses inverse propensity weights for training or offline evaluation. Keep weight variance bounded, report effective sample size, and check whether the logging policy gave relevant item-position combinations support. Very small or zero propensities make estimates unstable or unidentified. A click model can explicitly factor examination and relevance, but its identification assumptions also need testing.\n\nCompare ranking quality in a held-out time or user slice, calibration by position, and a controlled online test with satisfaction and negative-feedback guardrails. A model that merely reproduces the former top slots can look good on logged clicks without improving relevance. The source candidate report identifies a position-bias fundamentals discussion; the detailed techniques here are a study answer, not a transcript."
+  },
+  "evaluation": {
+    "type": "system_design"
+  },
+  "references": [
+    {
+      "label": "Original MLE candidate report: position-bias ML fundamentals discussion, elaborated locally",
+      "url": "https://www.1point3acres.com/bbs/thread-1189025-1-1.html"
+    },
+    {
+      "label": "Edited mirror of the same candidate event, not another occurrence",
+      "url": "https://prachub.com/interview-experiences/reddit-machine-learning-engineer-interview-experience-general-pooling-and-a-ranking-interview"
+    }
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "created_at": "2026-10-04",
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 1,
+      "source_record_ids": [
+        "3eb6ce51456d811eb100c05172418d71"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-04"
+  }
+}

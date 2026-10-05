@@ -1,0 +1,42 @@
+[
+  {
+    "name": "accepts one substitution at each step",
+    "input": "hot to dot to dog",
+    "test": "assert valid_word_sequence([\"hot\",\"dot\",\"dog\"]) is True"
+  },
+  {
+    "name": "rejects a skipped step in the middle",
+    "input": "one transition changes two positions",
+    "test": "assert valid_word_sequence([\"hot\",\"dot\",\"cog\",\"log\"]) is False"
+  },
+  {
+    "name": "rejects a skipped final step",
+    "input": "last transition changes two positions",
+    "test": "assert valid_word_sequence([\"cat\",\"cot\",\"dog\"]) is False"
+  },
+  {
+    "name": "rejects a repeated neighboring word",
+    "input": "same word appears twice in a row",
+    "test": "assert valid_word_sequence([\"hot\",\"dot\",\"dot\",\"dog\"]) is False"
+  },
+  {
+    "name": "rejects a length-changing transition",
+    "input": "neighboring words have different lengths",
+    "test": "assert valid_word_sequence([\"a\",\"b\",\"bb\"]) is False"
+  },
+  {
+    "name": "handles one-character words",
+    "input": "single-letter substitutions and repeat",
+    "test": "assert valid_word_sequence([\"a\",\"b\",\"c\"]) is True\nassert valid_word_sequence([\"a\",\"a\"]) is False"
+  },
+  {
+    "name": "empty and singleton sequences are valid",
+    "input": "zero or one word",
+    "test": "assert valid_word_sequence([]) is True\nassert valid_word_sequence([\"word\"]) is True"
+  },
+  {
+    "name": "checks a long sequence through the final step",
+    "input": "repeated valid pattern with a bad middle or end",
+    "test": "path=[\"aaa\",\"baa\",\"bba\",\"bbb\",\"abb\",\"aab\"]*20\nassert valid_word_sequence(path) is True\nwith_bad_middle=path.copy(); with_bad_middle[37]=\"zzz\"\nassert valid_word_sequence(with_bad_middle) is False\nwith_bad_end=path.copy(); with_bad_end[-1]=\"zzz\"\nassert valid_word_sequence(with_bad_end) is False\nassert path[:6] == [\"aaa\",\"baa\",\"bba\",\"bbb\",\"abb\",\"aab\"]"
+  }
+]

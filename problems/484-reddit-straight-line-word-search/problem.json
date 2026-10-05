@@ -1,0 +1,51 @@
+{
+  "companies": [
+    "Reddit"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-10-04",
+  "id": "484",
+  "slug": "reddit-straight-line-word-search",
+  "title": "Find Words along a Fixed Direction",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "matrix",
+    "strings",
+    "directional-search"
+  ],
+  "prompt": "Find supplied words in a rectangular letter grid. A word can start at any cell, but once it starts moving, it must continue in the same direction without wrapping or turning. Implement `find_straight_words(board, words) -> set[str]`, returning each found word once.\n\nFor this practice version, use the four horizontal and vertical directions. The source report specifies the no-turn rule but does not fully specify which directions are allowed. `board` is a list of equal-length lowercase strings, and the query words are nonempty lowercase strings.",
+  "starter_code": "def find_straight_words(board, words):\n    pass\n",
+  "example": {
+    "input": "find_straight_words(['cat','oox','dog'], ['cat','tac','cod','dog'])",
+    "output": "{'cat', 'tac', 'cod', 'dog'}",
+    "reasoning": "The top and bottom rows contain words, the reverse of cat is present, and cod runs down the first column."
+  },
+  "references": [
+    {
+      "label": "First-person Reddit coding report; direction set is a local adaptation",
+      "url": "https://www.1point3acres.com/bbs/thread-1190012-1-1.html"
+    }
+  ],
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 1,
+      "source_record_ids": [
+        "3eb6ce51456d8198afa4fefa971ce2da"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-04"
+  }
+}

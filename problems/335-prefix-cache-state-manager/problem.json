@@ -15,16 +15,16 @@
   ],
   "interview_frequency": {
     "Anthropic": {
+      "stars": 2,
       "source_record_ids": [
         "3b96ce51456d81e6b6ecddab0b5eef85"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-10-04"
     }
   },
   "interview_frequency_total": {
-    "stars": 1,
-    "synced_at": "2026-09-03"
+    "stars": 2,
+    "synced_at": "2026-10-04"
   },
   "prompt": "A serving system reuses previously computed state for token prefixes. Implement `PrefixCache`.\n\n- `store(tokens, value)` records a non-empty token prefix and its non-empty string value. Storing an existing prefix replaces its value.\n- `lookup(tokens) -> tuple[int, str] | None` returns the longest stored prefix of `tokens` as `(matched_token_count, value)`; return `None` if there is no match.\n- `remove(tokens) -> bool` removes exactly one stored prefix and reports whether it existed.\n\nTokens are non-empty sequences of non-negative integers, not strings. Store an independent copy of the sequence so caller mutation cannot affect future lookups. Raise an error for malformed token values and an error for an empty sequence or empty value.\n\nInvalid inputs may be rejected with `assert`.",
   "starter_code": "class PrefixCache:\n    def __init__(self):\n        pass\n\n    def store(self, tokens, value):\n        pass\n\n    def lookup(self, tokens):\n        pass\n\n    def remove(self, tokens):\n        pass\n",

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "finds horizontal words in both directions",
+    "input": "two rows and a duplicate query",
+    "test": "board=[\"cat\",\"dog\"]\nassert find_straight_words(board,[\"cat\",\"tac\",\"dog\",\"god\",\"cat\"]) == {\"cat\",\"tac\",\"dog\",\"god\"}"
+  },
+  {
+    "name": "finds vertical words in both directions",
+    "input": "three-by-three grid",
+    "test": "board=[\"abc\",\"def\",\"ghi\"]\nassert find_straight_words(board,[\"adg\",\"gda\",\"cfi\",\"ifc\"]) == {\"adg\",\"gda\",\"cfi\",\"ifc\"}"
+  },
+  {
+    "name": "rejects turns and diagonal moves",
+    "input": "same grid with tempting paths",
+    "test": "board=[\"abc\",\"def\",\"ghi\"]\nassert find_straight_words(board,[\"abe\",\"aei\",\"aeg\",\"abc\"]) == {\"abc\"}"
+  },
+  {
+    "name": "works in a rectangular grid",
+    "input": "three rows and five columns",
+    "test": "board=[\"abcde\",\"fghij\",\"klmno\"]\nassert find_straight_words(board,[\"abc\",\"edc\",\"afk\",\"kfa\",\"ejo\",\"oje\"]) == {\"abc\",\"edc\",\"afk\",\"kfa\",\"ejo\",\"oje\"}"
+  },
+  {
+    "name": "single row and single column",
+    "input": "lines in either orientation",
+    "test": "assert find_straight_words([\"abcd\"],[\"bcd\",\"dcb\",\"ac\"]) == {\"bcd\",\"dcb\"}\nassert find_straight_words([\"a\",\"b\",\"c\",\"d\"],[\"abc\",\"dcb\",\"ad\"]) == {\"abc\",\"dcb\"}"
+  },
+  {
+    "name": "does not wrap past an edge",
+    "input": "row boundary and column boundary",
+    "test": "assert find_straight_words([\"abc\"],[\"cab\",\"abc\",\"cba\"]) == {\"abc\",\"cba\"}\nassert find_straight_words([\"a\",\"b\",\"c\"],[\"cab\",\"abc\",\"cba\"]) == {\"abc\",\"cba\"}"
+  },
+  {
+    "name": "returns each found word once in repeated letters",
+    "input": "several locations and repeated query",
+    "test": "board=[\"aaaa\",\"abaa\"]\nassert find_straight_words(board,[\"aaa\",\"aaa\",\"aba\",\"bbb\"]) == {\"aaa\",\"aba\"}"
+  },
+  {
+    "name": "empty inputs and unchanged arguments",
+    "input": "empty board or query list, then ordinary search",
+    "test": "import copy\nboard=[\"ab\",\"cd\"]; words=[\"a\",\"bd\",\"bc\"]\nbefore=(copy.deepcopy(board),copy.deepcopy(words))\nassert find_straight_words([],words) == set()\nassert find_straight_words(board,[]) == set()\nassert find_straight_words(board,words) == {\"a\",\"bd\"}\nassert (board,words) == before"
+  }
+]

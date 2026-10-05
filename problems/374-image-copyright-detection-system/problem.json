@@ -16,17 +16,17 @@
     "General"
   ],
   "interview_frequency": {
-    "General": {
+    "Canva": {
+      "stars": 1,
       "source_record_ids": [
         "3cf6ce51456d81d99f7ff7a649522083"
       ],
-      "stars": 1,
-      "synced_at": "2026-09-03"
+      "synced_at": "2026-10-04"
     }
   },
   "interview_frequency_total": {
     "stars": 1,
-    "synced_at": "2026-09-03"
+    "synced_at": "2026-10-04"
   },
   "prompt": "Design a system that identifies likely copyright infringement in uploaded images and routes cases for review. Explain the data and labels, evaluation metrics, decision thresholds, rollout criteria, and business impact.\n\nThen extend it to videos sampled at roughly one frame every ten seconds, increasing image volume by about 50 times. How would you combine frame evidence, evaluate decisions, and manage the added cost? State your policy assumptions.",
   "response": {

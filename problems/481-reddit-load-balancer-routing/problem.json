@@ -1,0 +1,56 @@
+{
+  "companies": [
+    "Reddit"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "created_at": "2026-10-04",
+  "id": "481",
+  "slug": "reddit-load-balancer-routing",
+  "title": "Debug Stateful Load-Balancer Routing",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "debugging",
+    "round-robin",
+    "health-checks",
+    "routing"
+  ],
+  "prompt": "A load balancer sometimes routes requests to unhealthy backends, and its round-robin order is wrong. Repair the supplied `Router` class. Backend IDs must be unique and the pool nonempty; an empty pool raises `ValueError`. All backends start healthy; `set_health(backend, healthy)` changes an existing backend's health. `choose()` returns the next healthy backend in round-robin order, or `None` if none is healthy. A recovered backend rejoins at its original position.\n\nAs a follow-up, implement `choose_lowest_latency(latencies)`, which chooses a healthy backend with the lowest supplied latency. Resolve ties by original backend order. If none has a known latency, return `None`. This lookup should not change the round-robin position. Explain how you would test circuit-breaker recovery. The class and tie rule are a local practice reconstruction; the original faulty code was not available.",
+  "starter_code": "class Router:\n    def __init__(self, backends):\n        if not backends or len(set(backends)) != len(backends):\n            raise ValueError('backends must be nonempty and unique')\n        self.backends = list(backends)\n        self.healthy = {backend: True for backend in backends}\n        self.cursor = 0\n\n    def set_health(self, backend, healthy):\n        if backend not in self.healthy:\n            raise ValueError('unknown backend')\n        self.healthy[backend] = healthy\n\n    def choose(self):\n        # Existing bug: each call starts at the first backend and ignores health.\n        return self.backends[0]\n\n    def choose_lowest_latency(self, latencies):\n        # Existing bug: unhealthy backends are still candidates.\n        return min(latencies, key=latencies.__getitem__, default=None)\n",
+  "example": {
+    "input": "r=Router(['a','b','c']); r.set_health('b',False); [r.choose() for _ in range(4)]",
+    "output": "['a', 'c', 'a', 'c']",
+    "reasoning": "Round-robin retains its cursor while skipping the unhealthy middle backend."
+  },
+  "references": [
+    {
+      "label": "First-person onsite debugging report with health check and latency routing follow-up",
+      "url": "https://www.1point3acres.com/bbs/thread-1183237-1-1.html"
+    },
+    {
+      "label": "Independent onsite load-balancer debugging report",
+      "url": "https://www.1point3acres.com/bbs/thread-1182572-1-1.html"
+    }
+  ],
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 2,
+      "source_record_ids": [
+        "3eb6ce51456d810a89a3f7a44f50b0ea"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-04"
+  }
+}

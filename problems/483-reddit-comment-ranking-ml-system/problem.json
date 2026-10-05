@@ -1,0 +1,47 @@
+{
+  "id": "483",
+  "slug": "reddit-comment-ranking-ml-system",
+  "title": "Design ML Ranking for Threaded Comments",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "comment-ranking",
+    "ranking",
+    "recommendation",
+    "feature-serving",
+    "cold-start",
+    "experimentation",
+    "source-unverified"
+  ],
+  "prompt": "Design an ML system for ranking comments in a discussion thread for a reader. Define what is eligible to rank, the objective and how replies retain their context. Explain the training data, useful features, online scoring and evaluation. Discuss cold start, freshness, moderation changes and latency. State any product or scale assumptions you need. The source is a public preparation card, so this is a practice design rather than a verified original interview prompt.",
+  "response": {
+    "placeholder": "Define a viewer-facing ranking goal and thread contract before choosing features and the serving path.",
+    "reference_answer": "Clarify which comments are ranked together, how replies remain attached to parents, whether the top-level order is personalized, and how far pagination must be stable. Define a satisfying discussion objective, such as useful replies or sustained participation, with downvotes, hides, reports, and moderator removals as guardrails. Eligibility and visibility are hard filters, not model preferences.\n\nFor large threads, retrieve a bounded set from recent, high-quality, relevant, and exploratory sources. Build viewer, comment, parent, post, community, and context features from information available before each ranking decision. Votes and reply counts are dynamic; version them with freshness expectations. New comments need a content/context path because historical engagement is absent. A ranker scores candidates, then a thread-aware reranker preserves context and diversity. Recheck moderation eligibility before response.\n\nLog visibility-qualified impressions with position, model and feature versions, parent context, and downstream actions. Historical labels are selection-biased because prior ranks affected examination and replies; use time-correct training data, investigate position bias, compare baselines and counterfactual estimates where support exists, and validate with controlled experiments. Offline ranking metrics alone cannot establish discussion quality.\n\nBound feature reads and inference for a popular thread, cache stable features, batch candidate scoring, and return a safe recent/quality ordering under failure. Moderation removals invalidate cached candidates promptly. For pagination, use a snapshot or cursor tied to a ranking revision, or explicitly tolerate reorder and deduplicate; do not silently promise perfectly stable pages from a moving model. Monitor latency, freshness, coverage, calibration, safety, and comment ecosystem concentration.\n\nPublic cards report the comment-ranking ML-system theme. The viewer, hierarchy, SLO, and pagination details here are practice assumptions rather than recovered interviewer wording."
+  },
+  "evaluation": {
+    "type": "system_design"
+  },
+  "references": [
+    {
+      "label": "PracHub Reddit MLE comment-ranking question card; ML ranking scope, no original candidate transcript visible",
+      "url": "https://prachub.com/interview-questions/design-comment-ranking"
+    }
+  ],
+  "companies": [
+    "Reddit"
+  ],
+  "created_at": "2026-10-04",
+  "interview_frequency": {
+    "Reddit": {
+      "stars": 0,
+      "source_record_ids": [
+        "3eb6ce51456d818e94b1f6f601d464d2"
+      ],
+      "synced_at": "2026-10-04"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-04"
+  }
+}
