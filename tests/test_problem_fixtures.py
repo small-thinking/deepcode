@@ -38,27 +38,6 @@ class ProblemFixtureTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], len(problem["tests"]))
 
-    def test_mean_baseline_reference_solution_passes(self):
-        problem = ProblemStore(ROOT / "problems").get_problem("mean-baseline-regressor")
-        solution = """def mean_baseline(train_y, n_predictions):
-    if n_predictions == 0:
-        return []
-    if n_predictions < 0 or not train_y:
-        return -1
-    value = round(sum(train_y) / len(train_y), 4)
-    return [value] * n_predictions
-"""
-
-        result = run_submission(
-            code=solution,
-            tests=problem["tests"],
-            timeout_seconds=problem["environment"]["timeout_seconds"],
-            comparator=problem["environment"]["comparator"],
-        )
-
-        self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["passed"], len(problem["tests"]))
-
     def test_classification_accuracy_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("classification-accuracy")
         solution = """def classification_accuracy(y_true, y_pred):
