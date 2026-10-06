@@ -8,7 +8,11 @@ Both problems acquired their `OpenAI` tag in repository commit `ca6194f` (`chore
 
 | DeepCode problem | Verified interview source | Current contract |
 | --- | --- | --- |
-| [Mean Baseline Regressor](../../problems/014-mean-baseline-regressor/problem.json) | None recovered | Practice reconstruction of the mean strategy documented by [scikit-learn DummyRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html). The two-argument API, four-decimal rounding, and invalid-input handling come from the existing local fixture. |
+| Mean Baseline Regressor (removed) | None recovered | Practice reconstruction of the mean strategy documented by [scikit-learn DummyRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html). The two-argument API, four-decimal rounding, and invalid-input handling come from the existing local fixture. |
 | [Classification Accuracy](../../problems/015-classification-accuracy/problem.json) | None recovered | Practice reconstruction of the metric documented by [scikit-learn accuracy_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html). The API, four-decimal rounding, and invalid-input handling come from the existing local fixture. |
 
 The unsupported company tags were removed. No original-post URL is presented in the Background because none was verified. The existing documentation references remain conceptual references and do not imply interview provenance or frequency. The prompts now read as direct practice interview requests, and the added tests cover single-element, mixed-sign, zero-result, mixed-label, and invalid-input cases while preserving the established fixture behavior.
+
+## Mean baseline removal
+
+A subsequent Git-history check traced `mean-baseline-regressor` to the initial seed commit `64f4a6df54d1ba864189197369d73cbc70d758fb` (`feat: initialize DeepCode local runner`, June 10, 2026). Its original file had no reference links or company attribution. The later OpenAI tag does not establish an interview source. At the user's request, remove this unsourced practice exercise and its reference-solution fixture from the active catalog. Retain this audit as a record of why it was removed; user drafts and run history are not deleted. Classification Accuracy is outside this removal request.
