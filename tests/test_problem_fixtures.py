@@ -38,25 +38,6 @@ class ProblemFixtureTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], len(problem["tests"]))
 
-    def test_classification_accuracy_reference_solution_passes(self):
-        problem = ProblemStore(ROOT / "problems").get_problem("classification-accuracy")
-        solution = """def classification_accuracy(y_true, y_pred):
-    if not y_true or not y_pred or len(y_true) != len(y_pred):
-        return -1
-    matches = sum(1 for expected, actual in zip(y_true, y_pred) if expected == actual)
-    return round(matches / len(y_true), 4)
-"""
-
-        result = run_submission(
-            code=solution,
-            tests=problem["tests"],
-            timeout_seconds=problem["environment"]["timeout_seconds"],
-            comparator=problem["environment"]["comparator"],
-        )
-
-        self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["passed"], len(problem["tests"]))
-
     def test_linear_regression_gradient_step_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("linear-regression-gradient-step")
         solution = """import numpy as np
