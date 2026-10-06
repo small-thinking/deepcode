@@ -1,26 +1,26 @@
 [
   {
-    "name": "weighted cycle crosses batch boundaries",
+    "name": "[Part 3] weighted cycle crosses batch boundaries",
     "input": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}, weights = {'a': 2, 'b': 1}, batch_size = 2",
     "test": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}\nbatcher = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 2)\nassert batcher.next_batch() == [('a', 10), ('a', 11)]\nassert batcher.next_batch() == [('b', 20), ('a', 12)]"
   },
   {
-    "name": "non-divisible batch size keeps global schedule",
+    "name": "[Part 3] non-divisible batch size keeps global schedule",
     "input": "weights sum to 3, batch_size = 4",
     "test": "datasets = {'a': [1, 2, 3, 4, 5], 'b': [9, 8, 7]}\nbatcher = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 4)\nfirst = batcher.next_batch()\nsecond = batcher.next_batch()\nassert [name for name, _ in first] == ['a', 'a', 'b', 'a']\nassert [name for name, _ in second] == ['a', 'b', 'a', 'a']"
   },
   {
-    "name": "global offset skips dataset values",
+    "name": "[Part 2] global offset skips dataset values",
     "input": "offset = 3 with schedule a, a, b",
     "test": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}\nbatcher = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 3, offset=3)\nassert batcher.next_batch() == [('a', 12), ('a', 10), ('b', 21)]"
   },
   {
-    "name": "state resumes exact suffix",
+    "name": "[Part 2] state resumes exact suffix",
     "input": "save after one batch and resume in a fresh instance",
     "test": "datasets = {'a': [10, 11, 12], 'b': [20, 21]}\noriginal = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 3)\noriginal.next_batch()\nstate = original.state_dict()\nexpected = original.next_batch()\nresumed = WeightedDatasetBatcher(datasets, {'a': 2, 'b': 1}, 3).load_state_dict(state)\nassert resumed.next_batch() == expected"
   },
   {
-    "name": "short datasets cycle deterministically",
+    "name": "[Part 3] short datasets cycle deterministically",
     "input": "dataset a has one item, dataset b has two items",
     "test": "batcher = WeightedDatasetBatcher({'a': [1], 'b': [2, 3]}, {'a': 1, 'b': 1}, 5)\nassert batcher.next_batch() == [('a', 1), ('b', 2), ('a', 1), ('b', 3), ('a', 1)]"
   },
@@ -28,5 +28,40 @@
     "name": "invalid constructor arguments raise",
     "input": "empty datasets, missing weights, zero weight, non-positive batch size",
     "test": "def must_raise(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nmust_raise(lambda: WeightedDatasetBatcher({}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'b': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 0}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': []}, {'a': 1}, 1))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 0))\nmust_raise(lambda: WeightedDatasetBatcher({'a': [1]}, {'a': 1}, 1, offset=-1))\n"
+  },
+  {
+    "name": "[Part 1] divisible allocation over multiple batches",
+    "input": "weights a:2, b:1; batch_size=6",
+    "test": "b = WeightedDatasetBatcher({'a': [10, 11, 12, 13, 14], 'b': [20, 21, 22]}, {'a': 2, 'b': 1}, 6)\nassert b.next_batch() == [('a',10),('a',11),('b',20),('a',12),('a',13),('b',21)]\nassert b.next_batch() == [('a',14),('a',10),('b',22),('a',11),('a',12),('b',20)]"
+  },
+  {
+    "name": "[Part 3] three datasets use weight order",
+    "input": "dataset order differs from weight order; batch_size=5",
+    "test": "data = {'a':[1,2], 'b':[3], 'c':[4,5], 'unused':[]}\nb = WeightedDatasetBatcher(data, {'c':1,'a':2,'b':1}, 5)\nassert b.next_batch() == [('c',4),('a',1),('a',2),('b',3),('c',5)]\nassert b.next_batch() == [('a',1),('a',2),('b',3),('c',4),('a',1)]"
+  },
+  {
+    "name": "[Part 2] offset inside cycle after several wraps",
+    "input": "weights a:2, b:1; offset=8",
+    "test": "b = WeightedDatasetBatcher({'a':[10,11], 'b':[20,21,22]}, {'a':2,'b':1}, 4, offset=8)\nassert b.next_batch() == [('b',22),('a',10),('a',11),('b',20)]"
+  },
+  {
+    "name": "[Part 2] checkpoint is a stable snapshot",
+    "input": "advance original twice after save; then restore saved suffix",
+    "test": "data={'a':[10,11,12], 'b':[20,21]}\nb=WeightedDatasetBatcher(data, {'a':2,'b':1}, 2)\nb.next_batch()\nstate=b.state_dict()\nexpected=[b.next_batch(), b.next_batch(), b.next_batch()]\nc=WeightedDatasetBatcher(data, {'a':2,'b':1}, 2).load_state_dict(state)\nassert [c.next_batch(),c.next_batch(),c.next_batch()] == expected\nassert c.load_state_dict(state) is c\nassert c.next_batch() == expected[0]"
+  },
+  {
+    "name": "[Part 2] checkpoint replaces existing progress",
+    "input": "load into already-advanced instance with a nonzero initial offset",
+    "test": "data={'x':['p','q','r'], 'y':['u','v']}\na=WeightedDatasetBatcher(data, {'x':1,'y':2}, 4, offset=7)\nstate=a.state_dict()\nexpected=[a.next_batch(),a.next_batch()]\nb=WeightedDatasetBatcher(data, {'x':1,'y':2}, 4, offset=1)\nb.next_batch()\nb.load_state_dict(state)\nassert [b.next_batch(),b.next_batch()] == expected"
+  },
+  {
+    "name": "[Part 1] single dataset with structured examples",
+    "input": "one dataset, wrap inside batch, preserve dictionaries",
+    "test": "data={'train':[{'id':1},{'id':2}]}\nb=WeightedDatasetBatcher(data, {'train':3}, 3)\nassert b.next_batch() == [('train',{'id':1}),('train',{'id':2}),('train',{'id':1})]\nassert b.next_batch() == [('train',{'id':2}),('train',{'id':1}),('train',{'id':2})]\nassert data == {'train':[{'id':1},{'id':2}]}"
+  },
+  {
+    "name": "[Part 2] initial checkpoint and independent instances",
+    "input": "save before the first batch and restore into fresh instance",
+    "test": "data={'a':[1,2], 'b':[3,4]}\na=WeightedDatasetBatcher(data, {'a':1,'b':1}, 1)\nb=WeightedDatasetBatcher(data, {'a':1,'b':1}, 1)\nstate=a.state_dict()\nassert a.next_batch() == [('a',1)]\nassert a.next_batch() == [('b',3)]\nassert b.next_batch() == [('a',1)]\na.load_state_dict(state)\nassert a.next_batch() == [('a',1)]"
   }
 ]

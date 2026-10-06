@@ -1,22 +1,42 @@
 [
   {
-    "name": "keeps clipped edge windows instead of dropping them",
-    "input": "a 2 by 3 matrix, 2 by 2 kernel, unit stride",
-    "test": "pooled, locations = max_pool_with_locations([[1, 3, 2], [4, 0, 5]], 2, 2, 1, 1)\nassert pooled == [[4, 5, 5], [4, 5, 5]]\nassert locations == [[(1, 0), (1, 2), (1, 2)], [(1, 0), (1, 2), (1, 2)]]"
+    "name": "complete rectangular windows and absolute coordinates",
+    "input": "3 by 4 grid, 2 by 2 window, row stride one, column stride two",
+    "test": "values = [[1, 3, 2, 0], [4, 6, 5, 1], [7, 2, 9, 8]]\npooled, locations = max_pool_with_locations(values, 2, 2, 1, 2)\nassert pooled == [[6, 5], [7, 9]]\nassert locations == [[(1, 1), (1, 2)], [(2, 0), (2, 2)]]"
   },
   {
-    "name": "uses the first row-major coordinate for tied maxima",
-    "input": "a window with equal maximum values",
-    "test": "pooled, locations = max_pool_with_locations([[5, 1], [5, 0]], 2, 2, 1, 1)\nassert pooled[0][0] == 5\nassert locations[0][0] == (0, 0)"
+    "name": "drops incomplete edge windows",
+    "input": "3 by 4 grid, 2 by 2 window, stride two in both dimensions",
+    "test": "pooled, locations = max_pool_with_locations([[1, 4, 9, 2], [5, 3, 6, 8], [7, 0, 1, 10]], 2, 2, 2, 2)\nassert pooled == [[5, 9]]\nassert locations == [[(1, 0), (0, 2)]]"
   },
   {
-    "name": "supports negative values and clipped non-overlapping windows",
-    "input": "a 3 by 3 matrix with a 2 by 2 kernel and stride two",
-    "test": "pooled, locations = max_pool_with_locations([[-8, -3, -6], [-4, -9, -2], [-7, -5, -1]], 2, 2, 2, 2)\nassert pooled == [[-3, -2], [-5, -1]]\nassert locations == [[(0, 1), (1, 2)], [(2, 1), (2, 2)]]"
+    "name": "row-major tie order in overlapping windows",
+    "input": "3 by 3 grid with repeated maxima",
+    "test": "values = [[5, 1, 5], [2, 5, 0], [1, 1, 3]]\npooled, locations = max_pool_with_locations(values, 2, 2, 1, 1)\nassert pooled == [[5, 5], [5, 5]]\nassert locations == [[(0, 0), (0, 2)], [(1, 1), (1, 1)]]"
   },
   {
-    "name": "pools channel-first tensors independently",
-    "input": "two 2 by 2 channels",
-    "test": "pooled, locations = max_pool_with_locations([[[1, 8], [3, 4]], [[9, 2], [9, 0]]], 2, 2, 2, 2, is_tensor=True)\nassert pooled == [[[8]], [[9]]]\nassert locations == [[[(0, 0, 1)]], [[(1, 0, 0)]]]"
+    "name": "negative values in a non-square window",
+    "input": "3 by 3 negative grid, 2 by 3 window",
+    "test": "values = [[-9, -3, -8], [-4, -7, -2], [-6, -5, -1]]\npooled, locations = max_pool_with_locations(values, 2, 3, 1, 1)\nassert pooled == [[-2], [-1]]\nassert locations == [[(1, 2)], [(2, 2)]]"
+  },
+  {
+    "name": "oversized kernel has no valid windows",
+    "input": "kernel too tall, then kernel too wide",
+    "test": "assert max_pool_with_locations([[1, 2, 3], [4, 5, 6]], 3, 2, 1, 1) == ([], [])\nassert max_pool_with_locations([[1, 2], [3, 4], [5, 6]], 2, 3, 1, 1) == ([], [])"
+  },
+  {
+    "name": "unit kernels preserve matrix and locations",
+    "input": "1 by 3 row, 1 by 1 kernel",
+    "test": "assert max_pool_with_locations([[0, -3, 7]], 1, 1, 1, 1) == ([[0, -3, 7]], [[(0, 0), (0, 1), (0, 2)]])"
+  },
+  {
+    "name": "single complete window leaves input unchanged",
+    "input": "2 by 2 matrix with full-size window",
+    "test": "values = [[1, 8], [3, 4]]\nassert max_pool_with_locations(values, 2, 2, 2, 2) == ([[8]], [[(0, 1)]])\nassert values == [[1, 8], [3, 4]]"
+  },
+  {
+    "name": "different row and column strides preserve output shape",
+    "input": "4 by 5 grid, 2 by 3 kernel, row stride two and column stride one",
+    "test": "values = [[1, 9, 2, 3, 4], [5, 6, 7, 8, 0], [2, 3, 4, 5, 6], [8, 1, 0, 7, 2]]\npooled, locations = max_pool_with_locations(values, 2, 3, 2, 1)\nassert pooled == [[9, 9, 8], [8, 7, 7]]\nassert locations == [[(0, 1), (0, 1), (1, 3)], [(3, 0), (3, 3), (3, 3)]]"
   }
 ]

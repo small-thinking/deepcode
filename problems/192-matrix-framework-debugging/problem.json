@@ -1,7 +1,7 @@
 {
   "id": "192",
   "slug": "matrix-framework-debugging",
-  "title": "Matrix Framework Debugging",
+  "title": "Debug Matrix Initialization and Tensor Conversion",
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
@@ -14,12 +14,12 @@
   "companies": [
     "Waymo"
   ],
-  "prompt": "Repair a small NumPy-backed `Matrix` helper so rectangular arrays, decimal values, and independent copies behave correctly.\n\nImplement:\n\n- `zeros(rows, columns)` and `from_ndarray(values)` to construct a matrix; the latter copies a numeric 2D array.\n- `set(row, column, value)` to change one element.\n- `to_ndarray()` and `copy()` to return independent copies.\n- `transpose()` to return a new matrix with swapped axes.\n- `sum(axis=None)` to return a scalar total, column sums for `axis=0`, or row sums for `axis=1`.\n\nPreserve numeric values and never mutate caller-owned arrays. Reject unsupported reduction axes; `assert` is sufficient. Storing values as float64 is acceptable.",
-  "starter_code": "import numpy as np\n\n\nclass Matrix:\n    def __init__(self, values):\n        pass\n\n    @classmethod\n    def zeros(cls, rows, columns):\n        pass\n\n    @classmethod\n    def from_ndarray(cls, values):\n        pass\n\n    def to_ndarray(self):\n        pass\n\n    def set(self, row, column, value):\n        pass\n\n    def transpose(self):\n        pass\n\n    def sum(self, axis=None):\n        pass\n\n    def copy(self):\n        pass\n",
+  "prompt": "An interviewer hands you the small numerical utility module below. Its three operations have separate bugs. Find and repair them, then explain which test exposes each defect. Keep the public names and signatures.\n\n- `Matrix.zeros(rows, cols)` returns a matrix with independent rows. `Matrix.data` is a mutable nested list of shape `(rows, cols)`. The dimensions are non-negative integers.\n- `to_ndarray(columns)` takes a non-empty sequence of equally long one-dimensional numeric arrays. Return an ndarray of shape `(n_rows, n_columns)` with each input array in its corresponding output column.\n- `from_ndarray(arr, chunk_size)` splits a NumPy array along axis 0 into consecutive ndarray chunks with at most `chunk_size` rows. Preserve their order, including a shorter final chunk. `arr` has at least one dimension and `chunk_size` is positive. Return `[]` when axis 0 has length zero.\n\nYou may use NumPy. Write tests that distinguish square from rectangular conversion, shared rows from independent rows, and divisible from non-divisible chunking.",
+  "starter_code": "import numpy as np\n\n\nclass Matrix:\n    def __init__(self, data):\n        self.data = data\n\n    @staticmethod\n    def zeros(rows, cols):\n        row = [0] * cols\n        return Matrix([row] * rows)\n\n\ndef to_ndarray(columns):\n    return np.stack(columns)\n\n\ndef from_ndarray(arr, chunk_size):\n    chunks = []\n    for start in range(0, arr.shape[0] // chunk_size * chunk_size, chunk_size):\n        chunks.append(arr[start:start + chunk_size])\n    return chunks\n",
   "example": {
-    "input": "matrix = Matrix.from_ndarray(np.array([[1.5, 2.0, 3.5], [4.0, 5.0, 6.0]])); matrix.sum(axis=1)",
-    "output": "array([7.0, 15.0])",
-    "reasoning": "A row-wise reduction keeps one result per input row, so a rectangular shape exposes an incorrect reduction axis."
+    "input": "m = Matrix.zeros(2, 3); m.data[0][1] = 7; to_ndarray([np.array([1, 2]), np.array([3, 4])]); from_ndarray(np.arange(5), 2)",
+    "output": "m.data == [[0, 7, 0], [0, 0, 0]]; array([[1, 3], [2, 4]]); [array([0, 1]), array([2, 3]), array([4])]",
+    "reasoning": "These observations distinguish independent rows, column-wise stacking, and preservation of the last partial chunk."
   },
   "environment": {
     "language": "python",
@@ -48,9 +48,25 @@
   },
   "references": [
     {
-      "label": "Notion interview record (original source not recorded)",
+      "label": "Original 1Point3Acres Waymo candidate report; confirms aliasing, axis handling, and remainder truncation",
+      "url": "https://www.1point3acres.com/interview/thread/1177709"
+    },
+    {
+      "label": "Canonical Notion record; source post absent",
       "url": "https://app.notion.com/p/3df6ce51456d814f89e9c66f2b6f9799"
+    },
+    {
+      "label": "PracHub public Waymo practice question; concrete three-bug API, secondary reconstruction",
+      "url": "https://prachub.com/interview-questions/debug-tensor-conversion-bugs?view=text"
+    },
+    {
+      "label": "Screna Waymo experience summary; possible retelling, not an independent occurrence",
+      "url": "https://www.screna.ai/experience/baa266f5-28e7-43c6-aa4d-1617a91403a1"
+    },
+    {
+      "label": "1Point3Acres derived practice reconstruction \u2014 AI Insights, not another interview event",
+      "url": "https://www.1point3acres.com/interview/problems/1dfa1afd-09b4-44cf-9897-0d9f9ad4acd3"
     }
   ],
-  "background_note": "The canonical Notion record is linked below. An original interview post has not been recovered; this record alone does not verify every detail of the practice contract."
+  "background_note": "The original 1Point3Acres candidate report describes a live numerical/tensor debugging round and explicitly mentions `Matrix.zeros` aliasing, an omitted `axis=1` in `to_ndarray`, and truncation of remainder data. It does not provide the full interviewer code or exact function signatures. The public PracHub exercise supplies concrete three-function practice APIs and its own buggy skeleton; this DeepCode task reconstructs those APIs and tests. Screna may retell the same interview event and is not counted as independent evidence."
 }

@@ -8,11 +8,9 @@
     "baseline",
     "regression"
   ],
-  "companies": [
-    "OpenAI"
-  ],
-  "prompt": "Build a constant baseline for a regression task. Implement `mean_baseline(train_y, n_predictions)`.\n\nGiven numeric training targets and a non-negative prediction count, return that many copies of the training-target mean, rounded to four decimal places. A count of zero returns `[]`.\n\nReject a negative count or missing training targets when predictions are requested. An `assert` is sufficient; returning the legacy sentinel `-1` is also accepted.",
-  "starter_code": "def mean_baseline(train_y, n_predictions):\n    # Return repeated round(mean(train_y), 4), [] for zero predictions, or -1 for invalid input.\n    pass\n",
+  "companies": [],
+  "prompt": "You need a simple regression baseline before comparing more complex models. The baseline learns one constant from the training targets and uses it for every requested prediction. Implement `mean_baseline(train_y, n_predictions)`.\n\nUse the arithmetic mean of `train_y` as that constant. Return a list of `n_predictions` values, each rounded to four decimal places. Return `[]` when no predictions are requested. Reject a negative prediction count and an empty training set when at least one prediction is requested. You may raise `AssertionError` or `ValueError`, or return the legacy sentinel `-1`, for invalid input.",
+  "starter_code": "def mean_baseline(train_y, n_predictions):\n    pass\n",
   "example": {
     "input": "train_y = [1.0, 2.0, 4.0], n_predictions = 3",
     "output": "[2.3333, 2.3333, 2.3333]",
@@ -34,5 +32,6 @@
       "url": "https://en.wikipedia.org/wiki/Arithmetic_mean"
     }
   ],
+  "background_note": "This is a DeepCode practice exercise about a mean regression baseline. No corresponding canonical Notion question or original candidate report was found in the reviewed question bank, and the earlier OpenAI tag was not supported by an interview source. The links below explain the underlying method, not an interview occurrence; the Python API, four-decimal rounding, and invalid-input behavior are local practice conventions.",
   "created_at": "2026-06-10"
 }

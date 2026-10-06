@@ -12,6 +12,24 @@
     "expected_output": "1.0"
   },
   {
+    "name": "single incorrect prediction",
+    "input": "y_true = ['cat'], y_pred = ['dog']",
+    "test": "print(classification_accuracy(['cat'], ['dog']))",
+    "expected_output": "0.0"
+  },
+  {
+    "name": "mixed numeric labels at corresponding positions",
+    "input": "y_true = [-1, 0, 2, -1, 2], y_pred = [-1, 2, 2, 0, 2]",
+    "test": "print(classification_accuracy([-1, 0, 2, -1, 2], [-1, 2, 2, 0, 2]))",
+    "expected_output": "0.6"
+  },
+  {
+    "name": "first input empty",
+    "input": "y_true = [], y_pred = [1]",
+    "test": "try:\n    result = classification_accuracy([], [1])\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    assert result == -1, \"invalid input must be rejected\"\nprint(\"rejected\")\n",
+    "expected_output": "rejected"
+  },
+  {
     "name": "invalid shapes",
     "input": "y_true = [1, 0], y_pred = [1]",
     "test": "try:\n    result = classification_accuracy([1, 0], [1])\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    assert result == -1, \"invalid input must be rejected\"\nprint(\"rejected\")\n",
