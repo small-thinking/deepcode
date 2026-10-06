@@ -5,6 +5,16 @@
     "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": [10, 20, 30], \"text\": [\"alpha\", \"beta\", \"gamma\"]}, index=[50, 8, 91])\ncalls = []\ndef embed_texts(texts):\n    calls.append(list(texts))\n    return np.array([[2.0, 0.0], [0.0, 3.0], [-4.0, 0.0]])\nembeddings = embed_documents(documents, embed_texts)\nassert calls == [[\"alpha\", \"beta\", \"gamma\"]]\nassert embeddings.shape == (3, 2)\nassert np.array_equal(embeddings, [[2.0, 0.0], [0.0, 3.0], [-4.0, 0.0]])"
   },
   {
+    "name": "computes vectorized cosine scores for non-unit three-dimensional vectors",
+    "input": "one 3D query and five scaled, orthogonal, opposite, and zero document vectors",
+    "test": "import numpy as np\nquery = np.array([3.0, 4.0, 0.0])\nmatrix = np.array([[6.0, 8.0, 0.0], [-3.0, -4.0, 0.0], [4.0, -3.0, 0.0], [0.0, 0.0, 0.0], [0.0, 10.0, 0.0]])\nquery_before, matrix_before = query.copy(), matrix.copy()\nscores = cosine_similarity(query, matrix)\nassert isinstance(scores, np.ndarray)\nassert scores.shape == (5,)\nassert np.allclose(scores, [1.0, -1.0, 0.0, 0.0, 0.8])\nassert np.array_equal(query, query_before)\nassert np.array_equal(matrix, matrix_before)"
+  },
+  {
+    "name": "returns finite zero cosine scores for a zero query",
+    "input": "a zero query against nonzero and zero document embeddings",
+    "test": "import numpy as np\nscores = cosine_similarity(np.zeros(3), np.array([[1.0, -2.0, 3.0], [0.0, 0.0, 0.0]]))\nassert isinstance(scores, np.ndarray)\nassert scores.shape == (2,)\nassert np.isfinite(scores).all()\nassert np.allclose(scores, [0.0, 0.0])"
+  },
+  {
     "name": "uses cosine scores, preserves positional rows, and returns all rows when k is large",
     "input": "four nonconsecutively indexed rows with unequal embedding magnitudes and k larger than the corpus",
     "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame(\n    {\"doc_id\": [41, 7, 99, 12], \"text\": [\"aligned\", \"zero\", \"orthogonal\", \"opposite\"], \"section\": [\"one\", \"two\", \"three\", \"four\"]},\n    index=[50, 8, 91, -1],\n)\noriginal = documents.copy(deep=True)\nembeddings = np.array([[50.0, 0.0], [0.0, 0.0], [0.0, 2.0], [-9.0, 0.0]])\ndef embed_texts(texts):\n    assert texts == [\"query\"]\n    return np.array([[1.0, 0.0]])\nresult = retrieve_top_k(\"query\", documents, embeddings, embed_texts, k=10)\nassert result[\"doc_id\"].tolist() == [41, 7, 99, 12]\nassert result[\"section\"].tolist() == [\"one\", \"two\", \"three\", \"four\"]\nassert result.index.tolist() == [0, 1, 2, 3]\nassert np.allclose(result[\"score\"].to_numpy(), [1.0, 0.0, 0.0, -1.0])\nassert np.isfinite(result[\"score\"].to_numpy()).all()\nassert documents.equals(original)"
@@ -18,5 +28,20 @@
     "name": "computes hit-rate recall and reciprocal rank by document ID",
     "input": "three labeled queries with one absent relevant ID",
     "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": [41, 7, 99], \"text\": [\"alpha\", \"beta\", \"gamma\"]}, index=[90, -2, 3])\nembeddings = np.array([[1.0, 0.0], [0.0, 1.0], [-1.0, 0.0]])\ndef embed_texts(texts):\n    query_vectors = {\n        \"first\": [1.0, 0.0],\n        \"second\": [1.0, 1.0],\n        \"missing\": [0.0, 1.0],\n    }\n    return np.array([query_vectors[text] for text in texts], dtype=float)\nmetrics = evaluate_retrieval([(\"first\", 41), (\"second\", 7), (\"missing\", 99)], documents, embeddings, embed_texts, k=2)\nassert np.isclose(metrics[\"recall_at_k\"], 2.0 / 3.0)\nassert np.isclose(metrics[\"mrr\"], 0.5)"
+  },
+  {
+    "name": "limits default retrieval to ten rows and embeds the query once",
+    "input": "twelve rows with reverse-aligned DataFrame labels and precomputed embeddings",
+    "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": list(range(12)), \"text\": [f\"doc {i}\" for i in range(12)], \"source\": [f\"source {i}\" for i in range(12)]}, index=list(range(111, 99, -1)))\nembeddings = np.column_stack([np.ones(12), np.arange(12, dtype=float)])\noriginal_docs, original_embeddings = documents.copy(deep=True), embeddings.copy()\ncalls = []\ndef embed_texts(texts):\n    calls.append(list(texts))\n    return np.array([[2.0, 0.0]])\nresult = retrieve_top_k(\"query\", documents, embeddings, embed_texts)\nassert calls == [[\"query\"]]\nassert result[\"doc_id\"].tolist() == list(range(10))\nassert result[\"source\"].tolist() == [f\"source {i}\" for i in range(10)]\nassert result.index.tolist() == list(range(10))\nassert np.allclose(result[\"score\"], 1.0 / np.sqrt(1.0 + np.arange(10) ** 2))\nassert documents.equals(original_docs)\nassert np.array_equal(embeddings, original_embeddings)"
+  },
+  {
+    "name": "returns an empty scored DataFrame for k zero",
+    "input": "a one-document corpus with k=0",
+    "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": [7], \"text\": [\"alpha\"], \"section\": [\"one\"]}, index=[91])\ndef embed_texts(texts):\n    return np.array([[1.0, 0.0]])\nresult = retrieve_top_k(\"query\", documents, np.array([[1.0, 0.0]]), embed_texts, k=0)\nassert isinstance(result, pd.DataFrame)\nassert result.empty\nassert result.columns.tolist() == [\"doc_id\", \"text\", \"section\", \"score\"]"
+  },
+  {
+    "name": "returns zero metrics without embedding queries for an empty evaluation set",
+    "input": "an empty labeled evaluation set",
+    "test": "import numpy as np\nimport pandas as pd\ndocuments = pd.DataFrame({\"doc_id\": [7], \"text\": [\"alpha\"]})\ndef embed_texts(texts):\n    raise AssertionError(\"No query should be embedded for an empty evaluation set\")\nmetrics = evaluate_retrieval([], documents, np.array([[1.0, 0.0]]), embed_texts)\nassert metrics == {\"recall_at_k\": 0.0, \"mrr\": 0.0}"
   }
 ]

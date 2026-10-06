@@ -13,22 +13,27 @@ def embed_documents(documents: pd.DataFrame, embed_texts):
     return _embedding_matrix(embed_texts(documents["text"].tolist()), len(documents))
 
 
+def cosine_similarity(query_vec, doc_matrix):
+    query_vector = np.asarray(query_vec, dtype=float)
+    matrix = np.asarray(doc_matrix, dtype=float)
+    document_norms = np.linalg.norm(matrix, axis=1)
+    query_norm = np.linalg.norm(query_vector)
+    denominators = document_norms * query_norm
+    return np.divide(
+        matrix @ query_vector,
+        denominators,
+        out=np.zeros(len(matrix), dtype=float),
+        where=denominators > 0,
+    )
+
+
 def retrieve_top_k(query, documents: pd.DataFrame, document_embeddings, embed_texts, k=10):
     if k < 0:
         raise ValueError("k must be non-negative")
 
     matrix = _embedding_matrix(document_embeddings, len(documents))
     query_vector = _embedding_matrix(embed_texts([query]), 1)[0]
-
-    document_norms = np.linalg.norm(matrix, axis=1)
-    query_norm = np.linalg.norm(query_vector)
-    denominators = document_norms * query_norm
-    scores = np.divide(
-        matrix @ query_vector,
-        denominators,
-        out=np.zeros(len(documents), dtype=float),
-        where=denominators > 0,
-    )
+    scores = cosine_similarity(query_vector, matrix)
     positions = np.lexsort((np.arange(len(documents)), -scores))[:k]
 
     result = documents.iloc[positions].copy()
