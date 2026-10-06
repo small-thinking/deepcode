@@ -27,7 +27,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement a deterministic `WeightedDatasetBatcher` for mixing multiple training datasets.\n\nConstructor:\n`WeightedDatasetBatcher(datasets, weights, batch_size, offset=0)`\n\n- `datasets` maps dataset name to a non-empty sequence of examples.\n- `weights` maps dataset name to a positive integer sampling weight.\n- The deterministic sampling schedule repeats each dataset name by weight in the insertion order of `weights`. For example, `{\"a\": 2, \"b\": 1}` produces the repeated schedule `a, a, b, a, a, b, ...`.\n- `batch_size` is the number of emitted items per batch and may cut across schedule boundaries.\n- `offset` is a global number of already-emitted items to skip before the first batch.\n- When a dataset is exhausted, cycle back to its first example.\n\nMethods:\n- `next_batch()` returns a list of `(dataset_name, example)` pairs.\n- `state_dict()` returns enough deterministic state to resume later.\n- `load_state_dict(state)` restores that state and returns `self`.\n\nReject missing or empty datasets, non-positive weights or batch size, and negative offsets; `assert` is sufficient.",
+  "prompt": "You are building the input pipeline for a training run that mixes several datasets. Implement `WeightedDatasetBatcher(datasets, weights, batch_size, offset=0)` so that stopping and resuming the run produces exactly the same examples in the same order.\n\n`datasets` maps names to finite sequences; every selected dataset must be non-empty. `weights` is a non-empty mapping from selected dataset names to positive integer weights. Only selected datasets participate. For this exercise, use a deterministic repeating order: visit names in the insertion order of `weights`, emitting each name as many times as its weight. For example, weights `{\"a\": 2, \"b\": 1}` select `a, a, b, a, a, b, ...`. Each dataset has its own cursor and wraps to its first example when exhausted. Inputs remain unchanged.\n\n### Part 1: Weighted batches\n\nImplement `next_batch()` to return `batch_size` pairs `(dataset_name, example)`. Initially assume `batch_size` is a multiple of the sum of weights. Keep the stream continuous between batches.\n\n### Part 2: Offset and checkpointing\n\nSupport a non-negative global-item `offset`: begin where a fresh batcher would be after emitting that many items, including the corresponding progress in each dataset.\n\nImplement `state_dict()` to return a snapshot that will not change as the batcher advances, and `load_state_dict(state)` to restore it and return `self`. Restore into a batcher with the same dataset contents, weights, order, and batch size. The next several batches must match uninterrupted execution, including when the checkpoint is inside a weighted cycle or after a dataset has wrapped. You choose the state representation.\n\n### Part 3: Arbitrary batch sizes\n\nRemove the divisibility assumption. A batch may end partway through a weighted cycle; the next batch continues at the next item. Do not round each dataset's allocation independently or restart the schedule at each batch.\n\nReject an empty weight mapping, selected datasets that are missing or empty, non-positive weights or batch size, and negative offsets. `assert` or `ValueError` is sufficient. Assume integer parameters and ordinary Python sequences.\n\nDiscussion follow-up: How would you adapt this design to a provided DataRegistry with dataset iterators, randomized sampling, and large offsets? What additional state would you need to make a real training restart reproducible?",
   "starter_code": "class WeightedDatasetBatcher:\n    def __init__(self, datasets, weights, batch_size, offset=0):\n        pass\n\n    def next_batch(self):\n        pass\n\n    def state_dict(self):\n        pass\n\n    def load_state_dict(self, state):\n        pass\n",
   "example": {
     "input": "datasets = {\"a\": [10, 11, 12], \"b\": [20]}; weights = {\"a\": 2, \"b\": 1}; batch_size = 2",
@@ -42,20 +42,25 @@
   },
   "references": [
     {
-      "label": "Python: data model",
-      "url": "https://docs.python.org/3/reference/datamodel.html"
-    },
-    {
-      "label": "Original interview report: 1Point3Acres 1173464",
+      "label": "Original interview report \u2014 Anthropic Coding Design / data batcher (April 2026)",
       "url": "https://www.1point3acres.com/bbs/thread-1173464-1-1.html"
     },
     {
-      "label": "Notion interview record",
+      "label": "Earlier interview report linked by the candidate \u2014 Anthropic VO (October 2025; points-gated details)",
+      "url": "https://www.1point3acres.com/bbs/thread-1148586-1-1.html"
+    },
+    {
+      "label": "Notion interview record \u2014 reconstruction and assumptions",
       "url": "https://app.notion.com/p/3656ce51456d80c78eadfd9d95349854"
+    },
+    {
+      "label": "Python documentation \u2014 iterator protocol",
+      "url": "https://docs.python.org/3/library/stdtypes.html#iterator-types"
     }
   ],
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-06-13"
+  "created_at": "2026-06-13",
+  "background_note": "The original report describes a provided DataRegistry, an offset follow-up, deterministic save/resume, and a final non-divisible batching case. It also warns that earlier summaries differ from its interview. The precise sampling algorithm, exhaustion behavior, offset scope, and checkpoint format were not recovered. This exercise uses in-memory sequences, a global-item offset, cyclic finite datasets, and an explicit deterministic weighted order as practice conventions. It is a reconstruction, not the original interviewer handout."
 }

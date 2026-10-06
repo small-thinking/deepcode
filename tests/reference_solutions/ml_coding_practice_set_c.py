@@ -35,88 +35,39 @@ def kmeans(X, k, n_iter, seed=None):
 
 
 class Matrix:
-    def __init__(self, values):
-        array = np.asarray(values, dtype=float)
-        if array.ndim != 2:
-            raise ValueError("Matrix values must be two-dimensional")
-        self._values = array.copy()
+    def __init__(self, data):
+        self.data = data
 
-    @classmethod
-    def zeros(cls, rows, columns):
-        return cls(np.zeros((rows, columns), dtype=float))
-
-    @classmethod
-    def from_ndarray(cls, values):
-        if not isinstance(values, np.ndarray):
-            raise TypeError("values must be a NumPy array")
-        return cls(values)
-
-    def to_ndarray(self):
-        return self._values.copy()
-
-    def set(self, row, column, value):
-        self._values[row, column] = value
-
-    def transpose(self):
-        return Matrix(self._values.T)
-
-    def sum(self, axis=None):
-        if axis not in {None, 0, 1}:
-            raise ValueError("axis must be None, 0, or 1")
-        result = self._values.sum(axis=axis)
-        return float(result) if axis is None else result
-
-    def copy(self):
-        return Matrix(self._values)
+    @staticmethod
+    def zeros(rows, cols):
+        return Matrix([[0 for _ in range(cols)] for _ in range(rows)])
 
 
-def _pool_plane(plane, kernel_h, kernel_w, stride_h, stride_w, channel=None):
-    height = len(plane)
-    width = len(plane[0])
-    if height == 0 or width == 0 or any(len(row) != width for row in plane):
-        raise ValueError("each plane must be a non-empty rectangle")
+def to_ndarray(columns):
+    return np.stack(columns, axis=1)
 
-    pooled = []
-    locations = []
-    for start_row in range(0, height, stride_h):
-        values_row = []
-        locations_row = []
-        for start_column in range(0, width, stride_w):
-            end_row = min(start_row + kernel_h, height)
-            end_column = min(start_column + kernel_w, width)
-            best_value = plane[start_row][start_column]
-            best_row = start_row
-            best_column = start_column
-            for row in range(start_row, end_row):
-                for column in range(start_column, end_column):
-                    value = plane[row][column]
-                    if value > best_value:
-                        best_value = value
-                        best_row = row
-                        best_column = column
-            values_row.append(best_value)
-            if channel is None:
-                locations_row.append((best_row, best_column))
-            else:
-                locations_row.append((channel, best_row, best_column))
-        pooled.append(values_row)
+
+def from_ndarray(arr, chunk_size):
+    return [arr[start:start + chunk_size] for start in range(0, arr.shape[0], chunk_size)]
+
+
+def max_pool_with_locations(values, kernel_h, kernel_w, stride_h, stride_w):
+    height, width = len(values), len(values[0])
+    if kernel_h > height or kernel_w > width:
+        return [], []
+    pooled, locations = [], []
+    for start_row in range(0, height - kernel_h + 1, stride_h):
+        pooled_row, locations_row = [], []
+        for start_column in range(0, width - kernel_w + 1, stride_w):
+            best_value = values[start_row][start_column]
+            best_row, best_column = start_row, start_column
+            for row in range(start_row, start_row + kernel_h):
+                for column in range(start_column, start_column + kernel_w):
+                    if values[row][column] > best_value:
+                        best_value = values[row][column]
+                        best_row, best_column = row, column
+            pooled_row.append(best_value)
+            locations_row.append((best_row, best_column))
+        pooled.append(pooled_row)
         locations.append(locations_row)
     return pooled, locations
-
-
-def max_pool_with_locations(values, kernel_h, kernel_w, stride_h, stride_w, is_tensor=False):
-    if min(kernel_h, kernel_w, stride_h, stride_w) <= 0:
-        raise ValueError("kernel dimensions and strides must be positive")
-
-    if not is_tensor:
-        return _pool_plane(values, kernel_h, kernel_w, stride_h, stride_w)
-
-    if not values:
-        raise ValueError("tensor must contain at least one channel")
-    pooled_channels = []
-    location_channels = []
-    for channel, plane in enumerate(values):
-        pooled, locations = _pool_plane(plane, kernel_h, kernel_w, stride_h, stride_w, channel)
-        pooled_channels.append(pooled)
-        location_channels.append(locations)
-    return pooled_channels, location_channels

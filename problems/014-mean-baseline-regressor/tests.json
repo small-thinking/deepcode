@@ -30,6 +30,24 @@
     "expected_output": "[-0.6667, -0.6667, -0.6667]"
   },
   {
+    "name": "one training example and one prediction",
+    "input": "train_y = [7.25], n_predictions = 1",
+    "test": "print(mean_baseline([7.25], 1))",
+    "expected_output": "[7.25]"
+  },
+  {
+    "name": "zero mean with mixed signs",
+    "input": "train_y = [-8, 3, 5], n_predictions = 4",
+    "test": "print(mean_baseline([-8, 3, 5], 4))",
+    "expected_output": "[0.0, 0.0, 0.0, 0.0]"
+  },
+  {
+    "name": "no predictions with empty training targets",
+    "input": "train_y = [], n_predictions = 0",
+    "test": "print(mean_baseline([], 0))",
+    "expected_output": "[]"
+  },
+  {
     "name": "empty training targets",
     "input": "train_y = [], n_predictions = 2",
     "test": "try:\n    result = mean_baseline([], 2)\nexcept (AssertionError, ValueError):\n    pass\nelse:\n    assert result == -1, \"invalid input must be rejected\"\nprint(\"rejected\")\n",
