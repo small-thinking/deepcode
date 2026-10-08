@@ -14,7 +14,12 @@ from pathlib import Path
 from typing import Any, Callable, Generator, TextIO
 
 from deepcode.evaluators.base import EvaluationRequest
-from deepcode.evaluators.ml_coding import _build_script, _resource_limiter, _runner_env
+from deepcode.evaluators.ml_coding import (
+    _build_script,
+    _native_resource_limiter,
+    _resource_limiter,
+    _runner_env,
+)
 
 
 ResourceLimiterFactory = Callable[[], Callable[[], None]]
@@ -59,17 +64,34 @@ class MlModelingEvaluator:
         return run_modeling_checks(
             code=request.code,
             tests=request.tests,
-            timeout_seconds=request.environment.get("timeout_seconds", 5),
-            runtime=request.runtime,
+            **_modeling_execution_options(request),
         )
 
     def stream_evaluate(self, request: EvaluationRequest) -> Generator[dict[str, Any], None, None]:
         yield from stream_modeling_checks(
             code=request.code,
             tests=request.tests,
-            timeout_seconds=request.environment.get("timeout_seconds", 5),
-            runtime=request.runtime,
+            **_modeling_execution_options(request),
         )
+
+
+def _modeling_execution_options(request: EvaluationRequest) -> dict[str, Any]:
+    timeout = request.environment.get("timeout_seconds", 5)
+    execution_runtime = request.environment.get("runtime", "python")
+    if execution_runtime not in ("python", "sklearn"):
+        raise ValueError(f"Unsupported ML modeling runtime: {execution_runtime}")
+    runtime = dict(request.runtime)
+    limiter = _resource_limiter
+    if execution_runtime == "sklearn":
+        # SciPy and sklearn native libraries can exceed the default address-space
+        # cap during import. Keep CPU/file limits and the per-check wall timeout.
+        runtime["native_threads"] = 1
+        limiter = lambda: _native_resource_limiter(timeout)
+    return {
+        "timeout_seconds": timeout,
+        "runtime": runtime,
+        "resource_limiter_factory": limiter,
+    }
 
 
 def run_modeling_checks(
@@ -345,6 +367,9 @@ def _read_process_stream(
 
 def _modeling_env(runtime: dict[str, Any]) -> dict[str, str]:
     env = _runner_env()
+    if runtime.get("native_threads"):
+        for key in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+            env[key] = str(runtime["native_threads"])
     runtime_env_keys = {
         "problem_dir": "DEEPCODE_PROBLEM_DIR",
         "data_path": "DEEPCODE_DATA_PATH",

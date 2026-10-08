@@ -106,7 +106,7 @@ def _run_single_test(
             "OPENBLAS_NUM_THREADS": "1",
             "DEEPCODE_TORCH_DEVICE": "cpu",
         })
-        limiter = lambda: _pytorch_resource_limiter(timeout_seconds)
+        limiter = lambda: _native_resource_limiter(timeout_seconds)
     with tempfile.TemporaryDirectory(prefix="deepcode-run-") as tmp:
         script_path = Path(tmp) / "submission_test.py"
         script_path.write_text(script, encoding="utf-8")
@@ -171,7 +171,7 @@ def _resource_limiter():
     return limit_resources
 
 
-def _pytorch_resource_limiter(timeout_seconds: int | float):
+def _native_resource_limiter(timeout_seconds: int | float):
     def limit_resources():
         try:
             import resource
