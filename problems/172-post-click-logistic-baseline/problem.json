@@ -5,6 +5,8 @@
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
+    "scikit-learn",
+    "pandas",
     "numpy",
     "logistic-regression",
     "classification",
@@ -26,8 +28,8 @@
     "stars": 2,
     "synced_at": "2026-10-01"
   },
-  "prompt": "A feed team wants to predict whether a user will click a displayed post. Build a baseline and explain how you would evaluate and improve it.\n\nImplement `predict_clicks(train_data, test_data)`. Each record contains numeric `hours_spent_reading_a`, `hours_spent_reading_b`, and `hours_spent_reading_c`, plus `current_post_category` (`A`, `B`, or `C`). Training records also contain the binary label `click`. Assume complete tabular data.\n\nReturn a dictionary with `predictions` (one 0/1 value per test record) and `metrics` containing `accuracy`, `f1_score`, and `roc_auc`. Explain which labeled split you use for those metrics, your treatment of the categorical feature, and the limits of a small baseline evaluation.",
-  "starter_code": "def predict_clicks(train_data, test_data):\n    \"\"\"\n    Train a binary classifier on train_data and predict on test_data.\n    Args:\n        train_data: list of dicts with keys hours_spent_reading_a, hours_spent_reading_b,\n                    hours_spent_reading_c, current_post_category, click.\n        test_data: list of dicts with keys hours_spent_reading_a, hours_spent_reading_b,\n                   hours_spent_reading_c, current_post_category.\n    Returns:\n        dict with predictions (list of 0/1 ints) and metrics (dict with accuracy,\n        f1_score, roc_auc).\n    \"\"\"\n    # TODO: implement the solution\n    pass\n",
+  "prompt": "A feed team wants to predict whether a user will click a displayed post. Build a baseline and explain how you would evaluate and improve it.\n\nImplement `predict_clicks(train_data, test_data)`. Each record contains numeric `hours_spent_reading_a`, `hours_spent_reading_b`, and `hours_spent_reading_c`, plus `current_post_category` (`A`, `B`, or `C`). Training records also contain the binary label `click`. Assume complete tabular data.\n\nReturn a dictionary with `predictions` (one 0/1 value per test record) and `metrics` containing `accuracy`, `f1_score`, and `roc_auc`. Explain which labeled split you use for those metrics, your treatment of the categorical feature, and the limits of a small baseline evaluation.\n\nYou may use pandas and scikit-learn, including a ready-made LogisticRegression model; implementing gradient descent from scratch is not required. Focus on inspecting the data, encoding the categorical feature, scaling numeric features, fitting preprocessing only on the training split, and evaluating the baseline. For the small executable fixture, metrics computed on train_data are training diagnostics, not evidence of generalization. A realistic evaluation needs a separate labeled validation split. The fixture training data contains both label classes.\n\nSource boundary: the function signature, exact fields, and executable checks are a local practice reconstruction. The linked firsthand reports describe notebook data analysis and model training; they do not establish a NumPy-only restriction.",
+  "starter_code": "import pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score, f1_score, roc_auc_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\n\ndef predict_clicks(train_data, test_data):\n    \"\"\"Return predictions and accuracy/f1_score/roc_auc training diagnostics.\n\n    For generalization, evaluate on a separate labeled validation split.\n    Fit encoders, scalers, and the model using training data only.\n    \"\"\"\n    # TODO: prepare feature tables and labels with pandas.\n    # TODO: scale numeric columns and one-hot encode current_post_category.\n    # TODO: fit a sklearn pipeline, predict, and calculate metrics.\n    pass\n",
   "example": {
     "input": "{\"train\":[{\"hours_spent_reading_a\":12.5,\"hours_spent_reading_b\":2.1,\"hours_spent_reading_c\":0.8,\"current_post_category\":\"A\",\"click\":1},{\"hours_spent_reading_a\":3.0,\"hours_spent_reading_b\":9.7,\"hours_spent_reading_c\":1.4,\"current_post_category\":\"B\",\"click\":0},{\"hours_spent_reading_a\":6.2,\"hours_spent_reading_b\":5.5,\"hours_spent_reading_c\":8.1,\"current_post_category\":\"C\",\"click\":1},{\"hours_spent_reading_a\":0.3,\"hours_spent_reading_b\":0.6,\"hours_spent_reading_c\":4.5,\"current_post_category\":\"C\",\"click\":1}],\"test\":[{\"hours_spent_reading_a\":11.0,\"hours_spent_reading_b\":1.9,\"hours_spent_reading_c\":0.2,\"current_post_category\":\"A\"},{\"hours_spent_reading_a\":2.8,\"hours_spent_reading_b\":10.1,\"hours_spent_reading_c\":1.1,\"current_post_category\":\"B\"}]}",
     "output": "{\"predictions\": [1, 0], \"metrics\": {\"accuracy\": ..., \"f1_score\": ..., \"roc_auc\": ...}}",
@@ -53,11 +55,14 @@
   ],
   "environment": {
     "language": "python",
-    "timeout_seconds": 3,
+    "timeout_seconds": 10,
     "packages": [
-      "numpy"
+      "numpy",
+      "pandas",
+      "scikit-learn"
     ],
-    "comparator": "assertions"
+    "comparator": "assertions",
+    "runtime": "sklearn"
   },
   "evaluation": {
     "type": "ml_modeling"

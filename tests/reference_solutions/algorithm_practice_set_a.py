@@ -1,7 +1,5 @@
 from collections import deque
 
-import numpy as np
-
 
 class Logger:
     def __init__(self):
@@ -15,101 +13,38 @@ class Logger:
         return True
 
 
-def _record_features(records, categories, means, scales):
-    numeric = np.empty((len(records), 3), dtype=float)
-    for row_index, record in enumerate(records):
-        numeric[row_index] = [
-            float(record["hours_spent_reading_a"]),
-            float(record["hours_spent_reading_b"]),
-            float(record["hours_spent_reading_c"]),
-        ]
-    normalized = (numeric - means) / scales
-    encoded = np.zeros((len(records), len(categories)), dtype=float)
-    category_index = {category: index for index, category in enumerate(categories)}
-    for row_index, record in enumerate(records):
-        column = category_index.get(record["current_post_category"])
-        if column is not None:
-            encoded[row_index, column] = 1.0
-    return np.column_stack((np.ones(len(records)), normalized, encoded))
-
-
-def predict_click_probabilities(train_records, test_records, learning_rate=0.2, steps=800):
-    labels = np.array([int(record["click"]) for record in train_records], dtype=float)
-    if np.all(labels == labels[0]):
-        return [float(labels[0])] * len(test_records)
-
-    categories = sorted({record["current_post_category"] for record in train_records})
-    train_numeric = np.array(
-        [
-            [
-                float(record["hours_spent_reading_a"]),
-                float(record["hours_spent_reading_b"]),
-                float(record["hours_spent_reading_c"]),
-            ]
-            for record in train_records
-        ],
-        dtype=float,
-    )
-    means = train_numeric.mean(axis=0)
-    scales = train_numeric.std(axis=0)
-    scales[scales == 0.0] = 1.0
-
-    design = _record_features(train_records, categories, means, scales)
-    weights = np.zeros(design.shape[1], dtype=float)
-    for _ in range(steps):
-        logits = np.clip(design @ weights, -500.0, 500.0)
-        probabilities = 1.0 / (1.0 + np.exp(-logits))
-        gradient = design.T @ (probabilities - labels) / len(labels)
-        weights -= learning_rate * gradient
-
-    test_design = _record_features(test_records, categories, means, scales)
-    logits = np.clip(test_design @ weights, -500.0, 500.0)
-    return (1.0 / (1.0 + np.exp(-logits))).tolist()
-
-
-def _roc_auc(labels, scores):
-    positives = [score for label, score in zip(labels, scores) if label == 1]
-    negatives = [score for label, score in zip(labels, scores) if label == 0]
-    wins = sum(
-        1.0 if positive > negative else 0.5 if positive == negative else 0.0
-        for positive in positives
-        for negative in negatives
-    )
-    return wins / (len(positives) * len(negatives))
-
-
 def predict_clicks(train_data, test_data):
-    probabilities = predict_click_probabilities(train_data, test_data)
-    predictions = [int(probability >= 0.5) for probability in probabilities]
+    import pandas as pd
+    from sklearn.compose import ColumnTransformer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-    labels = [int(record["click"]) for record in train_data]
-    training_probabilities = predict_click_probabilities(train_data, train_data)
-    training_predictions = [int(probability >= 0.5) for probability in training_probabilities]
-    true_positives = sum(
-        prediction == label == 1
-        for prediction, label in zip(training_predictions, labels)
-    )
-    false_positives = sum(
-        prediction == 1 and label == 0
-        for prediction, label in zip(training_predictions, labels)
-    )
-    false_negatives = sum(
-        prediction == 0 and label == 1
-        for prediction, label in zip(training_predictions, labels)
-    )
-    precision = true_positives / (true_positives + false_positives)
-    recall = true_positives / (true_positives + false_negatives)
+    train = pd.DataFrame(train_data)
+    test = pd.DataFrame(test_data)
+    numeric = [
+        "hours_spent_reading_a",
+        "hours_spent_reading_b",
+        "hours_spent_reading_c",
+    ]
+    features = numeric + ["current_post_category"]
+    preprocessing = ColumnTransformer([
+        ("numeric", StandardScaler(), numeric),
+        ("category", OneHotEncoder(handle_unknown="ignore"), ["current_post_category"]),
+    ])
+    model = make_pipeline(preprocessing, LogisticRegression(max_iter=1000))
+    model.fit(train[features], train["click"])
 
+    # The tiny fixture has no held-out labels; these are training diagnostics.
+    training_predictions = model.predict(train[features])
+    training_probabilities = model.predict_proba(train[features])[:, 1]
     return {
-        "predictions": predictions,
+        "predictions": model.predict(test[features]).tolist(),
         "metrics": {
-            "accuracy": sum(
-                prediction == label
-                for prediction, label in zip(training_predictions, labels)
-            )
-            / len(labels),
-            "f1_score": 2 * precision * recall / (precision + recall),
-            "roc_auc": _roc_auc(labels, training_probabilities),
+            "accuracy": float(accuracy_score(train["click"], training_predictions)),
+            "f1_score": float(f1_score(train["click"], training_predictions, zero_division=0)),
+            "roc_auc": float(roc_auc_score(train["click"], training_probabilities)),
         },
     }
 

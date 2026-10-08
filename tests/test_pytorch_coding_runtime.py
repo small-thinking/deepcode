@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from deepcode.evaluators import EvaluationRequest, evaluate_submission
-from deepcode.evaluators.ml_coding import _pytorch_resource_limiter, _resource_limiter
+from deepcode.evaluators.ml_coding import _native_resource_limiter, _resource_limiter
 from deepcode.problem_store import ProblemStore
 
 
@@ -71,7 +71,7 @@ class PytorchCodingRuntimeTest(unittest.TestCase):
         import resource
 
         with patch("resource.setrlimit") as set_limit:
-            _pytorch_resource_limiter(10.5)()
+            _native_resource_limiter(10.5)()
         set_limit.assert_any_call(resource.RLIMIT_CPU, (12, 12))
         set_limit.assert_any_call(resource.RLIMIT_FSIZE, (1_000_000, 1_000_000))
         set_limit.assert_any_call(resource.RLIMIT_CORE, (0, 0))

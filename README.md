@@ -62,6 +62,15 @@ enforce a RAM cap or prohibit code from selecting another device. The default
 can use the existing `ml_torch_modeling` evaluator, while dataset-backed training
 tasks use `ml_torch_lab` with their final local-data harness.
 
+Assertion-based `ml_modeling` problems can opt into `"runtime": "sklearn"` in
+`environment` to use pandas and scikit-learn. Allow time for native-library imports
+(e.g. `timeout_seconds: 10`). This runtime uses one native compute thread, keeps
+CPU/file-size limits and the per-check wall timeout, and removes the default
+512 MiB virtual-address cap that can prevent SciPy/sklearn imports on Linux. It
+does not enforce a RAM cap. Other modeling problems retain their default limits.
+The `environment.packages` list describes available libraries; it is not an
+import allowlist.
+
 DeepCode creates `.deepcode/user-state.json` on local startup and records personal progress there for full-suite submissions. A passing submission stores a completion event time; a submission that does not pass all tests stores an in-progress event time. The local state is separate from the committed problem definitions and is ignored by git by default. Resetting a problem clears both the editor code and that problem's current completion/in-progress record; it does not erase the historical activity ledger.
 
 The **Progress** page uses a separate append-only local activity ledger at
@@ -116,7 +125,7 @@ See [docs/architecture.md](docs/architecture.md) for the local system architectu
 
 ## Project Environment
 
-DeepCode uses `uv` to pin and sync the local Python environment. NumPy is included by default so ML coding problems can cover small array, metric, and optimization tasks without per-problem setup. PyTorch is included for small tensor, module, and debugging problems that run on CPU-sized examples. The lockfile keeps development and CI reproducible as more evaluation dependencies are added later.
+DeepCode uses `uv` to pin and sync the local Python environment. NumPy is included by default so ML coding problems can cover small array, metric, and optimization tasks without per-problem setup. Pandas and scikit-learn are included for tabular data preparation and ready-made baseline models. PyTorch is included for small tensor, module, and debugging problems that run on CPU-sized examples. The lockfile keeps development and CI reproducible as more evaluation dependencies are added later.
 
 Set up or refresh the environment:
 
