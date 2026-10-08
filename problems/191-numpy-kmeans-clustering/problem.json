@@ -1,20 +1,32 @@
 {
   "id": "191",
   "slug": "numpy-kmeans-clustering",
-  "title": "K-Means Clustering from Scratch",
+  "title": "NumPy K-Means Clustering",
   "category": "ML Coding",
   "difficulty": "medium",
-  "tags": ["numpy", "clustering", "k-means"],
-  "companies": ["Waymo", "Uber"],
+  "tags": [
+    "numpy",
+    "clustering",
+    "k-means"
+  ],
+  "companies": [
+    "Waymo",
+    "Uber"
+  ],
   "interview_frequency": {
     "Uber": {
-      "source_record_ids": ["3df6ce51456d81b68bf1cb300ebece77"],
+      "source_record_ids": [
+        "3df6ce51456d81b68bf1cb300ebece77"
+      ],
       "stars": 2,
       "synced_at": "2026-09-18"
     }
   },
-  "interview_frequency_total": {"stars": 2, "synced_at": "2026-09-18"},
-  "prompt": "Implement K-means clustering from scratch using NumPy. Do not use an existing K-means implementation.\n\n**Input**\n\nImplement `kmeans(X, k, n_iter, seed=None)`, where:\n- `X` is a non-empty numeric array with shape `(n_samples, n_features)`;\n- `k` is the number of clusters, with `1 <= k <= n_samples`;\n- `n_iter` is the maximum number of iterations;\n- `seed` is an optional random seed.\n\n**Output**\n\nReturn `(centroids, labels)`, where `centroids` has shape `(k, n_features)` and `labels` has shape `(n_samples,)` with one cluster assignment per input point.",
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-18"
+  },
+  "prompt": "Implement `kmeans(X, k, n_iter, seed=None)` using NumPy. `X` is a non-empty numeric array-like value with shape `(n_samples, n_features)`, `1 <= k <= n_samples`, and `n_iter` is a non-negative integer giving the maximum number of update iterations.\n\nReturn `(centroids, labels)`, where `centroids` has shape `(k, n_features)` and `labels` has shape `(n_samples,)`. Cluster points by squared Euclidean distance and update each represented cluster center to the mean of its assigned points. The returned labels must identify a nearest returned centroid for every input row. Use `seed` to make repeated calls reproducible, return finite centroids, and do not mutate the caller's input. You may choose the initialization, convergence check, and empty-cluster strategy.",
   "starter_code": "import numpy as np\n\n\ndef kmeans(X, k, n_iter, seed=None):\n    # Return final centroids and the nearest-centroid label for each input row.\n    pass\n",
   "example": {
     "input": "kmeans([[1.0, 1.0], [2.0, 2.0], [8.0, 8.0], [9.0, 9.0]], k=2, n_iter=20, seed=42)",
@@ -24,7 +36,9 @@
   "environment": {
     "language": "python",
     "timeout_seconds": 3,
-    "packages": ["numpy"],
+    "packages": [
+      "numpy"
+    ],
     "comparator": "assertions"
   },
   "evaluation": {
