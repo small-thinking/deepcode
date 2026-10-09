@@ -14,7 +14,7 @@
   "companies": [
     "Anthropic"
   ],
-  "prompt": "Implement `transform_image(image, operations)` using NumPy. `image` is either a 2-D grayscale array or a 3-D height-width-channel array. Return a new `float64` NumPy array and never mutate `image`. Apply each operation mapping in order.\n\nSupported operations are:\n\n- `{'op': 'clip', 'low': number, 'high': number}`: clip values inclusively. Require `low <= high`.\n- `{'op': 'affine', 'scale': number, 'bias': number}`: compute `image * scale + bias`.\n- `{'op': 'standardize', 'mean': scalar_or_channel_vector, 'std': scalar_or_channel_vector}`: compute `(image - mean) / std`. `mean` and `std` may be scalars; for a color image they may instead be vectors of exactly one value per final-axis channel. Every standard-deviation value must be positive.\n- `{'op': 'hflip'}`: reverse the width axis.\n- `{'op': 'transpose_hw'}`: swap the height and width axes while preserving any channel axis.\n\nReject unsupported image ranks, malformed operation mappings, unknown operations, invalid clip bounds, and invalid standard deviations; `assert` is sufficient.",
+  "prompt": "Implement `transform_image(image, operations)` using NumPy. `image` is either a 2-D grayscale array or a 3-D height-width-channel array. Return a new `float64` NumPy array and never mutate `image`. Apply each operation mapping in order.\n\nSupported operations are:\n\n- `{'op': 'clip', 'low': number, 'high': number}`: clip values inclusively. Require `low <= high`.\n- `{'op': 'affine', 'scale': number, 'bias': number}`: compute `image * scale + bias`.\n- `{'op': 'standardize', 'mean': scalar_or_channel_vector, 'std': scalar_or_channel_vector}`: compute `(image - mean) / std`. `mean` and `std` may be scalars; for a color image they may instead be vectors of exactly one value per final-axis channel. Every standard-deviation value must be positive.\n- `{'op': 'hflip'}`: reverse the width axis.\n- `{'op': 'transpose_hw'}`: swap the height and width axes while preserving any channel axis.\n\nReject unsupported image ranks, malformed operation mappings, unknown operations, invalid clip bounds, and invalid standard deviations; `assert` is sufficient.\n\nPractice boundary: this is a NumPy tensor-composition variant of an image-processing question family. Its exact operation set, float64 output and validation checks are local practice requirements. The original reports concern ordered image transformations and optimization; this exercise does not reproduce their file I/O, resize or grayscale-conversion contract.",
   "starter_code": "import numpy as np\n\n\ndef transform_image(image, operations):\n    pass\n",
   "example": {
     "input": "transform_image(np.array([[-1, 1], [4, 6]]), [{'op': 'clip', 'low': 0, 'high': 4}, {'op': 'affine', 'scale': 0.5, 'bias': 1}])",
@@ -47,32 +47,37 @@
       "url": "https://app.notion.com/p/3716ce51456d815c9df1d8c7a560ed3e"
     },
     {
-      "label": "Original 1Point3Acres interview report (1181431)",
+      "label": "Related pipeline-family report recorded in Notion (1181431)",
       "url": "https://www.1point3acres.com/bbs/thread-1181431-1-1.html"
     },
     {
-      "label": "Original 1Point3Acres interview report (1183937)",
+      "label": "Related pipeline-family report recorded in Notion (1183937)",
       "url": "https://www.1point3acres.com/bbs/thread-1183937-1-1.html"
     },
     {
-      "label": "Original 1Point3Acres interview report (1184405)",
+      "label": "Related pipeline-family report recorded in Notion (1184405)",
       "url": "https://www.1point3acres.com/bbs/thread-1184405-1-1.html"
     },
     {
-      "label": "Original 1Point3Acres interview report (1184940)",
+      "label": "Related pipeline-family report recorded in Notion (1184940)",
       "url": "https://www.1point3acres.com/bbs/thread-1184940-1-1.html"
     },
     {
-      "label": "Original 1Point3Acres interview report (1186967)",
+      "label": "Related pipeline-family report recorded in Notion (1186967)",
       "url": "https://www.1point3acres.com/bbs/thread-1186967-1-1.html"
     },
     {
-      "label": "Original 1Point3Acres interview report (1187874)",
+      "label": "Related pipeline-family report recorded in Notion (1187874)",
       "url": "https://www.1point3acres.com/bbs/thread-1187874-1-1.html"
     },
     {
-      "label": "Original 1Point3Acres interview report (1189040)",
+      "label": "Related pipeline-family report recorded in Notion (1189040)",
       "url": "https://www.1point3acres.com/bbs/thread-1189040-1-1.html"
+    },
+    {
+      "label": "NumPy technical background — array broadcasting (not interview evidence)",
+      "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"
     }
-  ]
+  ],
+  "background_note": "Related interview family: ordered image-processing pipelines, including grayscale, resize and horizontal flip, are recorded in the canonical Notion page. This NumPy exercise is a local variant: clip, affine, channel standardization and spatial transpose are not established as the original interviewer API. The canonical page classifies the source as General Coding, including a FrontEndEng report; it is not evidence of an Anthropic ML-training interview or an independent occurrence for this variant. No frequency is inherited from that broader family. The current audit reused the saved source summaries; restricted original bodies were not re-read."
 }

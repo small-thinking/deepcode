@@ -8,9 +8,7 @@
     "matrix",
     "vectors"
   ],
-  "companies": [
-    "OpenAI"
-  ],
+  "companies": [],
   "prompt": "A linear model needs one score for each feature row. Implement `matrix_vector_dot(matrix, vector)` using numeric Python lists.\n\n`matrix` has shape `(rows, features)` and `vector` has length `features`. Return their matrix-vector product as a Python list with one value per row.\n\nReject empty inputs, ragged rows, or incompatible dimensions. An `assert` is sufficient; returning the legacy sentinel `-1` is also accepted.",
   "starter_code": "def matrix_vector_dot(matrix, vector):\n    # Return row-wise dot products, or -1 for any empty or invalid shape.\n    pass\n",
   "example": {
@@ -30,9 +28,10 @@
       "url": "https://mathinsight.org/matrix_vector_multiplication"
     },
     {
-      "label": "Wikipedia: Matrix times vector",
-      "url": "https://en.wikipedia.org/wiki/Matrix_multiplication#Matrix_times_vector"
+      "label": "NumPy documentation: matrix-vector multiplication semantics (technical background, not interview evidence)",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html"
     }
   ],
+  "background_note": "General linear-algebra practice. The available sources explain matrix-vector multiplication but do not establish an OpenAI interview occurrence. The Python-list API and input-rejection rules are local exercise requirements; no company frequency is claimed.",
   "created_at": "2026-06-10"
 }

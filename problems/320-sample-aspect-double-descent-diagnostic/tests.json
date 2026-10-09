@@ -13,5 +13,9 @@
     "name": "rejects invalid samples, loss matrices, and aspect names",
     "input": "non-increasing samples, negative loss, mismatched names, and wrong rank",
     "test": "import numpy as np\n\ndef expect(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nvalid_samples = np.array([1, 2, 3])\nvalid_losses = np.array([[1.0], [2.0], [1.0]])\nexpect(lambda: diagnose_sample_aspect_losses(np.array([1, 1, 2]), valid_losses))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, np.array([1.0, 2.0, 1.0])))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, np.array([[-1.0], [1.0], [1.0]])))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, valid_losses, ['x', 'y']))\nexpect(lambda: diagnose_sample_aspect_losses(valid_samples, valid_losses, ['']))\n"
+  },
+  {
+    "name": "shape heuristic handles plateaus endpoint dominance and nonmutation",
+    "test": "import numpy as np\nsamples = np.array([1, 2, 3, 4, 5])\nlosses = np.array([[0.2, 2.0, 0.0], [0.8, 0.4, 0.4], [0.8, 1.0, 0.8], [0.4, 0.5, 1.2], [0.1, 0.2, 1.6]])\nbefore_samples, before_losses = samples.copy(), losses.copy()\nr = diagnose_sample_aspect_losses(samples, losses, ['plateau', 'endpoint', 'increasing'])\nassert r['double_descent_aspects'] == []\nassert r['aspects'][0]['peak_index'] is None\nassert r['aspects'][1] == {'name': 'endpoint', 'peak_index': 2, 'peak_samples': 3, 'peak_loss': 1.0, 'double_descent': False}\nassert r['aspects'][2]['peak_index'] is None\nnp.testing.assert_array_equal(samples, before_samples)\nnp.testing.assert_array_equal(losses, before_losses)\n"
   }
 ]

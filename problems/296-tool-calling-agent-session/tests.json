@@ -13,5 +13,15 @@
     "name": "reports incomplete sessions and rejects invalid calls",
     "input": "no final action, an unknown tool, and a max-call overflow",
     "test": "incomplete = run_tool_session({}, {}, [], max_calls=1)\nassert incomplete == {'state': {}, 'transcript': [], 'status': 'incomplete', 'answer': None}\n\ndef noop(state, arguments):\n    return {}\n\ndef must_raise(kind, call):\n    try:\n        call()\n    except (kind, AssertionError):\n        return\n    raise AssertionError('expected exception')\nmust_raise(ValueError, lambda: run_tool_session({}, {}, [{'type': 'tool', 'name': 'missing', 'arguments': {}}], 1))\nmust_raise(RuntimeError, lambda: run_tool_session({}, {'noop': noop}, [{'type': 'tool', 'name': 'noop', 'arguments': {}}, {'type': 'tool', 'name': 'noop', 'arguments': {}}], 1))\nmust_raise(ValueError, lambda: run_tool_session({}, {}, [], 0))\n"
+  },
+  {
+    "name": "nested tool arguments remain isolated and exact call budget permits final",
+    "input": "a tool mutates nested arguments before final at the call limit",
+    "test": "arguments = {'nested': {'items': ['kept']}}\nactions = [{'type': 'tool', 'name': 'mutate', 'arguments': arguments}, {'type': 'final', 'answer': None}]\ndef mutate(state, received):\n    received['nested']['items'].append('tool-local')\n    return {'observed': received['nested']['items']}\nresult = run_tool_session({}, {'mutate': mutate}, actions, max_calls=1)\nassert arguments == {'nested': {'items': ['kept']}}\nassert result['state'] == {'observed': ['kept', 'tool-local']}\nassert result['transcript'][0]['arguments'] == arguments\nassert result['status'] == 'complete' and result['answer'] is None"
+  },
+  {
+    "name": "rejects malformed actions and non-mapping tool results",
+    "input": "missing fields, unknown action types, boolean budget and invalid result",
+    "test": "def expect_invalid(call):\n    try:\n        call()\n    except (AssertionError, ValueError, TypeError):\n        return\n    raise AssertionError('expected invalid session')\nfor action in ({'type': 'final'}, {'type': 'unknown'}, {'type': 'tool', 'name': 'bad', 'arguments': []}):\n    expect_invalid(lambda action=action: run_tool_session({}, {'bad': lambda state, args: {}}, [action], 1))\nexpect_invalid(lambda: run_tool_session({}, {}, [], True))\nexpect_invalid(lambda: run_tool_session({}, {'bad': lambda state, args: []}, [{'type': 'tool', 'name': 'bad', 'arguments': {}}], 1))"
   }
 ]

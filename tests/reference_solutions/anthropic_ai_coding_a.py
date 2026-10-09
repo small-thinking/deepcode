@@ -221,7 +221,7 @@ def masked_batched_gather(values, indices, fill_value=0):
 
     output_dtype = np.result_type(values.dtype, np.asarray(fill_value).dtype)
     valid = indices >= 0
-    safe_indices = np.where(valid, indices, 0)
-    gathered = np.take_along_axis(values, safe_indices[..., None], axis=1).astype(output_dtype, copy=True)
-    gathered = np.where(valid[..., None], gathered, np.asarray(fill_value, dtype=output_dtype))
+    gathered = np.full(indices.shape + (values.shape[2],), fill_value, dtype=output_dtype)
+    batch_rows, selected_rows = np.nonzero(valid)
+    gathered[batch_rows, selected_rows] = values[batch_rows, indices[valid]]
     return gathered, valid

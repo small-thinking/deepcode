@@ -18,5 +18,10 @@
     "name": "invalid divisibility byte budgets and infeasible candidates are rejected",
     "input": "malformed tile shapes and a tile that cannot fit the workspace",
     "test": "for call in (lambda: estimate_tiled_matmul_cost(4, 4, 4, (3, 1, 1)), lambda: estimate_tiled_matmul_cost(4, 4, 4, (1, 1)), lambda: choose_matrix_tiling(4, 4, 4, [(4, 4, 4)], 10), lambda: choose_matrix_tiling(4, 4, 4, [], 100)):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError('expected validation error')\n"
+  },
+  {
+    "name": "inner tile depth changes workspace but not this traffic estimate",
+    "input": "same output tile with different inner depths and an exact workspace boundary",
+    "test": "shallow = estimate_tiled_matmul_cost(8, 8, 8, (4, 4, 1))\ndeep = estimate_tiled_matmul_cost(8, 8, 8, (4, 4, 4))\nassert shallow['workspace_bytes'] == 96 and deep['workspace_bytes'] == 192\nassert shallow['estimated_bytes'] == deep['estimated_bytes'] == 1280\nassert shallow['arithmetic_intensity'] == deep['arithmetic_intensity']\nassert choose_matrix_tiling(8, 8, 8, [(4, 4, 4)], 192)['tile'] == (4, 4, 4)\nassert choose_matrix_tiling(8, 8, 8, [(4, 4, 4), (4, 4, 1)], 192)['tile'] == (4, 4, 1)"
   }
 ]

@@ -10,10 +10,8 @@
     "data-quality",
     "numpy"
   ],
-  "companies": [
-    "OpenAI"
-  ],
-  "prompt": "Analyze experiment records represented as mappings with `variant`, `exposed`, `metric`, and optional `country`. `ab_summary(rows)` must retain only exposed A/B rows with a non-missing metric, compute B-minus-A relative lift, and return a two-sided Welch-style normal-approximation p-value. Return `NaN` statistics for an underpowered group or a zero A mean. `SegmentLiftReport(rows)` pre-aggregates valid records and exposes `lift(country)`; unknown or one-sided segments return `NaN`.\n\nDo not discard a row merely because the optional segment is missing. Treat this as a numerical reporting helper, not a substitute for experimental-design judgment.",
+  "companies": [],
+  "prompt": "Analyze experiment rows represented as mappings with `variant`, `exposed`, `metric`, and optional `country`. Metrics are finite numbers or `None`. Retain only exposed rows whose variant is A or B and whose metric is not missing. A missing country never excludes a row from the overall summary.\n\n`ab_summary(rows)` returns a mapping with `lift` and `p_value`. Define lift as `(mean_B - mean_A) / mean_A`; it is NaN if either group is absent or mean_A is zero. A singleton group can still have a defined lift. For p_value, require at least two observations in each group and use the standard error `sqrt(sample_var_A / n_A + sample_var_B / n_B)`, where sample variance uses denominator `n-1`. Return the two-sided normal-tail approximation `erfc(abs(mean_B - mean_A) / (sqrt(2) * standard_error))`. If the standard error is zero, return 1.0 for equal means and 0.0 otherwise. If either group has fewer than two rows, p_value is NaN independently of whether lift is defined. A zero baseline mean invalidates relative lift, not the absolute-mean test.\n\n`SegmentLiftReport(rows)` pre-aggregates valid rows with a non-missing country and exposes `lift(country)` with the same relative-lift rule. Unknown, one-sided, or zero-baseline segments return NaN.\n\nThis is a local numerical reporting helper. Its p-value is a normal approximation using unequal-variance standard errors, not an exact finite-sample Welch t-test; experimental design, repeated testing, and metric selection remain separate questions.",
   "starter_code": "import math\n\n\ndef ab_summary(rows):\n    pass\n\n\nclass SegmentLiftReport:\n    def __init__(self, rows):\n        pass\n\n    def lift(self, country):\n        pass\n",
   "example": {
     "input": "two exposed A and two exposed B records",
@@ -30,5 +28,11 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-18",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "General preparation exercise. A bounded Notion/source audit did not recover an original interview prompt for this exact local contract. The former unverified OpenAI tag has been removed; technical documentation supports the method, not an interview occurrence. SciPy documents unequal-variance Welch testing; this exercise deliberately uses a normal tail rather than the finite-degrees-of-freedom t distribution. Relative lift and significance are independent outputs with separate undefined cases.",
+  "references": [
+    {
+      "label": "SciPy statistical background — Welch unequal-variance test; local exercise uses normal-tail approximation",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html"
+    }
+  ]
 }

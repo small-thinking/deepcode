@@ -46,11 +46,19 @@
     }
   ],
   "created_at": "2026-09-04",
-  "background_note": "User-created educational exercise from Playground. No interview occurrence or company attribution is claimed.",
+  "background_note": "User-created educational exercise from Playground. The exact packed-projection API, chunked decoding, mask offset, and gradient-preserving cache checks are local practice specifications; no company attribution or interview occurrence is claimed. The related Notion attention guide uses separate Q/K/V projections and a one-token cache API, so it is study context rather than this exact contract. Hugging Face documents KV caching for inference; preserving cache gradients here is an educational correctness check, not a recommendation to enable production inference caches during training.",
   "references": [
     {
       "label": "PyTorch documentation — scaled dot-product attention",
       "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html"
+    },
+    {
+      "label": "Hugging Face official documentation — KV-cache concatenation and mask length",
+      "url": "https://huggingface.co/docs/transformers/en/cache_explanation"
+    },
+    {
+      "label": "Related Notion study guide, section 6: one-token cache API differs from this chunked exercise",
+      "url": "https://app.notion.com/p/35c6ce51456d815bb26adbdb21a7cce2"
     }
   ]
 }

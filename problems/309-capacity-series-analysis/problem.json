@@ -11,10 +11,8 @@
     "time-series",
     "metrics"
   ],
-  "companies": [
-    "Anthropic"
-  ],
-  "prompt": "Implement `analyze_capacity_series(demand, capacity, window)` for two one-dimensional NumPy arrays. Both arrays represent aligned samples, must have the same non-zero length, and contain finite non-negative demand and finite strictly positive capacity. `window` is a positive integer. Never mutate either input.\n\nReturn a mapping with:\n\n- `utilization`: the float array `demand / capacity`;\n- `rolling_peak`: at each index, the maximum utilization in the inclusive trailing window of up to `window` samples;\n- `overload_runs`: a list of inclusive `(start_index, end_index)` tuples for each maximal contiguous run where utilization is strictly greater than one; and\n- `summary`: `{'samples': int, 'mean_utilization': float, 'peak_utilization': float, 'total_shortfall': float}`, where total shortfall is `sum(max(demand - capacity, 0))`.\n\nReject invalid ranks, lengths, values, or window size; `assert` is sufficient.",
+  "companies": [],
+  "prompt": "### Source and practice scope\n\nThis NumPy helper is a local practice variant related to an Anthropic cloud-capacity dataset-analysis discussion. The canonical Notion record classifies the reported task as Behavioral/Project and does not expose a dataset schema or a concrete coding API. The demand/capacity arrays, trailing-window peak, overload runs, and summary below are preparation choices; the source does not establish that this function was asked as an ML coding question. Use the linked original-task record for the broader objective, tradeoffs, and recommendations.\n\nImplement `analyze_capacity_series(demand, capacity, window)` for two one-dimensional NumPy arrays. Both arrays represent aligned samples, must have the same non-zero length, and contain finite non-negative demand and finite strictly positive capacity. `window` is a positive integer. Never mutate either input.\n\nReturn a mapping with:\n\n- `utilization`: the float array `demand / capacity`;\n- `rolling_peak`: at each index, the maximum utilization in the inclusive trailing window of up to `window` samples;\n- `overload_runs`: a list of inclusive `(start_index, end_index)` tuples for each maximal contiguous run where utilization is strictly greater than one; and\n- `summary`: `{'samples': int, 'mean_utilization': float, 'peak_utilization': float, 'total_shortfall': float}`, where total shortfall is `sum(max(demand - capacity, 0))`.\n\nReject invalid ranks, lengths, values, or window size; `assert` is sufficient.",
   "starter_code": "import numpy as np\n\n\ndef analyze_capacity_series(demand, capacity, window):\n    pass\n",
   "example": {
     "input": "demand = np.array([5, 12, 11, 6, 15]); capacity = np.full(5, 10); window = 3",
@@ -35,12 +33,20 @@
   "created_at": "2026-08-19",
   "references": [
     {
-      "label": "Related interview source (practice variant): 1Point3Acres 1181642",
+      "label": "Related report lead: Anthropic capacity dataset analysis; local coding API is a practice variant",
       "url": "https://www.1point3acres.com/bbs/thread-1181642-1-1.html"
     },
     {
-      "label": "Notion interview record (practice variant)",
+      "label": "Canonical Notion record: Behavioral/Project dataset analysis; exact schema unspecified",
       "url": "https://app.notion.com/p/3906ce51456d81238c4bfde4fb543dc7"
+    },
+    {
+      "label": "Secondary capacity-round summary: independence from the report is unresolved",
+      "url": "https://www.reddit.com/r/OfferEngineering/comments/1upc38m/anthropic_jun_2026_forward_deployed_engineerfde/"
+    },
+    {
+      "label": "Technical reference: NumPy sliding windows; leading short windows remain part of the local contract",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.lib.stride_tricks.sliding_window_view.html"
     }
   ]
 }

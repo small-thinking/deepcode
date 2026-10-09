@@ -11,9 +11,7 @@
     "data-pipeline",
     "validation"
   ],
-  "companies": [
-    "Anthropic"
-  ],
+  "companies": [],
   "prompt": "Implement `process_image_batches(images, batch_size, process_batch)`. `images` is a sequence of NumPy arrays with an identical, non-empty shape and numeric dtype. `process_batch` is a callable that receives one stacked NumPy batch at a time and returns a NumPy array with exactly the same shape as that batch.\n\nSplit images into consecutive batches of at most `batch_size`, invoke `process_batch` once for each batch, and return a flat list of processed image arrays in the original input order. A final partial batch is still processed once. Stack copies of the input images, so a mutating processor cannot change caller-owned inputs. Also return copies of output slices so later processor reuse cannot alias a returned image.\n\nAn empty image sequence returns an empty list without calling `process_batch`. Reject a non-positive/non-integer batch size, a non-callable processor, non-array or non-numeric images, empty shapes, mismatched shapes, and an invalid processor output; `assert` is sufficient.",
   "starter_code": "import numpy as np\n\n\ndef process_image_batches(images, batch_size, process_batch):\n    pass\n",
   "example": {
@@ -33,5 +31,15 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-19",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "General NumPy batching exercise. A corresponding original interview report or canonical Notion question has not been established. Its former company label was inherited without supporting provenance. The ordered-image-pipeline question family is a different contract and does not establish this batching/callback API or its frequency.",
+  "references": [
+    {
+      "label": "NumPy technical background — stack inputs along a new axis (not interview evidence)",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.stack.html"
+    },
+    {
+      "label": "NumPy technical background — copy and memory independence (not interview evidence)",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.copy.html"
+    }
+  ]
 }

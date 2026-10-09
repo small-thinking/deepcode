@@ -34,8 +34,17 @@
     {
       "label": "1Point3Acres: Datadog Machine Learning phone screen",
       "url": "https://www.1point3acres.com/interview/thread/1181571"
+    },
+    {
+      "label": "Canonical Notion interview record shared with the projected PyTorch GQA variant",
+      "url": "https://app.notion.com/p/3cf6ce51456d81dbb7d2de28cb951c6b"
+    },
+    {
+      "label": "GQA original paper (technical background, not an interview occurrence)",
+      "url": "https://arxiv.org/abs/2305.13245"
     }
   ],
+  "background_note": "The saved Datadog report names handwritten GQA; its exact framework and API are not established by the author. The precomputed-Q/K/V dimensions and no-mask contract are preparation material, and NumPy validation rules are local exercise requirements. This variant and Projected Grouped-Query Attention in PyTorch link to the same canonical Notion page and the same interview report, not two independent occurrences. The Notion study guide calls this NumPy variant optional and the projected PyTorch module the graded study entry; the legacy DeepCode variant remains separately runnable for compatibility and retains its existing slug and tests.",
   "evaluation": {
     "type": "ml_modeling"
   },

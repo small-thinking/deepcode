@@ -13,7 +13,7 @@
   "companies": [
     "OpenAI"
   ],
-  "prompt": "Implement utilities for multiclass training data labeled by imperfect annotators. `posterior_true_labels(prior, confusion, annotations, temperature=1.0)` returns posterior probabilities over true classes. `prior` has shape `(classes,)`; `confusion[a, truth, reported]` is the probability that annotator `a` reports a class. `annotations` has shape `(items, annotators)` and uses `-1` for missing labels; class `0` is a real label. Keep the computation numerically stable and return the prior exactly for an item with no observed labels.\n\n`annotation_nll(logits, confusion, annotations)` returns the mean negative log likelihood of observed reports after marginalizing the true class. It must reject an all-missing batch. `evaluate_in_chunks(fn, inputs, chunk_size)` applies a callable to the leading dimension without a graph and concatenates every chunk, including the final partial chunk. Validate positive temperature and chunk sizes; `assert` is sufficient for input validation.",
+  "prompt": "Implement three utilities for a multiclass label-noise practice model. Inputs are valid, shape-compatible tensors: `prior` is a positive, normalized vector with shape `(classes,)`, `confusion` has shape `(annotators, classes, classes)` with positive row-normalized entries, and `annotations` has shape `(items, annotators)`. `confusion[a, truth, reported]` is the probability that annotator `a` reports a class. Use `-1` for a missing report; class `0` is a real label.\n\n`posterior_true_labels(prior, confusion, annotations, temperature=1.0)` returns an `(items, classes)` tensor. Assume annotator reports are conditionally independent given the true class. For a row with evidence, normalize `exp((log(prior[c]) + sum_a log(confusion[a, c, observed_report_a])) / temperature)` over classes. Compute in log space. An all-missing row returns the supplied prior unchanged, even when temperature differs from 1.\n\n`annotation_nll(logits, confusion, annotations)` returns a scalar mean loss over individual observed reports, not over rows and not the joint likelihood of all reports on an item. Each report contributes `-log(sum_c softmax(logits[i])[c] * confusion[a, c, annotations[i,a]]))`. Skip missing reports, reject a batch with no observed reports, and preserve autograd for logits.\n\n`evaluate_in_chunks(fn, inputs, chunk_size)` applies `fn` to chunks along the leading dimension of a nonempty input under `torch.no_grad()` and concatenates outputs in order, including the final partial chunk. Validate positive temperature and chunk size; `assert` or `ValueError` is sufficient.\n\nThe source reports an open-ended noisy-annotator data-cleaning round with a supplied model and training loop. This confusion-matrix/posterior/NLL API is a local mathematical extension, not recovered candidate wording.",
   "starter_code": "import torch\n\n\ndef posterior_true_labels(prior, confusion, annotations, temperature=1.0):\n    pass\n\n\ndef annotation_nll(logits, confusion, annotations):\n    pass\n\n\ndef evaluate_in_chunks(fn, inputs, chunk_size):\n    pass\n",
   "example": {
     "input": "annotations = torch.tensor([[0, -1], [-1, -1]])",
@@ -40,7 +40,23 @@
     {
       "label": "Related canonical question family — practice variant mapping",
       "url": "https://app.notion.com/p/3656ce51456d819da4b7ddd95aa046f1"
+    },
+    {
+      "label": "Public preparation reconstruction — noisy multi-annotator labels; not a new occurrence",
+      "url": "https://prachub.com/interview-questions/improve-classifier-with-noisy-multi-annotator-labels"
+    },
+    {
+      "label": "Candidate clarification preserved in canonical Notion — 1190831 (not re-extracted here)",
+      "url": "https://www.1point3acres.com/bbs/thread-1190831-1-1.html"
+    },
+    {
+      "label": "PyTorch technical background — stable logsumexp (not interview evidence)",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.logsumexp.html"
+    },
+    {
+      "label": "PyTorch technical background — no_grad (not interview evidence)",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html"
     }
   ],
-  "background_note": "Candidate report supports uneven annotator quality and data cleaning. The posterior/confusion-matrix API here is a DeepCode practice formulation; its interview origin is unverified."
+  "background_note": "The canonical Notion record supports an OpenAI noisy-label cleaning family: run the supplied baseline, inspect annotator quality, clean or reweight labels, and compare held-out metrics. Its latest preserved candidate clarification (1190831) says the exercise was open-ended, discussed F1/AUROC, and accepted Python dictionaries; pandas was useful in other reports but not universally required. The posterior, temperature, per-report NLL, and chunk API are local extensions. The public PracHub prompt adds preparation guidance on item-level leakage and aggregation; community answers do not establish interview APIs. These variants share one source family and must not be counted as separate interview events."
 }

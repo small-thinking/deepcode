@@ -13,5 +13,10 @@
     "name": "validates corpus, merge, and budget inputs",
     "input": "bad corpus entries, bad merge pairs, and a negative merge count",
     "test": "def expect(kind, call):\n    try:\n        call()\n    except (kind, AssertionError):\n        return\n    raise AssertionError('expected exception')\nexpect(TypeError, lambda: fit_pair_tokenizer('word', 1))\nexpect(ValueError, lambda: fit_pair_tokenizer([''], 1))\nexpect(TypeError, lambda: fit_pair_tokenizer([1], 1))\nexpect(ValueError, lambda: fit_pair_tokenizer(['a'], -1))\nexpect(TypeError, lambda: encode_pair_tokens(['a'], []))\nexpect(ValueError, lambda: encode_pair_tokens('a', [('a', '')]))\n"
+  },
+  {
+    "name": "counts corpus multiplicity without merging across word boundaries and supports Unicode",
+    "input": "duplicated words, single-character words, Unicode and zero merges",
+    "test": "assert fit_pair_tokenizer(['ab', 'bc', 'bc'], 1) == {'merges': [('b', 'c')], 'vocabulary': ['a', 'b', 'bc']}\nassert fit_pair_tokenizer(['a', 'b'], 3) == {'merges': [], 'vocabulary': ['a', 'b']}\nassert fit_pair_tokenizer(['猫猫猫'], 1) == {'merges': [('猫', '猫')], 'vocabulary': ['猫', '猫猫']}\nassert encode_pair_tokens('猫猫猫', [('猫', '猫')]) == ['猫猫', '猫']\nassert fit_pair_tokenizer(['ba'], 0) == {'merges': [], 'vocabulary': ['a', 'b']}\nassert encode_pair_tokens('', [('a', 'b')]) == []"
   }
 ]

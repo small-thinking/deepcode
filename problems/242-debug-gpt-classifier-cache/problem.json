@@ -39,8 +39,12 @@
     {
       "label": "Related canonical question family — practice variant mapping",
       "url": "https://app.notion.com/p/37a6ce51456d81b8b0c5f9f9f8850820"
+    },
+    {
+      "label": "Prachub prompt reconstruction from the same candidate account — not a second interview event",
+      "url": "https://prachub.com/interview-questions/debug-minigpt-and-backpropagate-matmul"
     }
   ],
-  "background_note": "Candidate report supports MiniGPT debugging and a KV-cache follow-up. The classifier and exact executable API here are DeepCode practice extensions; their interview origin is unverified.",
+  "background_note": "Public source rechecked on 2026-10-08: the curated OpenAI candidate account reports PyTorch MiniGPT debugging followed by KV-cache implementation. Its linked prompt page reconstructs the same account, so these two URLs are not independent interview occurrences. The original buggy code was not provided. This executable exercise supplies its own decoder, masked classifier, and callable APIs; the classifier is a local extension with no interview evidence. Tests check causality, classifier masking, greedy-token correctness, and gradient flow. Cached/uncached parity is checked, but retaining a real cache or achieving a speedup is not required or measured here. The Notion link is a mapping to the broader Transformer-debugging family, not evidence for this exact combined exercise.",
   "created_at": "2026-08-18"
 }

@@ -12,7 +12,7 @@
   "companies": [
     "OpenAI"
   ],
-  "prompt": "Implement deterministic preprocessing for a label matrix. Each row is an item and each column is an annotator; `None` means missing. `consensus_labels(labels, excluded=())` returns a majority label per row, breaking ties by first occurrence in that row. `agreement_rates(labels, min_labels=1)` returns one rate per annotator, ignoring missing observations and rows without enough non-missing labels. `select_rejected_annotators(...)` selects annotators with agreement strictly below a threshold while respecting `max_removed_fraction` and `min_remaining`. `mask_annotators(labels, rejected)` returns a same-shape copy whose rejected columns are all `None`.\n\nDo not mutate the caller's matrix. A weak-agreement filter is a data-quality baseline, not a promise that every downstream model improves.",
+  "prompt": "Implement deterministic preprocessing for a rectangular label matrix. Each row is an item and each column is an annotator; labels are hashable, and `None` means missing. Do not mutate the caller's rows.\n\n`consensus_labels(labels, excluded=())` ignores missing values and excluded annotator indices. Return the majority label per row, breaking ties by first occurrence among the remaining labels in that row. Return `None` for a row with no remaining labels.\n\n`agreement_rates(labels, min_labels=1)` returns one rate per annotator. A row is eligible only if its total number of non-missing reports is at least `min_labels`. For each annotator, measure agreement with the full-row consensus on eligible rows where that annotator has a report. The consensus includes its own report; this is a simple baseline, not leave-one-out estimation. An annotator with no eligible reports receives a conservative fallback of `1.0` so absence of evidence does not trigger removal. An empty matrix returns `[]`.\n\n`select_rejected_annotators(labels, threshold=0.7, min_labels=1, max_removed_fraction=0.5, min_remaining=1)` selects only rates strictly below `threshold`. With `A` annotators, capacity is `min(floor(A * max_removed_fraction), max(0, A - min_remaining))`. Select candidates in increasing annotator-index order and stop at capacity; this deterministic practice policy does not rank them by severity.\n\n`mask_annotators(labels, rejected)` returns a same-shape copy whose rejected columns are all `None`. Assume positive `min_labels`, nonnegative `min_remaining`, and a fraction in `[0, 1]`.\n\nThe source family asks for analysis of noisy annotators, cleaning or reweighting, and held-out metric comparison with a supplied training pipeline. These four functions isolate a local preprocessing baseline; passing them does not prove that downstream model metrics improve.",
   "starter_code": "def consensus_labels(labels, excluded=()):\n    pass\n\n\ndef agreement_rates(labels, min_labels=1):\n    pass\n\n\ndef select_rejected_annotators(labels, threshold=0.7, min_labels=1, max_removed_fraction=0.5, min_remaining=1):\n    pass\n\n\ndef mask_annotators(labels, rejected):\n    pass\n",
   "example": {
     "input": "[[\"cat\", \"cat\", \"dog\"], [None, \"dog\", \"cat\"]]",
@@ -43,7 +43,7 @@
       "url": "https://app.notion.com/p/3656ce51456d819da4b7ddd95aa046f1"
     },
     {
-      "label": "Original 1Point3Acres interview report (1183292)",
+      "label": "Candidate report preserved in Notion (1183292); local API differs, body not re-extracted",
       "url": "https://www.1point3acres.com/bbs/thread-1183292-1-1.html"
     },
     {
@@ -51,8 +51,21 @@
       "url": "https://www.1point3acres.com/bbs/thread-1189403-1-1.html"
     },
     {
-      "label": "Original 1Point3Acres interview report (1189801)",
+      "label": "Candidate report preserved in Notion (1189801); local API differs, body not re-extracted",
       "url": "https://www.1point3acres.com/bbs/thread-1189801-1-1.html"
+    },
+    {
+      "label": "Candidate clarification preserved in canonical Notion — 1190831 (not re-extracted here)",
+      "url": "https://www.1point3acres.com/bbs/thread-1190831-1-1.html"
+    },
+    {
+      "label": "Public candidate account — baseline, noisy annotators, and held-out metrics; lineage unresolved",
+      "url": "https://prachub.com/interview-experiences/openai-machine-learning-engineer-interview-experience-four-technical-problems-told-not-a-match"
+    },
+    {
+      "label": "Public preparation reconstruction — noisy multi-annotator labels; not a new occurrence",
+      "url": "https://prachub.com/interview-questions/improve-classifier-with-noisy-multi-annotator-labels"
     }
-  ]
+  ],
+  "background_note": "OpenAI noisy-annotator data cleaning is supported by the canonical Notion record and its preserved candidate reports. 1190831 adds that a Python dictionary approach was acceptable and follow-ups included F1/AUROC. The exact label-matrix schema, tie policy, agreement fallback, and removal budget are local practice choices. The public PracHub prompt is expanded preparation material, not a separate occurrence. Compare any real cleaning strategy on a held-out split; do not mistake agreement with a self-inclusive consensus for ground-truth accuracy."
 }

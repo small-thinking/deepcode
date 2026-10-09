@@ -46,9 +46,10 @@
       "url": "https://scikit-learn.org/stable/modules/sgd.html"
     },
     {
-      "label": "Notion interview record",
+      "label": "Notion general-practice provenance audit: OpenAI source unverified",
       "url": "https://app.notion.com/p/3d86ce51456d81f5bf05d3b1f6f65769"
     }
   ],
+  "background_note": "General optimization practice, not a verified OpenAI interview question. The canonical Notion audit does not establish an independent interview occurrence: the one-step API, simultaneous update rule, intercept, and mean-squared-error convention are local specifications. This exercise performs one full-batch update rather than the complete training loop in the separately sourced Uber regression problem.",
   "created_at": "2026-06-12"
 }

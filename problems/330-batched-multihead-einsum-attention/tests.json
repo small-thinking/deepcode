@@ -18,5 +18,10 @@
     "name": "rejects incompatible ranks and attention dimensions",
     "input": "rank, batch/head, feature-width, token-count, and empty-dimension mismatches",
     "test": "import numpy as np\ndef expect_assertion_error(query, key, value):\n    try:\n        batched_multihead_attention(query, key, value)\n    except AssertionError:\n        return\n    raise AssertionError('expected AssertionError')\nbase_query = np.ones((1, 2, 3, 4))\nbase_key = np.ones((1, 2, 5, 4))\nbase_value = np.ones((1, 2, 5, 6))\nexpect_assertion_error(base_query[0], base_key, base_value)\nexpect_assertion_error(base_query, np.ones((2, 2, 5, 4)), base_value)\nexpect_assertion_error(base_query, np.ones((1, 2, 5, 3)), base_value)\nexpect_assertion_error(base_query, base_key, np.ones((1, 2, 4, 6)))\nexpect_assertion_error(np.ones((1, 2, 0, 4)), base_key, base_value)"
+  },
+  {
+    "name": "array-like and non-contiguous inputs work with one key per head",
+    "input": "two independent heads, two queries, one key and strided value features",
+    "test": "import numpy as np\nquery = [[[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]]]\nkey = [[[[9.0, 10.0]], [[11.0, 12.0]]]]\nvalue = np.arange(12.0).reshape(1, 2, 1, 6)[..., ::2]\nassert not value.flags.c_contiguous\noutput, weights = batched_multihead_attention(query, key, value)\nassert weights.shape == (1, 2, 2, 1) and np.array_equal(weights, np.ones((1, 2, 2, 1)))\nassert output.shape == (1, 2, 2, 3)\nassert np.array_equal(output, np.repeat(value, 2, axis=2))"
   }
 ]

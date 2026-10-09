@@ -10,10 +10,8 @@
     "generalization",
     "experiments"
   ],
-  "companies": [
-    "OpenAI"
-  ],
-  "prompt": "Implement `double_descent_sweep(n_train, n_test, dimensions, noise_std=0.1, seed=0)`. Generate one Gaussian linear-data realization, then evaluate the requested feature dimensions in their supplied order. For width `p`, use the first `p` columns from that same generated data and fit the minimum-norm least-squares solution. Return a list of `(p, train_mse, test_mse)` tuples. Widths may exceed the number of training examples, so use a stable least-squares or pseudoinverse method.\n\nThe exercise measures a sweep; it must not claim that every finite random seed produces a visually dramatic double-descent curve.",
+  "companies": [],
+  "prompt": "Implement `double_descent_sweep(n_train, n_test, dimensions, noise_std=0.1, seed=0)` as a model-width experiment. Keep sample counts fixed and evaluate feature widths in their supplied order, including repeated widths. Assume positive train/test sizes, a nonempty sequence of positive integer widths, and nonnegative noise.\n\nGenerate one linear-Gaussian data realization with maximum width `P=max(dimensions)`. Use one local seeded NumPy generator to draw a length-P standard-normal weight vector, then train features, test features, train noise, and test noise, in that order. Targets use all P features and the shared weight vector. For width `p`, use the first p columns of those same feature matrices and the unchanged targets; do not redraw data per width. Fit the minimum-norm least-squares solution, without an intercept or ridge penalty. Return a list of `(p, train_mse, test_mse)` tuples. Repeated widths in the same sweep must have identical results, and changing only the width order must only reorder output.\n\nWidths may exceed `n_train`; use a stable least-squares or pseudoinverse solver and compute MSE from predictions, since solver residual arrays may be empty for underdetermined systems. This measures a width sweep, not a guarantee that every finite seed produces a dramatic double-descent curve. It is distinct from the existing sample-wise experiment that varies training sample count.",
   "starter_code": "import numpy as np\n\n\ndef double_descent_sweep(n_train, n_test, dimensions, noise_std=0.1, seed=0):\n    pass\n",
   "example": {
     "input": "double_descent_sweep(20, 40, [2, 20, 35], seed=3)",
@@ -32,5 +30,15 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-18",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "General preparation exercise. A bounded Notion/source audit did not recover an original interview prompt for this exact local contract. The former unverified OpenAI tag has been removed; technical documentation supports the method, not an interview occurrence. NumPy documents that lstsq selects the smallest-norm solution when minimizers are not unique. OpenAI's research article distinguishes model-wise, sample-wise, and epoch-wise effects; it is scientific background, not evidence that this API appeared in an OpenAI interview. The Anthropic-labeled sample-wise Notion record changes a different axis and is not a canonical source for this exercise. A TrueInterview/1P3A problem-index lead was discovered but not imported because its underlying source/access remained unverified.",
+  "references": [
+    {
+      "label": "NumPy technical background — minimum-norm least squares (not interview evidence)",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html"
+    },
+    {
+      "label": "Official research background — model-wise, sample-wise, and epoch-wise double descent (not interview evidence)",
+      "url": "https://openai.com/index/deep-double-descent/"
+    }
+  ]
 }

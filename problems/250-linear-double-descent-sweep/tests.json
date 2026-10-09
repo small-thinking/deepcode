@@ -1,4 +1,14 @@
 [
-  {"name": "sweep is seeded and preserves requested order", "test": "first = double_descent_sweep(12, 18, [1, 15, 4], noise_std=0.05, seed=7)\nsecond = double_descent_sweep(12, 18, [1, 15, 4], noise_std=0.05, seed=7)\nassert first == second\nassert [row[0] for row in first] == [1, 15, 4]"},
-  {"name": "under and over parameterized fits stay finite", "test": "import numpy as np\nrows = double_descent_sweep(10, 25, [2, 10, 20], seed=9)\nassert all(np.isfinite(value) and value >= 0 for _, train, test in rows for value in (train, test))"}
+  {
+    "name": "sweep is seeded and preserves requested order",
+    "test": "first = double_descent_sweep(12, 18, [1, 15, 4], noise_std=0.05, seed=7)\nsecond = double_descent_sweep(12, 18, [1, 15, 4], noise_std=0.05, seed=7)\nassert first == second\nassert [row[0] for row in first] == [1, 15, 4]"
+  },
+  {
+    "name": "under and over parameterized fits stay finite",
+    "test": "import numpy as np\nrows = double_descent_sweep(10, 25, [2, 10, 20], seed=9)\nassert all(np.isfinite(value) and value >= 0 for _, train, test in rows for value in (train, test))"
+  },
+  {
+    "name": "width order and repetition reuse one data draw",
+    "test": "import numpy as np\nfirst = double_descent_sweep(8, 15, [2, 12, 2], seed=31)\nsecond = double_descent_sweep(8, 15, [12, 2], seed=31)\nassert first[0] == first[2] == second[1]\nassert first[1] == second[0]\nassert first[1][1] < 1e-16, 'wide full-row-rank least squares should interpolate'\n"
+  }
 ]
