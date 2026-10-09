@@ -10,15 +10,13 @@
     "binary-classification",
     "training"
   ],
-  "companies": [
-    "OpenAI"
-  ],
+  "companies": [],
   "prompt": "Train a small binary classifier on a batch of tabular features using PyTorch.\n\n- `BinaryMLP(input_dim, hidden_dim)` maps `(N, input_dim)` features to raw `(N, 1)` logits.\n- `binary_accuracy(logits, labels)` returns accuracy for labels shaped `(N,)` or `(N, 1)`; a logit greater than zero predicts class 1.\n- `train_binary_mlp(features, labels, hidden_dim=8, lr=0.1, epochs=50)` trains a fresh model with full-batch gradient descent and `BCEWithLogitsLoss`. Return `(model, final_loss, accuracy)`, with the metrics as Python floats.\n\nKeep training numerically stable and handle gradients correctly across updates.",
   "starter_code": "import torch\nfrom torch import nn\nimport torch.nn.functional as F\n\n\nclass BinaryMLP(nn.Module):\n    def __init__(self, input_dim, hidden_dim):\n        super().__init__()\n        pass\n\n    def forward(self, x):\n        pass\n\n\ndef binary_accuracy(logits, labels):\n    pass\n\n\ndef train_binary_mlp(features, labels, hidden_dim=8, lr=0.1, epochs=50):\n    pass\n",
   "example": {
     "input": "BinaryMLP(3, 6)(torch.randn(5, 3))",
     "output": "five raw binary logits with shape (5, 1)",
-    "reasoning": "The loss function expects logits, so the sigmoid belongs in the metric rather than the model output."
+    "reasoning": "BCEWithLogitsLoss expects raw logits. Accuracy can threshold them directly at zero; applying sigmoid is optional and does not belong in the model output."
   },
   "environment": {
     "language": "python",
@@ -32,5 +30,11 @@
     "type": "ml_torch_modeling"
   },
   "created_at": "2026-08-18",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "Source audit on 2026-10-08 did not establish an exact interview source or canonical Notion mapping for this binary-MLP/full-batch training exercise. The former unverified OpenAI label has been removed. OpenAI's human-labeled-classifier Notion family concerns noisy annotator analysis, data cleaning, and retraining through a supplied scaffold; it does not substantiate this MLP API or this training-from-scratch task, so it is not used as a source mapping. The official PyTorch reference explains the loss's numerical behavior only and contributes no interview occurrence. Treat the model, separable toy data, thresholds, and tests here as local practice.",
+  "references": [
+    {
+      "label": "PyTorch BCEWithLogitsLoss — stable raw-logit loss; technical reference only",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.loss.BCEWithLogitsLoss.html"
+    }
+  ]
 }

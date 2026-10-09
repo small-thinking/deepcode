@@ -13,7 +13,9 @@ def posterior_true_labels(prior, confusion, annotations, temperature=1.0):
         present = reported.ge(0)
         if present.any():
             log_posterior[present] += confusion[annotator, :, reported[present]].transpose(0, 1).log()
-    return torch.softmax(log_posterior / temperature, dim=-1)
+    posterior = torch.softmax(log_posterior / temperature, dim=-1)
+    missing = annotations.lt(0).all(dim=1)
+    return torch.where(missing[:, None], prior.expand_as(posterior), posterior)
 
 
 def annotation_nll(logits, confusion, annotations):
@@ -111,7 +113,7 @@ def chain_backward(matrices, grad_output):
         raise ValueError("matrices must be non-empty")
     gradients = []
     for index, matrix in enumerate(matrices):
-        left = torch.eye(matrix.shape[0], dtype=matrix.dtype, device=matrix.device)
+        left = torch.eye(matrices[0].shape[0], dtype=matrix.dtype, device=matrix.device)
         for prior in matrices[:index]:
             left = left @ prior
         right = torch.eye(matrix.shape[1], dtype=matrix.dtype, device=matrix.device)

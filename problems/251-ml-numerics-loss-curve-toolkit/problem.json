@@ -10,10 +10,8 @@
     "ridge-regression",
     "metrics"
   ],
-  "companies": [
-    "OpenAI"
-  ],
-  "prompt": "Implement four numerical utilities. `stable_softmax(logits)` normalizes the final axis without overflow. `standardize_columns(X)` standardizes each feature and rejects a constant column. `ridge_gradient(X, y, weights, bias, l2)` returns gradients for mean squared error plus `l2 * ||weights||²`; regularization applies to weights, not the bias. `LossCurve(values)` supports `moving_average(window)` and `best_window(window)`, returning the earliest start index of the smallest moving average. Reject nonpositive or oversized windows. Input validation may use `assert`.\n\nUse vectorized NumPy operations; the loss-curve methods should be linear in the number of recorded values.",
+  "companies": [],
+  "prompt": "Implement four NumPy numerical utilities on finite real-valued inputs.\n\n`stable_softmax(logits)` returns an array of the same shape, normalizing the final axis. Support one-dimensional and batched inputs; shift logits before exponentiation to avoid overflow.\n\n`standardize_columns(X)` takes a nonempty 2-D feature matrix and returns `(X - column_mean) / column_std`, using population standard deviation (`ddof=0`). Reject a constant column instead of adding an epsilon.\n\n`ridge_gradient(X, y, weights, bias, l2)` returns `(weight_gradient, bias_gradient)` for the explicit objective `mean((X @ weights + bias - y)**2) + l2 * sum(weights**2)`, with one-dimensional y and weights. There is no one-half factor. Regularize only weights, not bias.\n\n`LossCurve(values)` accepts a nonempty one-dimensional loss sequence. `moving_average(window)` returns the `len(values)-window+1` means of full consecutive windows. `best_window(window)` returns the earliest start index of the smallest moving average. Reject nonpositive or oversized integer windows; `assert` or `ValueError` is sufficient. Use vectorized NumPy, do not mutate input arrays, and keep loss-curve methods linear in the sequence length. These independent helpers form a local preparation exercise, not a recovered four-part interview prompt.",
   "starter_code": "import numpy as np\n\n\ndef stable_softmax(logits):\n    pass\n\n\ndef standardize_columns(X):\n    pass\n\n\ndef ridge_gradient(X, y, weights, bias, l2):\n    pass\n\n\nclass LossCurve:\n    def __init__(self, values):\n        pass\n\n    def moving_average(self, window):\n        pass\n\n    def best_window(self, window):\n        pass\n",
   "example": {
     "input": "LossCurve([4.0, 2.0, 2.0, 5.0]).best_window(2)",
@@ -32,5 +30,15 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-18",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "General preparation exercise. A bounded Notion/source audit did not recover an original interview prompt for this exact local contract. The former unverified OpenAI tag has been removed; technical documentation supports the method, not an interview occurrence. The added SciPy softmax and NumPy std references establish numerical shifting and axis/ddof conventions only. The ridge objective and loss-window API are local exercise choices.",
+  "references": [
+    {
+      "label": "SciPy technical background — shifted softmax (not interview evidence)",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.softmax.html"
+    },
+    {
+      "label": "NumPy technical background — standard deviation axes and ddof (not interview evidence)",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.std.html"
+    }
+  ]
 }

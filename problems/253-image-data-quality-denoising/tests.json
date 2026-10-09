@@ -1,4 +1,14 @@
 [
-  {"name": "repairs nonfinite values without mutating inputs", "test": "import numpy as np\nimage = np.array([[1., np.nan], [np.inf, 5.]])\nresult = analyze_image_dataset([image])\nassert result['types'] == ['gray'] and result['noisy_indices'] == [0]\nassert result['noisy_rate'] == 1.0\nassert np.isfinite(result['cleaned'][0]).all()\nassert np.isnan(image[0, 1]) and np.isinf(image[1, 0])"},
-  {"name": "classifies channels and handles all-invalid or empty sets", "test": "import numpy as np\nall_bad = np.full((2, 2, 3), np.nan)\nresult = analyze_image_dataset([np.zeros((2, 2, 3)), all_bad, np.zeros((2, 2, 2))])\nassert result['types'] == ['color', 'color', 'unknown']\nassert np.equal(result['cleaned'][1], 0).all()\nempty = analyze_image_dataset([])\nassert empty['types'] == [] and empty['noisy_rate'] == 0.0"}
+  {
+    "name": "repairs nonfinite values without mutating inputs",
+    "test": "import numpy as np\nimage = np.array([[1., np.nan], [np.inf, 5.]])\nresult = analyze_image_dataset([image])\nassert result['types'] == ['gray'] and result['noisy_indices'] == [0]\nassert result['noisy_rate'] == 1.0\nassert np.isfinite(result['cleaned'][0]).all()\nassert np.isnan(image[0, 1]) and np.isinf(image[1, 0])"
+  },
+  {
+    "name": "classifies channels and handles all-invalid or empty sets",
+    "test": "import numpy as np\nall_bad = np.full((2, 2, 3), np.nan)\nresult = analyze_image_dataset([np.zeros((2, 2, 3)), all_bad, np.zeros((2, 2, 2))])\nassert result['types'] == ['color', 'color', 'unknown']\nassert np.equal(result['cleaned'][1], 0).all()\nempty = analyze_image_dataset([])\nassert empty['types'] == [] and empty['noisy_rate'] == 0.0"
+  },
+  {
+    "name": "repair uses each array own mean and copies even clean arrays",
+    "test": "import numpy as np\ndirty = np.array([[1., np.nan], [-np.inf, 5.]])\nclean = np.array([[100., 200.]])\nresult = analyze_image_dataset([dirty, clean])\nassert np.array_equal(result['cleaned'][0], [[1., 3.], [3., 5.]])\nassert np.array_equal(result['cleaned'][1], clean)\nassert not np.shares_memory(result['cleaned'][0], dirty)\nassert not np.shares_memory(result['cleaned'][1], clean)\nassert result['quality'] == {'total': 2, 'clean': 1}\nassert result['noisy_indices'] == [0] and result['noisy_rate'] == 0.5\nassert analyze_image_dataset([np.zeros(3), np.zeros((2, 2, 1))])['types'] == ['unknown', 'gray']\n"
+  }
 ]

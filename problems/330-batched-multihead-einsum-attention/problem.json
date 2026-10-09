@@ -11,10 +11,8 @@
     "einsum",
     "tensor-shapes"
   ],
-  "companies": [
-    "Anthropic"
-  ],
-  "prompt": "Implement scaled dot-product attention for a batch of independent heads using NumPy.\n\n`batched_multihead_attention(query, key, value)` receives:\n\n- `query: (batch, heads, query_tokens, key_dim)`\n- `key: (batch, heads, key_tokens, key_dim)`\n- `value: (batch, heads, key_tokens, value_dim)`\n\nReturn `(output, weights)` with shapes `(batch, heads, query_tokens, value_dim)` and `(batch, heads, query_tokens, key_tokens)`. Scale dot products by `1 / sqrt(key_dim)` and normalize over keys. Use `np.einsum` or equivalent vectorized contractions and a numerically stable softmax.\n\nQuery and key token counts may differ, as may key and value feature widths. Accept array-like inputs, preserve batch/head independence, and do not mutate inputs. Assert compatible, non-empty rank-4 shapes.",
+  "companies": [],
+  "prompt": "The Q/K/V inputs are already split into independent heads. This local NumPy kernel does not learn Q/K/V projections, concatenate heads through an output projection, apply masks, or maintain a KV cache. It returns attention weights as well as weighted values.\n\nImplement scaled dot-product attention for a batch of independent heads using NumPy.\n\n`batched_multihead_attention(query, key, value)` receives:\n\n- `query: (batch, heads, query_tokens, key_dim)`\n- `key: (batch, heads, key_tokens, key_dim)`\n- `value: (batch, heads, key_tokens, value_dim)`\n\nReturn `(output, weights)` with shapes `(batch, heads, query_tokens, value_dim)` and `(batch, heads, query_tokens, key_tokens)`. Scale dot products by `1 / sqrt(key_dim)` and normalize over keys. Use `np.einsum` or equivalent vectorized contractions and a numerically stable softmax.\n\nQuery and key token counts may differ, as may key and value feature widths. Accept array-like inputs, preserve batch/head independence, and do not mutate inputs. Assert compatible, non-empty rank-4 shapes.",
   "starter_code": "import numpy as np\n\n\ndef batched_multihead_attention(query, key, value):\n    # query: (batch, heads, query_tokens, key_dim)\n    # key:   (batch, heads, key_tokens, key_dim)\n    # value: (batch, heads, key_tokens, value_dim)\n    # Return (output, weights).\n    pass\n",
   "example": {
     "input": "query = [[[[1.0], [0.0]]]]; key = [[[[1.0], [0.0]]]]; value = [[[[10.0], [20.0]]]]",
@@ -34,13 +32,22 @@
   },
   "references": [
     {
-      "label": "NumPy einsum",
+      "label": "Attention Is All You Need, sections 3.2.1-3.2.2 (technical background)",
+      "url": "https://arxiv.org/html/1706.03762v7"
+    },
+    {
+      "label": "NumPy einsum (technical background)",
       "url": "https://numpy.org/doc/stable/reference/generated/numpy.einsum.html"
     },
     {
-      "label": "NumPy broadcasting",
+      "label": "NumPy broadcasting (technical background)",
       "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+    },
+    {
+      "label": "Related PyTorch attention reconstruction in Notion (different contract)",
+      "url": "https://app.notion.com/p/3e76ce51456d817293fcc8122de8c39f"
     }
   ],
-  "created_at": "2026-08-19"
+  "created_at": "2026-08-19",
+  "background_note": "Local NumPy attention-kernel practice supported by the Transformer paper and NumPy technical documentation. No independent candidate report for this exact einsum/API exercise has been recovered. The related Anthropic Notion page describes a curated PyTorch masked-attention reconstruction with a different contract; its linked interview event must not be inherited by this NumPy variant. Technical documentation and related exercise pages are not additional interview occurrences."
 }

@@ -45,11 +45,15 @@
     }
   ],
   "created_at": "2026-09-04",
-  "background_note": "User-created educational exercise from Playground. No interview occurrence or company attribution is claimed.",
+  "background_note": "User-created educational exercise from Playground, not a recovered company interview question. This is a batched forward-only sigmoid-to-ReLU network; it does not implement a loss, backpropagation, or training. Matrix multiplication, bias broadcasting, singleton shapes, input preservation, and stable sigmoid at extreme finite preactivations are the local practice contract. Technical documentation does not establish interview frequency.",
   "references": [
     {
       "label": "NumPy documentation — matrix multiplication",
       "url": "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html"
+    },
+    {
+      "label": "NumPy documentation — logaddexp for numerically stable log-exponential arithmetic",
+      "url": "https://numpy.org/doc/stable/reference/generated/numpy.logaddexp.html"
     }
   ]
 }

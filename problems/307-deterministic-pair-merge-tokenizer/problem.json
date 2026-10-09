@@ -11,10 +11,8 @@
     "determinism",
     "nlp"
   ],
-  "companies": [
-    "Anthropic"
-  ],
-  "prompt": "Implement two functions for a deterministic pair-merge tokenizer.\n\n`fit_pair_tokenizer(corpus, max_merges)` accepts an iterable of non-empty strings. Represent each word initially as its individual Unicode characters. On each merge step, count all adjacent token pairs across the current corpus. Choose the pair with the largest count; break a tie lexicographically by `(left_token, right_token)`. Replace every non-overlapping occurrence of the chosen pair, scanning each word from left to right, with the concatenated token. Stop after `max_merges` steps or when no adjacent pair remains. Return `{'merges': [...], 'vocabulary': [...]}`, where `merges` is the ordered list of chosen two-string tuples and `vocabulary` is the sorted list of unique final tokens.\n\n`encode_pair_tokens(text, merges)` starts from the characters of `text` and applies every merge pair in order with the same non-overlapping left-to-right rule. Return the final token list.\n\nAn empty corpus is valid. `max_merges` must be a non-negative integer. Reject a string used as the corpus/merge iterable, empty or non-string corpus words, malformed merge pairs, and invalid `max_merges`; `assert` is sufficient.",
+  "companies": [],
+  "prompt": "This local exercise uses Unicode-character pair merges. Each corpus entry is a separate word; count repeated entries with multiplicity and never count pairs across word boundaries. It does not implement byte-level BPE, text normalization, a pre-tokenizer, or special-token rules.\n\nImplement two functions for a deterministic pair-merge tokenizer.\n\n`fit_pair_tokenizer(corpus, max_merges)` accepts an iterable of non-empty strings. Represent each word initially as its individual Unicode characters. On each merge step, count all adjacent token pairs across the current corpus. Choose the pair with the largest count; break a tie lexicographically by `(left_token, right_token)`. Replace every non-overlapping occurrence of the chosen pair, scanning each word from left to right, with the concatenated token. Stop after `max_merges` steps or when no adjacent pair remains. Return `{'merges': [...], 'vocabulary': [...]}`, where `merges` is the ordered list of chosen two-string tuples and `vocabulary` is the sorted list of unique final tokens.\n\n`encode_pair_tokens(text, merges)` starts from the characters of `text` and applies every merge pair in order with the same non-overlapping left-to-right rule. Return the final token list.\n\nAn empty corpus is valid. `max_merges` must be a non-negative integer. Reject a string used as the corpus/merge iterable, empty or non-string corpus words, malformed merge pairs, and invalid `max_merges`; `assert` is sufficient.",
   "starter_code": "def fit_pair_tokenizer(corpus, max_merges):\n    pass\n\n\ndef encode_pair_tokens(text, merges):\n    pass\n",
   "example": {
     "input": "fit_pair_tokenizer(['abab', 'abab', 'ab'], 2)",
@@ -31,5 +29,15 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-19",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "No original interview event or exact Notion coding-page mapping has been recovered for this exercise. The related Anthropic Notion page reports only the topic Tokenization and is classified ML Algorithm; it does not establish a pair-merge implementation question or this tie-break/API. Sennrich et al. provide the technical BPE background. This practice deliberately omits their end-of-word marker and uses a local lexical tie-break, so it should not be described as a production tokenizer or given interview frequency from a neighboring family.",
+  "references": [
+    {
+      "label": "Sennrich et al.: subword BPE paper (technical background)",
+      "url": "https://aclanthology.org/P16-1162/"
+    },
+    {
+      "label": "Related tokenization discussion in Notion (not a matching coding prompt)",
+      "url": "https://app.notion.com/p/38c6ce51456d81e1a521d314cc94d8cb"
+    }
+  ]
 }

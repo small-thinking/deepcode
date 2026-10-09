@@ -1,7 +1,7 @@
 {
   "id": "244",
   "slug": "seq2seq-reversal-debug",
-  "title": "Batched Reversal Seq2Seq Debugging",
+  "title": "Batched Seq2Seq Training and Decoding Utilities",
   "category": "ML Coding",
   "difficulty": "hard",
   "tags": [
@@ -10,10 +10,8 @@
     "training",
     "decoding"
   ],
-  "companies": [
-    "OpenAI"
-  ],
-  "prompt": "Complete a small batched sequence-to-sequence utility set. `shift_targets(targets, bos_id)` prepends BOS and removes the final target token. `masked_cross_entropy(logits, targets, pad_id)` averages cross entropy over non-PAD targets only. `greedy_decode(model, source, bos_id, eos_id, max_steps)` must run batched decoding without tracking gradients, append per-row greedy tokens, and stop once every row has emitted EOS; pass `eos_id=None` to disable early stopping.\n\n`ReverseModel(vocab_size, embed_dim)` is a trainable module whose forward path takes a source batch and decoder input batch and returns logits of shape `(batch, decoder_length, vocab_size)`. Use batch-first tensors throughout.",
+  "companies": [],
+  "prompt": "Complete a small batched sequence-to-sequence utility set. `shift_targets(targets, bos_id)` prepends BOS and removes the final target token. `masked_cross_entropy(logits, targets, pad_id)` averages cross entropy over non-PAD targets only, preserving gradients for those positions; loss inputs contain at least one non-PAD target. `greedy_decode(model, source, bos_id, eos_id, max_steps)` must run batched decoding without tracking gradients, append per-row greedy tokens, and stop once every row has emitted EOS; pass `eos_id=None` to disable early stopping. The returned batch starts with BOS. A finished row emits EOS on later steps while other rows continue, and the whole batch stops when all rows are finished. `max_steps=0` returns just the BOS column.\n\n`ReverseModel(vocab_size, embed_dim)` is a trainable module whose forward path takes a source batch and decoder input batch and returns logits of shape `(batch, decoder_length, vocab_size)`. Use batch-first tensors throughout. This exercise checks the utilities and trainable forward path; it does not train or evaluate a learned sequence-reversal model.",
   "starter_code": "import torch\nfrom torch import nn\nimport torch.nn.functional as F\n\n\ndef shift_targets(targets, bos_id):\n    pass\n\n\ndef masked_cross_entropy(logits, targets, pad_id):\n    pass\n\n\nclass ReverseModel(nn.Module):\n    def __init__(self, vocab_size, embed_dim):\n        super().__init__()\n        pass\n\n    def forward(self, source, decoder_input):\n        pass\n\n\ndef greedy_decode(model, source, bos_id, eos_id, max_steps):\n    pass\n",
   "example": {
     "input": "shift_targets(torch.tensor([[4, 5, 0]]), bos_id=1)",
@@ -32,5 +30,19 @@
     "type": "ml_torch_modeling"
   },
   "created_at": "2026-08-18",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "Source audit on 2026-10-08 did not establish an exact sequence-reversal interview source or canonical Notion question mapping. The former unverified OpenAI label has been removed. Prachub's public Transformer-training debugging reconstruction discusses teacher-forcing alignment and PAD loss, but does not establish a reversal task, this API, or an independent candidate occurrence. The official PyTorch links are technical background, not company-question evidence. ReverseModel and the precise EOS/padding behavior are local practice requirements; passing these tests does not demonstrate that a model learned reversal.",
+  "references": [
+    {
+      "label": "Prachub Transformer-training debugging — adjacent curated reconstruction, not an exact reversal source",
+      "url": "https://prachub.com/interview-questions/debug-a-transformer-training-pipeline"
+    },
+    {
+      "label": "PyTorch seq2seq tutorial — technical background for teacher forcing and decoding only",
+      "url": "https://docs.pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html"
+    },
+    {
+      "label": "PyTorch CrossEntropyLoss — ignore_index and non-ignored-target mean reduction",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.loss.CrossEntropyLoss.html"
+    }
+  ]
 }

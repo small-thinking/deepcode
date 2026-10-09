@@ -13,5 +13,15 @@
     "name": "rejects invalid array shapes and indexes",
     "input": "wrong ranks, mismatched batches, booleans, and out-of-range values",
     "test": "import numpy as np\n\ndef must_raise(call):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        return\n    raise AssertionError('expected validation error')\nvalues = np.zeros((2, 3, 1))\nmust_raise(lambda: masked_batched_gather(np.zeros((2, 3)), np.zeros((2, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.zeros((1, 1), dtype=int)))\nmust_raise(lambda: masked_batched_gather(values, np.array([[3], [0]])))\nmust_raise(lambda: masked_batched_gather(values, np.array([[-2], [0]])))\n"
+  },
+  {
+    "name": "empty item axis with only padding does not dereference a nonexistent item",
+    "input": "two batches, zero source items, and all padded rows",
+    "test": "import numpy as np\nvalues = np.empty((2, 0, 3), dtype=np.int64)\nindices = np.full((2, 4), -1, dtype=np.int64)\ngathered, valid = masked_batched_gather(values, indices, fill_value=0.5)\nassert gathered.shape == (2, 4, 3) and gathered.dtype == np.float64\nassert np.array_equal(gathered, np.full((2, 4, 3), 0.5))\nassert valid.shape == (2, 4) and not valid.any()\nempty, empty_valid = masked_batched_gather(np.empty((0, 0, 3)), np.empty((0, 2), dtype=int))\nassert empty.shape == (0, 2, 3) and empty_valid.shape == (0, 2)\nempty, empty_valid = masked_batched_gather(np.empty((2, 0, 3)), np.empty((2, 0), dtype=int))\nassert empty.shape == (2, 0, 3) and empty_valid.shape == (2, 0)"
+  },
+  {
+    "name": "rejects boolean and floating indices before indexing",
+    "input": "shape-compatible index arrays with invalid dtypes",
+    "test": "import numpy as np\nfor indices in (np.array([[True]], dtype=bool), np.array([[0.0]], dtype=float)):\n    try:\n        masked_batched_gather(np.array([[[8.0]]]), indices)\n    except (AssertionError, ValueError, TypeError):\n        pass\n    else:\n        raise AssertionError('indices must have an integer non-boolean dtype')"
   }
 ]

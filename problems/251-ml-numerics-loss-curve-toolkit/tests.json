@@ -10,5 +10,13 @@
   {
     "name": "loss curve picks the earliest tied window",
     "test": "import numpy as np\ncurve = LossCurve([4.0, 2.0, 2.0, 4.0])\nassert np.allclose(curve.moving_average(2), [3.0, 2.0, 3.0])\nassert curve.best_window(2) == 1\ntry:\n    curve.moving_average(0)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('invalid window must raise')\n"
+  },
+  {
+    "name": "ridge gradients match the stated objective including bias",
+    "test": "import numpy as np\nX = np.array([[1., 2.], [-2., 0.], [0.5, -1.]])\ny = np.array([1., -0.5, 2.])\nw = np.array([0.2, -0.3]); b = 0.7; l2 = 0.4\ngw, gb = ridge_gradient(X, y, w, b, l2)\ndef objective(v, bias):\n    return np.mean((X @ v + bias - y)**2) + l2 * np.sum(v**2)\neps = 1e-6\nnumeric_w = np.array([(objective(w + eps * np.eye(2)[j], b) - objective(w - eps * np.eye(2)[j], b)) / (2 * eps) for j in range(2)])\nnumeric_b = (objective(w, b + eps) - objective(w, b - eps)) / (2 * eps)\nassert np.allclose(gw, numeric_w, rtol=1e-6, atol=1e-6)\nassert np.isclose(gb, numeric_b, rtol=1e-6, atol=1e-6)\n"
+  },
+  {
+    "name": "final-axis softmax population scaling and genuine tied loss windows",
+    "test": "import numpy as np\nlogits = np.array([[[1000., 1001.], [-1000., -999.]], [[4., 4.], [0., 2.]]])\nout = stable_softmax(logits)\nassert out.shape == logits.shape and np.isfinite(out).all()\nassert np.allclose(out.sum(axis=-1), 1.)\nassert np.allclose(stable_softmax(np.array([3., 3.])), [0.5, 0.5])\nscaled = standardize_columns(np.array([[1., 10.], [3., 30.]]))\nassert np.allclose(scaled, [[-1., -1.], [1., 1.]])\ncurve = LossCurve([1., 3., 1., 3.])\nassert curve.best_window(2) == 0\ntry:\n    curve.moving_average(5)\nexcept (ValueError, AssertionError):\n    pass\nelse:\n    raise AssertionError('oversized windows must raise')\n"
   }
 ]

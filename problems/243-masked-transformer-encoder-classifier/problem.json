@@ -10,10 +10,8 @@
     "attention",
     "masking"
   ],
-  "companies": [
-    "OpenAI"
-  ],
-  "prompt": "Implement an encoder block and a sequence classifier for padded batches. `MaskedEncoder(embed_dim, num_heads)` receives `x` with shape `(batch, length, embed_dim)` and a boolean `valid_mask` whose True entries are real tokens. It returns `(encoded, attention_weights)`, where `attention_weights` has shape `(batch, num_heads, length, length)`. Invalid keys must have exactly zero attention weight, and changing invalid token values must not affect encoded valid-token outputs. `MaskedEncoderClassifier(encoder, num_labels, pooling=\"mean\")` pools real tokens only and returns `(batch, num_labels)` logits. Support `mean` and `max` pooling.\n\nValidate dimensions, use scaled dot-product attention, and keep all returned values finite.",
+  "companies": [],
+  "prompt": "Implement an encoder block and a sequence classifier for padded batches. `MaskedEncoder(embed_dim, num_heads)` receives `x` with shape `(batch, length, embed_dim)` and a boolean `valid_mask` whose True entries are real tokens. It returns `(encoded, attention_weights)`, where `attention_weights` has shape `(batch, num_heads, length, length)`. Invalid keys must have exactly zero attention weight, and changing invalid token values must not affect encoded valid-token outputs. Attention weights for each valid query are nonnegative and sum to one over keys. `MaskedEncoderClassifier(encoder, num_labels, pooling=\"mean\")` pools real tokens only and returns `(batch, num_labels)` logits. Support `mean` and `max` pooling.\n\nValidate dimensions, use scaled dot-product attention, and keep all returned values finite. Inputs have positive batch and sequence lengths, and every sequence has at least one valid token. Behavior for a fully padded sequence is outside this local contract.",
   "starter_code": "import math\nimport torch\nfrom torch import nn\n\n\nclass MaskedEncoder(nn.Module):\n    def __init__(self, embed_dim, num_heads):\n        super().__init__()\n        pass\n\n    def forward(self, x, valid_mask):\n        # Return encoded states and attention weights.\n        pass\n\n\nclass MaskedEncoderClassifier(nn.Module):\n    def __init__(self, encoder, num_labels, pooling='mean'):\n        super().__init__()\n        pass\n\n    def forward(self, x, valid_mask):\n        pass\n",
   "example": {
     "input": "encoder(torch.randn(2, 4, 8), torch.tensor([[True, True, False, False], [True, True, True, False]]))",
@@ -32,5 +30,11 @@
     "type": "ml_torch_modeling"
   },
   "created_at": "2026-08-18",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "Source audit on 2026-10-08 did not establish an exact interview source or canonical Notion question mapping for this encoder-plus-pooling exercise. The former OpenAI label was unverified and has been removed; it is not evidence that this exact task was asked. The broader Transformer-debugging family is adjacent, but does not establish this classifier API, mean/max pooling, or these tests. The official PyTorch link is technical background only and adds no interview occurrence. This local valid_mask uses True for real tokens, opposite to nn.MultiheadAttention's key_padding_mask convention.",
+  "references": [
+    {
+      "label": "PyTorch MultiheadAttention — technical reference only; True key_padding_mask means ignored",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.activation.MultiheadAttention.html"
+    }
+  ]
 }

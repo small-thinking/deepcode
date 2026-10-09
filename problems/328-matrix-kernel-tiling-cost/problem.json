@@ -11,15 +11,13 @@
     "kernel-optimization",
     "cost-model"
   ],
-  "companies": [
-    "Anthropic"
-  ],
-  "prompt": "Implement a deterministic tile-cost model for dense `C = A @ B`, where `A` has shape `(m, k)` and `B` has shape `(k, n)`. Choose a legal kernel tile under a workspace budget.\n\nA tile is `(tm, tn, tk)`. Each component must be a positive integer and divide its corresponding full dimension exactly. Its workspace holds one `A` tile, one `B` tile, and one `C` tile:\n\n`workspace_bytes = element_bytes * (tm * tk + tk * tn + tm * tn)`\n\nUse this simplified traffic model for `estimate_tiled_matmul_cost(m, n, k, tile, element_bytes=4) -> dict`:\n\n- There are `(m/tm) * (n/tn)` output tiles and `k/tk` inner blocks per output tile.\n- Read one `A` and one `B` tile for each inner block, then write each output tile once after accumulation.\n- `estimated_bytes = element_bytes * (output_tiles * inner_blocks * (tm * tk + tk * tn) + m * n)`.\n- FLOPs are `2 * m * n * k`; report floating-point `arithmetic_intensity = flops / estimated_bytes`.\n\nReturn a dictionary containing `tile`, `workspace_bytes`, `estimated_bytes`, and `arithmetic_intensity`. Implement `choose_matrix_tiling(m, n, k, tile_candidates, max_workspace_bytes, element_bytes=4) -> dict`: consider only candidates whose workspace fits, choose the one with the smallest `estimated_bytes`, and break exact ties by lexicographically smaller tile. Reject malformed dimensions, candidates, byte sizes, and a candidate set with no feasible tile; `assert` is sufficient.",
+  "companies": [],
+  "prompt": "This local practice task optimizes a stated arithmetic model, not measured GPU runtime. Assume panels are re-read for every output tile, C is accumulated on chip and written once, and there is no cache reuse between output tiles, double buffering, or network communication. Under this model, changing tk alone leaves estimated traffic unchanged but changes workspace.\n\nImplement a deterministic tile-cost model for dense `C = A @ B`, where `A` has shape `(m, k)` and `B` has shape `(k, n)`. Choose a legal kernel tile under a workspace budget.\n\nA tile is `(tm, tn, tk)`. Each component must be a positive integer and divide its corresponding full dimension exactly. Its workspace holds one `A` tile, one `B` tile, and one `C` tile:\n\n`workspace_bytes = element_bytes * (tm * tk + tk * tn + tm * tn)`\n\nUse this simplified traffic model for `estimate_tiled_matmul_cost(m, n, k, tile, element_bytes=4) -> dict`:\n\n- There are `(m/tm) * (n/tn)` output tiles and `k/tk` inner blocks per output tile.\n- Read one `A` and one `B` tile for each inner block, then write each output tile once after accumulation.\n- `estimated_bytes = element_bytes * (output_tiles * inner_blocks * (tm * tk + tk * tn) + m * n)`.\n- FLOPs are `2 * m * n * k`; report floating-point `arithmetic_intensity = flops / estimated_bytes`.\n\nReturn a dictionary containing `tile`, `workspace_bytes`, `estimated_bytes`, and `arithmetic_intensity`. Implement `choose_matrix_tiling(m, n, k, tile_candidates, max_workspace_bytes, element_bytes=4) -> dict`: consider only candidates whose workspace fits, choose the one with the smallest `estimated_bytes`, and break exact ties by lexicographically smaller tile. Reject malformed dimensions, candidates, byte sizes, and a candidate set with no feasible tile; `assert` is sufficient.",
   "starter_code": "def estimate_tiled_matmul_cost(m, n, k, tile, element_bytes=4):\n    pass\n\n\ndef choose_matrix_tiling(m, n, k, tile_candidates, max_workspace_bytes, element_bytes=4):\n    pass\n",
   "example": {
     "input": "choose_matrix_tiling(8, 8, 8, [(2, 2, 2), (4, 4, 4)], 256)",
     "output": "a result whose tile is (4, 4, 4)",
-    "reasoning": "Both tiles fit, but the larger legal tile reuses panels across fewer output and inner blocks in this cost model."
+    "reasoning": "Both tiles fit, but the (4, 4, 4) tile has fewer panel re-reads across output tiles than (2, 2, 2). Changing tk alone would not reduce traffic in this model."
   },
   "environment": {
     "language": "python",
@@ -31,5 +29,11 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-19",
-  "background_note": "An original interview post has not been recovered for this practice exercise. The inherited company label is unverified provenance, and the exact local requirements should not be attributed to an interview without a source."
+  "background_note": "No original interview event or exact Notion mapping has been recovered for this tiling optimizer. The nearby Anthropic FFN/sharding Notion report is an Excel-like roofline ML Design exercise, not this coding API. Triton documentation supports the blocked-matmul background but does not establish an interview occurrence. The local estimator intentionally excludes GPU-specific register/occupancy limits, double buffering, cache effects, and network costs; its optimum is not a measured fastest kernel.",
+  "references": [
+    {
+      "label": "Triton official matrix multiplication tutorial (technical background)",
+      "url": "https://triton-lang.org/main/getting-started/tutorials/03-matrix-multiplication.html"
+    }
+  ]
 }
