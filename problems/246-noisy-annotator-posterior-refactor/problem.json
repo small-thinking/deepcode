@@ -46,7 +46,7 @@
       "url": "https://prachub.com/interview-questions/improve-classifier-with-noisy-multi-annotator-labels"
     },
     {
-      "label": "Candidate clarification preserved in canonical Notion — 1190831 (not re-extracted here)",
+      "label": "First-person OpenAI report: noisy-annotator round; exact local helper API is practice",
       "url": "https://www.1point3acres.com/bbs/thread-1190831-1-1.html"
     },
     {
@@ -58,5 +58,5 @@
       "url": "https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html"
     }
   ],
-  "background_note": "The canonical Notion record supports an OpenAI noisy-label cleaning family: run the supplied baseline, inspect annotator quality, clean or reweight labels, and compare held-out metrics. Its latest preserved candidate clarification (1190831) says the exercise was open-ended, discussed F1/AUROC, and accepted Python dictionaries; pandas was useful in other reports but not universally required. The posterior, temperature, per-report NLL, and chunk API are local extensions. The public PracHub prompt adds preparation guidance on item-level leakage and aggregation; community answers do not establish interview APIs. These variants share one source family and must not be counted as separate interview events."
+  "background_note": "The canonical Notion record supports an OpenAI noisy-label cleaning family: run the supplied baseline, inspect annotator quality, clean or reweight labels, and compare held-out metrics. Its latest preserved candidate clarification (1190831) says the exercise was open-ended, discussed F1/AUROC, and accepted Python dictionaries; pandas was useful in other reports but not universally required. The posterior, temperature, per-report NLL, and chunk API are local extensions. The public PracHub prompt adds preparation guidance on item-level leakage and aggregation; community answers do not establish interview APIs. These variants share one source family and must not be counted as separate interview events. Authenticated verification on 2026-10-09 read 1190831 and its replies. The original candidate reports an open-ended noisy-annotator ML-coding round with metric questions and permits ordinary Python dictionaries. It establishes the OpenAI family, not this exact posterior/filtering helper. The canonical family record has an empty DeepCode link; its occurrence signal is not assigned to this local component by title similarity."
 }

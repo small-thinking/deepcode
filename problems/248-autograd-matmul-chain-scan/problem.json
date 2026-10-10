@@ -57,15 +57,15 @@
   "background_note": "A publicly readable PracHub account, explicitly curated and edited by the site, supports PyTorch matrix-multiplication forward/backward and a Hillis-Steele scan follow-up. Its linked practice page is a reconstruction from that same account, not an independent event. The rank-two/broadcast matmul and final-chain APIs here are local practice extensions. The separately sourced Prefix Matrix Products exercise returns every prefix and uses upstream gradients for every prefix; its occurrence count must not be copied to this different API. This report's lineage against the forum reports remains unresolved, so no interview occurrence is added.",
   "interview_frequency": {
     "OpenAI": {
-      "stars": 0,
       "source_record_ids": [
         "3ed6ce51456d81a78fd9f41de8dd1d4c"
       ],
-      "synced_at": "2026-10-02"
+      "stars": 0,
+      "synced_at": "2026-10-09"
     }
   },
   "interview_frequency_total": {
     "stars": 0,
-    "synced_at": "2026-10-02"
+    "synced_at": "2026-10-09"
   }
 }

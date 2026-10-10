@@ -47,6 +47,11 @@
     {
       "label": "Technical reference: NumPy sliding windows; leading short windows remain part of the local contract",
       "url": "https://numpy.org/doc/stable/reference/generated/numpy.lib.stride_tricks.sliding_window_view.html"
+    },
+    {
+      "label": "Secondary Anthropic capacity-analysis preparation page; exact rolling-window API unverified",
+      "url": "https://www.1point3acres.com/interview/problems/d03ad0c8-580a-4af4-8619-328ea8011719"
     }
-  ]
+  ],
+  "background_note": "Authenticated verification on 2026-10-09 read original 1181642 and replies, plus the editorial capacity-analysis preparation page. The original reports cloud-capacity dataset analysis without prescribing a demand/capacity array schema, rolling-window peak or overload-run function. The editorial page supplies broader Python analysis suggestions, not a first-person specification of this helper. Company attribution and frequency for this exact local contract remain unresolved."
 }

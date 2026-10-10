@@ -31,7 +31,7 @@
     "type": "ml_modeling"
   },
   "created_at": "2026-08-19",
-  "background_note": "General NumPy batching exercise. A corresponding original interview report or canonical Notion question has not been established. Its former company label was inherited without supporting provenance. The ordered-image-pipeline question family is a different contract and does not establish this batching/callback API or its frequency.",
+  "background_note": "General NumPy batching exercise. A corresponding original interview report or canonical Notion question has not been established. Its former company label was inherited without supporting provenance. The ordered-image-pipeline question family is a different contract and does not establish this batching/callback API or its frequency. Web and authenticated verification on 2026-10-09 inspected the editorial Batch Image Processor page 7100010 and original image-pipeline report 1178594. They process image files through JSON/ordered transformations and save outputs; neither specifies stacked callback batches, batch_size or copy-isolation requirements. A matching title does not establish a matching contract; this exercise remains general practice.",
   "references": [
     {
       "label": "NumPy technical background — stack inputs along a new axis (not interview evidence)",
@@ -40,6 +40,10 @@
     {
       "label": "NumPy technical background — copy and memory independence (not interview evidence)",
       "url": "https://numpy.org/doc/stable/reference/generated/numpy.copy.html"
+    },
+    {
+      "label": "Related Anthropic editorial image-file pipeline; different task from NumPy callback batching",
+      "url": "https://www.1point3acres.com/interview/post/7100010"
     }
   ]
 }

@@ -43,8 +43,12 @@
     {
       "label": "Prachub prompt reconstruction from the same candidate account — not a second interview event",
       "url": "https://prachub.com/interview-questions/debug-minigpt-and-backpropagate-matmul"
+    },
+    {
+      "label": "First-person OpenAI report: Transformer debugging and KV-cache follow-up; classifier remains a local extension",
+      "url": "https://www.1point3acres.com/bbs/thread-1191718-1-1.html"
     }
   ],
-  "background_note": "Public source rechecked on 2026-10-08: the curated OpenAI candidate account reports PyTorch MiniGPT debugging followed by KV-cache implementation. Its linked prompt page reconstructs the same account, so these two URLs are not independent interview occurrences. The original buggy code was not provided. This executable exercise supplies its own decoder, masked classifier, and callable APIs; the classifier is a local extension with no interview evidence. Tests check causality, classifier masking, greedy-token correctness, and gradient flow. Cached/uncached parity is checked, but retaining a real cache or achieving a speedup is not required or measured here. The Notion link is a mapping to the broader Transformer-debugging family, not evidence for this exact combined exercise.",
+  "background_note": "Public source rechecked on 2026-10-08: the curated OpenAI candidate account reports PyTorch MiniGPT debugging followed by KV-cache implementation. Its linked prompt page reconstructs the same account, so these two URLs are not independent interview occurrences. The original buggy code was not provided. This executable exercise supplies its own decoder, masked classifier, and callable APIs; the classifier is a local extension with no interview evidence. Tests check causality, classifier masking, greedy-token correctness, and gradient flow. Cached/uncached parity is checked, but retaining a real cache or achieving a speedup is not required or measured here. The Notion link is a mapping to the broader Transformer-debugging family, not evidence for this exact combined exercise. Authenticated verification on 2026-10-09 read the original 1191718 report and replies: the author reports Transformer debugging followed by KV-cache implementation, and clarifies RS/RE role scope. This confirms the company association for the reported family. The canonical Notion DeepCode link points to debug-transformer-attention, so its family signal is not copied to this expanded local variant.",
   "created_at": "2026-08-18"
 }
