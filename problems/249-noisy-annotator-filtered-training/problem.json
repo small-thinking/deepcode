@@ -55,7 +55,7 @@
       "url": "https://www.1point3acres.com/bbs/thread-1189801-1-1.html"
     },
     {
-      "label": "Candidate clarification preserved in canonical Notion — 1190831 (not re-extracted here)",
+      "label": "First-person OpenAI report: noisy-annotator round; exact local helper API is practice",
       "url": "https://www.1point3acres.com/bbs/thread-1190831-1-1.html"
     },
     {
@@ -67,5 +67,5 @@
       "url": "https://prachub.com/interview-questions/improve-classifier-with-noisy-multi-annotator-labels"
     }
   ],
-  "background_note": "OpenAI noisy-annotator data cleaning is supported by the canonical Notion record and its preserved candidate reports. 1190831 adds that a Python dictionary approach was acceptable and follow-ups included F1/AUROC. The exact label-matrix schema, tie policy, agreement fallback, and removal budget are local practice choices. The public PracHub prompt is expanded preparation material, not a separate occurrence. Compare any real cleaning strategy on a held-out split; do not mistake agreement with a self-inclusive consensus for ground-truth accuracy."
+  "background_note": "OpenAI noisy-annotator data cleaning is supported by the canonical Notion record and its preserved candidate reports. 1190831 adds that a Python dictionary approach was acceptable and follow-ups included F1/AUROC. The exact label-matrix schema, tie policy, agreement fallback, and removal budget are local practice choices. The public PracHub prompt is expanded preparation material, not a separate occurrence. Compare any real cleaning strategy on a held-out split; do not mistake agreement with a self-inclusive consensus for ground-truth accuracy. Authenticated verification on 2026-10-09 read 1190831 and its replies. The original candidate reports an open-ended noisy-annotator ML-coding round with metric questions and permits ordinary Python dictionaries. It establishes the OpenAI family, not this exact posterior/filtering helper. The canonical family record has an empty DeepCode link; its occurrence signal is not assigned to this local component by title similarity."
 }
