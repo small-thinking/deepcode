@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DIRECTORY = ROOT / "problems/247-grpo-response-logprob-training"
 PROBLEM = json.loads((DIRECTORY / "problem.json").read_text())
 CHECKS = json.loads((DIRECTORY / "tests.json").read_text())
+CHECKS_BY_NAME = {check["name"]: check for check in CHECKS}
 REFERENCE = (ROOT / "tests/reference_solutions/openai_ml_posttraining_autograd.py").read_text()
 
 
@@ -26,11 +27,22 @@ class GrpoResponseLogprobContractTest(unittest.TestCase):
 
     def test_wrong_math_is_rejected(self):
         mutants = {
-            "zero advantages": (REFERENCE + "\ndef group_relative_advantages(rewards, group_size, eps=1e-6):\n    return torch.zeros_like(rewards.detach())\n", [CHECKS[0]]),
-            "zero loss": (REFERENCE + "\ndef grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):\n    return logits.sum() * 0\n", [CHECKS[4]]),
+            "zero advantages": (
+                REFERENCE + "\ndef group_relative_advantages(rewards, group_size, eps=1e-6):\n    return torch.zeros_like(rewards.detach())\n",
+                [CHECKS_BY_NAME["advantages are grouped, finite, and detached"]],
+            ),
+            "zero loss": (
+                REFERENCE + "\ndef grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):\n    return logits.sum() * 0\n",
+                [CHECKS_BY_NAME["combined loss exact causal KL and unequal response lengths"]],
+            ),
             "unshifted KL": (REFERENCE.replace(
                 "masked_kl(logits[:, :-1], reference_logits[:, :-1], response_mask[:, 1:])",
-                "masked_kl(logits, reference_logits, response_mask)"), [CHECKS[4]]),
+                "masked_kl(logits, reference_logits, response_mask)"),
+                [CHECKS_BY_NAME["combined loss exact causal KL and unequal response lengths"]]),
+            "masked log-probability gradient leak": (REFERENCE.replace(
+                "return result * response_mask.to(result.dtype)",
+                "return result * response_mask.to(result.dtype) + (logits.sum(dim=-1) - logits.sum(dim=-1).detach()) * (~response_mask).to(logits.dtype)"),
+                [CHECKS_BY_NAME["only selected predictable tokens contribute log-probability gradients"]]),
         }
         for name, (code, checks) in mutants.items():
             with self.subTest(name=name):

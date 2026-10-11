@@ -271,8 +271,9 @@ new ResizeObserver(reportHeight).observe(demo);
 window.addEventListener("load", reportHeight);
 ```
 
-The parent accepts height messages only from the matching `content` iframe and
-clamps the reported canvas to a safe range. Keep a valid
+The parent accepts positive finite height messages only from the matching
+`content` iframe. It keeps a 320px minimum without an upper content-height limit,
+so long explanations remain fully accessible through the parent pane. Keep a valid
 `presentation.fallback_height` as the no-JavaScript fallback.
 
 After explicit stage navigation, a demo may send

@@ -1,0 +1,30 @@
+# GRPO practice scope cross-check — 2026-10-10
+
+The current Notion [canonical record](https://app.notion.com/p/3d26ce51456d815b96e5cbedb6a9b9e5) describes a full GRPO debugging family and links to `grpo-training-loop-debugging`. That slug was absent from the catalog before this change. [Problem 247](../../problems/247-grpo-response-logprob-training/problem.json) is a narrower component drill, so it does not cover the reported full exercise.
+
+## Source verification
+
+| Source | Verified scope | Evidence boundary |
+| --- | --- | --- |
+| [Original report 1167043](https://www.1point3acres.com/bbs/thread-1167043-1-1.html) | Authenticated Chrome read of the candidate report and both reply pages: Anthropic RE, a simple GRPO trainer, debugging, and ratio/on-policy discussion. | Original script, signatures, exact bug locations, KL variant, reduction, and rubric were not recovered. Replies do not resolve the exact reason for the ratio discrepancy. |
+| [User-supplied report 1148586](https://www.1point3acres.com/bbs/thread-1148586-1-1.html) | Authenticated read confirms the GRPO debugging topic. | Relevant details are points-gated. Retain the source pointer without reproducing that section or claiming recovered code. |
+| [Preparation discussion 1167940](https://www.1point3acres.com/bbs/thread-1167940-1-1.html) | Authenticated read confirms discussion of GRPO debugging and follow-ups. | Author describes preparation before interviewing. Not an independently completed interview; the OpenAI forum label conflicts with Anthropic-focused content and does not establish OpenAI attribution. |
+| [Canonical Notion record](https://app.notion.com/p/3d26ce51456d815b96e5cbedb6a9b9e5) | Current page distinguishes original-report evidence from its local contextual-bandit reconstruction. | Supplied practice code is not the original assessment. Bounded GRPO searches in the question collection found no separate matching coding record; conceptual comparisons are different questions. |
+| AceOffer, Prachub, and 1Point3Acres editorial question summaries | Discovery and preparation context. | Not additional first-person occurrences or proof of exact assessment interfaces. |
+
+No occurrence count or frequency tier was inferred or transferred. This task does not edit Notion.
+
+## Two independently solvable exercises
+
+- **GRPO Response Log Probabilities and KL** keeps its four-function API. It covers group advantages, causal response-token alignment, masking and gradient isolation, and exact `KL(reference || policy)`. The policy term sums tokens per response before averaging responses. It does not sample rollouts, form old-policy ratios, clip, or update parameters. New checks target selected-token gradients and already-aligned KL shapes.
+- **Debug a GRPO Training Loop** is a new one-token contextual-bandit rehearsal of the reported full-loop family. It covers categorical sampling, grouped rewards, copied rollout snapshots, clipped importance ratios, exact `KL(current || reference)`, and SGD steps. The three implanted bugs are locally authored. Its exact forward KL is an additional local teaching choice; the canonical Notion rehearsal omits reference KL, while the original paper uses a sampled penalty. There are no sequence masks or response-length effects in this toy exercise.
+
+Each exercise has its own explanation in the **Interactive Demo** tab, with no chart embedded in the problem description. The trainer's static map explains old/current/reference policies, categorical sampling, grouped rewards, sign-sensitive clipping, exact forward KL, and SGD. The component's portrait chart explains causal token alignment, masks, detached advantages, reverse KL, and the two reductions; its existing interactive alignment lab remains available below. These are deliberately different views of the two local contracts.
+
+The illustrations are independently authored with illustrative values, following the user's scientific panel references. Both explanations fill the available coding-pane width and use natural content height, without a fixed aspect ratio or a 560px width cap. The demo host accepts positive finite content heights without an upper cap, so long explanations and expanded details stay accessible through the parent pane. Text reflows instead of shrinking the full figure or adding a nested vertical scrollbar. Both assets use the existing sandbox, theme synchronization, and content-height bridge. Technical basis: [DeepSeekMath §4.1](https://arxiv.org/html/2402.03300v3) and public PyTorch categorical/softmax documentation. The trainer map describes outcome-reward GRPO intuition, not every modern variant.
+
+## Validation
+
+The reference implementations run through the real evaluator. New full-loop checks cover frozen snapshots, detached inputs, exact KL direction, analytic clipped gradients for realizable categorical policies, and SGD behavior. Negative controls reject the starter's three local bugs, missing clipping, recomputed old probabilities, detached ratios, and reversed KL. Existing component controls reject incorrect causal alignment, zero objectives, and masked gradient leakage. Browser verification uses isolated temporary state, not the user's practice ledger.
+
+Final results: the complete repository suite passed all 460 tests with local socket access (139 seconds). The height revision also passed 70 focused demo-height, problem-store, and static-UI checks. The new height-message regression covers growth above the old 4800px ceiling, shrinking after reflow, invalid heights, fixed-mode isolation, iframe source identity, and protocol version. Browser checks verified full-width layouts, natural content height, a complete trainer footer at the parent pane's scroll end, expanded component details, no iframe overflow, and light/dark theme synchronization. The new exercise was previously solved through the real browser evaluator with 8/8 visible checks using isolated state.
