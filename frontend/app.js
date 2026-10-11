@@ -3369,8 +3369,8 @@ function handleInteractiveDemoMessage(event) {
   }
   if (event.data?.type !== "deepcode:interactive-demo-height") return;
   const requestedHeight = Number(event.data.height);
-  if (frame.dataset.demoHeight !== "content" || !Number.isFinite(requestedHeight)) return;
-  frame.style.setProperty("--interactive-demo-height", `${clamp(Math.ceil(requestedHeight), 320, 4800)}px`);
+  if (frame.dataset.demoHeight !== "content" || !Number.isFinite(requestedHeight) || requestedHeight <= 0) return;
+  frame.style.setProperty("--interactive-demo-height", `${Math.max(Math.ceil(requestedHeight), 320)}px`);
 }
 
 window.addEventListener("message", handleInteractiveDemoMessage);
