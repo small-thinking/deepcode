@@ -75,14 +75,5 @@
       "url": "https://www.1point3acres.com/interview/thread/1167043"
     }
   ],
-  "background_note": "This four-function API is a locally reconstructed log-probability/KL component drill, not a recovered assessment script. No independent interview occurrence is established for this helper; the linked original reports support the full GRPO debugging family. Canonical Notion verification and authenticated cross-checks on 2026-10-09/10 distinguish that family from this component. The separate full-loop rehearsal is available as grpo-training-loop-debugging. Secondary synthesis pages are preparation context, not independent reports. No OpenAI occurrence is established and no family frequency is transferred here. The local objective deliberately uses a token-summed policy term and exact KL(reference || policy). The chart is independently authored from public technical references and the two local contracts.",
-  "assets": [
-    {
-      "path": "assets/grpo-overview.svg",
-      "alt": "GRPO overview: old, current and reference policies; grouped rollout rewards and advantages; per-token importance ratios; sign-sensitive clipping; SGD updates; and the distinct mathematical contracts of the response-logprob and training-loop exercises.",
-      "caption": "Full GRPO context with two local practice scopes at the bottom. This exercise implements the response-logprob/KL component on the left. Open the image for full-size detail.",
-      "section": "prompt",
-      "fit": "viewport"
-    }
-  ]
+  "background_note": "This four-function API is a locally reconstructed log-probability/KL component drill, not a recovered assessment script. No independent interview occurrence is established for this helper; the linked original reports support the full GRPO debugging family. Canonical Notion verification and authenticated cross-checks on 2026-10-09/10 distinguish that family from this component. The separate full-loop rehearsal is available as grpo-training-loop-debugging. Secondary synthesis pages are preparation context, not independent reports. No OpenAI occurrence is established and no family frequency is transferred here. The local objective deliberately uses a token-summed policy term and exact KL(reference || policy). The chart is independently authored from public technical references and the two local contracts."
 }

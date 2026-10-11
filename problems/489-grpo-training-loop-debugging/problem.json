@@ -52,13 +52,20 @@
     }
   ],
   "background_note": "The authenticated candidate report 1167043 supports an Anthropic Research Engineer GRPO trainer debugging family with three bugs and ratio/on-policy follow-up. The exact assessment code, bug locations, third bug, tensor API, and rubric were not recovered. The three supplied bugs and all signatures are a local one-token contextual-bandit reconstruction. Report 1148586 is topic context only. The local exact forward KL and response-mean reduction are pedagogical conventions, not claimed original assessment details. Related problem 247 is a distinct response-logprob/KL component with reverse KL and no rollout, ratio, clipping, or optimizer. Authenticated cross-check on 2026-10-10 read 1167043 and its replies, plus 1148586. The preparation discussion 1167940 corroborates the family but is not treated as an independent completed interview; its OpenAI forum label conflicts with its Anthropic-focused title/content and does not establish an OpenAI occurrence. No frequency was inferred from these searches.",
-  "assets": [
+  "interactive_demos": [
     {
-      "path": "assets/grpo-overview.svg",
-      "alt": "GRPO overview: old, current and reference policies; grouped rollout rewards and advantages; per-token importance ratios; sign-sensitive clipping; SGD updates; and the distinct mathematical contracts of the response-logprob and training-loop exercises.",
-      "caption": "Outcome-reward GRPO intuition. This exercise is the one-token training-loop rehearsal on the right; the sequence log-probability component is a separate exercise. Open the image for full-size detail.",
-      "section": "prompt",
-      "fit": "viewport"
+      "schema_version": 1,
+      "id": "training-loop-map",
+      "kind": "standalone_html",
+      "path": "assets/training-loop-map.html",
+      "title": "GRPO training loop: sample, compare, update",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 1000
+      }
     }
   ]
 }

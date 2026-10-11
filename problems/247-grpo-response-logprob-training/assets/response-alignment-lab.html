@@ -2,8 +2,38 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Causal response alignment lab</title>
 <style>
 :root{color-scheme:light;--background:#f8fafc;--surface:#fff;--surfaceInset:#eef2f6;--border:#d4dbe5;--text:#182235;--muted:#536379;--accent:#3264b5;--accentSoft:#e8effc;--positive:#19724c;--warning:#9b531b;--danger:#b43336}*{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--text);font:15px/1.5 system-ui,sans-serif}.demo{max-width:560px;margin:auto;padding:20px}.canvas{min-height:860px;display:flex;flex-direction:column;gap:16px}h1{font-size:24px;line-height:1.2;margin:3px 0 9px}h2{font-size:16px;margin:0 0 8px}p{margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.muted,small{color:var(--muted)}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:flex;flex-direction:column;gap:4px;font-size:13px}select,button{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:9px;width:100%;min-width:0}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.wide{grid-column:1/-1}.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}.figure{padding:8px}svg{display:block;width:100%;height:auto}svg text{font-family:system-ui,sans-serif;fill:var(--text)}.state{border-left:3px solid var(--accent);padding-left:12px}.numbers{display:grid;grid-template-columns:1fr 1fr;gap:12px}.value{font-size:21px;font-variant-numeric:tabular-nums}.code{font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.line{display:block;padding:2px 5px}.active{background:var(--accentSoft);border-left:3px solid var(--accent)}summary{cursor:pointer;font-weight:600}details p{margin:10px 0}table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}td,th{text-align:left;padding:6px 3px;border-bottom:1px solid var(--border)}.foot{font-size:12px;margin-top:14px}#status{min-height:64px}@media(max-width:380px){.demo{padding:12px}.controls{grid-template-columns:1fr}.wide{grid-column:auto}.numbers{grid-template-columns:1fr}.value{font-size:19px}}
+.component-map{aspect-ratio:9/16;display:flex;flex-direction:column;gap:12px}.component-map h2{font-size:22px;line-height:1.2}.map-step{background:var(--surfaceInset);border:1px solid var(--border);border-radius:9px;padding:12px}.map-step h3{font-size:15px;margin:0 0 8px}.map-step p{font-size:13px;margin:7px 0}.alignment-map{display:grid;grid-template-columns:.7fr 1fr .7fr 1.3fr;gap:5px;text-align:center;font-size:12px}.alignment-map span{padding:6px 2px;background:var(--surface);border-radius:5px}.alignment-map .selected{background:var(--accentSoft);color:var(--accent);font-weight:650}.alignment-map .label{color:var(--muted);background:transparent;font-size:11px}.map-equation{font:13px/1.6 ui-monospace,monospace;overflow-wrap:anywhere;margin:7px 0}.map-arrow{color:var(--accent);font-size:18px;text-align:center;line-height:1}.map-total{background:var(--accentSoft);border:1px solid var(--accent);border-radius:9px;padding:12px}.map-total p{font-size:13px;margin:7px 0}.component-scope{margin:12px 2px 0;font-size:13px;color:var(--muted)}.lab-heading{margin:4px 0 0}.lab-heading p{margin-top:4px}
 </style></head><body><main class="demo">
-<div class="canvas"><header><div class="eyebrow">GRPO components · deterministic toy example</div><h1>One token, one prediction position</h1><p class="muted">For response token <b>t</b>, both its log probability and its KL penalty must come from logits <b>t − 1</b>.</p></header>
+<div class="canvas"><header><div class="eyebrow">Local GRPO loss component</div><h1>Response log probabilities and KL</h1><p class="muted">A four-function objective with causal token alignment, group-relative advantages, and a detached reference distribution.</p></header>
+<section class="card" aria-label="Local loss component explanation">
+<div class="component-map">
+<header><div class="eyebrow">Component map · N responses, T positions, V tokens</div><h2>One alignment rule,<br>two loss terms</h2></header>
+<section class="map-step"><h3>1 · Token t reads logits[t−1]</h3>
+<div class="alignment-map" aria-label="Causal alignment of five sequence positions">
+<span class="label">Position</span><span class="label">Token</span><span class="label">Mask</span><span class="label">Predictor</span>
+<span>t = 0</span><span>START</span><span>0</span><span>none</span>
+<span>t = 1</span><span>prompt</span><span>0</span><span>logits[0]</span>
+<span class="selected">t = 2</span><span class="selected">A</span><span class="selected">1</span><span class="selected">logits[1]</span>
+<span class="selected">t = 3</span><span class="selected">B</span><span class="selected">1</span><span class="selected">logits[2]</span>
+<span class="selected">t = 4</span><span class="selected">END</span><span class="selected">1</span><span class="selected">logits[3]</span>
+</div><p>Only selected response tokens with t &gt; 0 enter the objective. Position 0 has no earlier predictor.</p></section>
+<div class="map-arrow" aria-hidden="true">↓</div>
+<section class="map-step"><h3>2 · Weight each response by its advantage</h3>
+<div class="map-equation">Aᵢ = (rewardᵢ − group mean) / (population std + ε)</div>
+<p>Compare responses to the same prompt. Detach Aᵢ; constant and singleton groups give zero.</p>
+<div class="map-equation">Sᵢ = sum of selected token log probabilities<br>Lpolicy = −mean_response(Aᵢ × Sᵢ)</div>
+<p>Sum tokens within each response, then average all N responses. This is not a token mean.</p></section>
+<div class="map-arrow" aria-hidden="true">+</div>
+<section class="map-step"><h3>3 · Anchor those predictor distributions</h3>
+<div class="map-equation">Kᵢ,ₜ = Σᵥ p_ref(v) × log[p_ref(v) / pθ(v)]<br>LKL = mean_selected(Kᵢ,ₜ)</div>
+<p>Exact KL(reference ∥ policy), averaged across selected predictable tokens. Detach the reference. Both distributions use row t−1.</p>
+<p class="muted">The standalone masked_kl helper accepts already-aligned rows and masks. Its caller performs the causal shift.</p></section>
+<div class="map-arrow" aria-hidden="true">↓</div>
+<section class="map-total"><strong>L = Lpolicy + β × LKL</strong><p>Gradients reach policy logits only. An empty effective mask returns a differentiable zero.</p></section>
+</div>
+<p class="component-scope"><strong>Scope:</strong> the local loss component. Rollout generation, old-policy ratios, clipping, and optimizer updates belong to the separate training-loop exercise.</p>
+</section>
+<section class="lab-heading" aria-labelledby="lab-title"><div class="eyebrow">Interactive alignment lab · deterministic toy example</div><h2 id="lab-title">One token, one prediction position</h2><p class="muted">Choose a response token and mask to inspect the predictor row, token log probability, and full-vocabulary KL.</p></section>
 <div class="controls">
 <label>Inspect response token<select id="token"><option value="2">t = 2 · A</option><option value="3">t = 3 · B</option><option value="4">t = 4 · END</option></select></label>
 <label>Response mask<select id="mask"><option value="response">A, B, END</option><option value="last">END only</option><option value="none">No tokens</option><option value="zero">Position 0 only</option></select></label>
