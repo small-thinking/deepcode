@@ -1,0 +1,34 @@
+[
+  {
+    "name": "sampling handles negative logits, stable extremes, replacement and generator",
+    "test": "import torch\nlogits = torch.tensor([[-2., 0.], [-1000., 1000.]])\ng = torch.Generator().manual_seed(7)\nx = sample_responses(logits, 8000, g)\nassert x.shape == (2, 8000) and x.dtype == torch.long\nassert (x[1] == 1).all()\nassert .85 < (x[0] == 1).float().mean().item() < .90\nassert torch.equal(sample_responses(torch.tensor([[0.]]), 4, torch.Generator().manual_seed(1)), torch.zeros((1, 4), dtype=torch.long))\nassert torch.equal(sample_responses(logits, 5, torch.Generator().manual_seed(9)), sample_responses(logits, 5, torch.Generator().manual_seed(9)))"
+  },
+  {
+    "name": "advantages normalize rows and detach including constant and singleton groups",
+    "test": "import torch\nr = torch.tensor([[1.,3.],[5.,5.]], dtype=torch.float64, requires_grad=True)\na = group_advantages(r, eps=1.)\nassert a.dtype == r.dtype and not a.requires_grad\nassert torch.allclose(a, torch.tensor([[-.5,.5],[0.,0.]], dtype=r.dtype))\nassert torch.equal(group_advantages(torch.tensor([[2.],[8.]])), torch.zeros((2,1)))\nassert torch.allclose(group_advantages(torch.tensor([[1.,3.]]), eps=1e-6), torch.tensor([[-1/1.000001,1/1.000001]]))"
+  },
+  {
+    "name": "rollout stores independent frozen snapshots with repeated prompts",
+    "test": "import torch\ninitial = torch.tensor([[0.,2.], [3.,0.]], dtype=torch.float64, requires_grad=True)\ntable = torch.tensor([[1.,4.], [8.,2.]], dtype=torch.float64, requires_grad=True)\nids = torch.tensor([0,0,1])\nt = GRPOTrainer(initial)\nb = t.rollout(ids, table, 4, torch.Generator().manual_seed(12))\nassert set(b) == {'prompt_ids','responses','rewards','old_logprobs'}\nassert b['responses'].shape == (3,4) and b['responses'].dtype == torch.long\nfor key in b:\n assert not b[key].requires_grad\nexpected = torch.log_softmax(initial.detach()[ids], -1).gather(1,b['responses'])\nassert torch.allclose(b['old_logprobs'], expected)\nassert torch.equal(b['rewards'], table.detach()[ids].gather(1,b['responses']))\nsaved = {k:v.clone() for k,v in b.items()}\nwith torch.no_grad():\n t.policy_logits[0] += torch.tensor([2.,-2.], dtype=t.policy_logits.dtype)\n initial.add_(30.)\n table.add_(30.)\n ids.fill_(1)\nassert all(torch.equal(b[k], v) for k,v in saved.items())\nassert torch.equal(t.reference_logits, torch.tensor([[0.,2.],[3.,0.]], dtype=torch.float64))"
+  },
+  {
+    "name": "stale importance ratio uses exponent and sign-sensitive clipping",
+    "test": "import torch\np = torch.tensor([[.25,.75],[.25,.75]], dtype=torch.float64).log()\nt = GRPOTrainer(p, beta=0., clip_eps=.2, eps=1.)\nresponses = torch.tensor([[0,1],[0,1]])\nold = torch.full((2,2), -.6931471805599453, dtype=torch.float64)\nb = {'prompt_ids':torch.tensor([0,1]), 'responses':responses, 'rewards':torch.tensor([[0.,2.],[2.,0.]], dtype=torch.float64), 'old_logprobs':old}\ncurrent = torch.log_softmax(t.policy_logits[b['prompt_ids']], -1).gather(1, responses)\nratios = (current.detach() - old).exp()\nassert torch.allclose(ratios, torch.tensor([[.5,1.5],[.5,1.5]], dtype=torch.float64), atol=1e-12)\na = torch.tensor([[-.5,.5],[.5,-.5]], dtype=torch.float64)\nexpected = -torch.minimum(ratios*a, ratios.clamp(.8,1.2)*a).mean()\nloss = t.loss(b)\nassert torch.allclose(loss, expected, atol=1e-12)\nassert abs(loss.item() - .075) < 1e-12\nloss.backward()\nassert torch.allclose(t.policy_logits.grad, torch.tensor([[0.,0.],[-.09375,.09375]], dtype=torch.float64), atol=1e-12)\nassert not torch.allclose(loss, -(ratios*a).mean())\nassert not torch.allclose(loss, -((current.detach()-old)*a).mean())"
+  },
+  {
+    "name": "exact forward KL uses prompt rows and keeps reference fixed",
+    "test": "import torch\np = torch.tensor([[1.,-1.],[-2.,2.]],dtype=torch.float64)\nt = GRPOTrainer(p,beta=.7)\nwith torch.no_grad():\n t.policy_logits[0] += torch.tensor([1.,-1.],dtype=p.dtype)\n t.policy_logits[1] += torch.tensor([2.,-2.],dtype=p.dtype)\nids = torch.tensor([0,1,0])\nb = {'prompt_ids':ids,'responses':torch.zeros((3,2),dtype=torch.long),'rewards':torch.ones((3,2),dtype=p.dtype),'old_logprobs':torch.zeros((3,2),dtype=p.dtype)}\ncur = torch.log_softmax(t.policy_logits[ids],-1)\nref = torch.log_softmax(p[ids],-1)\nexpected = .7*(cur.exp()*(cur-ref)).sum(-1).mean()\nreverse = .7*(ref.exp()*(ref-cur)).sum(-1).mean()\nassert not torch.allclose(expected,reverse)\nassert torch.allclose(t.loss(b),expected,atol=1e-12)\nassert torch.equal(t.reference_logits,p)"
+  },
+  {
+    "name": "loss gradients reach policy only and preserve supplied batch",
+    "test": "import torch\np = torch.tensor([[.1,.9]],dtype=torch.float64,requires_grad=True)\nt = GRPOTrainer(p,beta=.3)\nb = {'prompt_ids':torch.tensor([0]),'responses':torch.tensor([[0,1]]),'rewards':torch.tensor([[1.,3.]],dtype=p.dtype,requires_grad=True),'old_logprobs':torch.tensor([[-1.2,-.4]],dtype=p.dtype,requires_grad=True)}\nsaved = {k:v.detach().clone() for k,v in b.items()}\nloss = t.loss(b)\nassert loss.ndim == 0 and loss.requires_grad\nloss.backward()\nassert t.policy_logits.grad is not None and t.policy_logits.grad.abs().sum() > 0\nassert p.grad is None and b['rewards'].grad is None and b['old_logprobs'].grad is None\nassert all(torch.equal(b[k].detach(),v) for k,v in saved.items())"
+  },
+  {
+    "name": "step returns pre-update loss and follows fresh SGD gradient each call",
+    "test": "import torch\np = torch.tensor([[0.,0.]],dtype=torch.float64)\nt = GRPOTrainer(p,learning_rate=.2,beta=0.,eps=1.)\nb = {'prompt_ids':torch.tensor([0]),'responses':torch.tensor([[0,1]]),'rewards':torch.tensor([[0.,2.]],dtype=p.dtype),'old_logprobs':torch.tensor([[-.7,-.7]],dtype=p.dtype)}\nsaved = {k:v.clone() for k,v in b.items()}\nfor _ in range(2):\n before = t.policy_logits.detach().clone()\n loss = t.loss(b)\n grad = torch.autograd.grad(loss,t.policy_logits)[0]\n value = t.step(b)\n assert isinstance(value,float) and abs(value-float(loss.detach())) < 1e-12\n assert torch.allclose(t.policy_logits.detach(),before-.2*grad,atol=1e-12)\nassert torch.equal(t.reference_logits,p)\nassert all(torch.equal(b[k],v) for k,v in saved.items())"
+  },
+  {
+    "name": "seeded multi-step rollout remains finite and stale ratio changes",
+    "test": "import torch\np = torch.tensor([[0.,0.],[1.,-1.]],dtype=torch.float64)\nt = GRPOTrainer(p,learning_rate=.05,beta=.02)\nids = torch.tensor([0,1,0])\ntable = torch.tensor([[0.,1.],[1.,0.]],dtype=p.dtype)\nb = t.rollout(ids,table,16,torch.Generator().manual_seed(3))\nassert all(torch.isfinite(v).all() for v in b.values())\nold = b['old_logprobs'].clone()\nfor _ in range(3):\n value = t.step(b)\n assert isinstance(value,float) and torch.isfinite(torch.tensor(value))\n assert torch.isfinite(t.policy_logits).all()\nassert torch.equal(b['old_logprobs'],old)\nnew = torch.log_softmax(t.policy_logits[ids],-1).gather(1,b['responses'])\nassert (new-old).abs().max() > 0"
+  }
+]

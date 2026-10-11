@@ -1,19 +1,23 @@
 [
   {
     "name": "advantages are grouped, finite, and detached",
-    "test": "import torch\nrewards = torch.tensor([1., 3., 10., 14.], requires_grad=True)\nadvantages = group_relative_advantages(rewards, 2)\nassert not advantages.requires_grad\nassert torch.allclose(advantages[:2].mean(), torch.tensor(0.), atol=1e-6)\nassert torch.allclose(advantages[2:].mean(), torch.tensor(0.), atol=1e-6)\nassert torch.isfinite(group_relative_advantages(torch.ones(2), 2)).all()\nexpected = torch.tensor([-1., 1., -1., 1.])\nassert torch.allclose(advantages, expected, atol=2e-6)\nassert torch.allclose(group_relative_advantages(torch.tensor([1., 3.]), 2, eps=1.), torch.tensor([-.5, .5]))\nassert torch.equal(group_relative_advantages(torch.tensor([1., 3.]), 1), torch.zeros(2))"
+    "test": "import torch\nrewards = torch.tensor([1., 3., 10., 14.], requires_grad=True)\nadvantages = group_relative_advantages(rewards, 2)\nassert not advantages.requires_grad\nassert torch.allclose(advantages[:2].mean(), torch.tensor(0.), atol=1e-6)\nassert torch.allclose(advantages[2:].mean(), torch.tensor(0.), atol=1e-6)\nassert torch.equal(group_relative_advantages(torch.tensor([7., 7.]), 2), torch.zeros(2))\nexpected = torch.tensor([-1., 1., -1., 1.])\nassert torch.allclose(advantages, expected, atol=2e-6)\nassert torch.allclose(group_relative_advantages(torch.tensor([1., 3.]), 2, eps=1.), torch.tensor([-.5, .5]))\nassert torch.equal(group_relative_advantages(torch.tensor([1., 3.]), 1), torch.zeros(2))"
   },
   {
     "name": "response log probabilities use causal alignment and masks",
     "test": "import torch\nlogits = torch.tensor([[[0., 0., 0.], [0., 2., 0.], [0., 0., 3.]]])\nsequences = torch.tensor([[0, 1, 2]])\nmask = torch.tensor([[False, True, False]])\nvalues = gather_response_logprobs(logits, sequences, mask)\nexpected = torch.log_softmax(logits[:, 0], dim=-1)[0, 1]\nassert values.shape == mask.shape\nassert values[0, 0].item() == 0.0 and values[0, 2].item() == 0.0\nassert torch.allclose(values[0, 1], expected)"
   },
   {
+    "name": "only selected predictable tokens contribute log-probability gradients",
+    "test": "import torch\nlogits = torch.tensor([[[0., 1., -1.], [2., 0., -1.], [-1., 1., 0.], [1., 0., 2.]]], requires_grad=True)\nsequences = torch.tensor([[2, 1, 0, 2]])\nmask = torch.tensor([[False, True, False, True]])\nvalues = gather_response_logprobs(logits, sequences, mask)\nexpected = torch.zeros((1, 4))\nexpected[0, 1] = torch.log_softmax(logits[0, 0], dim=-1)[1]\nexpected[0, 3] = torch.log_softmax(logits[0, 2], dim=-1)[2]\nassert values.shape == mask.shape and torch.allclose(values, expected)\nvalues.sum().backward()\nexpected_grad = torch.zeros_like(logits)\nexpected_grad[0, 0] = -torch.softmax(logits.detach()[0, 0], dim=-1)\nexpected_grad[0, 0, 1] += 1\nexpected_grad[0, 2] = -torch.softmax(logits.detach()[0, 2], dim=-1)\nexpected_grad[0, 2, 2] += 1\nassert torch.allclose(logits.grad, expected_grad)"
+  },
+  {
     "name": "policy loss leaves reference and rewards outside gradients",
     "test": "import torch\ntorch.manual_seed(2)\nlogits = torch.randn(4, 4, 5, requires_grad=True)\nreference = torch.randn(4, 4, 5, requires_grad=True)\nrewards = torch.tensor([0., 1., 2., 3.], requires_grad=True)\nsequences = torch.tensor([[0,1,2,3]] * 4)\nmask = torch.tensor([[False, True, True, False]] * 4)\nloss = grpo_loss(logits, reference, sequences, mask, rewards, 2)\nassert torch.isfinite(loss)\nloss.backward()\nassert logits.grad is not None\nassert reference.grad is None and rewards.grad is None"
   },
   {
-    "name": "KL direction, exact masked reduction, and detached reference",
-    "test": "import torch\np = torch.tensor([[[.8, .2], [.5, .5]], [[.3, .7], [.9, .1]]], dtype=torch.float64).log().requires_grad_()\nr = torch.tensor([[[.4, .6], [.1, .9]], [[.6, .4], [.2, .8]]], dtype=torch.float64).log().requires_grad_()\nmask = torch.tensor([[True, False], [True, True]])\nexpected = (r.detach().exp() * (r.detach() - p)).sum(-1)[mask].mean()\nactual = masked_kl(p, r, mask)\nassert actual.ndim == 0 and torch.allclose(actual, expected, atol=1e-12)\nactual.backward()\nexpected_grad = (p.detach().exp() - r.detach().exp()) * mask[..., None] / 3\nassert torch.allclose(p.grad, expected_grad, atol=1e-12) and r.grad is None\n"
+    "name": "aligned KL uses reference-to-policy direction and masked token mean",
+    "test": "import torch\np = torch.tensor([[[.8, .2], [.5, .5], [.3, .7]], [[.9, .1], [.2, .8], [.6, .4]]], dtype=torch.float64).log().requires_grad_()\nr = torch.tensor([[[.4, .6], [.1, .9], [.6, .4]], [[.2, .8], [.7, .3], [.3, .7]]], dtype=torch.float64).log().requires_grad_()\nmask = torch.tensor([[True, False, True], [False, True, True]])\nexpected = (r.detach().exp() * (r.detach() - p)).sum(-1)[mask].mean()\nactual = masked_kl(p, r, mask)\nassert actual.ndim == 0 and torch.allclose(actual, expected, atol=1e-12)\nactual.backward()\nexpected_grad = (p.detach().exp() - r.detach().exp()) * mask[..., None] / 4\nassert torch.allclose(p.grad, expected_grad, atol=1e-12) and r.grad is None"
   },
   {
     "name": "combined loss exact causal KL and unequal response lengths",

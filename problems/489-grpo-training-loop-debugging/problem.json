@@ -1,0 +1,64 @@
+{
+  "id": "489",
+  "slug": "grpo-training-loop-debugging",
+  "title": "Debug a GRPO Training Loop",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": [
+    "grpo",
+    "torch",
+    "reinforcement-learning",
+    "debugging",
+    "policy-optimization"
+  ],
+  "companies": [
+    "Anthropic"
+  ],
+  "prompt": "### Scenario\n\nDebug a small, one-token categorical GRPO training loop. Each prompt ID selects one row of a trainable policy table `[P, V]`; a rollout samples `G` responses with replacement and looks up their rewards. Find and repair three intentional bugs while preserving the public API. This is a local practice reconstruction; the exact bugs in the reported interview are unavailable.\n\n### Contract\n\n- `sample_responses(logits, group_size, generator=None)` takes `[B,V]` logits and returns `[B,G]` sampled action IDs as `torch.long`. Use categorical probabilities, sampling with replacement, and honor the optional generator.\n- `group_advantages(rewards, eps=1e-6)` takes `[B,G]` rewards. Detach them, center each row, then divide by its population standard deviation plus `eps`. Constant and singleton groups produce zero.\n- `GRPOTrainer(policy_logits, learning_rate=.1, beta=.01, clip_eps=.2, eps=1e-6)` owns an independent trainable `nn.Parameter` copy as `policy_logits`, an immutable detached copy as `reference_logits`, and an SGD `optimizer`. Each logit table is `[P,V]`.\n- `rollout(prompt_ids, reward_table, group_size, generator=None)` takes `[B]` long prompt IDs and a `[P,V]` reward table. It returns detached copies of `prompt_ids` (`[B]`), `responses` (long `[B,G]`), `rewards`, and `old_logprobs` (both `[B,G]`). Prompt IDs may repeat. Freeze selected old-policy log probabilities at sampling time.\n- `loss(batch)` returns the differentiable scalar `-mean(min(ratio*A, clip(ratio,1-c,1+c)*A)) + beta*mean_B KL(current || reference)`, where `c = clip_eps`, `ratio = exp(current chosen logprob - stored old_logprob)`, `A` is the detached group advantage, and KL is exact across the full categorical vocabulary for each prompt. The reference distribution remains the initialization. Detach rewards and stored rollout values even when a caller passes tensors requiring gradients.\n- `step(batch)` returns the Python float loss before updating, clears old gradients, backpropagates, and updates only current policy logits with SGD. Preserve the input policy, reward table, batch, and reference copy.\n\nUse PyTorch on CPU with valid finite float32/float64 inputs and representable losses. Assume `P,V,B,G >= 1`, valid prompt/action IDs, positive learning rate and `eps`, and nonnegative `beta`/`clip_eps`. Input validation is not assessed. Responses are one token, so there are no sequence masks or token-alignment rules.\n\n### Discussion\n\nWhen is an importance ratio equal to one, and why can it change during repeated updates on a frozen rollout? How does the sign of an advantage change the active clipping branch? Why can a raw log-probability difference have gradients yet still be the wrong ratio?\n\nFor multi-token causal alignment and masked KL, see [GRPO Response Log Probabilities and KL](#/problems/grpo-response-logprob-training?category=ML+Coding).",
+  "starter_code": "import torch\nimport torch.nn.functional as F\n\n\ndef sample_responses(logits, group_size, generator=None):\n    return torch.multinomial(logits, group_size, replacement=True, generator=generator)\n\n\ndef group_advantages(rewards, eps=1e-6):\n    rewards = rewards.detach()\n    centered = rewards - rewards.mean(dim=1, keepdim=True)\n    return centered / rewards.std(dim=1, keepdim=True, correction=0)\n\n\nclass GRPOTrainer:\n    def __init__(self, policy_logits, learning_rate=0.1, beta=0.01,\n                 clip_eps=0.2, eps=1e-6):\n        self.policy_logits = torch.nn.Parameter(policy_logits.detach().clone())\n        self.reference_logits = policy_logits.detach().clone()\n        self.optimizer = torch.optim.SGD([self.policy_logits], lr=learning_rate)\n        self.beta = beta\n        self.clip_eps = clip_eps\n        self.eps = eps\n\n    def rollout(self, prompt_ids, reward_table, group_size, generator=None):\n        with torch.no_grad():\n            ids = prompt_ids.detach().clone()\n            logits = self.policy_logits[ids]\n            responses = sample_responses(logits, group_size, generator)\n            rewards = reward_table.detach()[ids].gather(1, responses)\n            old_logprobs = F.log_softmax(logits, dim=-1).gather(1, responses)\n            return {\n                \"prompt_ids\": ids,\n                \"responses\": responses.clone(),\n                \"rewards\": rewards.clone(),\n                \"old_logprobs\": old_logprobs.clone(),\n            }\n\n    def loss(self, batch):\n        ids = batch[\"prompt_ids\"].detach()\n        responses = batch[\"responses\"].detach()\n        old_logprobs = batch[\"old_logprobs\"].detach()\n        advantages = group_advantages(batch[\"rewards\"], self.eps)\n\n        current_logp = F.log_softmax(self.policy_logits[ids], dim=-1)\n        chosen_logp = current_logp.gather(1, responses)\n        ratio = chosen_logp - old_logprobs\n        clipped = ratio.clamp(1 - self.clip_eps, 1 + self.clip_eps)\n        policy_loss = -torch.minimum(ratio * advantages, clipped * advantages).mean()\n\n        reference_logp = F.log_softmax(self.reference_logits[ids], dim=-1)\n        kl = (current_logp.exp() * (current_logp - reference_logp)).sum(-1).mean()\n        return policy_loss + self.beta * kl\n\n    def step(self, batch):\n        self.optimizer.zero_grad()\n        loss = self.loss(batch)\n        value = float(loss.detach())\n        loss.backward()\n        self.optimizer.step()\n        return value\n",
+  "example": {
+    "input": "logits = torch.tensor([[0., 2.]]); rewards = torch.tensor([[1., 1.]])",
+    "output": "sample action IDs from softmax(logits); advantages are [0., 0.]",
+    "reasoning": "Logits can be negative; equal rewards provide no within-group preference."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_torch_modeling"
+  },
+  "created_at": "2026-10-10",
+  "references": [
+    {
+      "label": "Original candidate report: Anthropic GRPO debugging family; exact script unavailable",
+      "url": "https://www.1point3acres.com/interview/thread/1167043"
+    },
+    {
+      "label": "Related candidate report: topic context only; no original API inferred",
+      "url": "https://www.1point3acres.com/interview/thread/1148586"
+    },
+    {
+      "label": "Canonical Notion source and local practice scope",
+      "url": "https://app.notion.com/p/3d26ce51456d815b96e5cbedb6a9b9e5"
+    },
+    {
+      "label": "Technical background: DeepSeekMath, section 4.1",
+      "url": "https://arxiv.org/html/2402.03300v3"
+    }
+  ],
+  "background_note": "The authenticated candidate report 1167043 supports an Anthropic Research Engineer GRPO trainer debugging family with three bugs and ratio/on-policy follow-up. The exact assessment code, bug locations, third bug, tensor API, and rubric were not recovered. The three supplied bugs and all signatures are a local one-token contextual-bandit reconstruction. Report 1148586 is topic context only. The local exact forward KL and response-mean reduction are pedagogical conventions, not claimed original assessment details. Related problem 247 is a distinct response-logprob/KL component with reverse KL and no rollout, ratio, clipping, or optimizer. Authenticated cross-check on 2026-10-10 read 1167043 and its replies, plus 1148586. The preparation discussion 1167940 corroborates the family but is not treated as an independent completed interview; its OpenAI forum label conflicts with its Anthropic-focused title/content and does not establish an OpenAI occurrence. No frequency was inferred from these searches.",
+  "assets": [
+    {
+      "path": "assets/grpo-overview.svg",
+      "alt": "GRPO overview: old, current and reference policies; grouped rollout rewards and advantages; per-token importance ratios; sign-sensitive clipping; SGD updates; and the distinct mathematical contracts of the response-logprob and training-loop exercises.",
+      "caption": "Outcome-reward GRPO intuition. This exercise is the one-token training-loop rehearsal on the right; the sequence log-probability component is a separate exercise. Open the image for full-size detail.",
+      "section": "prompt",
+      "fit": "viewport"
+    }
+  ]
+}
