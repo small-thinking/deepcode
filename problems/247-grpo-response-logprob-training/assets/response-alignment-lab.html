@@ -3,8 +3,10 @@
 <style>
 :root{color-scheme:light;--background:#f8fafc;--surface:#fff;--surfaceInset:#eef2f6;--border:#d4dbe5;--text:#182235;--muted:#536379;--accent:#3264b5;--accentSoft:#e8effc;--positive:#19724c;--warning:#9b531b;--danger:#b43336}*{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--text);font:15px/1.5 system-ui,sans-serif}.demo{width:100%;margin:0;padding:20px}.canvas{display:flex;flex-direction:column;gap:16px}h1{font-size:24px;line-height:1.2;margin:3px 0 9px}h2{font-size:16px;margin:0 0 8px}p{margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.muted,small{color:var(--muted)}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:flex;flex-direction:column;gap:4px;font-size:13px}select,button{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:9px;width:100%;min-width:0}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.wide{grid-column:1/-1}.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}.figure{padding:8px}svg{display:block;width:100%;height:auto}svg text{font-family:system-ui,sans-serif;fill:var(--text)}.state{border-left:3px solid var(--accent);padding-left:12px}.numbers{display:grid;grid-template-columns:1fr 1fr;gap:12px}.value{font-size:21px;font-variant-numeric:tabular-nums}.code{font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.line{display:block;padding:2px 5px}.active{background:var(--accentSoft);border-left:3px solid var(--accent)}summary{cursor:pointer;font-weight:600}details p{margin:10px 0}table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}td,th{text-align:left;padding:6px 3px;border-bottom:1px solid var(--border)}.foot{font-size:12px;margin-top:14px}#status{min-height:64px}@media(max-width:380px){.demo{padding:12px}.controls{grid-template-columns:1fr}.wide{grid-column:auto}.numbers{grid-template-columns:1fr}.value{font-size:19px}}
 .component-map{display:flex;flex-direction:column;gap:12px}.component-map h2{font-size:22px;line-height:1.2}.map-step{background:var(--surfaceInset);border:1px solid var(--border);border-radius:9px;padding:12px}.map-step h3{font-size:15px;margin:0 0 8px}.map-step p{font-size:13px;margin:7px 0}.alignment-map{display:grid;grid-template-columns:.7fr 1fr .7fr 1.3fr;gap:5px;text-align:center;font-size:12px}.alignment-map span{padding:6px 2px;background:var(--surface);border-radius:5px}.alignment-map .selected{background:var(--accentSoft);color:var(--accent);font-weight:650}.alignment-map .label{color:var(--muted);background:transparent;font-size:11px}.map-equation{font:13px/1.6 ui-monospace,monospace;overflow-wrap:anywhere;margin:7px 0}.map-arrow{color:var(--accent);font-size:18px;text-align:center;line-height:1}.map-total{background:var(--accentSoft);border:1px solid var(--accent);border-radius:9px;padding:12px}.map-total p{font-size:13px;margin:7px 0}.component-scope{margin:12px 2px 0;font-size:13px;color:var(--muted)}.lab-heading{margin:4px 0 0}.lab-heading p{margin-top:4px}
+
+.formula-code{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:12px 0}.formula-panel,.code-panel{min-width:0;background:var(--background);border:1px solid var(--border);border-radius:8px;padding:12px}.pair-label{font:700 10px/1.5 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}.math{font:17px/1.8 Georgia,"Times New Roman",serif;overflow-wrap:anywhere}.math div+div{margin-top:5px}.math sub,.math sup{font-size:.72em}.formula-note{font:12px/1.5 system-ui,sans-serif;color:var(--muted);margin:8px 0 0}.reference-code{font:13px/1.65 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.notation{font-size:12px;color:var(--muted);margin-top:9px}.notation code{color:var(--text)}@media(min-width:760px){.formula-code{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}}
 </style></head><body><main class="demo">
-<div class="canvas"><header><div class="eyebrow">Local GRPO loss component</div><h1>Response log probabilities and KL</h1><p class="muted">A four-function objective with causal token alignment, group-relative advantages, and a detached reference distribution.</p></header>
+<div class="canvas"><header><div class="eyebrow">Local GRPO loss component</div><h1>Response log probabilities and KL</h1><p class="muted">A four-function objective with causal token alignment, group-relative advantages, and a detached reference distribution.</p><p class="notation">N = responses · T = sequence positions · V = vocabulary size · G = group_size. y is a token ID, m a response mask, z policy logits, R rewards. Responses for one prompt occupy each consecutive group of G rows. Natural logs throughout; code uses <code>F = torch.nn.functional</code>.</p></header>
 <section class="card" aria-label="Local loss component explanation">
 <div class="component-map">
 <header><div class="eyebrow">Component map · N responses, T positions, V tokens</div><h2>One alignment rule,<br>two loss terms</h2></header>
@@ -16,20 +18,40 @@
 <span class="selected">t = 2</span><span class="selected">A</span><span class="selected">1</span><span class="selected">logits[1]</span>
 <span class="selected">t = 3</span><span class="selected">B</span><span class="selected">1</span><span class="selected">logits[2]</span>
 <span class="selected">t = 4</span><span class="selected">END</span><span class="selected">1</span><span class="selected">logits[3]</span>
-</div><p>Only selected response tokens with t &gt; 0 enter the objective. Position 0 has no earlier predictor. The helper returns [N, T−1], with output column j scoring sequence token j+1; no zero prefix is added.</p></section>
+</div><p>Only selected response tokens with t &gt; 0 enter the objective. Position 0 has no earlier predictor. The helper returns [N, T−1], with output column j scoring sequence token j+1; no zero prefix is added.</p><div class="formula-code"><div class="formula-panel"><div class="pair-label">Formula</div><div class="math"><div>q<sub>itv</sub> = softmax(z<sub>i,t−1,:</sub>)<sub>v</sub>, &nbsp; t ≥ 1</div><div>ℓ<sub>it</sub> = m<sub>it</sub> log q<sub>it,yᵢₜ</sub>, &nbsp; t ≥ 1</div></div><p class="formula-note">Shift the predictor and target together: [N, T−1, V] gathers token IDs [N, T−1]. The returned selected tensor is [N, T−1]; column j corresponds to sequence token j+1.</p></div><div class="code-panel"><div class="pair-label">Corrected PyTorch · excerpt</div><pre class="reference-code"><code data-contract="gather">logp = F.log_softmax(logits[:, :-1], dim=-1)
+gathered = logp.gather(
+    -1, sequences[:, 1:].unsqueeze(-1)).squeeze(-1)
+selected = gathered.masked_fill(
+    ~response_mask[:, 1:], 0.0)  # [N, T−1]</code></pre></div></div></section>
 <div class="map-arrow" aria-hidden="true">↓</div>
 <section class="map-step"><h3>2 · Weight each response by its advantage</h3>
-<div class="map-equation">Aᵢ = (rewardᵢ − group mean) / (population std + ε)</div>
+<div class="formula-code"><div class="formula-panel"><div class="pair-label">Formula</div><div class="math"><div>μ<sub>h</sub> = (1/G) Σ<sub>j∈h</sub> R<sub>j</sub></div><div>σ<sub>h</sub> = √[(1/G) Σ<sub>j∈h</sub> (R<sub>j</sub> − μ<sub>h</sub>)²]</div><div>A<sub>i</sub> = stopgrad[(R<sub>i</sub> − μ<sub>h(i)</sub>) / (σ<sub>h(i)</sub> + ε)]</div></div><p class="formula-note">h(i) is response i’s prompt group. Use population std and add ε after its square root. stopgrad corresponds to detach.</p></div><div class="code-panel"><div class="pair-label">Corrected PyTorch · excerpt</div><pre class="reference-code"><code data-contract="advantages">groups = rewards.detach().reshape(-1, group_size)
+centered = groups - groups.mean(1, keepdim=True)
+std = groups.std(1, keepdim=True, correction=0)
+advantages = (centered / (std + eps)).reshape(-1)</code></pre></div></div>
 <p>Compare responses to the same prompt. Detach Aᵢ; constant and singleton groups give zero.</p>
-<div class="map-equation">Sᵢ = sum of selected token log probabilities<br>Lpolicy = −mean_response(Aᵢ × Sᵢ)</div>
+<div class="formula-code"><div class="formula-panel"><div class="pair-label">Formula</div><div class="math"><div>S<sub>i</sub> = Σ<sub>t=1…T−1</sub> ℓ<sub>it</sub></div><div>L<sub>policy</sub> = −(1/N) Σ<sub>i=1…N</sub> A<sub>i</sub>S<sub>i</sub></div></div><p class="formula-note">Aᵢ is fixed; selected log probabilities carry policy gradients. Responses with no selected tokens still count in N.</p></div><div class="code-panel"><div class="pair-label">Corrected PyTorch · excerpt</div><pre class="reference-code"><code data-contract="policy">selected = gather_response_logprobs(
+    logits, sequences, response_mask)  # [N, T−1]
+policy_term = -(
+    selected.sum(dim=1) * advantages).mean()</code></pre></div></div>
 <p>Sum tokens within each response, then average all N responses. This is not a token mean.</p></section>
 <div class="map-arrow" aria-hidden="true">+</div>
 <section class="map-step"><h3>3 · Anchor those predictor distributions</h3>
-<div class="map-equation">Kᵢ,ₜ = Σᵥ p_ref(v) × log[p_ref(v) / pθ(v)]<br>LKL = mean_selected(Kᵢ,ₜ)</div>
+<div class="formula-code"><div class="formula-panel"><div class="pair-label">Formula</div><div class="math"><div>a<sub>itv</sub> = stopgrad[softmax(z<sub>i,t−1,:</sub><sup>ref</sup>)<sub>v</sub>]</div><div>K<sub>it</sub> = Σ<sub>v=1…V</sub> a<sub>itv</sub> (log a<sub>itv</sub> − log q<sub>itv</sub>)</div><div>M = Σ<sub>i</sub> Σ<sub>t=1…T−1</sub> m<sub>it</sub></div><div>L<sub>KL</sub> = [Σ<sub>i</sub> Σ<sub>t=1…T−1</sub> m<sub>it</sub>K<sub>it</sub>] / max(M, 1)</div></div><p class="formula-note">Exact KL(reference ∥ policy): weight by the reference probabilities. Average selected tokens over the entire batch; max(M,1) keeps an empty mask finite and differentiable.</p></div><div class="code-panel"><div class="pair-label">Corrected PyTorch · excerpt</div><pre class="reference-code"><code data-contract="kl"># Inside masked_kl: inputs are already aligned.
+policy_lp = F.log_softmax(policy_logits, -1)
+ref_lp = F.log_softmax(reference_logits.detach(), -1)
+per_token = F.kl_div(
+    policy_lp, ref_lp, reduction="none",
+    log_target=True).sum(-1)  # [N, S, V] → [N, S]
+masked = per_token.masked_fill(~response_mask, 0.0)
+kl = masked.sum() / response_mask.sum().clamp_min(1)</code></pre></div></div>
 <p>Exact KL(reference ∥ policy), averaged across selected predictable tokens. Detach the reference. Both distributions use row t−1.</p>
-<p class="muted">The standalone masked_kl helper accepts already-aligned rows and masks. Its caller performs the causal shift.</p></section>
+<p class="muted">The standalone masked_kl helper accepts already-aligned rows and masks. Its caller performs the causal shift. Sum vocabulary contributions to get one KL per position, then divide the masked total by the number of selected positions. reduction="none" preserves positions until masking; reduction="mean" would average all dimensions too early.</p></section>
 <div class="map-arrow" aria-hidden="true">↓</div>
-<section class="map-total"><strong>L = Lpolicy + β × LKL</strong><p>Gradients reach policy logits only. An empty effective mask returns a differentiable zero.</p></section>
+<section class="map-total"><strong>4 · Combine the terms with the same causal shift</strong><div class="formula-code"><div class="formula-panel"><div class="pair-label">Formula</div><div class="math"><div>L = L<sub>policy</sub> + β L<sub>KL</sub></div><div>M = 0 ⇒ L = 0, &nbsp; ∇<sub>z</sub>L = 0</div></div><p class="formula-note">Gradients reach policy logits only. No ratio or clipping in this component API. The caller shifts the KL tensors; the helper does not shift again.</p></div><div class="code-panel"><div class="pair-label">Corrected PyTorch · excerpt</div><pre class="reference-code"><code data-contract="combined">kl = masked_kl(
+    logits[:, :-1], reference_logits[:, :-1],
+    response_mask[:, 1:])
+return policy_term + beta * kl</code></pre></div></div></section>
 </div>
 <p class="component-scope"><strong>Scope:</strong> the local loss component. Rollout generation, old-policy ratios, clipping, and optimizer updates belong to the separate training-loop exercise.</p>
 </section>
@@ -40,9 +62,10 @@
 <label class="wide">KL alignment<select id="alignment"><option value="correct">Correct · logits[t − 1]</option><option value="old">Old bug · logits[t]</option></select></label>
 </div>
 <div class="card figure"><svg id="diagram" viewBox="0 0 440 365" role="img" aria-labelledby="figtitle figdesc"></svg></div>
+<div class="card"><h2>Compact helper output · [N, T−1] = [2, 4]</h2><p id="output-index"></p><pre class="code" id="output-values"></pre></div>
 <div class="state" id="status" aria-live="polite"></div>
 <div class="numbers card"><div><small>Selected log probability · response 0</small><div class="value" id="logprob"></div></div><div><small>Selected full-vocabulary KL</small><div class="value" id="kl"></div></div></div>
-<div class="card"><h2>Aligned computation <small>· simplified code</small></h2><pre class="code" id="code"></pre></div>
+<div class="card"><h2>Aligned computation <small>· simplified code</small></h2><div class="formula-code"><div class="formula-panel"><div class="pair-label">Current token · response 0</div><div class="math" id="live-formula"></div><p class="formula-note">q and a are the policy and reference distributions. The KL row switches with the alignment control; the token log probability always uses row t−1.</p></div><div class="code-panel"><div class="pair-label">Current computation · highlighted KL call</div><pre class="code" id="code"></pre></div></div></div>
 <div class="card"><h2>Batch loss · N = 2, β = 0.1</h2><p id="loss" class="value"></p><p id="reduction" class="muted"></p></div>
 </div>
 <details class="card"><summary>Inspect the numbers and group reduction</summary><p>Two responses share one prompt. Rewards [1, 3] give mean 2 and population standard deviation 1. Detached advantages are [−0.999999, +0.999999] with ε = 10⁻⁶. Constant groups, including singletons, instead give zero advantages.</p><p>Both responses use sequence IDs [0, 0, 0, 1, 2]. Only positions 2–4 are normally responses. The diagram inspects response 0; both responses contribute to the batch loss below.</p><p>Each row contains policy probabilities for [A, B, END]. Reference probabilities are [⅓, ⅓, ⅓] everywhere. Logits are the natural logarithms of these probabilities.</p><table><thead><tr><th>Logit row</th><th>Response 0 policy</th><th>Response 1 policy</th></tr></thead><tbody id="data"></tbody></table><p id="terms"></p><p>KL(reference || policy) = Σᵥ p_ref(v) log(p_ref(v) / p_policy(v)). This is the exercise's stated direction; it is not a claim about the usual GRPO KL direction. This component exercise has no old-policy ratio or clipping.</p><p id="empty"></p></details>
@@ -58,6 +81,9 @@ function render(){
  const t=Number($('token').value),old=$('alignment').value==='old',mode=$('mask').value;
  const raw=Array.from({length:5},(_,i)=>mode==='response'?i>=2:mode==='last'?i===4:mode==='zero'?i===0:false);
  const included=raw[t], kpos=old?t:t-1;
+ const selected=p.map(rows=>ids.slice(1).map((id,j)=>raw[j+1]?Math.log(rows[j][id]):0));
+ $('output-index').textContent=`Sequence token t = ${t} maps to output column j = ${t-1}. Columns 0–3 score sequence positions 1–4; there is no entry for position 0.`;
+ $('output-values').textContent=selected.map((row,n)=>`response ${n}: [${row.map(fmt).join(', ')}]`).join('\n');
  let svg='<title id="figtitle">Causal token alignment, response 0</title><desc id="figdesc">Log probability always uses the preceding logit row. The KL arrow switches between the preceding row and the incorrect current row. The mask controls included response tokens.</desc><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="var(--accent)"/></marker><marker id="bad" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="var(--danger)"/></marker></defs><text x="18" y="23" font-size="14">Logits [T = 5, V = 3]</text><text x="255" y="23" font-size="14">Sequence [T = 5]</text>';
  for(let i=0;i<5;i++){
   const y=45+i*52,src=i===t-1||i===kpos;
@@ -68,13 +94,18 @@ function render(){
  $('diagram').innerHTML=svg;
  const lp=included?Math.log(p[0][t-1][ids[t]]):0, kl=included?divergence(p[0][kpos]):0;
  $('logprob').textContent=fmt(lp);$('kl').textContent=fmt(kl);
+ $('live-formula').replaceChildren(...[
+  `selected[0, ${t-1}] = ${included?'1':'0'} × log q(row ${t-1}, token ${names[t]}) = ${fmt(lp)}`,
+  `m₀,${t}K₀,${t} = ${included?'1':'0'} × Σᵥ aᵥ log[aᵥ / q(row ${kpos}, v)] = ${fmt(kl)}`,
+  old ? 'KL uses the wrong row here; the code shows the bug.' : 'Both terms use the same predictor row.'
+ ].map(text=>{const line=document.createElement('div');line.textContent=text;return line;}));
  $('status').textContent=!included?`Token ${names[t]} is masked out: both displayed contributions are zero. Arrows show its candidate source rows.`:old?`Mismatch: logprob predicts ${names[t]} from row ${t-1}, but KL penalizes row ${t}, which predicts the next token. The dashed arrow is one row too late.`:`Matched: logprob and KL both use row ${t-1}, the distribution predicting ${names[t]}. KL compares all 3 vocabulary probabilities, not just the sampled token.`;
- let sums=[0,0],kls=[];
- for(let n=0;n<2;n++){for(let i=1;i<5;i++)if(raw[i])sums[n]+=Math.log(p[n][i-1][ids[i]]);for(let i=old?0:1;i<5;i++)if(raw[i])kls.push(divergence(p[n][old?i:i-1]));}
- const pg=-(advantages[0]*sums[0]+advantages[1]*sums[1])/2,km=kls.length?kls.reduce((s,v)=>s+v,0)/kls.length:0;
+ const sums=selected.map(row=>row.reduce((total,value)=>total+value,0)); let kls=[];
+ for(let n=0;n<2;n++)for(let i=old?0:1;i<5;i++)if(raw[i])kls.push(divergence(p[n][old?i:i-1]));
+ const pg=-(advantages[0]*sums[0]+advantages[1]*sums[1])/2,klTotal=kls.reduce((s,v)=>s+v,0),km=klTotal/Math.max(kls.length,1);
  $('loss').textContent=`${fmt(pg)} + 0.1 × ${fmt(km)} = ${fmt(pg+.1*km)}`;
- $('reduction').textContent=`Policy: sum tokens, average 2 responses. KL: average ${kls.length} selected positions.${old?' The KL component currently demonstrates the old bug.':''}`;
- const lines=['token_lp = log_softmax(logits[:, :-1], -1)','selected = token_lp.gather(-1, sequences[:, 1:, None])','selected = selected.squeeze(-1) * response_mask[:, 1:]',old?'kl = masked_kl(logits, ref.detach(), response_mask)  # BUG':'kl = masked_kl(logits[:, :-1], ref[:, :-1].detach(),','               response_mask[:, 1:])', 'loss = -(adv.detach() * selected.sum(-1)).mean() + beta * kl'];
+ $('reduction').textContent=`Policy: sum tokens, average 2 responses. KL: total ${fmt(klTotal)} / max(${kls.length} selected positions, 1) = ${fmt(km)}.${old?' The KL component currently demonstrates the old bug.':''}`;
+ const lines=['token_lp = log_softmax(logits[:, :-1], -1)','selected = token_lp.gather(-1, sequences[:, 1:, None])','selected = selected.squeeze(-1).masked_fill(~response_mask[:, 1:], 0.0)  # [N, T-1]',old?'kl = masked_kl(logits, ref.detach(), response_mask)  # BUG':'kl = masked_kl(logits[:, :-1], ref[:, :-1].detach(),','               response_mask[:, 1:])', 'loss = -(adv.detach() * selected.sum(-1)).mean() + beta * kl'];
  if(old)lines.splice(4,1);
  $('code').replaceChildren(...lines.map((line,i)=>{const s=document.createElement('span');s.className='line'+(i===3||(!old&&i===4)?' active':'');s.textContent=line;return s;}));
  $('terms').textContent=`Token sums: [${sums.map(fmt).join(', ')}]. Policy loss: −(A₀ × sum₀ + A₁ × sum₁) / 2 = ${fmt(pg)}. KL mean = ${fmt(km)}.`;

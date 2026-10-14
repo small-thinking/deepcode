@@ -1,3 +1,6 @@
+import html
+import re
+import textwrap
 import json
 import unittest
 from pathlib import Path
@@ -22,6 +25,29 @@ def evaluate(code, checks):
 class GrpoResponseLogprobContractTest(unittest.TestCase):
     def test_reference_passes(self):
         result = evaluate(REFERENCE, CHECKS)
+        self.assertEqual(result["status"], "passed", result)
+        self.assertEqual(result["passed"], len(CHECKS), result)
+
+    def test_displayed_demo_code_passes_contract(self):
+        demo = (DIRECTORY / "assets/response-alignment-lab.html").read_text()
+        snippets = {name: html.unescape(code) for name, code in re.findall(
+            r'<code data-contract="([a-z]+)">(.*?)</code>', demo, re.S)}
+        self.assertEqual(set(snippets), {"advantages", "gather", "kl", "policy", "combined"})
+        functions = [
+            ("group_relative_advantages(rewards, group_size, eps=1e-6)",
+             snippets["advantages"] + "\nreturn advantages"),
+            ("gather_response_logprobs(logits, sequences, response_mask)",
+             snippets["gather"] + "\nreturn selected"),
+            ("masked_kl(policy_logits, reference_logits, response_mask)",
+             snippets["kl"] + "\nreturn kl"),
+            ("grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01)",
+             "advantages = group_relative_advantages(rewards, group_size)\n" +
+             snippets["policy"] + "\n" + snippets["combined"]),
+        ]
+        code = "import torch\nimport torch.nn.functional as F\n"
+        for signature, body in functions:
+            code += f"\ndef {signature}:\n" + textwrap.indent(body, "    ") + "\n"
+        result = evaluate(code, CHECKS)
         self.assertEqual(result["status"], "passed", result)
         self.assertEqual(result["passed"], len(CHECKS), result)
 
