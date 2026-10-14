@@ -16,7 +16,7 @@
 <span class="selected">t = 2</span><span class="selected">A</span><span class="selected">1</span><span class="selected">logits[1]</span>
 <span class="selected">t = 3</span><span class="selected">B</span><span class="selected">1</span><span class="selected">logits[2]</span>
 <span class="selected">t = 4</span><span class="selected">END</span><span class="selected">1</span><span class="selected">logits[3]</span>
-</div><p>Only selected response tokens with t &gt; 0 enter the objective. Position 0 has no earlier predictor.</p></section>
+</div><p>Only selected response tokens with t &gt; 0 enter the objective. Position 0 has no earlier predictor. The helper returns [N, T−1], with output column j scoring sequence token j+1; no zero prefix is added.</p></section>
 <div class="map-arrow" aria-hidden="true">↓</div>
 <section class="map-step"><h3>2 · Weight each response by its advantage</h3>
 <div class="map-equation">Aᵢ = (rewardᵢ − group mean) / (population std + ε)</div>

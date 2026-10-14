@@ -51,9 +51,7 @@ def gather_response_logprobs(logits, sequences, response_mask):
     if logits.shape[:2] != sequences.shape or sequences.shape != response_mask.shape:
         raise ValueError("logits, sequences, and mask must align")
     gathered = F.log_softmax(logits[:, :-1], dim=-1).gather(-1, sequences[:, 1:].unsqueeze(-1)).squeeze(-1)
-    result = torch.zeros_like(response_mask, dtype=logits.dtype)
-    result[:, 1:] = gathered
-    return result * response_mask.to(result.dtype)
+    return gathered.masked_fill(~response_mask[:, 1:], 0.0)
 
 
 def masked_kl(policy_logits, reference_logits, response_mask):
@@ -67,7 +65,7 @@ def masked_kl(policy_logits, reference_logits, response_mask):
 
 def grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):
     advantages = group_relative_advantages(rewards, group_size)
-    selected = gather_response_logprobs(logits, sequences, response_mask)
+    selected = gather_response_logprobs(logits, sequences, response_mask)  # [N, T-1]
     policy_term = -((selected.sum(dim=1) * advantages).mean())
     return policy_term + beta * masked_kl(logits[:, :-1], reference_logits[:, :-1], response_mask[:, 1:])
 
