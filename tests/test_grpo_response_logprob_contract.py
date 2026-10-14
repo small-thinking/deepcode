@@ -40,7 +40,7 @@ class GrpoResponseLogprobContractTest(unittest.TestCase):
              snippets["gather"] + "\nreturn selected"),
             ("masked_kl(policy_logits, reference_logits, response_mask)",
              snippets["kl"] + "\nreturn kl"),
-            ("grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01)",
+            ("group_relative_policy_gradient_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01)",
              "advantages = group_relative_advantages(rewards, group_size)\n" +
              snippets["policy"] + "\n" + snippets["combined"]),
         ]
@@ -65,7 +65,7 @@ class GrpoResponseLogprobContractTest(unittest.TestCase):
                 "sequences[:, 1:].unsqueeze(-1)", "sequences[:, :-1].unsqueeze(-1)"),
                 [CHECKS_BY_NAME["compact log probabilities preserve batch shape and empty-mask gradients"]]),
             "zero loss": (
-                REFERENCE + "\ndef grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):\n    return logits.sum() * 0\n",
+                REFERENCE + "\ndef group_relative_policy_gradient_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):\n    return logits.sum() * 0\n",
                 [CHECKS_BY_NAME["combined loss exact causal KL and unequal response lengths"]],
             ),
             "unshifted KL": (REFERENCE.replace(

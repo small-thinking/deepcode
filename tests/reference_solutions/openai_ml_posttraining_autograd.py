@@ -63,7 +63,7 @@ def masked_kl(policy_logits, reference_logits, response_mask):
     return (per_token * weights).sum() / weights.sum().clamp_min(1)
 
 
-def grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):
+def group_relative_policy_gradient_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):
     advantages = group_relative_advantages(rewards, group_size)
     selected = gather_response_logprobs(logits, sequences, response_mask)  # [N, T-1]
     policy_term = -((selected.sum(dim=1) * advantages).mean())
