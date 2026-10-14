@@ -31,6 +31,13 @@ class GrpoResponseLogprobContractTest(unittest.TestCase):
                 REFERENCE + "\ndef group_relative_advantages(rewards, group_size, eps=1e-6):\n    return torch.zeros_like(rewards.detach())\n",
                 [CHECKS_BY_NAME["advantages are grouped, finite, and detached"]],
             ),
+            "legacy zero-prefixed output": (REFERENCE.replace(
+                "return gathered.masked_fill(~response_mask[:, 1:], 0.0)",
+                "return F.pad(gathered.masked_fill(~response_mask[:, 1:], 0.0), (1, 0))"),
+                [CHECKS_BY_NAME["response log probabilities use causal alignment and masks"]]),
+            "unshifted token targets": (REFERENCE.replace(
+                "sequences[:, 1:].unsqueeze(-1)", "sequences[:, :-1].unsqueeze(-1)"),
+                [CHECKS_BY_NAME["compact log probabilities preserve batch shape and empty-mask gradients"]]),
             "zero loss": (
                 REFERENCE + "\ndef grpo_loss(logits, reference_logits, sequences, response_mask, rewards, group_size, beta=0.01):\n    return logits.sum() * 0\n",
                 [CHECKS_BY_NAME["combined loss exact causal KL and unequal response lengths"]],
@@ -40,8 +47,8 @@ class GrpoResponseLogprobContractTest(unittest.TestCase):
                 "masked_kl(logits, reference_logits, response_mask)"),
                 [CHECKS_BY_NAME["combined loss exact causal KL and unequal response lengths"]]),
             "masked log-probability gradient leak": (REFERENCE.replace(
-                "return result * response_mask.to(result.dtype)",
-                "return result * response_mask.to(result.dtype) + (logits.sum(dim=-1) - logits.sum(dim=-1).detach()) * (~response_mask).to(logits.dtype)"),
+                "return gathered.masked_fill(~response_mask[:, 1:], 0.0)",
+                "return gathered.masked_fill(~response_mask[:, 1:], 0.0) + (logits[:, :-1].sum(dim=-1) - logits[:, :-1].sum(dim=-1).detach()) * (~response_mask[:, 1:]).to(logits.dtype)"),
                 [CHECKS_BY_NAME["only selected predictable tokens contribute log-probability gradients"]]),
         }
         for name, (code, checks) in mutants.items():
