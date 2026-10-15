@@ -1,0 +1,17 @@
+[
+  {
+    "name": "matches a stable dense reference",
+    "input": "two query rows, three keys, value width two",
+    "test": "import numpy as np\nQ=np.array([[1.,0.],[0.,2.]])\nK=np.array([[1.,0.],[0.,1.],[-1.,1.]])\nV=np.array([[2.,1.],[4.,-1.],[8.,3.]])\ns=Q@K.T/np.sqrt(2.)\np=np.exp(s-s.max(axis=1,keepdims=True)); expected=(p/p.sum(axis=1,keepdims=True))@V\nout=blockwise_attention(Q,K,V,2)\nassert isinstance(out,np.ndarray) and out.shape==(2,2)\nnp.testing.assert_allclose(out,expected,rtol=1e-8,atol=1e-8)"
+  },
+  {
+    "name": "tile size does not change attention",
+    "input": "uneven final tile; tile sizes 1, 2, and larger than keys",
+    "test": "import numpy as np\nQ=np.array([[1.,2.],[-2.,1.],[0.,0.]])\nK=np.array([[2.,0.],[0.,3.],[-1.,-1.]])\nV=np.array([[1.],[5.],[9.]])\ns=Q@K.T/np.sqrt(2); e=np.exp(s-s.max(axis=1,keepdims=True)); expected=(e/e.sum(axis=1,keepdims=True))@V\nfor b in (1,2,5):\n out=blockwise_attention(Q,K,V,b)\n np.testing.assert_allclose(out,expected,rtol=1e-8,atol=1e-8)"
+  },
+  {
+    "name": "large scores remain finite",
+    "input": "large positive and negative logits",
+    "test": "import numpy as np\nQ=np.array([[1000.],[-1000.]])\nK=np.array([[1.],[0.],[-1.]])\nV=np.array([[7.,2.],[3.,4.],[-5.,6.]])\nwith np.errstate(over='raise',invalid='raise'):\n out=blockwise_attention(Q,K,V,1)\nassert np.isfinite(out).all()\nnp.testing.assert_allclose(out,[[7.,2.],[-5.,6.]],atol=1e-8)"
+  }
+]

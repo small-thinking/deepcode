@@ -1,0 +1,49 @@
+{
+  "id": "491",
+  "slug": "uber-ml-task-execution-lifecycle",
+  "title": "Apply ML Across a Task-Execution Lifecycle",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "workflow",
+    "multimodal",
+    "human-review",
+    "evaluation",
+    "evidence-quality"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "A customer submits a task for a driver to complete, and the driver uploads evidence such as text, forms, images, or video. Where could ML or LLMs help across customer intake, driver execution, and evidence review?\n\nChoose practical inputs and outputs for each stage, explain when to ask for clarification or involve a human, and describe how you would evaluate the workflow end to end. The report gives an open-ended scenario, not a traffic target, model choice, or exact scoring rubric.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Trace one task from customer intake through driver instructions and evidence review; make ML outputs and human handoffs explicit.",
+    "reference_answer": "## Scope and contract\n\nAssume a customer asks a driver to photograph a storefront display and answer a short checklist. The agent should help structure the request and review completion evidence, but the approved task specification remains the source of truth. This example, its fields, and its review thresholds are design assumptions rather than facts in the interview report. First clarify the kinds of tasks, evidence modalities, stakes of an incorrect acceptance, and whether any decisions can be automated.\n\nUse a versioned task record linking customer request, clarified requirements, approved instructions, driver events, evidence, and final decision. Each ML output should name its input version and carry confidence or uncertainty, so a changed task cannot be judged against stale instructions.\n\n## Intake and execution\n\nAt intake, parse free text into a schema: objective, location, required steps, required evidence, deadlines, and restrictions. Use rules for required fields and an LLM for extraction and ambiguity detection. Show the structured draft to the customer, ask targeted questions when information is missing or contradictory, and require approval before dispatch. Do not let a model invent a task constraint that the customer did not approve. Track extraction errors and how often clarifying questions lead to a usable task.\n\nFor the driver, turn the approved specification into concise, ordered instructions in the right language and format. Retrieve only approved task details; include the minimum evidence needed at each step. A rule engine should enforce fixed requirements such as location, deadline, and safety restrictions. The driver can ask questions, but the assistant should say when an answer is unsupported and route material changes to the customer or an operator. Measure instruction comprehension, avoidable support contacts, task completion, and time to completion, while checking whether generated guidance omits a required step.\n\n## Evidence review\n\nOn upload, run modality-specific checks before semantic judgment: image blur and duplicate detection, video completeness, form-field validity, timestamps, and location signals if consented and reliable. A task-conditioned model then checks whether the evidence supports each approved requirement. It should return per-requirement findings with referenced image regions, frames, or text spans, rather than one unexplained score. Separate poor quality from actual noncompliance. Permit a request for clearer evidence when the defect is fixable, and route uncertain, high-impact, or disputed cases to a trained reviewer. Keep the original evidence and review trail for appeals. Fraud signals can inform review priority but should not silently reject work.\n\n## Evaluation and rollout\n\nBuild a held-out set across task types, languages, devices, lighting conditions, and evidence modalities, with reviewer adjudication for ambiguous cases. Measure intake field precision/recall, clarification burden, instruction success, evidence false accepts and false rejects, reviewer agreement, appeal overturns, end-to-end task success, latency, and cost. False acceptance may harm customers; false rejection may unfairly burden drivers, so choose thresholds using both costs rather than a single accuracy number. Audit outcomes by task type and relevant cohorts while respecting privacy.\n\nStart in shadow mode against human decisions, then automate only low-risk, high-confidence steps. Log model and task versions, explanations, review outcomes, and customer/driver corrections. Monitor drift as task templates change, and allow a human to override the model with a recorded reason. The key tradeoff is how much automation saves review time without increasing disputed or incorrect decisions."
+  },
+  "references": [
+    {
+      "label": "Original Uber candidate interview report — UAIS workflow ML discussion",
+      "url": "https://www.1point3acres.com/bbs/thread-1192162-1-1.html"
+    },
+    {
+      "label": "Curated English rendering of the same report (not an additional occurrence)",
+      "url": "https://prachub.com/interview-experiences/uber-machine-learning-engineer-interview-experience-45-min-coding-plus-15-min-free-form-ml-design-onsite-invite-next-day"
+    }
+  ],
+  "created_at": "2026-10-15",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3f46ce51456d81ac9db4ead9b9abf657"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

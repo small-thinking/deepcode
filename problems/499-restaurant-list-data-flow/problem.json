@@ -1,0 +1,45 @@
+{
+  "id": "499",
+  "slug": "restaurant-list-data-flow",
+  "title": "Design the Data Flow for an Uber Eats Restaurant List",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "marketplace",
+    "data-flow",
+    "geospatial",
+    "freshness",
+    "caching"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Design the data flow that produces and serves an Uber Eats restaurant list to a customer. Clarify which list surface is in scope, what makes a restaurant eligible, which fields must be fresh, and how updates reach the customer-facing read path.\n\nThe candidate reported only 'design Uber Eats restaurant-list data flow'. Location, ranking, event-stream, latency, and scale details are for you to choose and justify, not reported interviewer requirements.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Trace restaurant changes into a customer list; distinguish slow-changing profile data from fast-changing availability and ETA.",
+    "reference_answer": "## Scope and data contract\n\nThe candidate's report names restaurant-list data flow but does not provide a detailed specification. To make the design concrete, assume the home page shows restaurants that can deliver to the customer's address now, with name, cuisine, open status, estimated delivery time, fee, and rating. Ask whether search, personalization, ads, menus, or pickup mode are included. A typed restaurant search has a different relevance problem; this answer focuses on producing a reliable eligible list.\n\nDefine sources of truth by update rate. Restaurant profile and service-area data change slowly. Open/paused state, delivery capacity, fees, promotions, and ETA can change quickly and may come from different services. Every update carries a restaurant ID, source, event time or version, and a rule for conflict resolution. The serving system should know the freshness deadline for each field, since a stale profile photo is tolerable while a stale paused status can cause an order failure.\n\n## Write and read paths\n\nOn writes, validate merchant and operations events, deduplicate them, and apply only newer versions for each field. Store durable history for replay and a current-state projection for fast reads. Rebuildable projections let the system recover from a bad consumer or index. Monitor source-to-serving lag and reconcile periodically with authoritative systems, because an event stream alone can lose or misorder information if handled poorly.\n\nFor a customer request, map the address to a location and retrieve a manageable set of restaurants from a geo or delivery-area index. Recheck current eligibility: service area, open/paused state, delivery capability, and any hard policy. Enrich eligible candidates with profile and operational fields, then order them by a stated baseline such as relevance to location, estimated delivery experience, and quality. If ranking is in scope, a model can be added after the eligibility contract and freshness are correct. Return a cursor or page token tied to a stable list view, accepting that availability may change between pages.\n\nCache slow profile and geo candidates aggressively; keep fast status and ETA on a shorter lifetime or fetch them at read time. Invalidate only affected cache keys when possible, but avoid assuming one restaurant update can cheaply rewrite every personalized list. A final eligibility check before checkout protects against briefly stale home-page results. If a dynamic service is delayed, degrade transparently: use bounded-stale ETA only if allowed, and suppress restaurants whose fulfillment status cannot be trusted.\n\n## Validation and tradeoffs\n\nExercise a merchant pause during a lunch rush, out-of-order status events, an ETA service outage, a city-wide spike, pagination across updates, and a corrupt geo index. Measure p95 list latency, eligible-result coverage, stale or invalid listing rate, source-to-serving lag, cache hit rate, and downstream order cancellations caused by list mistakes. Run shadow comparisons before changing projections or ranking.\n\nPrecomputing full lists makes reads fast but becomes expensive when availability changes and personalization varies. Computing everything on demand improves freshness but increases latency and load. A practical middle ground precomputes geo candidates and joins fast-changing fields near read time. The right choice depends on the clarified freshness target and traffic, neither of which was given in the candidate report."
+  },
+  "references": [
+    {
+      "label": "Original Uber candidate report — Uber Eats restaurant-list data flow",
+      "url": "https://www.1point3acres.com/bbs/thread-1191271-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-15",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3f16ce51456d81d38eecea173f9d9fb8"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

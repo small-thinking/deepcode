@@ -1,0 +1,32 @@
+[
+  {
+    "name": "single corridor requires a charging visit",
+    "input": "S.C.D",
+    "test": "assert optimal_route(['S.C.D'])==(1,2,4)"
+  },
+  {
+    "name": "direct route without charging",
+    "input": "S..D",
+    "test": "assert optimal_route(['S..D'])==(0,3,3)"
+  },
+  {
+    "name": "wall makes destination unreachable",
+    "input": "S#D",
+    "test": "assert optimal_route(['S#D'])==-1"
+  },
+  {
+    "name": "charger cannot be skipped in a one-row path",
+    "input": "S.C..D",
+    "test": "assert optimal_route(['S.C..D'])==(1,3,5)"
+  },
+  {
+    "name": "minimize charging visits before capacity and moves",
+    "input": "charger on direct row, open detour underneath",
+    "test": "assert optimal_route(['S.C.D','.....'])==(0,6,6)"
+  },
+  {
+    "name": "capacity then moves break one-charge ties",
+    "input": "several charger routes across a walled grid",
+    "test": "assert optimal_route(['S...##','.C#.#.','#.C..#','...CC.','.....D'])==(1,6,9)"
+  }
+]

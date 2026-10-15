@@ -1,0 +1,32 @@
+[
+  {
+    "name": "task IDs, updates, and compact task JSON",
+    "input": "duplicate names, missing ID, update",
+    "test": "m=SimpleTaskManager()\na=m.add_task(1,'same',1); b=m.add_task(2,'same',2)\nassert (a,b)==('task_id_1','task_id_2')\nassert m.get_task(3,a)=='{\"name\":\"same\",\"priority\":1}'\nassert m.update_task(4,a,'changed',3) is True\nassert m.get_task(5,a)=='{\"name\":\"changed\",\"priority\":3}'\nassert m.update_task(6,'task_id_9','x',0) is False\nassert m.get_task(7,'task_id_9') is None"
+  },
+  {
+    "name": "search uses current names and numeric priority ties",
+    "input": "12 tasks with tied priority and one updated name",
+    "test": "m=SimpleTaskManager()\nfor i in range(1,13): m.add_task(i,'Item' if i<12 else 'other',2)\nassert m.search_tasks(13,'Item',15)==[f'task_id_{i}' for i in range(1,12)]\nassert m.update_task(14,'task_id_12','Item',3)\nassert m.search_tasks(15,'Item',3)==['task_id_12','task_id_1','task_id_2']\nassert m.search_tasks(16,'item',4)==[]\nassert m.list_tasks_sorted(17,2)==['task_id_12','task_id_1']\nassert m.list_tasks_sorted(18,0)==[]"
+  },
+  {
+    "name": "quota releases at expiry boundary",
+    "input": "one-slot user, expiry at t=5",
+    "test": "m=SimpleTaskManager(); a=m.add_task(1,'A',1); b=m.add_task(2,'B',1)\nassert m.add_user(3,'u',1) and not m.add_user(4,'u',2)\nassert m.assign_task(5,a,'u',8)\nassert not m.assign_task(6,b,'u',9)\nassert m.get_user_tasks(7,'u')==[a]\nassert m.get_user_tasks(8,'u')==[]\nassert m.get_overdue_assignments(9,'u')==[a]\nassert m.assign_task(10,b,'u',12)\nassert m.get_user_tasks(11,'u')==[b]"
+  },
+  {
+    "name": "duplicate assignments and earliest completion",
+    "input": "same task assigned twice, complete first only",
+    "test": "m=SimpleTaskManager(); a=m.add_task(1,'A',1); m.add_user(2,'u',2)\nassert m.assign_task(3,a,'u',9)\nassert m.assign_task(4,a,'u',8)\nassert m.get_user_tasks(5,'u')==[a,a]\nassert m.complete_task(6,a,'u')\nassert m.get_user_tasks(7,'u')==[a]\nassert m.get_overdue_assignments(8,'u')==[a]\nassert not m.complete_task(9,a,'u')\nassert m.get_overdue_assignments(10,'u')==[a]"
+  },
+  {
+    "name": "overdue order and missing entities",
+    "input": "two overdue assignments ordered by finish time",
+    "test": "m=SimpleTaskManager(); a=m.add_task(1,'A',0); b=m.add_task(2,'B',0)\nassert m.get_user_tasks(3,'ghost')==[]\nassert m.get_overdue_assignments(4,'ghost')==[]\nassert not m.assign_task(5,a,'ghost',8)\nm.add_user(6,'u',2)\nassert not m.assign_task(7,'task_id_8','u',11)\nassert m.assign_task(8,a,'u',14)\nassert m.assign_task(9,b,'u',12)\nassert m.get_overdue_assignments(13,'u')==[b]\nassert m.get_overdue_assignments(15,'u')==[b,a]"
+  },
+  {
+    "name": "overdue history retains repeated task assignments",
+    "input": "same task assigned twice with different finish times",
+    "test": "m=SimpleTaskManager(); a=m.add_task(1,'A',0); m.add_user(2,'u',2)\nassert m.assign_task(3,a,'u',7)\nassert m.assign_task(4,a,'u',8)\nassert m.get_overdue_assignments(7,'u')==[a]\nassert m.get_overdue_assignments(8,'u')==[a,a]\nassert m.get_user_tasks(9,'u')==[]"
+  }
+]

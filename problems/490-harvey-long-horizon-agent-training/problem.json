@@ -1,0 +1,49 @@
+{
+  "id": "490",
+  "slug": "harvey-long-horizon-agent-training",
+  "title": "Train an Agent for Long-Context, Long-Horizon Tasks",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "agents",
+    "long-context",
+    "reinforcement-learning",
+    "evaluation",
+    "reward-design"
+  ],
+  "companies": [
+    "Harvey"
+  ],
+  "prompt": "How would you train a language-model agent to work through long-context, long-horizon tasks? Discuss the training approach, the environment used to generate and evaluate trajectories, and how you would design rewards. Explain how you would tell whether the agent can use long inputs and complete dependent steps reliably, including how you would detect reward exploitation.\n\nThe interview report names these topics but does not give a particular task, model, or compute budget. Choose one concrete task to make your assumptions testable.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Choose a concrete long-horizon task, separate context use from multi-step execution, then design training, rewards, and held-out evaluation.",
+    "reference_answer": "## Task and failure model\n\nAs a working example, consider an agent that answers a legal research question from a large, versioned document collection. It must find relevant documents, reconcile conflicting passages, and produce an answer with checkable citations. This is an illustrative task, not a reported interview requirement. Define an episode by a question, a frozen corpus snapshot, available tools, a step/token budget, and an outcome rubric. Ask what base model, expert time, compute, and deployment limits are available before committing to a recipe.\n\nThere are two separate abilities to measure. Long-context use means finding and using evidence when it is buried or spread across a large input. Long-horizon execution means choosing useful next actions, retaining state, recovering from failed searches, and finishing a dependent sequence. A model can succeed on one and fail on the other, so build diagnostic tasks for each before measuring end-to-end success.\n\n## Training and environment\n\nStart with a strong instruction-tuned/tool-capable baseline and simple retrieval plus short-horizon prompting. Curate licensed, privacy-cleared demonstrations that show search, reading, evidence tracking, revision, and final synthesis. Supervised fine-tuning can teach action formats and grounded trajectories; context extension or long-context data adaptation is justified only if diagnostics show failures that retrieval and state management do not fix. Keep failed and corrected trajectories, not just polished successes.\n\nRun training episodes in a reproducible sandbox: immutable document versions, deterministic tool schemas, recorded tool responses, bounded budgets, and resettable state. Generate task families with varying document length, number of hops, distractors, conflicting evidence, and tool failures. Split by matter, document family, and time so near-duplicate contracts or memorized answers do not leak across train and test. Mix expert-authored tasks with controlled synthetic tasks, but audit synthetic shortcuts against real work.\n\nIf supervised behavior plateaus, use preference optimization or RL on the same bounded environment. Compare against the simpler baseline at equal inference budget. Long rollouts are expensive and often sparse in feedback; curriculum from short to longer tasks, trajectory truncation, and explicit memory summaries can help, but summaries must retain provenance and be tested for lost details.\n\n## Rewards and evaluation\n\nPrefer verifiable outcomes: correct cited claims, required evidence coverage, valid tool use, and task completion. Penalize unsupported claims and prohibited actions. When expert judgment is needed, use a rubric with blinded expert calibration, disagreement measurement, and periodic checks of any model grader. Step rewards may improve credit assignment, but reward activity such as more tool calls only when it predicts the final outcome; otherwise the agent can learn to browse endlessly or manufacture citations.\n\nHold out new matters and adversarial cases, and inspect full trajectories. Measure end-to-end success, citation faithfulness, evidence recall, completion under step budgets, recovery after tool errors, expert preference, latency, and cost. Probe reward exploitation with planted answer strings, misleading metadata, easy-to-game graders, and a separate evaluator that does not share the training rubric. A reward increase without improvement in blinded expert success is a failure signal. Release only after offline tests and a limited human-reviewed pilot demonstrate improvement over the baseline."
+  },
+  "references": [
+    {
+      "label": "Original Harvey candidate interview report — long-context and long-horizon training discussion",
+      "url": "https://www.1point3acres.com/bbs/thread-1190782-1-1.html"
+    },
+    {
+      "label": "Curated practice expansion — environments and rewards (not an independent interview report)",
+      "url": "https://prachub.com/interview-questions/training-llm-agents-for-long-context-long-horizon-tasks-environments-and-rewards"
+    }
+  ],
+  "created_at": "2026-10-15",
+  "interview_frequency": {
+    "Harvey": {
+      "source_record_ids": [
+        "3f16ce51456d81bdaf73fb489f08e742"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

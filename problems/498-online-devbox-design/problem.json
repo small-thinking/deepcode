@@ -1,0 +1,44 @@
+{
+  "id": "498",
+  "slug": "online-devbox-design",
+  "title": "Design an Online Devbox",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "development-environment",
+    "isolation",
+    "lifecycle",
+    "storage"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Design an online devbox for users to work in a remote development environment. Start by clarifying the interface and the main user actions, then describe workspace creation, access, execution, persistence, and cleanup.\n\nThe report gives only the title-level prompt. The candidate assumed a browser interface; the interviewer did not specify browser versus SSH. Treat your chosen requirements and scale as assumptions, not reported constraints.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Clarify browser versus SSH and the user workflow before choosing isolation, storage, lifecycle, and recovery behavior.",
+    "reference_answer": "## Clarify the product\n\nThe reported prompt is only 'design online devbox'. The original poster said browser versus SSH was unspecified and that they assumed browser. I would therefore ask who uses it, whether the interface is browser IDE, terminal, SSH, or some combination, whether files persist between sessions, what commands may run, and whether collaboration or submitted jobs are in scope. I would also ask about target startup time, workspace sizes, idle lifetime, and trust level of user code. None of these is established by the source.\n\nFor a concrete design, assume one private browser-accessible workspace per user, with a terminal and file editor, persistent files, and no simultaneous collaboration. The user can create, open, stop, restart, and delete a workspace. Executing code can consume CPU, memory, and network resources, so quota and isolation are core requirements. This is an illustrative contract to make the architecture reviewable.\n\n## Control and execution paths\n\nA control service authenticates the user, stores workspace metadata and ownership, checks quotas, and asks a scheduler to place a workspace on an available worker. The execution environment is a container or VM selected according to the untrusted-code threat model. Give it a short-lived identity, resource limits, restricted network policy, and no control-plane credentials. Image versions are pinned so restarts are predictable. A gateway connects the authenticated browser to the workspace terminal and editor, using an expiring session token scoped to that workspace.\n\nSeparate ephemeral process state from durable user files. Attach a per-workspace volume or sync a workspace directory to durable storage, with explicit consistency and backup behavior. Reconnect should show the current process state when the worker is still alive; after worker loss, restart from saved files and tell the user that unsaved processes and terminal state were lost. A heartbeat detects abandoned sessions. Idle workspaces are stopped after a warning and a grace period, while deletion follows a defined retention policy. The control plane must make create and stop operations idempotent so retries do not allocate two costly environments.\n\n## Failures, evaluation, and tradeoffs\n\nTest a cold start, reconnect, worker crash, storage outage, quota exhaustion, long-running command, and malicious code trying to read another workspace. Measure time to ready, interactive latency, command failure rate, persistence/recovery success, utilization, idle cost, and security isolation incidents. Capacity planning follows active concurrent workspaces and resource profiles rather than registered users alone.\n\nContainers start quickly and pack efficiently but need strong kernel isolation controls; VMs cost more and start slower but can provide a firmer boundary for untrusted workloads. Persisting every filesystem write improves recovery but raises cost and latency; periodic sync is cheaper but has a data-loss window. If the actual interview requires SSH instead of browser access, the gateway changes to an SSH bastion and key/session management, while scheduling, isolation, storage, and lifecycle remain largely the same. I would not add collaboration or job submission until the interviewer confirms those needs."
+  },
+  "references": [
+    {
+      "label": "Original OpenAI candidate report — online devbox prompt and browser-versus-SSH clarification",
+      "url": "https://www.1point3acres.com/bbs/thread-1191902-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-15",
+  "interview_frequency": {
+    "OpenAI": {
+      "source_record_ids": [
+        "3f06ce51456d816d9c24f53ddddf669b"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

@@ -43,6 +43,13 @@
       ],
       "stars": 1,
       "synced_at": "2026-10-03"
+    },
+    "OpenAI": {
+      "source_record_ids": [
+        "3f26ce51456d812ea195e5698f35b2d1"
+      ],
+      "stars": 0,
+      "synced_at": "2026-10-14"
     }
   },
   "interview_frequency_total": {

@@ -35,15 +35,15 @@
   "background_note": "Candidate report supports novelty mining from an unlabeled image corpus. The object-retrieval extension here is DeepCode practice; its interview origin is unverified.",
   "interview_frequency": {
     "OpenAI": {
-      "stars": 0,
       "source_record_ids": [
         "3ed6ce51456d8167a14ec42d5f844e4e"
       ],
-      "synced_at": "2026-10-02"
+      "stars": 1,
+      "synced_at": "2026-10-14"
     }
   },
   "interview_frequency_total": {
-    "stars": 0,
-    "synced_at": "2026-10-02"
+    "stars": 1,
+    "synced_at": "2026-10-14"
   }
 }

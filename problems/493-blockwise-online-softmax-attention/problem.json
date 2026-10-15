@@ -1,0 +1,61 @@
+{
+  "id": "493",
+  "slug": "blockwise-online-softmax-attention",
+  "title": "Blockwise Online-Softmax Attention",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "attention",
+    "online-softmax",
+    "numerical-stability"
+  ],
+  "companies": [
+    "Mistral AI"
+  ],
+  "prompt": "Implement `blockwise_attention(Q, K, V, block_size)` using NumPy. This is a small, single-head simulation of scaled dot-product attention, `softmax(Q @ K.T / sqrt(d)) @ V`. Inputs are finite 2D arrays: `Q` has shape `(nq, d)`, `K` has shape `(nk, d)`, and `V` has shape `(nk, dv)`; all dimensions are positive. `block_size` is a positive integer and may exceed an input dimension. Return a finite NumPy array of shape `(nq, dv)`.\n\nProcess both query rows and key/value columns in tiles no larger than `block_size`. Compute stable attention without materializing a full attention matrix as a separate intermediate; only score tiles of at most `block_size × block_size` may be held at once. Every positive tile size must match stable dense attention within floating-point tolerance. No mask, gradient, or optimized GPU kernel is required. The exact API and tensor shapes are local practice choices; the interview report identifies a FlashAttention implementation task and a basic-simulation interpretation.",
+  "starter_code": "import numpy as np\n\n\ndef blockwise_attention(Q, K, V, block_size):\n    pass\n",
+  "example": {
+    "input": "blockwise_attention([[1.0]], [[1.0], [0.0]], [[2.0], [4.0]], 1)",
+    "output": "array([[2.53788284]])",
+    "reasoning": "The two attention weights are softmax([1, 0]); their weighted value is about 2.538."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "comparator": "assertions",
+    "packages": [
+      "numpy"
+    ]
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Mistral AI Research Engineer phone-screen report — implementation request; API unspecified",
+      "url": "https://www.reddit.com/r/MachineLearning/comments/1r2xvbx/d_mistral_ai_research_engineer_phone_screen/"
+    },
+    {
+      "label": "Canonical Notion question and evidence boundary",
+      "url": "https://app.notion.com/p/3f06ce51456d81cab96deb38b298402d"
+    },
+    {
+      "label": "FlashAttention paper — online-softmax and tiled exact attention background",
+      "url": "https://arxiv.org/abs/2205.14135"
+    }
+  ],
+  "created_at": "2026-10-14",
+  "interview_frequency": {
+    "Mistral AI": {
+      "source_record_ids": [
+        "3f06ce51456d81cab96deb38b298402d"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

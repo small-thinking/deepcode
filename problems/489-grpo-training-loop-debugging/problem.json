@@ -67,5 +67,18 @@
         "fallback_height": 1000
       }
     }
-  ]
+  ],
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "3d26ce51456d815b96e5cbedb6a9b9e5"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-14"
+  }
 }

@@ -67,5 +67,18 @@
       "url": "https://prachub.com/interview-questions/improve-classifier-with-noisy-multi-annotator-labels"
     }
   ],
-  "background_note": "OpenAI noisy-annotator data cleaning is supported by the canonical Notion record and its preserved candidate reports. 1190831 adds that a Python dictionary approach was acceptable and follow-ups included F1/AUROC. The exact label-matrix schema, tie policy, agreement fallback, and removal budget are local practice choices. The public PracHub prompt is expanded preparation material, not a separate occurrence. Compare any real cleaning strategy on a held-out split; do not mistake agreement with a self-inclusive consensus for ground-truth accuracy. Authenticated verification on 2026-10-09 read 1190831 and its replies. The original candidate reports an open-ended noisy-annotator ML-coding round with metric questions and permits ordinary Python dictionaries. It establishes the OpenAI family, not this exact posterior/filtering helper. The canonical family record has an empty DeepCode link; its occurrence signal is not assigned to this local component by title similarity."
+  "background_note": "OpenAI noisy-annotator data cleaning is supported by the canonical Notion record and its preserved candidate reports. 1190831 adds that a Python dictionary approach was acceptable and follow-ups included F1/AUROC. The exact label-matrix schema, tie policy, agreement fallback, and removal budget are local practice choices. The public PracHub prompt is expanded preparation material, not a separate occurrence. Compare any real cleaning strategy on a held-out split; do not mistake agreement with a self-inclusive consensus for ground-truth accuracy. Authenticated verification on 2026-10-09 read 1190831 and its replies. The original candidate reports an open-ended noisy-annotator ML-coding round with metric questions and permits ordinary Python dictionaries. It establishes the OpenAI family, not this exact posterior/filtering helper. The canonical family record has an empty DeepCode link; its occurrence signal is not assigned to this local component by title similarity.",
+  "interview_frequency": {
+    "OpenAI": {
+      "source_record_ids": [
+        "3656ce51456d819da4b7ddd95aa046f1"
+      ],
+      "stars": 3,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 3,
+    "synced_at": "2026-10-14"
+  }
 }

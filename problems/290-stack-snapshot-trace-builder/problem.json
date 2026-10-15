@@ -75,5 +75,18 @@
       "label": "Original 1Point3Acres interview report (1189841)",
       "url": "https://www.1point3acres.com/bbs/thread-1189841-1-1.html"
     }
-  ]
+  ],
+  "interview_frequency": {
+    "Anthropic": {
+      "source_record_ids": [
+        "35c6ce51456d81dbbea2c9e63d4714cc"
+      ],
+      "stars": 4,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 4,
+    "synced_at": "2026-10-14"
+  }
 }

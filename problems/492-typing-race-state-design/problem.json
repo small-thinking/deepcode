@@ -1,0 +1,45 @@
+{
+  "id": "492",
+  "slug": "typing-race-state-design",
+  "title": "Design a Multiplayer Typing Race",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "component-design",
+    "state-machine",
+    "multiplayer",
+    "ranking",
+    "fairness"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "Design the state and operations for a typing race with 2–8 players. A passage is generated for the race. Players type it, and the first to finish wins. An incorrect character freezes that player for one second.\n\nExplain matchmaking, then how players join, submit progress, cool down and resume, and how the race finishes. Discuss ranking players by score and reducing unfairness from different network delays. The report does not give exact method signatures or a required storage or network architecture; choose a small interface and state its assumptions.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Define a small room/player state machine and operations, then handle cooldown, deterministic ranking, and network-delay limits.",
+    "reference_answer": "## Contract and state\n\nTreat this as a small stateful component. The four operations below are one possible interface, not reported interviewer method names. `create_room(passage, capacity)` creates a waiting race with 2–8 slots; `join(room_id, player_id)` adds a player before start; `submit(room_id, player_id, sequence, character, client_time)` processes one typed character; and `get_state(room_id)` returns passage, player progress, cooldown, finish status, and ranking. For matchmaking, keep a waiting queue (or a small skill bucket if balanced play matters), assemble 2–8 distinct players, and start when the room fills or a maximum wait expires with at least two players; otherwise keep waiting or cancel the room. A cancellation removes a waiting player; duplicate joins must not occupy two slots. This is a local policy choice, not a reported matchmaking contract. A separate start event can be folded into the room when the host starts with at least two players or the wait limit expires. Clarify whether scoring is only progress/completion or includes accuracy and speed, and whether clients submit characters or accumulated text.\n\nThe room stores an immutable passage, a monotonic room version, a start time, and a state of waiting, running, or finished. Per player, store the next expected passage index, last accepted sequence number, cooldown-until time, finish time, and any score inputs. Use a server-controlled monotonic clock for cooldown and finish ordering. A submit is valid only for a joined player in a running race, with a new sequence number and an active connection or authorized session. An exact next character advances progress once; an incorrect one leaves progress unchanged and sets `cooldown_until = now + 1 second`. While cooling down, submissions cannot advance progress. At or after expiry, the next valid character can advance; an extra timer that writes an 'unfrozen' flag is unnecessary.\n\nDuplicate or reordered submissions must be idempotent or rejected before changing progress. Decide whether a wrong keystroke during cooldown is ignored or restarts the penalty; I would ignore it so delayed packets cannot prolong a freeze. A reconnect reads authoritative state and resumes at the next expected index. A player who completes the final character receives an immutable server finish time; the first such completion wins. State version and deterministic tie-breaking, such as finish time then join order, keep all clients' displays consistent.\n\n## Ranking and latency fairness\n\nIf the interviewer supplies a scoring formula, implement that formula. Otherwise propose one openly: completed players rank by finish time; unfinished players rank by validated progress, then last accepted time. The source mentions score-based ranking but does not specify its calculation, so do not equate this proposal with the reported contract. Compute ranking from authoritative events, not client claims. Return each player's own cooldown and progress as well as a consistent room ranking snapshot.\n\nNetwork delay cannot be eliminated. Start everyone from the same server-controlled race start, send the passage before the start signal, and timestamp accepted input at the server. Sequence numbers prevent late duplicate packets from changing progress. If latency compensation is considered, cap it and use measured round-trip distributions; trusting arbitrary client timestamps invites manipulation. For a small interview component, explain this tradeoff without assuming WebRTC, a distributed cache, or a global leaderboard.\n\n## Checks and tradeoffs\n\nWalk through a 2-player race, a full 8-player room, a wrong character followed by a submission at 0.9 and 1.0 seconds, duplicate and reordered inputs, a disconnect/reconnect, and nearly simultaneous finishes. Verify one penalty per mistake, no progress while frozen, deterministic winner/ranking, and no accepted input from a non-member. Keep the state update atomic within a room; a single room lock or serialized event loop is enough for this scale. Persist completed results only if the product needs history. In-memory room state is simple and fast but loses an active race on process failure; durable replay is an optional extension, not part of the reported prompt."
+  },
+  "references": [
+    {
+      "label": "Original OpenAI candidate interview report — typing race design and follow-ups",
+      "url": "https://www.1point3acres.com/bbs/thread-1192648-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-15",
+  "interview_frequency": {
+    "OpenAI": {
+      "source_record_ids": [
+        "3f66ce51456d818ab598e70b7ae17d0f"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}
