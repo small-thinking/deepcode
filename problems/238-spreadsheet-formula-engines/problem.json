@@ -45,5 +45,25 @@
       "label": "Notion interview record (practice variant)",
       "url": "https://app.notion.com/p/37c6ce51456d8165967be27c212c5c68"
     }
-  ]
+  ],
+  "interview_frequency": {
+    "Harvey": {
+      "source_record_ids": [
+        "37c6ce51456d8165967be27c212c5c68"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-14"
+    },
+    "OpenAI": {
+      "source_record_ids": [
+        "3f76ce51456d8119bf82e1bf1a49fdef"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-14"
+  }
 }

@@ -1,0 +1,44 @@
+{
+  "id": "497",
+  "slug": "legal-contract-multi-agent-revision",
+  "title": "Design a Contract Revision Workflow for Many Legal Rules",
+  "category": "System Design",
+  "difficulty": "hard",
+  "tags": [
+    "agents",
+    "document-editing",
+    "conflict-resolution",
+    "auditability"
+  ],
+  "companies": [
+    "Harvey"
+  ],
+  "prompt": "Given a contract and dozens of legal rules, design a workflow to identify and apply the required revisions. Explain how proposed edits are coordinated when they affect overlapping text and how a reviewer can verify the final contract.\n\nThe candidate report describes assigning rules to separate agents and merging overlaps as one approach, but does not specify a required architecture, rule format, conflict policy, or acceptance criteria.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Make each proposed revision traceable to a rule and contract span; handle conflicts before producing a reviewable final diff.",
+    "reference_answer": "## Contract and representation\n\nI would first clarify whether the rules are legal obligations, client preferences, or drafting style, and whether a human lawyer must approve every change. Assume a versioned contract with stable clause identifiers and rules written in natural language plus metadata such as jurisdiction and priority. These are local design assumptions, not details from the report. Preserve the original document and never let an agent silently overwrite it.\n\nParse the contract into clauses while retaining offsets and document structure. Normalize each rule into a checkable record: applicability conditions, desired outcome, priority, citation to source guidance, and ambiguity notes. A rule may apply to several clauses or conflict with another rule. Before proposing text, retrieve the relevant clauses and legal context and record why each was selected. Access controls should keep client documents within the authorized matter.\n\n## Parallel proposals and merging\n\nA per-rule agent is a reasonable candidate approach, but parallelism is useful only if outputs have a common contract. Each proposal should identify the base document version, rule ID, target clause and span, replacement text, reason, and confidence. Agents may return 'no change' or 'needs lawyer clarification'. Validate that spans still match the base version and that each proposed edit addresses its cited rule. Keep proposed text separate from the authoritative contract.\n\nBuild an overlap graph: two proposals conflict if their spans overlap, if one deletes a clause referenced by another, or if their meanings contradict despite disjoint spans. Independent edits can be composed on the same base version and shown together. For each connected conflict group, use a merge agent to propose one coherent revision with a rationale explaining which requirements survived. Do not resolve a legal priority dispute by arbitrary agent order. Route incompatible or low-confidence changes to a lawyer with both alternatives and source rules visible.\n\nAfter merging, rerun every applicable rule check against the whole revised document. This catches a fix for one clause that breaks another. Also check defined terms, cross-references, numbering, and formatting. A final diff should show changes against the original, each linked to rule IDs and reviewer decisions. The reviewer can accept, reject, or edit each change; their edits trigger revalidation of affected clauses and dependencies. Record document and model versions, prompts, tool outputs, merge decisions, and approvals for an audit trail.\n\n## Evaluation and tradeoffs\n\nUse a set of contracts with expert-reviewed target revisions, including independent rules, overlapping edits, contradictory rules, and rules that should cause no change. Measure rule coverage, unsupported changes, conflict resolution quality, final legal correctness, reviewer time, and severity of missed obligations. Blind expert review is needed because text similarity to a reference draft may not capture legal equivalence. Test long documents and later clause renumbering, and inspect the full diff for accidental deletions.\n\nParallel agents improve coverage and latency when rules are largely independent, but create coordination cost and more inconsistent edits. A sequential baseline may be safer for small contracts. The release boundary is a reviewable draft; the system should abstain or escalate when legal interpretation, rule priority, or the final meaning remains uncertain."
+  },
+  "references": [
+    {
+      "label": "Original Harvey candidate report — contract revision and overlapping edits",
+      "url": "https://www.1point3acres.com/bbs/thread-1190457-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-15",
+  "interview_frequency": {
+    "Harvey": {
+      "source_record_ids": [
+        "3f86ce51456d81219cfcd8109c9cd3bf"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

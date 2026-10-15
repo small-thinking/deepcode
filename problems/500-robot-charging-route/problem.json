@@ -1,0 +1,56 @@
+{
+  "id": "500",
+  "slug": "robot-charging-route",
+  "title": "Robot Route with Charging Stops",
+  "category": "Coding",
+  "difficulty": "hard",
+  "tags": [
+    "grid",
+    "shortest-path",
+    "lexicographic-optimization",
+    "battery"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "A robot moves on a rectangular grid. `S` is its start, `D` its destination, `.` an open cell, `C` a charging cell, and `#` a wall. It moves one cell horizontally or vertically per step, using one unit of battery per move. The robot starts with a full battery of capacity `B`; entering any `C` immediately refills it to `B` and counts as one charging visit, including repeated entries to the same charger. Entering `D` ends the route. Implement `optimal_route(grid)` and return `(charging_visits, minimum_initial_capacity, moves)` for the best feasible route, or `-1` if no route exists. Optimize in that order: first fewest charging visits, then smallest capacity that supports such a route, then fewest total moves. `grid` is a list of equal-length strings with exactly one `S` and one `D`; the practice cases have at most 50 rows and columns and at most 25 chargers. Capacity is a positive integer. The grid symbols and three priorities come from the reported interview task; this function signature and size bounds are practice choices.",
+  "starter_code": "def optimal_route(grid):\n    pass\n",
+  "example": {
+    "input": "optimal_route(['S.C.D'])",
+    "output": "(1, 2, 4)",
+    "reasoning": "The robot reaches the charger after two moves, refills, and reaches D after two more."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 4,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Original Uber robot-charging-route interview report",
+      "url": "https://www.1point3acres.com/interview/thread/1191046"
+    },
+    {
+      "label": "Canonical Notion question and evidence boundary",
+      "url": "https://app.notion.com/p/3f46ce51456d810e93efee59a224c367"
+    }
+  ],
+  "created_at": "2026-10-14",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3f46ce51456d810e93efee59a224c367"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

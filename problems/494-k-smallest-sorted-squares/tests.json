@@ -1,0 +1,27 @@
+[
+  {
+    "name": "mixed signs and output order",
+    "input": "[-8,-2,1,3,7], k=4",
+    "test": "assert k_smallest_squares([-8,-2,1,3,7],4)==[1,4,9,49]"
+  },
+  {
+    "name": "negative-only input",
+    "input": "[-9,-4,-1], k=2",
+    "test": "assert k_smallest_squares([-9,-4,-1],2)==[1,16]"
+  },
+  {
+    "name": "positive values, zero, and duplicates",
+    "input": "[0,0,2,2], k=4",
+    "test": "assert k_smallest_squares([0,0,2,2],4)==[0,0,4,4]"
+  },
+  {
+    "name": "equal magnitudes across the sign boundary",
+    "input": "[-3,-2,2,3], k=3",
+    "test": "assert k_smallest_squares([-3,-2,2,3],3)==[4,4,9]"
+  },
+  {
+    "name": "empty selection and full selection",
+    "input": "k=0 and k=n",
+    "test": "assert k_smallest_squares([-5,1],0)==[]\nassert k_smallest_squares([-5,1],2)==[1,25]"
+  }
+]

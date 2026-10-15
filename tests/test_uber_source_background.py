@@ -43,9 +43,10 @@ class UberSourceBackgroundTest(unittest.TestCase):
     def setUpClass(cls):
         cls.store = ProblemStore(ROOT / "problems")
 
-    def test_every_catalog_uber_row_has_one_exact_mapping(self):
+    def test_audited_uber_rows_retain_their_exact_mapping(self):
         uber = {problem["slug"]: problem for problem in self.store.list_problems(company="Uber")}
-        self.assertEqual(set(uber), set(NOTION_TO_SLUG.values()))
+        # This is the audited import cohort; later Uber exercises may be added.
+        self.assertTrue(set(NOTION_TO_SLUG.values()).issubset(uber))
 
         for record_id, slug in NOTION_TO_SLUG.items():
             with self.subTest(slug=slug):

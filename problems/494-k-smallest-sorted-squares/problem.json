@@ -1,0 +1,54 @@
+{
+  "id": "494",
+  "slug": "k-smallest-sorted-squares",
+  "title": "K Smallest Squares from a Sorted Array",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "two-pointers",
+    "binary-search",
+    "arrays"
+  ],
+  "companies": [
+    "Uber"
+  ],
+  "prompt": "Given a nondecreasing list of integers `nums` and an integer `k` with `0 <= k <= len(nums)`, implement `k_smallest_squares(nums, k)`. Return the `k` smallest values of `x*x` for `x` in `nums`, in nondecreasing order. Keep duplicates. Aim for `O(log n + k)` time and `O(k)` output space by locating the sign boundary, then merging values from either side. The `k=0` behavior is a local convention for this practice exercise.",
+  "starter_code": "def k_smallest_squares(nums, k):\n    pass\n",
+  "example": {
+    "input": "k_smallest_squares([-8, -2, 1, 3, 7], 4)",
+    "output": "[1, 4, 9, 49]",
+    "reasoning": "The four smallest squared values come from 1, -2, 3, and 7."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Uber SDE2 interview report — sorted squares with k-smallest follow-up",
+      "url": "https://www.1point3acres.com/interview/thread/1191271"
+    },
+    {
+      "label": "Canonical Notion question and evidence boundary",
+      "url": "https://app.notion.com/p/3f16ce51456d819c8e56d78cf52b9f8c"
+    }
+  ],
+  "created_at": "2026-10-14",
+  "interview_frequency": {
+    "Uber": {
+      "source_record_ids": [
+        "3f16ce51456d819c8e56d78cf52b9f8c"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

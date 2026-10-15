@@ -1,0 +1,58 @@
+{
+  "id": "495",
+  "slug": "time-aware-task-management",
+  "title": "Time-Aware Task Management",
+  "category": "Coding",
+  "difficulty": "hard",
+  "tags": [
+    "stateful-api",
+    "time",
+    "sorting"
+  ],
+  "companies": [
+    "Airbnb"
+  ],
+  "prompt": "Implement `SimpleTaskManager` with the methods below. Calls have strictly increasing integer timestamps `t`; priorities and user quotas are nonnegative integers; `finish_time > t`. IDs are `task_id_1`, `task_id_2`, etc. in creation order, even when task names repeat. The reported assessment supplies the operations, ordering rules, and return formats. This practice version names the class `SimpleTaskManager` and assumes `finish_time > t`.\n\n### Level 1: Tasks\n\n`add_task(t, name, priority)` creates a task and returns its ID. `update_task(t, task_id, name, priority)` changes an existing task and returns `True`, or `False` for a missing ID. `get_task(t, task_id)` returns a compact JSON string with keys `name` then `priority` for an existing task, or `None` for a missing ID.\n\n### Level 2: Search and order\n\n`search_tasks(t, filter, max_results)` returns task IDs whose current names contain the case-sensitive substring `filter`. `list_tasks_sorted(t, limit)` returns task IDs across all tasks. Both order IDs by descending current priority, then numeric creation order. A nonpositive result limit returns `[]`.\n\n### Level 3: Users and assignments\n\n`add_user(t, user, quota)` returns `True` when it creates a user, or `False` for a duplicate name. `assign_task(t, task_id, user, finish_time)` adds an independent assignment and returns `True` if both IDs exist and the user has fewer than `quota` active assignments; otherwise it returns `False`. An unfinished assignment is active from its start through times before `finish_time`. Repeating the same task/user pair creates distinct assignments. `get_user_tasks(t, user)` returns active task IDs sorted by `(finish_time, start_time)`; a missing user yields `[]`.\n\n### Level 4: Completion and overdue history\n\n`complete_task(t, task_id, user)` completes the earliest-start active assignment for that pair and frees its quota slot. It returns `True` on success or `False` when no such assignment exists. `get_overdue_assignments(t, user)` returns task IDs for expired, uncompleted assignments, sorted by `(finish_time, start_time)`; repeats remain in the result. A missing user yields `[]`. Expiry begins exactly at `finish_time`.",
+  "starter_code": "class SimpleTaskManager:\n    def __init__(self):\n        pass\n\n    def add_task(self, t, name, priority):\n        pass\n\n    def update_task(self, t, task_id, name, priority):\n        pass\n\n    def get_task(self, t, task_id):\n        pass\n\n    def search_tasks(self, t, filter, max_results):\n        pass\n\n    def list_tasks_sorted(self, t, limit):\n        pass\n\n    def add_user(self, t, user, quota):\n        pass\n\n    def assign_task(self, t, task_id, user, finish_time):\n        pass\n\n    def get_user_tasks(self, t, user):\n        pass\n\n    def complete_task(self, t, task_id, user):\n        pass\n\n    def get_overdue_assignments(self, t, user):\n        pass\n",
+  "example": {
+    "input": "m=SimpleTaskManager(); a=m.add_task(1,'Review',2); m.add_user(2,'Ada',1); m.assign_task(3,a,'Ada',5); m.get_user_tasks(4,'Ada'); m.get_overdue_assignments(5,'Ada')",
+    "output": "['task_id_1']; ['task_id_1']",
+    "reasoning": "The unfinished assignment is active at time 4 and becomes overdue exactly at time 5."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Airbnb task-management coding assessment report — original independent account",
+      "url": "https://www.1point3acres.com/bbs/forum.php?mod=viewthread&page=1&tid=1185439"
+    },
+    {
+      "label": "Airbnb task-management coding assessment report — later candidate account",
+      "url": "https://www.1point3acres.com/interview/thread/1190783"
+    },
+    {
+      "label": "Canonical Notion question and evidence boundary",
+      "url": "https://app.notion.com/p/3f16ce51456d81f2b375d7bba26e6318"
+    }
+  ],
+  "created_at": "2026-10-14",
+  "interview_frequency": {
+    "Airbnb": {
+      "source_record_ids": [
+        "3f16ce51456d81f2b375d7bba26e6318"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}

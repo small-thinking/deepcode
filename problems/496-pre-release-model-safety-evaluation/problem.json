@@ -1,0 +1,44 @@
+{
+  "id": "496",
+  "slug": "pre-release-model-safety-evaluation",
+  "title": "Evaluate a Pre-Release Model for Government Safety Review",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "model-evaluation",
+    "safety",
+    "release-readiness",
+    "red-teaming"
+  ],
+  "companies": [
+    "OpenAI"
+  ],
+  "prompt": "You represent a government team evaluating a new OpenAI model made available 30 days before its planned launch. How would you evaluate its safety and report a release recommendation?\n\nDefine the risks, evidence, test plan, and decision process. The reported question does not specify model capabilities, access conditions, evaluation resources, or a rubric; state the assumptions that matter to your plan.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Define the release context and risks, then set a feasible 30-day evaluation plan with explicit decision criteria and uncertainty.",
+    "reference_answer": "## Frame the decision\n\nThe report gives a government evaluator, a pre-release OpenAI model, and a 30-day lead time. It does not state whether this is a general model, an agent with tools, or a specialized deployment. I would first request a model card, intended uses, access mode, version freeze date, prior evaluations, known limitations, mitigation controls, and incident contact. I would distinguish a decision about the model under a specified deployment from a universal claim that it is safe. If the launch artifact changes materially during review, affected tests must be repeated.\n\nAgree on a risk register with the relevant agencies and independent experts. Risks might include cyber or biological misuse, privacy leakage, autonomous tool actions, harmful advice, and failures in high-impact government workflows; which matter depends on actual capabilities and intended access. For each risk, define a concrete failure, severity, exposure route, benchmark or scenario, and what level of evidence would block launch or require restricted access. The review team should document conflicts of interest and prevent the model provider from choosing only favorable cases.\n\n## Thirty-day test plan\n\nIn the first days, verify access and reproducibility: model version, sampling settings, tool permissions, logging, and a sealed evaluation set. Establish a baseline against the previous model and known controls. Run capability probes to identify domains needing deeper testing, then representative misuse and benign-use scenarios. Include multilingual and demographic slices where relevant. Use both scripted tests for repeatability and expert red teaming to discover failures outside predefined categories. Give testers safe operating procedures and avoid releasing harmful details in public reports.\n\nA finding is more useful than a pass rate alone. Record the prompt or task, model settings, observed behavior, severity, repeatability, likely downstream harm, and confidence. Separate capability from willingness to comply: a model that refuses one wording may still enable misuse through tools or multi-turn interaction. Test realistic defenses, including system controls, tool restrictions, rate limits, monitoring, and human approval, rather than assuming a text refusal solves every exposure path. Check whether mitigations harm legitimate uses.\n\n## Decision and follow-up\n\nReserve time for the provider to reproduce severe findings, propose mitigations, and submit a frozen candidate for targeted retest. Pre-agreed gates can be qualitative where sample sizes are small: any reproducible critical failure in a plausible high-impact path may trigger delay or narrowed access. Statistical metrics should include uncertainty and slices, not only an aggregate average. When evidence is insufficient, recommend a narrower launch or additional testing rather than turning uncertainty into a pass.\n\nDeliver a decision memo with test coverage, unresolved risks, measured regressions, mitigation evidence, and the exact version/access conditions reviewed. State what remains untested. After launch, require incident channels, monitoring signals, periodic reevaluation, and a process to pause risky capabilities if new evidence appears. The 30-day constraint makes prioritization essential; it cannot prove the absence of all failures."
+  },
+  "references": [
+    {
+      "label": "Original OpenAI candidate report — government pre-release model safety question",
+      "url": "https://www.1point3acres.com/bbs/thread-1192022-1-1.html"
+    }
+  ],
+  "created_at": "2026-10-15",
+  "interview_frequency": {
+    "OpenAI": {
+      "source_record_ids": [
+        "3f16ce51456d8143a371f399e80eab85"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-14"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-14"
+  }
+}
