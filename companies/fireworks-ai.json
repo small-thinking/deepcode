@@ -74,6 +74,33 @@
             "url": "https://www.1point3acres.com/bbs/thread-1159979-1-1.html"
           }
         ]
+      },
+      {
+        "name": "Applied ML and Field Engineering take-homes",
+        "signal": "Public candidate submissions describe financial SQL plus filing RAG and an interactive text-to-SQL CLI. These are candidate-published assignment artifacts; independent interview-event counts are unresolved.",
+        "evidence_tier": "Candidate-published artifacts; official origin unconfirmed",
+        "sources": [
+          {
+            "label": "Vinay candidate submission",
+            "url": "https://github.com/VinayJogani14/fireworks-rag-agent"
+          },
+          {
+            "label": "Ishan candidate submission",
+            "url": "https://github.com/Ishan23/agentic-rag-10k-analysis"
+          },
+          {
+            "label": "Candidate assessment and submission archive",
+            "url": "https://github.com/tsrinarmwong/fireworks-interview-archive"
+          },
+          {
+            "label": "Allison candidate materials and implementation",
+            "url": "https://github.com/allisonbaker1984-hue/fireworks_takehome_test"
+          },
+          {
+            "label": "Mike candidate submission and original-brief section",
+            "url": "https://github.com/mikewangfangxing/take-home/blob/master/README.md"
+          }
+        ]
       }
     ]
   },
@@ -81,6 +108,10 @@
     {
       "label": "Research / post-training evidence",
       "detail": "No sufficiently specified, independently verified post-training question was found in this collection. Official roles establish relevance, not interview questions."
+    },
+    {
+      "label": "Public-source expansion",
+      "detail": "The two take-home families were cross-checked across multiple GitHub submissions. They use the written coding workspace with local execution/evaluation, and their unverified interview-event frequency remains uncounted."
     }
   ],
   "references": [
