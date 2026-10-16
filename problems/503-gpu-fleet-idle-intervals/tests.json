@@ -1,0 +1,27 @@
+[
+  {
+    "name": "[Part 1] global busy union",
+    "input": "overlap across nodes and later gap",
+    "test": "tasks = [(1,4,'g0'), (3,6,'g1'), (8,9,'g0')]\nassert idle_intervals(tasks,0,10) == [(0,1), (6,8), (9,10)]"
+  },
+  {
+    "name": "[Part 1] clip and merge adjacent intervals",
+    "input": "unsorted, nested, adjacent, and outside-window tasks",
+    "test": "tasks = [(7,12,'c'),(-3,2,'a'),(2,5,'b'),(3,4,'a'),(20,21,'a')]\nbefore = list(tasks)\nassert idle_intervals(tasks,0,10) == [(5,7)]\nassert tasks == before"
+  },
+  {
+    "name": "[Part 1] empty and fully covered",
+    "input": "empty fleet and busy whole query",
+    "test": "assert idle_intervals([],2,7) == [(2,7)]\nassert idle_intervals([(0,10,'g')],2,7) == []\nassert idle_intervals([(0,2,'g'),(7,10,'g')],2,7) == [(2,7)]"
+  },
+  {
+    "name": "[Part 2] stream updates bridge earlier intervals",
+    "input": "out-of-order additions eventually merge busy range",
+    "test": "s = BusyTimeline()\nassert s.get_idle(0,10) == [(0,10)]\ns.add(5,7,'a')\ns.add(1,3,'b')\nassert s.get_idle(0,10) == [(0,1),(3,5),(7,10)]\ns.add(3,5,'c')\nassert s.get_idle(0,10) == [(0,1),(7,10)]\ns.add(2,6,'d')\nassert s.get_idle(2,6) == []\nassert s.get_idle(7,9) == [(7,9)]"
+  },
+  {
+    "name": "[Part 2] contained and repeated tasks",
+    "input": "nested interval does not change fleet coverage",
+    "test": "s = BusyTimeline()\ns.add(2,8,'a')\ns.add(3,4,'b')\ns.add(2,8,'c')\nassert s.get_idle(0,10) == [(0,2),(8,10)]\nassert s.get_idle(3,7) == []"
+  }
+]

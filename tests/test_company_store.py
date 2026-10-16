@@ -33,7 +33,7 @@ class CompanyStoreTest(unittest.TestCase):
 
         profiles = companies.list_companies(problems)
 
-        self.assertEqual(len(profiles), 23)
+        self.assertEqual(len(profiles), 24)
         self.assertEqual(
             {profile["name"] for profile in profiles},
             {
@@ -41,6 +41,7 @@ class CompanyStoreTest(unittest.TestCase):
                 "Airbnb",
                 "Anthropic",
                 "Faire",
+                "Fireworks AI",
                 "Glean",
                 "Google DeepMind",
                 "Hark",

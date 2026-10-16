@@ -1,0 +1,27 @@
+[
+  {
+    "name": "rank and normalize shared friends",
+    "input": "two candidates with different overlap",
+    "test": "g = {'a':['b','c'], 'b':['a','d','e'], 'c':['a','d'], 'd':['b','c'], 'e':['b']}\nassert recommend_friends(g, 'a', 2) == [('d', 2, 1.0), ('e', 1, 0.5)]"
+  },
+  {
+    "name": "exclude self and existing friends",
+    "input": "triangle plus a new two-hop candidate",
+    "test": "g = {'a':['b','c'], 'b':['a','c','d'], 'c':['a','b'], 'd':['b']}\nassert recommend_friends(g, 'a', 5) == [('d', 1, 0.5)]"
+  },
+  {
+    "name": "ties and top k",
+    "input": "equal counts use lexical candidate IDs",
+    "test": "g = {'a':['b'], 'b':['a','z','d'], 'z':['b'], 'd':['b']}\nassert recommend_friends(g, 'a', 1) == [('d', 1, 1.0)]"
+  },
+  {
+    "name": "deduplicate adjacency entries and preserve input",
+    "input": "duplicate friend names",
+    "test": "import copy\ng = {'a':['b','b','c'], 'b':['a','d','d'], 'c':['a','d'], 'd':['b','c']}\nbefore = copy.deepcopy(g)\nassert recommend_friends(g, 'a', 10) == [('d', 2, 1.0)]\nassert g == before"
+  },
+  {
+    "name": "no recommendations",
+    "input": "isolated user, no new two-hop user, and k=0",
+    "test": "assert recommend_friends({'a':[]}, 'a', 3) == []\ng = {'a':['b'], 'b':['a']}\nassert recommend_friends(g, 'a', 3) == []\nassert recommend_friends(g, 'a', 0) == []"
+  }
+]

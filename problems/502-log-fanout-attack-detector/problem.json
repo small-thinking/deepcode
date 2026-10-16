@@ -1,0 +1,57 @@
+{
+  "id": "502",
+  "slug": "log-fanout-attack-detector",
+  "title": "Detect Fan-Out Attacks in Timestamped Logs",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "sliding-window",
+    "logs",
+    "distinct-count",
+    "security"
+  ],
+  "companies": [
+    "Fireworks AI"
+  ],
+  "interview_frequency": {
+    "Fireworks AI": {
+      "stars": 1,
+      "source_record_ids": [
+        "3fb6ce51456d818c9c6eed1b4d2afa36"
+      ],
+      "synced_at": "2026-10-15"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-15"
+  },
+  "prompt": "Connection logs are available as a sequence of `(timestamp, source_ip, destination_ip)` tuples. Timestamps are integer seconds in nondecreasing order; IPs are strings. Multiple events may have the same timestamp.\n\nImplement `detect_fanout(events, window_seconds=600, max_destinations=10)`. For each event at time `t`, consider events from that source IP in the interval `(t - window_seconds, t]`, including the current event and only events processed so far. Emit `(t, source_ip)` if this window contains more than `max_destinations` distinct destination IPs. Repeated connections to the same destination count once. Return alerts in event order; emit an alert for every qualifying event, even when the source already triggered an earlier alert.\n\n`window_seconds` is a positive integer and `max_destinations` is a non-negative integer. An empty input returns an empty list. Avoid rescanning all earlier events for each new event, and do not modify the input.",
+  "references": [
+    {
+      "label": "Original interview report — General coding technical phone screen；不是已确认的 MLE/Research loop",
+      "url": "https://www.1point3acres.com/bbs/thread-1192501-1-1.html"
+    },
+    {
+      "label": "Canonical question and reconstruction notes",
+      "url": "https://app.notion.com/p/3fb6ce51456d818c9c6eed1b4d2afa36?pvs=204"
+    }
+  ],
+  "background_note": "原帖没有完整日志 schema、精确窗口边界或告警输出格式。练习版接受按时间排序的 (timestamp, source_ip, destination_ip)，使用 (t-window,t]，每个满足阈值的事件输出一次告警。阈值与窗口可参数化；它们是练习 API。",
+  "created_at": "2026-10-15",
+  "starter_code": "def detect_fanout(events, window_seconds=600, max_destinations=10):\n    pass\n",
+  "example": {
+    "input": "events = [(0,'s','a'), (1,'s','a'), (2,'s','b'), (3,'s','c')]; window_seconds=10; max_destinations=2",
+    "output": "[(3, 's')]",
+    "reasoning": "Only the last event brings the source above two distinct destinations."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  }
+}
