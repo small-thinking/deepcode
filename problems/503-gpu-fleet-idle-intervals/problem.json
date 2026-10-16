@@ -1,0 +1,57 @@
+{
+  "id": "503",
+  "slug": "gpu-fleet-idle-intervals",
+  "title": "GPU Fleet Idle Intervals and Streaming Updates",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "intervals",
+    "streaming",
+    "binary-search",
+    "multipart"
+  ],
+  "companies": [
+    "Fireworks AI"
+  ],
+  "interview_frequency": {
+    "Fireworks AI": {
+      "stars": 1,
+      "source_record_ids": [
+        "3fb6ce51456d81e58d1ce571aca500f5"
+      ],
+      "synced_at": "2026-10-15"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-15"
+  },
+  "prompt": "GPU tasks are tuples `(start, end, node_id)`, where start and end are integer timestamps with `start < end`. Each task occupies the half-open interval `[start, end)`. Tasks may arrive out of order or overlap, including on different nodes.\n\nFor this exercise, the fleet is idle only when no task is running on any node. `node_id` identifies the task's node but does not partition the idle-time query.\n\n### Part 1 — Batch idle intervals\n\nImplement `idle_intervals(tasks, query_start, query_end)`. Return the sorted, maximal half-open intervals within `[query_start, query_end)` during which the fleet is idle. `query_start < query_end`. Tasks outside the query window have no effect. Do not modify the input.\n\n### Part 2 — Streaming busy intervals\n\nImplement `BusyTimeline.add(start, end, node_id)` and `BusyTimeline.get_idle(query_start, query_end)`. Each add records another task. Keep a merged representation of busy intervals so repeated queries do not sort the full task history. Adjacent busy intervals may be merged. Explain update and query costs in terms of the number of merged intervals.",
+  "references": [
+    {
+      "label": "Original interview report — General SDE（作者明确说明）；GPU 场景不等于 ML coding",
+      "url": "https://www.1point3acres.com/bbs/thread-1159979-1-1.html"
+    },
+    {
+      "label": "Canonical question and reconstruction notes",
+      "url": "https://app.notion.com/p/3fb6ce51456d81e58d1ce571aca500f5?pvs=204"
+    }
+  ],
+  "background_note": "原帖对逐节点还是整个集群空闲存在未解读者提问。练习版明确采用全局无人运行任务的空闲，所有区间半开 [start,end)，并显式给查询窗口；node_id 是来源信息。未声称这些边界来自面试官。",
+  "created_at": "2026-10-15",
+  "starter_code": "def idle_intervals(tasks, query_start, query_end):\n    pass\n\n\nclass BusyTimeline:\n    def add(self, start, end, node_id):\n        pass\n\n    def get_idle(self, query_start, query_end):\n        pass\n",
+  "example": {
+    "input": "tasks=[(1,4,'g0'), (3,6,'g1'), (8,9,'g0')]; query=[0,10)",
+    "output": "[(0, 1), (6, 8), (9, 10)]",
+    "reasoning": "Any active task makes the fleet busy; overlapping work on different nodes forms one busy interval."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "501",
+  "slug": "mutual-friend-recommendation-scores",
+  "title": "Mutual-Friend Recommendations and Bounded Scores",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "graph",
+    "recommendation",
+    "ranking",
+    "normalization"
+  ],
+  "companies": [
+    "Fireworks AI"
+  ],
+  "interview_frequency": {
+    "Fireworks AI": {
+      "stars": 1,
+      "source_record_ids": [
+        "3fb6ce51456d811a901ef62ee725534d"
+      ],
+      "synced_at": "2026-10-15"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-15"
+  },
+  "prompt": "A friendship graph maps each string user ID to a collection of direct friends. Edges are undirected, there are no self-edges, and every referenced user appears as a key. Duplicate entries in an adjacency collection represent the same friendship.\n\nImplement `recommend_friends(graph, user, k)`. Consider users connected to `user` through at least one mutual friend. Exclude `user` and all current direct friends. Return at most `k` tuples `(candidate_id, mutual_count, score)`, sorted by descending mutual count, then lexicographic candidate ID.\n\nFor this exercise, `score = mutual_count / number_of_direct_friends_of_user`. Each score must be in [0,1]. Return an empty list if there are no eligible candidates, the user has no friends, or `k == 0`. Assume `user` exists and `k` is a non-negative integer. Do not modify the input graph.",
+  "references": [
+    {
+      "label": "Original interview report — Applied MLE onsite AI coding",
+      "url": "https://www.1point3acres.com/bbs/thread-1189232-1-1.html"
+    },
+    {
+      "label": "Canonical question and reconstruction notes",
+      "url": "https://app.notion.com/p/3fb6ce51456d811a901ef62ee725534d?pvs=204"
+    }
+  ],
+  "background_note": "原帖没有规定唯一归一化公式、输入格式或排序规则。练习版约定无向图，按共同好友数排序，再按 ID 打破平局；score = 共同好友数 / 目标用户好友数。NDCG 是作者讨论中的不明确提及，未确认为面试硬性子题，不单独拆题。",
+  "created_at": "2026-10-15",
+  "starter_code": "def recommend_friends(graph, user, k):\n    pass\n",
+  "example": {
+    "input": "graph = {'a':['b','c'], 'b':['a','d','e'], 'c':['a','d'], 'd':['b','c'], 'e':['b']}; user='a'; k=2",
+    "output": "[('d', 2, 1.0), ('e', 1, 0.5)]",
+    "reasoning": "d shares both of a’s friends; e shares only b."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  }
+}

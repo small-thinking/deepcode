@@ -1,0 +1,50 @@
+{
+  "id": "504",
+  "slug": "multi-model-llm-serving",
+  "title": "Design Multi-Model LLM Serving and Weight Rollouts",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "llm-serving",
+    "load-balancing",
+    "model-distribution",
+    "autoscaling",
+    "reliability"
+  ],
+  "companies": [
+    "Fireworks AI"
+  ],
+  "interview_frequency": {
+    "Fireworks AI": {
+      "stars": 1,
+      "source_record_ids": [
+        "3fb6ce51456d813c83cfef814ebb7cd8"
+      ],
+      "synced_at": "2026-10-15"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-15"
+  },
+  "prompt": "Design a large-scale LLM serving system that supports multiple models and request types. The system must distribute new model weights quickly across a large cluster and balance requests across serving capacity.\n\nExplain how you would handle model placement, request routing, load balancing, and weight updates while keeping the service reliable. Discuss failure recovery, monitoring, and autoscaling. Start by clarifying the workloads and performance goals you need; no traffic scale or latency target has been fixed.",
+  "references": [
+    {
+      "label": "Original interview report — MLE / ML Infra system design",
+      "url": "https://www.1point3acres.com/bbs/thread-1147172-1-1.html"
+    },
+    {
+      "label": "Canonical question and reconstruction notes",
+      "url": "https://app.notion.com/p/3fb6ce51456d813c83cfef814ebb7cd8?pvs=204"
+    }
+  ],
+  "background_note": "原帖没有固定流量、延迟、集群规模或唯一架构。参考答案中的路由、缓存、分阶段 rollout 与评估方法是准备性展开。它与已有仅关注 deadline scheduling、权重分发或 rollout control plane 的练习范围不同。",
+  "created_at": "2026-10-15",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Clarify workloads and goals, then trace a request and a model update end to end.",
+    "reference_answer": "## Clarify the workload and contracts\n\nSeparate interactive streaming requests from asynchronous batch work. Ask about model sizes, version churn, context/output lengths, accelerator types, tenants, regional constraints, and which latency or throughput goals matter. Measure queue time, time to first token, inter-token latency, completion time, and tokens per second independently. Establish admission, cancellation, timeout, and streaming-retry behavior before sizing the fleet. Start with a single region and a few model pools, then justify broader placement.\n\n## Request path and placement\n\nA gateway authenticates requests, applies tenant quotas, assigns a request ID, and resolves the requested model/version. A router selects a healthy compatible pool using loaded model versions, queue depth, estimated prefill/decode work, KV-cache pressure, and capacity headroom. Preserve locality for reusable model and prompt caches without letting it overload one worker. Within a pool, continuous batching can improve utilization; bound batch delay for interactive traffic and give batch work separate quotas or pools to prevent starvation.\n\nKeep a model registry with immutable artifacts, checksums, tokenizer/runtime compatibility, and version status. A placement controller assigns replicas to accelerator pools that fit weights, expected KV cache, parallelism, and failure-domain requirements. Do not load a large cold model on every request. For long-tail models, choose explicitly between a warm minimum, bounded cold-start admission, and a shared pool. Use observed demand and loading time to make that trade-off.\n\n## Fast weight distribution and safe activation\n\nStore artifacts in durable object storage and stage them through regional/node caches. Transfer shards in parallel with bounded concurrency and bandwidth budgets, reusing cached content where possible. Background loading and prewarming keep distribution out of the request path. Verify checksums, tokenizer and serving-build compatibility, readiness, and a small inference smoke test before a replica advertises a new version. Avoid a fleet-wide download storm and reserve enough memory or spare capacity to keep the old version available.\n\nSeparate artifact availability from traffic activation. Canary a version on a bounded cohort, compare correctness/quality and serving metrics against the old version, then expand traffic in stages. Let existing streams finish on their pinned version while new requests move. Stop promotion and route back if gates fail; retain the old artifacts and replicas until rollback is no longer needed. Under tight GPU memory, discuss smaller staged pools versus simultaneous residency.\n\n## Failures and scaling\n\nUse worker health and readiness leases, bounded queues, backpressure, and per-pool circuit breakers. Remove failed replicas promptly. Retry only when request semantics allow it: after output has streamed, a blind retry can duplicate or contradict output. A registry/control-plane outage should leave already loaded healthy replicas serving their last approved configuration. Spread replicas across failure domains and keep a measured reserve for failures and rollouts.\n\nScale from demand and saturation signals: queue delay, estimated outstanding tokens, prefill/decode throughput, memory/KV-cache pressure, and SLO misses. GPU utilization alone can hide memory limits and batching delays. Account for model-download and warmup delay; forecast or prewarm predictable bursts. Drain long streams before scale-in, keep a minimum for important models, and constrain autoscaling by available accelerators and tenant budgets.\n\n## Validate and operate\n\nReplay representative short/long-context and interactive/batch mixes. Measure tail latency, throughput, error/cancellation rate, cost per completed request, cache behavior, and quality on fixed model/evaluation versions. Test a worker loss, a regional cache outage, a rollout with bad weights, a cold-model burst, and control-plane loss. Check that traffic stays bounded, active streams have a defined failure outcome, and rollback works under realistic load. Trace request, model version, pool, hardware, and rollout generation so load, artifact, and software regressions can be distinguished.\n\n## Provenance\n\nThe candidate report names multi-model/request serving, fast cluster-wide weight updates, balancing, fault tolerance, monitoring, and autoscaling. The detailed architecture and validation plan above are a study reference; the report specifies no fixed scale, latency numbers, or required architecture."
+  }
+}
