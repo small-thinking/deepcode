@@ -1,0 +1,58 @@
+{
+  "id": "506",
+  "slug": "financial-sql-filings-agentic-rag",
+  "title": "Financial SQL and Filing Agentic RAG Take-Home",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": [
+    "agentic-rag",
+    "sql",
+    "document-retrieval",
+    "evaluation",
+    "take-home"
+  ],
+  "companies": [
+    "Fireworks AI"
+  ],
+  "interview_frequency": {
+    "Fireworks AI": {
+      "stars": 0,
+      "source_record_ids": [
+        "3fb6ce51456d8186abdccc27a3835d23"
+      ],
+      "synced_at": "2026-10-15"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-15"
+  },
+  "prompt": "Build a local research assistant that answers financial-analysis questions using both structured financial tables in SQLite and annual-report PDFs. Assume the local input bundle contains six filings covering three firms over two fiscal years, plus ten development questions with reference answers.\n\nThe assistant should choose SQL, document retrieval, or a combination, support questions requiring several steps, and make the evidence for its answers inspectable. Provide an interactive entry point and a question-answering HTTP endpoint. Evaluate the implementation against the development set and explain its remaining failures and the trade-offs around model choice, latency, cost, and reliability.\n\nPrepare a runnable implementation, setup instructions, captured evaluation outputs, and a short technical report. Use this written workspace to record the approach, implementation/run instructions, evidence, and conclusions. Data preparation, model access, and execution take place in your local development environment.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Record requirements, implementation/run instructions, evaluation evidence, and trade-offs.",
+    "reference_answer": "## Define the data contract first\n\nInventory the financial schema and document metadata before designing an agent. Identify company, fiscal period, currency, unit scale, reporting basis, and where each value originates. Distinguish a fiscal year from a publication date and a consolidated total from a segment total. Decide how missing values, conflicting sources, and absent evidence should be surfaced. Keep the original question alongside a normalized query plan so the answer remains auditable.\n\n## Build a small complete path\n\nStart with a reliable SQL-only lookup and a document-only retrieval question, then add a mixed question that needs both. The SQL tool should expose the real schema and foreign keys, execute through a read-only connection, return structured rows and provenance, and enforce sensible query/response budgets. Document chunks should retain document identity, company, year, section, and page information. Inspect extraction quality for tables and headings; retrieval cannot recover facts that were lost during parsing.\n\nUse a bounded planner or tool-calling loop to decide the next necessary lookup. An explicit routing rule can be a useful baseline for straightforward questions; justify a more flexible agent when it solves failures the baseline cannot. Avoid searching every PDF and querying every table for every question. Filter by the requested entity and period where appropriate, retrieve a small evidence set, and expand only when the current evidence is insufficient.\n\n## Combine evidence and calculate carefully\n\nKeep exact numerical computations in deterministic code or SQL. For a question combining a financial change and a narrative explanation, first resolve the requested periods and quantities, calculate the change with an explicit denominator and unit, then retrieve the relevant explanation from the matching filings. Cite the numerical source and the textual source separately. A citation must support the associated claim; attaching an unrelated page does not make an answer grounded. If the evidence supports several interpretations, state that uncertainty instead of filling it with a plausible explanation.\n\nReturn an answer plus enough trace information to inspect the tool calls and supporting material. Choose a compact interface and a stable request/response contract. Test empty retrieval, failed queries, interrupted tool calls, and questions whose answer is absent. A bounded retry or repair can help recover a concrete error; a long uncontrolled loop increases latency and obscures the failure.\n\n## Evaluate behavior rather than polish\n\nCreate a baseline before optimizing. Measure development-set correctness with result-aware checks for numerical answers, plus citation support and coverage for narrative answers. A model judge can assist with selected narrative criteria, but inspect examples and calibrate it against human review. Add a separate small set of validation cases covering different entities/periods, mixed-source reasoning, ambiguous questions, and unavailable information. Keep model, prompt, index, dataset, and evaluator versions with the outputs.\n\nFor each failure, separate parsing/data problems, routing errors, wrong SQL, retrieval misses, arithmetic errors, unsupported synthesis, and interface failures. This makes a targeted change easier to evaluate. Report the small development set's limits; a high score there alone does not establish generalization to hidden questions.\n\n## Explain the operational trade-offs\n\nMeasure end-to-end latency, tool/model call counts, token usage, and failure rates on the same question mix. Break down retrieval, SQL, and generation time before optimizing. Compare model choices on quality and measured work, then consider shorter context, better retrieval, fewer unnecessary calls, and caching that respects data/model versions. Give exact local run steps, disclose the data and model assumptions, demonstrate one mixed-source question, and explain the next improvement supported by the observed failures.\n\n## Evidence boundary\n\nSeveral public candidate repositories present the same Applied MLE assignment template alongside different submissions. They support this assignment family and its broad deliverables. Employer publication, candidate outcomes, and independently countable interview events remain unverified. This reference is an original study approach; source code, assignment wording, datasets, and answer keys are supplied through the candidate's own local preparation. DeepCode's written workspace records the work and does not automatically grade the external implementation."
+  },
+  "background_note": "Applied Machine Learning Engineer (candidate-published take-home artifacts). Public candidate artifacts corroborate one assignment family across multiple repositories. Interview-event attribution is unresolved, so this exercise has no counted frequency signal. The prompt and reference are independently paraphrased/authored; source code and original assignment assets are not bundled. Use the written workspace to document a locally implemented take-home.",
+  "references": [
+    {
+      "label": "Vinay candidate submission",
+      "url": "https://github.com/VinayJogani14/fireworks-rag-agent"
+    },
+    {
+      "label": "Ishan candidate submission",
+      "url": "https://github.com/Ishan23/agentic-rag-10k-analysis"
+    },
+    {
+      "label": "Candidate assessment and submission archive",
+      "url": "https://github.com/tsrinarmwong/fireworks-interview-archive"
+    },
+    {
+      "label": "Canonical source cross-check and reconstruction notes",
+      "url": "https://app.notion.com/p/3fb6ce51456d8186abdccc27a3835d23?pvs=204"
+    }
+  ],
+  "created_at": "2026-10-15"
+}

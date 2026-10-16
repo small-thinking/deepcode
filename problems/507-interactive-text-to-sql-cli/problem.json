@@ -1,0 +1,54 @@
+{
+  "id": "507",
+  "slug": "interactive-text-to-sql-cli",
+  "title": "Interactive Text-to-SQL CLI Take-Home",
+  "category": "ML Coding",
+  "difficulty": "hard",
+  "tags": [
+    "text-to-sql",
+    "sqlite",
+    "agent",
+    "evaluation",
+    "take-home"
+  ],
+  "companies": [
+    "Fireworks AI"
+  ],
+  "interview_frequency": {
+    "Fireworks AI": {
+      "stars": 0,
+      "source_record_ids": [
+        "3fb6ce51456d81218e2ad1f77d859eab"
+      ],
+      "synced_at": "2026-10-15"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 0,
+    "synced_at": "2026-10-15"
+  },
+  "prompt": "Build an interactive terminal assistant that translates natural-language questions into SQL over a local Chinook SQLite music-store database. Show the generated SQL and query results, support follow-up questions that refine an earlier request, and provide a clean way to end the session.\n\nA customer's simple prompt-based prototype produces nonexistent columns, incorrect joins, and wrong answers. Improve the quality and demonstrate how you validated the result. Assume ten development questions with reference SQL/results are available locally. Treat an end-to-end P50 below three seconds as a target to measure, and analyze operating cost at roughly 30,000 queries per day.\n\nDeliver runnable code and setup instructions, development-set outputs, and a customer-facing draft explaining validation, trade-offs, limitations, and next steps. Use this written workspace for implementation/run instructions and evidence; run the CLI, database, models, and evaluation in your local environment.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Record requirements, implementation/run instructions, evaluation evidence, and trade-offs.",
+    "reference_answer": "## Start with observable success\n\nDefine a correct result and the timing boundary before choosing a model. A request succeeds when the generated query answers the intended question over the actual schema and the displayed result preserves the relevant meaning. Measure latency from submission to displayed SQL and results, including model calls, repairs, database execution, and formatting. Compare a simple baseline on the same data and question set. The stated P50 target is a goal for the experiment, not an assumed property of an architecture.\n\n## Ground generation in the database\n\nInspect the schema, primary/foreign keys, and representative values. For a small schema, supplying the relevant schema directly is a reasonable baseline; for a larger schema, evaluate a schema-selection step against its added latency and risk of excluding a necessary table. Make units, date representations, and ambiguous entity names explicit. Ask for clarification when plausible interpretations would produce materially different queries.\n\nGenerate a structured query proposal and validate it before execution. Use a read-only database connection, bounded execution time and output size, and query validation appropriate to the SQL features you allow. A naive string-prefix check is insufficient for a general SQL interface. Keep credentials and database access outside the model's free-form output. Return the SQL and rows with a clear explanation of what was executed.\n\n## Handle failures and follow-ups\n\nDistinguish generation failures, SQL execution errors, empty results, and semantically wrong results. A bounded repair attempt can use a concrete database error plus the real schema; successful execution still does not prove that the question was answered correctly. Preserve the recent question and relevant semantic context for follow-ups such as a date restriction or grouping change, then generate and validate a fresh query. Offer a reset and exit path and make failure outcomes visible rather than fabricating a table of results.\n\n## Validate results, not identical SQL strings\n\nExecute the reference and generated queries against a fixed database snapshot. Compare the result semantics: ignore row order only when the question has no ordering requirement, handle specified numerical precision, and preserve required columns, grouping, limits, and tie behavior. Include independent cases beyond the public development set, especially joins, aggregates, ambiguous names, multi-turn refinements, unavailable information, and invalid query proposals. Record which failure class each test exposes.\n\nShow representative traces and a compact table of correctness, P50/P95 end-to-end latency, model calls, retries, and token use. Separate cold and warm conditions and state the sample size. Do not generalize a small warm development run to concurrent production traffic. Explain which additional load or quality tests would support a launch decision.\n\n## Improve latency and account for cost\n\nProfile before adding an agent loop. Compare a few model/prompt configurations on a fixed workload, bound output length and repair attempts, and evaluate whether stable schema context or repeated requests benefit from caching. Include the quality impact of each optimization. Keep dynamic conversation content separate from reusable context where the model/API supports it, and measure rather than assume a cache hit.\n\nEstimate daily cost using measured input/output tokens, call and retry rates, and the pricing chosen for the experiment: daily queries multiplied by mean cost per completed query. Report cached and uncached work separately where relevant. Keep a failed request in the denominator when assessing operating cost; reporting only successful cheap cases hides production expense.\n\n## Communicate the result\n\nThe customer draft should explain what runs, the validation evidence, measured limitations, estimated operating cost under stated assumptions, and the next focused experiment. Keep measured outcomes separate from projections. Offer a reproducible demonstration and a short explanation of how a wrong result can be investigated.\n\n## Evidence boundary\n\nTwo candidate repositories publish a common AI Field Engineer assignment brief and different implementations. These support the task family and its declared performance/cost scenario; they do not establish employer publication or verified interview-event frequency. The reference above is an original approach. The database/model setup and external implementation are prepared locally, and the written workspace has no automatic grading harness."
+  },
+  "background_note": "AI Field Engineer (candidate-published take-home artifacts). Public candidate artifacts corroborate one assignment family across multiple repositories. Interview-event attribution is unresolved, so this exercise has no counted frequency signal. The prompt and reference are independently paraphrased/authored; source code and original assignment assets are not bundled. Use the written workspace to document a locally implemented take-home.",
+  "references": [
+    {
+      "label": "Allison candidate materials and implementation",
+      "url": "https://github.com/allisonbaker1984-hue/fireworks_takehome_test"
+    },
+    {
+      "label": "Mike candidate submission and original-brief section",
+      "url": "https://github.com/mikewangfangxing/take-home/blob/master/README.md"
+    },
+    {
+      "label": "Canonical source cross-check and reconstruction notes",
+      "url": "https://app.notion.com/p/3fb6ce51456d81218e2ad1f77d859eab?pvs=204"
+    }
+  ],
+  "created_at": "2026-10-15"
+}
