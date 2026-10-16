@@ -1,0 +1,32 @@
+[
+  {
+    "name": "two valid segmentations",
+    "input": "s='catsanddog', word_dict=['cat','cats','and','sand','dog']",
+    "test": "print(word_break_sentences('catsanddog', ['cat', 'cats', 'and', 'sand', 'dog']))",
+    "expected_output": "['cat sand dog', 'cats and dog']"
+  },
+  {
+    "name": "word reuse and three paths",
+    "input": "s='pineapplepenapple', word_dict=['apple','pen','applepen','pine','pineapple']",
+    "test": "print(word_break_sentences('pineapplepenapple', ['apple', 'pen', 'applepen', 'pine', 'pineapple']))",
+    "expected_output": "['pine apple pen apple', 'pine applepen apple', 'pineapple pen apple']"
+  },
+  {
+    "name": "reuse one dictionary word",
+    "input": "s='aaaa', word_dict=['a','aa']",
+    "test": "print(word_break_sentences('aaaa', ['a', 'aa']))",
+    "expected_output": "['a a a a', 'a a aa', 'a aa a', 'aa a a', 'aa aa']"
+  },
+  {
+    "name": "no complete segmentation",
+    "input": "s='catsandog', word_dict=['cats','dog','sand','and','cat']",
+    "test": "print(word_break_sentences('catsandog', ['cats', 'dog', 'sand', 'and', 'cat']))",
+    "expected_output": "[]"
+  },
+  {
+    "name": "duplicate dictionary entries do not duplicate sentences",
+    "input": "s='ab', word_dict=['a','b','a','ab']",
+    "test": "print(word_break_sentences('ab', ['a', 'b', 'a', 'ab']))",
+    "expected_output": "['a b', 'ab']"
+  }
+]

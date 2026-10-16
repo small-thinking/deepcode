@@ -1,0 +1,44 @@
+{
+  "id": "510",
+  "slug": "iphone-app-recommendation",
+  "title": "Design iPhone App Recommendations",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "recommendation",
+    "ranking",
+    "evaluation",
+    "personalization"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Design a system that recommends apps to a user when they open their iPhone.\n\nClarify the recommendation surface and which apps are eligible. Explain the learning objective, training data, modeling and serving flow, and how you would evaluate whether the recommendations help users.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions, then explain your decisions and how you would validate them.",
+    "reference_answer": "## Clarify the product\n\nThe report specifies only iPhone app recommendations on entering/opening the phone. It does not specify the UI, installed versus downloadable apps, scale, or success metric. The design below is one preparation approach; confirm these assumptions first.\n\nChoose a concrete surface, such as a small list of installed apps. Distinguish predicting the next useful app from maximizing launches: a redundant launch or an unwanted interruption need not help the user. Confirm what context may be collected, what must remain on device, and the serving budget.\n\n## Data and a baseline\n\nLog eligible candidates, impressions, opens, time-to-open, and dismissals with event time and policy version. An unshown app is not an observed rejection. Exposure and position bias make historical logs an imperfect measure of relevance.\n\nStart with recent and frequent use conditioned on time of day. Define examples at recommendation opportunities and a prediction horizon. Join only information available at that moment; split by time and evaluate new versus established users separately. Obtain consent and minimize retention for sensitive context.\n\n## Model and serving flow\n\nFor a small installed-app set, score all eligible apps before adding retrieval complexity. Use user-app history, recency, time context, and app metadata in a compact ranker. A larger discovery catalog may justify candidate retrieval followed by ranking. Include cold-start fallbacks and evaluate diversity or repeated exposure when it serves the product goal.\n\nKeep offline training and versioned model delivery separate from the request path. A device can combine local history with a small downloaded model; a server can supply broader catalog features when permitted. Compare privacy, freshness, battery, model size, and latency before choosing the split. Fall back to a cached list or the baseline when context or model execution is unavailable.\n\n## Evaluation and iteration\n\nMeasure candidate recall if retrieval is used, ranking quality, calibration where appropriate, and latency. Inspect slices for sparse histories, changing routines, and cold starts. Temporal holdouts reduce leakage but do not remove exposure bias.\n\nRun a controlled online experiment around task utility, with guardrails for interruption, unwanted launches, privacy, and battery. Log enough to separate model changes from UI or eligibility changes. Monitor drift and rollback by model/policy version. Do not claim that an offline gain alone proves better recommendations."
+  },
+  "references": [
+    {
+      "label": "Original MLE / ML infrastructure onsite report",
+      "url": "https://www.1point3acres.com/interview/thread/1131055"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d81598417dac278e3716f"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-16"
+  }
+}

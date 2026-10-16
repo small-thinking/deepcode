@@ -1,0 +1,58 @@
+{
+  "id": "517",
+  "slug": "restaurant-review-keyword-search",
+  "title": "Design Restaurant Review Keyword Search (SWE Supplement)",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "search",
+    "inverted-index",
+    "intersection",
+    "pagination",
+    "swe-supplement"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Design search over about 100 million reviews, each containing roughly ten words. A user supplies a query, and the service returns reviews containing every query word.\n\nClarify matching semantics, result ordering, pagination, freshness and latency. Explain the storage and query path, scale bottlenecks, and how you would validate correctness and performance.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Clarify the product contract, then explain your architecture, trade-offs and validation.",
+    "reference_answer": "## Define the query contract\n\nThe detailed report gives the review count, approximate review length, and all-query-words matching. It does not require an exact contiguous phrase, ranking model, latency target, or update rate. Clarify normalization, token boundaries, repeated query words, and whether the service is read-only. Treat ordered phrase matching as a separate requirement that would need positions.\n\n## Build the index\n\nStore reviews by stable review ID and build an inverted index from each normalized term to a sorted posting list of matching IDs. Within a review, a word contributes one review ID regardless of repetition. A document store holds the text; the index is a serving representation that can be rebuilt.\n\nTokenization at indexing and querying must agree. Maintain document frequency for query planning. Compress sorted postings with delta encoding or use bitmaps when density makes them efficient. Estimate index size from token occurrences and vocabulary rather than assuming the raw text size equals index size.\n\n## Serve a query\n\nNormalize and deduplicate query terms, then retrieve their postings. A missing required term produces no results. Intersect the smallest lists first and use skip pointers, galloping intersection, or bitmap operations as appropriate. Fetch only a bounded result page from the document store.\n\nA common term can match enormous numbers of reviews. Use bounded pages and explicit order; for a fixed review-ID order, a cursor should include the last ID and a consistent index generation. Avoid materializing all matches just to serve the first page. Relevance ranking changes the retrieval and pagination contract and should be justified separately.\n\n## Distribute and update\n\nDocument-partitioned shards can execute the whole query locally and merge bounded results. Term-partitioned shards can reduce duplicate index metadata but require transferring large posting lists for common terms. Compare those costs using the actual query distribution before choosing.\n\nFor changing reviews, publish versioned updates and tombstones so deletion takes effect without waiting for full compaction. If the workload is read-only, immutable index generations simplify serving and pagination. Replicas protect availability; route requests with deadlines and reject or degrade expensive queries under load.\n\n## Validate\n\nCompare small-index results against a direct scan. Include missing terms, repeated terms, punctuation/case policy, multiword queries, and updates/deletions if supported. Load-test common versus rare terms and inspect posting bytes read, candidate counts, cache hit rates, tail latency and pagination consistency. These are preparation checks, not additional reported interview constraints."
+  },
+  "background_note": "The primary SWE report specifies roughly 100 million short reviews and conjunctive word matching. Other SWE reports corroborate restaurant-review search without these exact scale assumptions. Phrase matching, ranking, and freshness remain questions to clarify; this is not confirmed MLE evidence. The public June 2026 Staff SWE version explicitly says read-only and gives an English vocabulary assumption; these remain version-specific rather than universal requirements.",
+  "references": [
+    {
+      "label": "Original SWE phone report \u2014 review scale and query example",
+      "url": "https://www.1point3acres.com/interview/thread/1102074"
+    },
+    {
+      "label": "Independent SWE onsite report \u2014 restaurant-review query design",
+      "url": "https://www.1point3acres.com/interview/thread/1191642"
+    },
+    {
+      "label": "Earlier SWE report \u2014 keyword search over reviews",
+      "url": "https://www.1point3acres.com/interview/thread/1036106"
+    },
+    {
+      "label": "Public Staff SWE report \u2014 read-only 100M-review conjunctive search",
+      "url": "https://interviewexperiences.in/experience/moveworks/moveworks-service-now-staff-software-engineer-bangalore-june-2026"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d81bdaec7c8b885e5b60c"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-16"
+  }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "pattern filtering and alphabetical tie-break",
+    "input": "pattern='_a_', guessed={'a'}, words=['bat', 'bar', 'cat', 'can', 'ant', 'a']",
+    "test": "print(next_hangman_letter('_a_', {'a'}, ['bat', 'bar', 'cat', 'can', 'ant', 'a']))",
+    "expected_output": "b"
+  },
+  {
+    "name": "exclude words containing incorrect guesses",
+    "input": "pattern='____', guessed={'a', 'x'}, words=['able', 'bent', 'bold', 'xxxy']",
+    "test": "print(next_hangman_letter('____', {'a', 'x'}, ['able', 'bent', 'bold', 'xxxy']))",
+    "expected_output": "b"
+  },
+  {
+    "name": "candidate-word count outranks raw frequency",
+    "input": "pattern='____', guessed=set(), words=['aaaa', 'bxxx', 'byyy']",
+    "test": "print(next_hangman_letter('____', set(), ['aaaa', 'bxxx', 'byyy']))",
+    "expected_output": "b"
+  },
+  {
+    "name": "total occurrence count breaks the next tie",
+    "input": "pattern='____', guessed=set(), words=['aaaa', 'bccd', 'bccc']",
+    "test": "print(next_hangman_letter('____', set(), ['aaaa', 'bccd', 'bccc']))",
+    "expected_output": "c"
+  },
+  {
+    "name": "repeated correct letters are already revealed",
+    "input": "pattern='a__a', guessed={'a'}, words=['abca', 'abda', 'acaa', 'bbca']",
+    "test": "print(next_hangman_letter('a__a', {'a'}, ['abca', 'abda', 'acaa', 'bbca']))",
+    "expected_output": "b"
+  },
+  {
+    "name": "alphabetical tie-break",
+    "input": "pattern='__', guessed=set(), words=['ab', 'cd']",
+    "test": "print(next_hangman_letter('__', set(), ['ab', 'cd']))",
+    "expected_output": "a"
+  },
+  {
+    "name": "solved word has no unguessed letter",
+    "input": "pattern='cat', guessed={'c', 'a', 't'}, words=['cat', 'cut', 'bat']",
+    "test": "print(repr(next_hangman_letter('cat', {'c', 'a', 't'}, ['cat', 'cut', 'bat'])))",
+    "expected_output": "''"
+  },
+  {
+    "name": "no eligible candidate",
+    "input": "pattern='____', guessed={'a', 'x'}, words=['able', 'xxxx']",
+    "test": "print(repr(next_hangman_letter('____', {'a', 'x'}, ['able', 'xxxx'])))",
+    "expected_output": "''"
+  }
+]

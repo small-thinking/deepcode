@@ -1,0 +1,47 @@
+{
+  "id": "518",
+  "slug": "document-scoped-assistant-product",
+  "title": "Design a Document-Scoped Assistant Product (SWE Supplement)",
+  "category": "ML System Design",
+  "difficulty": "medium",
+  "tags": [
+    "agents",
+    "documents",
+    "rag",
+    "configuration",
+    "evaluation",
+    "swe-supplement"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Design a product where a user configures an assistant with access to a selected set of documents. Cover the user interaction, underlying architecture, deployment and operation in production.\n\nClarify what the assistant should do, how document selection and permissions work, and how users can tell whether it is ready and producing useful results.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Clarify the product contract, then explain your architecture, trade-offs and validation.",
+    "reference_answer": "## Clarify the assistant's job\n\nThe source screenshot asks for a user-configurable assistant with access to documents and covers interaction, architecture, deployment and operations. It does not mandate a retrieval algorithm, a model, citations, scale, or an autonomous action loop. The following uses document-grounded question answering as one explicit product choice.\n\n## User and configuration flow\n\nLet an owner create an assistant, attach authorized documents or collections, see processing status, test questions, and publish a version to an allowed audience. Separate draft configuration from the active version. Explain empty-corpus behavior, unsupported files, processing failures, document removal, and who can change or share the assistant.\n\nDocument membership is not sufficient authorization: every request must check the caller's access to the assistant and to the underlying documents. Copying a document into an assistant must not silently broaden access. A revoked document should stop being usable before physical index cleanup finishes.\n\n## Architecture and data flow\n\nA configuration service stores assistant identity, corpus membership, policy and version. Object storage preserves source versions. An asynchronous ingestion path extracts text, chunks it, builds lexical/vector representations when useful, and exposes visible job status. The online service resolves the active configuration and authorized corpus before retrieval, context construction and generation.\n\nFor simple questions, a bounded retrieval-and-answer path may be sufficient; add planning or tool calls only for requirements that need them. Persist source/version provenance so an answer can expose the evidence used. Prompt content and retrieved documents are untrusted data, not authority to change access or tool policy.\n\n## Readiness and change semantics\n\nDistinguish configuration published, documents ingested, and index generation searchable. Decide whether publication waits for all required documents or permits a visibly partial corpus. Pin a consistent configuration/index snapshot for a request. Updates, removals, rollback and cache keys must account for corpus and permission changes.\n\n## Quality and operation\n\nBuild representative questions with evidence labels, including unanswerable and access-denied cases. Measure retrieval coverage, answer support, useful abstention, permission isolation, end-to-end task success, latency and cost. A citation alone does not establish correctness.\n\nDeploy model, prompt, retrieval and configuration changes with versions and canaries. Monitor ingestion lag/failures, query errors, quality slices, token use, expensive loops and denied-access attempts. Offer a fallback when generation is unavailable and a clear indication when the corpus is not ready. Preserve redacted traces for diagnosis. These choices are preparation guidance rather than reported follow-ups."
+  },
+  "background_note": "The original prompt was visually read from a SWE onsite screenshot. Document-grounded question answering, citations, RAG components and configuration-version details in the reference are a proposed design, not source requirements. This product/configuration lifecycle question is kept separate from component-focused generic RAG and internal-search-agent exercises.",
+  "references": [
+    {
+      "label": "Original SWE onsite screenshot \u2014 configurable document assistant",
+      "url": "https://www.1point3acres.com/interview/thread/1155932"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d81439a8cc8749fdc013c"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-16"
+  }
+}

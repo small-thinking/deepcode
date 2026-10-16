@@ -1,0 +1,45 @@
+{
+  "id": "511",
+  "slug": "llm-provider-routing-layer",
+  "title": "Design a Shared LLM Provider Routing Layer",
+  "category": "System Design",
+  "difficulty": "medium",
+  "tags": [
+    "llm",
+    "routing",
+    "reliability",
+    "multi-tenant",
+    "streaming"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Multiple internal services depend on LLMs from different providers. Design a shared layer that routes their requests to those providers.\n\nClarify the client contract and routing goals. Explain the request path, provider integration, failure handling, isolation, and how you would safely change routing decisions.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions, then explain your decisions and how you would validate them.",
+    "reference_answer": "## Scope and contract\n\nThe source reports a shared routing layer between internal LLM services and providers. It does not prescribe a routing algorithm, quota, pricing, or SLA. The following are design choices to discuss.\n\nAsk which capabilities are required: streaming, structured output, tool calling, context limits, and model versions. Establish quality, latency, cost, data-residency, and availability goals by caller. Preserve provider-specific features through an explicit capability contract rather than silently ignoring them.\n\n## Request path\n\nAuthenticate the calling service and authorize its tenant and permitted models. Validate the request, attach a deadline and trace ID, and apply admission control. The policy first filters endpoints by capabilities, data boundaries, and availability; it then chooses among eligible endpoints using the caller's quality and resource objectives.\n\nA versioned policy service supplies routing configuration. Provider adapters translate requests and normalize errors without hiding important semantic differences. Return the selected provider/model/version in diagnostic metadata. Keep secrets outside request logs and redact prompt content by default.\n\n## Isolation and load\n\nBudget requests, tokens, and concurrency per caller and provider. Token reservations can be reconciled with actual usage; request counts alone do not represent load. Use bounded queues with deadlines, fair scheduling, and backpressure so one caller cannot consume the whole service. Health signals and circuit breakers should be scoped to the failing endpoint or capability.\n\n## Failure semantics\n\nPropagate deadlines and cancellation. Retry only eligible transient failures within a bounded budget, using backoff and jitter. A timeout may mean a provider completed a billable call; an internal request ID does not automatically make provider execution idempotent.\n\nFor a non-streaming response, a compatible fallback may be safe before delivery. Once stream tokens have reached the client, silently splicing a second model's output can corrupt the response. Prefer an explicit stream failure, or define a client-visible restart protocol. Tool side effects require their own deduplication and execution ownership.\n\n## Change and evaluation\n\nTrack latency distributions, errors, saturation, token usage, and cost by caller, route, provider, and model version. Evaluate task quality on representative workloads; cheaper or faster is not necessarily acceptable. Guard against feedback loops where routing changes alter the data used to choose routes.\n\nCanary new policy/model versions, compare them against a fixed baseline, and retain rollback configuration. Shadow traffic needs a privacy and cost budget. Test provider outages, rate-limit bursts, partial streams, stale configuration, and loss of the policy service; a last-known valid configuration can keep the data path available."
+  },
+  "references": [
+    {
+      "label": "Original MLE / ML infrastructure onsite report",
+      "url": "https://www.1point3acres.com/interview/thread/1131055"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d81d8b5a2cf83d10ea22b"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-16"
+  }
+}

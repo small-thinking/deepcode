@@ -1,0 +1,66 @@
+{
+  "id": "513",
+  "slug": "string-distinctiveness-scoring",
+  "title": "String Distinctiveness Scoring and Multiset Jaccard (SWE)",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "strings",
+    "counting",
+    "jaccard",
+    "scoring",
+    "swe-supplement"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Implement `distinctive_characters(words, use_jaccard=False)`.\n\n### Part 1: Character concentration\n\nFor each string, divide its most frequent character's count by its length. Select every string tied for the lowest score.\n\nReturn the characters from the selected strings that do not appear in any unselected string. Preserve repeated characters and concatenate the filtered strings in input order.\n\n### Part 2: Multiset similarity\n\nWhen `use_jaccard=True`, score each string by its average Jaccard similarity to every other string, excluding itself. For each character, multiset intersection uses the smaller count and union uses the larger count. Similarity is the sum of intersection counts divided by the sum of union counts. Again select every lowest-scoring string and apply the same output rule.\n\n`words` contains at least two nonempty lowercase ASCII strings. Scores that are mathematically equal must tie.",
+  "starter_code": "def distinctive_characters(words, use_jaccard=False):\n    pass\n",
+  "example": {
+    "input": "words = ['ppp', 'pqrr', 'sttuvv']",
+    "output": "'sttuvv'",
+    "reasoning": "The concentration scores are 1, 1/2, and 1/3. The last string wins, and none of its characters occur in the other strings."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "references": [
+    {
+      "label": "Original SWE data-platform onsite report \u2014 scoring and Jaccard follow-up",
+      "url": "https://www.1point3acres.com/interview/thread/1069177"
+    },
+    {
+      "label": "Public SDE-2/L4 interview report \u2014 detailed scoring variant",
+      "url": "https://leetcode.com/discuss/post/4520538/Moveworks-SDE-2-L4-Interview/"
+    },
+    {
+      "label": "Related 2026 SWE report \u2014 three stages with unspecified similarity callback",
+      "url": "https://www.1point3acres.com/interview/thread/1169202"
+    },
+    {
+      "label": "Related 2023 backend SWE report \u2014 set-Jaccard variant",
+      "url": "https://www.1point3acres.com/interview/thread/1022755"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "background_note": "This complete scoring version is reported for SWE / data-platform interviews, not confirmed as the formula in the incomplete 2025 MLE report. The public and forum reports corroborate the formulas; their event independence is unresolved. Group-wise character exclusion and input-order output for tied selected strings are explicit practice conventions. A separate 2026 SWE report describes three stages (base filtering, a supplied similarity callback, then implementing that callback) but leaves its formula and character-exclusion scope unknown. A 2023 report mentions set Jaccard instead. These sources may be variants; neither resolves the exact three-part MLE task. This exercise retains the complete two-part multiset version rather than inventing missing MLE rules.",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d81a8b94fef37a0223da4"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-16"
+  }
+}

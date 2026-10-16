@@ -1,0 +1,44 @@
+[
+  {
+    "name": "[Part 1] singles and ranges in encounter order",
+    "input": "text='See [3], [4-10], then [2]'",
+    "test": "print(parse_citation_ranges('See [3], [4-10], then [2]'))",
+    "expected_output": "[[3, 3], [4, 10], [2, 2]]"
+  },
+  {
+    "name": "[Part 1] no citation",
+    "input": "text='plain text'",
+    "test": "print(parse_citation_ranges('plain text'))",
+    "expected_output": "[]"
+  },
+  {
+    "name": "[Part 1] multiple digits",
+    "input": "text='[11] ... [12-15]'",
+    "test": "print(parse_citation_ranges('[11] ... [12-15]'))",
+    "expected_output": "[[11, 11], [12, 15]]"
+  },
+  {
+    "name": "[Part 2] overlapping and touching ranges",
+    "input": "left='[3] [8-10]', right='[3-8]'",
+    "test": "print(merge_citation_ranges('[3] [8-10]', '[3-8]'))",
+    "expected_output": "[[3, 10]]"
+  },
+  {
+    "name": "[Part 2] sort and preserve gaps",
+    "input": "left='[12-14] [1-2]', right='[8] [2-4]'",
+    "test": "print(merge_citation_ranges('[12-14] [1-2]', '[8] [2-4]'))",
+    "expected_output": "[[1, 4], [8, 8], [12, 14]]"
+  },
+  {
+    "name": "[Part 2] empty inputs",
+    "input": "left='', right='no citations'",
+    "test": "print(merge_citation_ranges('', 'no citations'))",
+    "expected_output": "[]"
+  },
+  {
+    "name": "[Part 2] consecutive ranges stay distinct",
+    "input": "left='[2-4]', right='[5-7]'",
+    "test": "print(merge_citation_ranges('[2-4]', '[5-7]'))",
+    "expected_output": "[[2, 4], [5, 7]]"
+  }
+]

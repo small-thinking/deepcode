@@ -1,0 +1,100 @@
+{
+  "slug": "moveworks",
+  "name": "Moveworks",
+  "summary": "Enterprise AI assistant, search, and agent technology acquired by ServiceNow. Practice sources distinguish historical MLE / ML infrastructure reports from SWE variants.",
+  "stage": {
+    "company_state": "Acquired",
+    "funding_stage": "Acquired by ServiceNow",
+    "last_announced": "2025-12-15",
+    "source": {
+      "label": "Official acquisition completion announcement",
+      "url": "https://www.moveworks.com/us/en/company/news/press-releases/servicenow-completes-acquisition-of-moveworks"
+    }
+  },
+  "links": [
+    {
+      "label": "Website",
+      "url": "https://www.moveworks.com/"
+    },
+    {
+      "label": "Careers",
+      "url": "https://careers.servicenow.com/"
+    },
+    {
+      "label": "Opportunity 2026 profile",
+      "url": "https://app.notion.com/p/3fb6ce51456d8187b794ec8e5d30bab7"
+    },
+    {
+      "label": "Source review and question index",
+      "url": "https://app.notion.com/p/3fb6ce51456d81de9704cd26fbf8c15f"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "First-person historical reports; role-dependent",
+    "summary": "Historical MLE / ML infrastructure sources support the core coding, recommendation, LLM routing and behavioral exercises. A deeper review adds explicitly labeled SWE or role-ambiguous coding and retrieval/assistant design supplements; these do not establish additional MLE rounds or the current post-acquisition loop.",
+    "stages": [
+      {
+        "name": "MLE technical screen",
+        "signal": "Candidate dictionary filtering and next-letter selection with explicit tie breaks.",
+        "evidence_tier": "First-person MLE report",
+        "sources": [
+          {
+            "label": "Hangman MLE phone screen",
+            "url": "https://www.1point3acres.com/interview/thread/1123889"
+          }
+        ]
+      },
+      {
+        "name": "ML infrastructure onsite",
+        "signal": "String coding, app recommendations, a shared LLM provider layer, and failed-project discussion. Some coding details are incomplete.",
+        "evidence_tier": "First-person ML infrastructure report",
+        "sources": [
+          {
+            "label": "Original MLE / ML infrastructure onsite report",
+            "url": "https://www.1point3acres.com/interview/thread/1131055"
+          }
+        ]
+      },
+      {
+        "name": "Role-labeled SWE preparation supplements",
+        "signal": "Reports include citation parsing/merging, synonym query rewrites, text justification, sentence segmentation, review search and configurable document assistants.",
+        "evidence_tier": "First-person SWE reports; source-specific constraints",
+        "sources": [
+          {
+            "label": "Citation parsing and merging",
+            "url": "https://www.1point3acres.com/interview/thread/1135664"
+          },
+          {
+            "label": "Synonym query rewrite",
+            "url": "https://www.1point3acres.com/interview/thread/1069176"
+          },
+          {
+            "label": "Document-assistant prompt screenshot report",
+            "url": "https://www.1point3acres.com/interview/thread/1155932"
+          },
+          {
+            "label": "Public Staff SWE report",
+            "url": "https://interviewexperiences.in/experience/moveworks/moveworks-service-now-staff-software-engineer-bangalore-june-2026"
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    {
+      "label": "Role boundary",
+      "detail": "General string tasks remain Coding even when reported by an MLE. SWE corroboration is labeled separately and does not establish exact MLE constraints."
+    },
+    {
+      "label": "Historical coverage",
+      "detail": "The finite company index was reviewed through its readable bodies and useful replies/images. One deleted report and uncatalogued web posts remain possible gaps. Strict MLE evidence remains limited; the expanded collection labels role differences."
+    }
+  ],
+  "references": [
+    {
+      "label": "Official acquisition completion announcement",
+      "url": "https://www.moveworks.com/us/en/company/news/press-releases/servicenow-completes-acquisition-of-moveworks"
+    }
+  ],
+  "updated_at": "2026-10-16"
+}

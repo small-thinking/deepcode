@@ -1,0 +1,38 @@
+[
+  {
+    "name": "[Part 1] independent single-word groups",
+    "input": "text='email phone', groups=[['email','outlook'], ['iphone','phone','android']]",
+    "test": "print(rewrite_queries('email phone', [['email', 'outlook'], ['iphone', 'phone', 'android']]))",
+    "expected_output": "['email android', 'email iphone', 'email phone', 'outlook android', 'outlook iphone', 'outlook phone']"
+  },
+  {
+    "name": "[Part 1] whole words and no matching group",
+    "input": "text='emails phone', groups=[['email','outlook']]",
+    "test": "print(rewrite_queries('emails phone', [['email', 'outlook']]))",
+    "expected_output": "['emails phone']"
+  },
+  {
+    "name": "[Part 2] overlapping phrase and word matches",
+    "input": "text='I need help', groups=[['need help','could use help','want help'], ['help','assistance']]",
+    "test": "print(rewrite_queries('I need help', [['need help', 'could use help', 'want help'], ['help', 'assistance']]))",
+    "expected_output": "['I could use help', 'I need assistance', 'I need help', 'I want help']"
+  },
+  {
+    "name": "[Part 2] shared phrase across groups and deduplication",
+    "input": "text='zoom', groups=[['zoom','meet'], ['zoom','call']]",
+    "test": "print(rewrite_queries('zoom', [['zoom', 'meet'], ['zoom', 'call']]))",
+    "expected_output": "['call', 'meet', 'zoom']"
+  },
+  {
+    "name": "[Part 2] replacement is not rewritten again",
+    "input": "text='A', groups=[['A','B'], ['B','C']]",
+    "test": "print(rewrite_queries('A', [['A', 'B'], ['B', 'C']]))",
+    "expected_output": "['A', 'B']"
+  },
+  {
+    "name": "[Part 2] empty sentence",
+    "input": "text='', groups=[['a','b']]",
+    "test": "print(rewrite_queries('', [['a', 'b']]))",
+    "expected_output": "['']"
+  }
+]
