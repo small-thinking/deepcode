@@ -7,7 +7,7 @@ from deepcode.problem_store import ProblemStore
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = (ROOT / 'tests/reference_solutions/fireworks_coding.py').read_text()
-SLUGS = ('mutual-friend-recommendation-scores', 'log-fanout-attack-detector', 'gpu-fleet-idle-intervals')
+SLUGS = ('mutual-friend-recommendation-scores',)
 
 
 class FireworksProblemFixtureTest(unittest.TestCase):

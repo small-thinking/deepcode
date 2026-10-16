@@ -4,7 +4,7 @@
   "aliases": [
     "Fireworks"
   ],
-  "summary": "AI inference and model customization platform. Interview preparation covers Applied ML, ML infrastructure, and clearly labeled general coding reports.",
+  "summary": "AI inference and model customization platform. Current preparation focuses on the recruiter-described post-training role: independent ML component coding, ML system design, and behavioral interviews.",
   "stage": {
     "company_state": "Private",
     "funding_stage": "Series D",
@@ -35,70 +35,50 @@
     }
   ],
   "interview_process": {
-    "evidence_tier": "Candidate reports; role-dependent",
-    "summary": "Reports vary across Applied MLE, ML Infra, Research, and General SWE. They do not establish a universal loop.",
+    "evidence_tier": "User-reported recruiter conversation — 2026-10-16; specific post-training role",
+    "summary": "The recruiter described four assessment rounds for this role: a 45-minute ML coding phone screen, followed by full-loop ML coding, ML system design, and behavioral interviews. This does not establish a company-wide loop. No exact post-training coding prompt has been verified.",
     "stages": [
       {
-        "name": "Applied MLE onsite coding",
-        "signal": "A candidate described AI-assisted graph recommendations with bounded scoring. The exact scoring formula is unspecified.",
-        "evidence_tier": "First-person report",
+        "name": "Phone screen — ML coding (45 minutes)",
+        "signal": "Implement ML components or functions without an AI coding assistant. The recruiter did not specify a concrete component, framework, or permitted numerical library.",
+        "evidence_tier": "User-reported recruiter conversation; role-specific",
         "sources": [
           {
-            "label": "Applied MLE onsite report",
-            "url": "https://www.1point3acres.com/bbs/thread-1189232-1-1.html"
+            "label": "User-reported recruiter conversation and scoped source review — 2026-10-16",
+            "url": "https://app.notion.com/p/3fb6ce51456d8158b68ec147e3b3b8f8"
           }
         ]
       },
       {
-        "name": "ML infrastructure system design",
-        "signal": "A candidate described multi-model LLM serving, weight updates, load balancing, reliability, and scaling.",
-        "evidence_tier": "First-person MLE / ML Infra report",
+        "name": "Full loop — ML coding",
+        "signal": "A second ML coding round. Its duration and exact prompt were not provided; the phone-screen tool policy was not separately confirmed for this round.",
+        "evidence_tier": "User-reported recruiter conversation; role-specific",
         "sources": [
           {
-            "label": "MLE / ML Infra report",
-            "url": "https://www.1point3acres.com/bbs/thread-1147172-1-1.html"
+            "label": "User-reported recruiter conversation and scoped source review — 2026-10-16",
+            "url": "https://app.notion.com/p/3fb6ce51456d8158b68ec147e3b3b8f8"
           }
         ]
       },
       {
-        "name": "General coding context",
-        "signal": "Other reports cover log attack detection and GPU idle intervals. These are General SWE/SDE evidence; applicability to Research is unconfirmed.",
-        "evidence_tier": "First-person reports, different role scope",
+        "name": "Full loop — ML system design",
+        "signal": "One ML system design round. Prepare training, data, evaluation, and system trade-offs; no exact design case was supplied.",
+        "evidence_tier": "User-reported recruiter conversation; role-specific",
         "sources": [
           {
-            "label": "Log detection phone screen",
-            "url": "https://www.1point3acres.com/bbs/thread-1192501-1-1.html"
-          },
-          {
-            "label": "GPU idle intervals coding",
-            "url": "https://www.1point3acres.com/bbs/thread-1159979-1-1.html"
+            "label": "User-reported recruiter conversation and scoped source review — 2026-10-16",
+            "url": "https://app.notion.com/p/3fb6ce51456d8158b68ec147e3b3b8f8"
           }
         ]
       },
       {
-        "name": "Applied ML and Field Engineering take-homes",
-        "signal": "Public candidate submissions describe financial SQL plus filing RAG and an interactive text-to-SQL CLI. These are candidate-published assignment artifacts; independent interview-event counts are unresolved.",
-        "evidence_tier": "Candidate-published artifacts; official origin unconfirmed",
+        "name": "Full loop — behavioral",
+        "signal": "One behavioral interview. No public prompt or exact rubric was supplied for this role.",
+        "evidence_tier": "User-reported recruiter conversation; role-specific",
         "sources": [
           {
-            "label": "Vinay candidate submission",
-            "url": "https://github.com/VinayJogani14/fireworks-rag-agent"
-          },
-          {
-            "label": "Ishan candidate submission",
-            "url": "https://github.com/Ishan23/agentic-rag-10k-analysis"
-          },
-          {
-            "label": "Candidate assessment and submission archive",
-            "url": "https://github.com/tsrinarmwong/fireworks-interview-archive"
-          },
-          {
-            "label": "Allison candidate materials and implementation",
-            "url": "https://github.com/allisonbaker1984-hue/fireworks_takehome_test"
-          },
-          {
-            "label": "Mike candidate submission and original-brief section",
-            "url": "https://github.com/mikewangfangxing/take-home/blob/master/README.md"
+            "label": "User-reported recruiter conversation and scoped source review — 2026-10-16",
+            "url": "https://app.notion.com/p/3fb6ce51456d8158b68ec147e3b3b8f8"
           }
         ]
       }
@@ -106,12 +86,24 @@
   },
   "notes": [
     {
-      "label": "Research / post-training evidence",
-      "detail": "No sufficiently specified, independently verified post-training question was found in this collection. Official roles establish relevance, not interview questions."
+      "label": "Exact ML coding evidence",
+      "detail": "The focused English/Chinese public-web and authenticated 1Point3Acres review found no sufficiently specified first-person prompt for this post-training screen. Do not interpret preparation-site company tags as interview occurrences."
     },
     {
-      "label": "Public-source expansion",
-      "detail": "The two take-home families were cross-checked across multiple GitHub submissions. They use the written coding workspace with local execution/evaluation, and their unverified interview-event frequency remains uncounted."
+      "label": "Practice priorities — inferred, not Fireworks originals",
+      "detail": "Practice stable softmax/log-softmax and masked token log-probability or cross-entropy; attention shapes and causal masks; a small gradient-based training update; response masking and sequence reductions; then group-relative advantages, PPO-style clipping and KL, and sampling. These are preparation recommendations from the role and format, not confirmed questions or frequency signals."
+    },
+    {
+      "label": "Other ML tracks — supplementary only",
+      "detail": "The four retained source-backed exercises concern an AI-assisted Applied MLE recommender, ML infrastructure serving design, an Applied MLE financial RAG take-home, and an AI Field Engineer text-to-SQL take-home. None establishes the exact independent component-coding task for this post-training role."
+    },
+    {
+      "label": "General SWE exercises removed",
+      "detail": "Log fan-out detection, GPU idle interval merging, and an AI-assisted social-media prototype were removed from the active catalog at the user’s request. Their original source records remain archived under the Notion research report."
+    },
+    {
+      "label": "Official training examples",
+      "detail": "The Fireworks cookbook provides training recipes and loss/rollout utilities. It supports technical study of the platform, not claims that its components were asked in interviews."
     }
   ],
   "references": [
@@ -122,7 +114,11 @@
     {
       "label": "Fireworks Series D announcement",
       "url": "https://fireworks.ai/blog/series-d-announcement"
+    },
+    {
+      "label": "Official Fireworks training cookbook — technical study, not interview evidence",
+      "url": "https://github.com/fw-ai/cookbook"
     }
   ],
-  "updated_at": "2026-10-15"
+  "updated_at": "2026-10-16"
 }
