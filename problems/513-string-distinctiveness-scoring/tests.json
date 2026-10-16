@@ -1,0 +1,44 @@
+[
+  {
+    "name": "lowest concentration",
+    "input": "distinctive_characters(['ppp', 'pqrr', 'sttuvv'])",
+    "test": "print(distinctive_characters(['ppp', 'pqrr', 'sttuvv']))",
+    "expected_output": "sttuvv"
+  },
+  {
+    "name": "exclude unselected characters but preserve repeats",
+    "input": "distinctive_characters(['xxxy', 'xyzzww'])",
+    "test": "print(distinctive_characters(['xxxy', 'xyzzww']))",
+    "expected_output": "zzww"
+  },
+  {
+    "name": "all minimum-score strings contribute in input order",
+    "input": "distinctive_characters(['ab', 'cd', 'aaaa'])",
+    "test": "print(distinctive_characters(['ab', 'cd', 'aaaa']))",
+    "expected_output": "bcd"
+  },
+  {
+    "name": "all selected strings retain shared characters",
+    "input": "distinctive_characters(['ab', 'bc'])",
+    "test": "print(distinctive_characters(['ab', 'bc']))",
+    "expected_output": "abbc"
+  },
+  {
+    "name": "multiset similarity differs from set Jaccard",
+    "input": "words=['aaaa', 'ab', 'bc'], use_jaccard=True",
+    "test": "print(repr(distinctive_characters(['aaaa', 'ab', 'bc'], True)))",
+    "expected_output": "''"
+  },
+  {
+    "name": "jaccard minimum tie and no self comparison",
+    "input": "distinctive_characters(['ab', 'cd', 'ef'], True)",
+    "test": "print(distinctive_characters(['ab', 'cd', 'ef'], True))",
+    "expected_output": "abcdef"
+  },
+  {
+    "name": "jaccard score then shared output filtering",
+    "input": "distinctive_characters(['aabb', 'aab', 'bcc'], True)",
+    "test": "print(distinctive_characters(['aabb', 'aab', 'bcc'], True))",
+    "expected_output": "cc"
+  }
+]

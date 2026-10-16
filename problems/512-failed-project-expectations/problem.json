@@ -1,0 +1,44 @@
+{
+  "id": "512",
+  "slug": "failed-project-expectations",
+  "title": "Discuss a Failed Project or Missed Expectations",
+  "category": "Behavioral",
+  "difficulty": "medium",
+  "tags": [
+    "behavioral",
+    "failure",
+    "ownership",
+    "reflection"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Tell me about a project that failed, or a time you did not meet expectations.\n\nExplain what was expected, your responsibility, the decisions you made, how you responded when the outcome diverged, and what changed afterward.",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions, then explain your decisions and how you would validate them.",
+    "reference_answer": "## Choose a real incident\n\nThe source contains two related behavioral questions: a failed project and not meeting expectations. It gives no model answer. Use one incident that fits the question and distinguish your ownership from the team's work.\n\n## Build the account\n\nState the original objective and success criteria, the constraints, and your role. Explain the consequential decisions and the evidence available at the time. Identify when the first warning appeared and why the response was timely or late.\n\nDescribe the actual impact, the people you informed, the options considered, and the recovery decision. Own the part you could influence without taking credit or blame for unrelated work. Give observable outcomes; use numerical claims only if you can support them.\n\n## Show a tested change\n\nA useful lesson changes a later decision or process: earlier feasibility checks, a better evaluation gate, clearer escalation, or revised commitments. Explain how you know the change helped and what remains uncertain. A recovery can be partial; do not turn it into an invented success story.\n\n## Follow-up practice\n\nPrepare to discuss what you would do differently with the same information, how another stakeholder would describe the incident, and whether your later behavior actually changed. These are preparation prompts, not reported interview follow-ups."
+  },
+  "references": [
+    {
+      "label": "Original MLE / ML infrastructure onsite report",
+      "url": "https://www.1point3acres.com/interview/thread/1131055"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d81ac8c84ca8d7aac2d18"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-16"
+  }
+}

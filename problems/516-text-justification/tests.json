@@ -1,0 +1,32 @@
+[
+  {
+    "name": "even gaps and final-line padding",
+    "input": "words=['This', 'is', 'an', 'example', 'of', 'text', 'justification.'], maxWidth=16",
+    "test": "result = fullJustify(['This', 'is', 'an', 'example', 'of', 'text', 'justification.'], 16)\nassert result == ['This    is    an', 'example  of text', 'justification.  ']\nprint(repr(result))",
+    "expected_output": "['This    is    an', 'example  of text', 'justification.  ']"
+  },
+  {
+    "name": "leftmost gap gets extra space",
+    "input": "words=['a', 'b', 'c', 'd'], maxWidth=6",
+    "test": "result = fullJustify(['a', 'b', 'c', 'd'], 6)\nassert result == ['a  b c', 'd     ']\nprint(repr(result))",
+    "expected_output": "['a  b c', 'd     ']"
+  },
+  {
+    "name": "single-word nonfinal line",
+    "input": "words=['long', 'a', 'bc'], maxWidth=4",
+    "test": "result = fullJustify(['long', 'a', 'bc'], 4)\nassert result == ['long', 'a bc']\nprint(repr(result))",
+    "expected_output": "['long', 'a bc']"
+  },
+  {
+    "name": "single word padded on last line",
+    "input": "words=['hi'], maxWidth=5",
+    "test": "result = fullJustify(['hi'], 5)\nassert result == ['hi   ']\nprint(repr(result))",
+    "expected_output": "['hi   ']"
+  },
+  {
+    "name": "empty input",
+    "input": "words=[], maxWidth=8",
+    "test": "result = fullJustify([], 8)\nassert result == []\nprint(repr(result))",
+    "expected_output": "[]"
+  }
+]

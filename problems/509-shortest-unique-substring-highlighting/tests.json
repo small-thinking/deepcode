@@ -1,0 +1,38 @@
+[
+  {
+    "name": "shared prefixes leave a unique final letter",
+    "input": "words=['abcx', 'abcy']",
+    "test": "print(highlight_unique_substrings(['abcx', 'abcy']))",
+    "expected_output": "['abc[x]', 'abc[y]']"
+  },
+  {
+    "name": "choose shortest substring when all single letters are shared",
+    "input": "words=['abcd', 'bcda']",
+    "test": "print(highlight_unique_substrings(['abcd', 'bcda']))",
+    "expected_output": "['[ab]cd', 'bc[da]']"
+  },
+  {
+    "name": "compare across words without regard to case",
+    "input": "words=['Ada', 'bad']",
+    "test": "print(highlight_unique_substrings(['Ada', 'bad']))",
+    "expected_output": "['A[da]', '[b]ad']"
+  },
+  {
+    "name": "repeated occurrences in the same word do not disqualify",
+    "input": "words=['ababa', 'cde']",
+    "test": "print(highlight_unique_substrings(['ababa', 'cde']))",
+    "expected_output": "['[a]baba', '[c]de']"
+  },
+  {
+    "name": "earliest start wins among equal-length choices",
+    "input": "words=['bca', 'xyz']",
+    "test": "print(highlight_unique_substrings(['bca', 'xyz']))",
+    "expected_output": "['[b]ca', '[x]yz']"
+  },
+  {
+    "name": "empty input",
+    "input": "words=[]",
+    "test": "print(highlight_unique_substrings([]))",
+    "expected_output": "[]"
+  }
+]

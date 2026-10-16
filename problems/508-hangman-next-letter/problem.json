@@ -1,0 +1,57 @@
+{
+  "id": "508",
+  "slug": "hangman-next-letter",
+  "title": "Choose the Next Hangman Letter",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "strings",
+    "frequency-counting",
+    "filtering",
+    "hangman"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Implement `next_hangman_letter(pattern, guessed, words)`. The `pattern` is the current word with revealed lowercase letters and `_` for unknown positions. `guessed` is the set of letters already tried, including correct and incorrect guesses. `words` is a list of distinct lowercase candidate words.\n\nKeep only words with the same length that match every revealed position. A guess reveals all occurrences, so an unknown position cannot contain any already-guessed letter. Also discard any word containing a guessed letter that is not revealed in the pattern.\n\nFor each remaining word, count each unguessed letter once toward the number of candidate words containing it, and separately count all of its occurrences. Choose the letter with the most candidate words, then the greatest total occurrences, then the alphabetically smallest letter. Return `\"\"` when no unguessed letter remains in the eligible words. Inputs are lowercase ASCII, and the pattern is consistent with the revealed guesses.",
+  "starter_code": "def next_hangman_letter(pattern, guessed, words):\n    pass\n",
+  "example": {
+    "input": "next_hangman_letter('_pp_e', {'p', 'e', 'r'}, ['apple', 'apply', 'ample', 'spore', 'angle'])",
+    "output": "'a'",
+    "reasoning": "Only 'apple' matches the revealed positions and contains no incorrect guess. Its unguessed letters are 'a' and 'l', tied in frequency, so the alphabetically smaller letter is returned."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "references": [
+    {
+      "label": "Original Moveworks MLE interview report — Hangman phone screen",
+      "url": "https://www.1point3acres.com/interview/thread/1123889"
+    },
+    {
+      "label": "Secondary Moveworks report — Hangman theme corroboration",
+      "url": "https://www.1point3acres.com/interview/thread/1138099"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "background_note": "The April 2025 MLE report supplies the three ranking criteria, including alphabetical tie-breaking. This practice version assumes standard Hangman reveals every occurrence of a guessed letter; deriving wrong guesses from the pattern and returning an empty string when no choice remains are local conventions. A secondary SWE report corroborates the broad task but does not supply the complete ranking formula.",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d815d9b08f34053f5c12d"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-16"
+  }
+}

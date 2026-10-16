@@ -1,0 +1,57 @@
+{
+  "id": "515",
+  "slug": "synonym-query-rewrites",
+  "title": "Generate Synonym Query Rewrites (SWE Supplement)",
+  "category": "Coding",
+  "difficulty": "hard",
+  "tags": [
+    "strings",
+    "backtracking",
+    "deduplication",
+    "swe-supplement"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "prompt": "Implement `rewrite_queries(text, synonym_groups)`. Return every distinct sentence obtainable by replacing zero or more whole-word spans with another phrase from the same synonym group, sorted lexicographically. Include the unchanged sentence. A replacement consumes its span of the original sentence: words introduced by a replacement cannot be rewritten again. When spans overlap, choose one path or the other, never both over the same original words.\n\n### Part 1: Single words\n\nEach synonym group initially contains single words. Each original word may be left unchanged or replaced by another word in any group containing it.\n\n### Part 2: Phrases and overlapping groups\n\nA group may also contain multiword phrases, and a phrase may belong to multiple groups. Match a phrase only as a sequence of complete words. At each position, consider the unchanged original word and every matching group phrase that starts there. Deduplicate equivalent resulting sentences.\n\n`text` and each group phrase contain alphabetic words separated by single spaces. Matching is case-sensitive. Each group contains at least two phrases; groups may overlap. Return `['']` for empty text.",
+  "starter_code": "def rewrite_queries(text, synonym_groups):\n    pass\n",
+  "example": {
+    "input": "rewrite_queries('email phone', [['email', 'outlook'], ['iphone', 'phone', 'android']])",
+    "output": "['email android', 'email iphone', 'email phone', 'outlook android', 'outlook iphone', 'outlook phone']",
+    "reasoning": "The first word has two choices and the second has three. Their six distinct combinations are sorted."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "references": [
+    {
+      "label": "Original SWE interview report \u2014 single-word and phrase synonym rewrites",
+      "url": "https://www.1point3acres.com/interview/thread/1069176"
+    },
+    {
+      "label": "Independent full-stack SWE report \u2014 multiword follow-up",
+      "url": "https://www.1point3acres.com/interview/thread/1075415"
+    }
+  ],
+  "created_at": "2026-10-16",
+  "background_note": "The detailed SWE report specifies sorted unique outputs, whole-word matches, unchanged output, multiword phrases, overlapping groups, and no repeated rewrites. It does not settle whether shared phrases make entire synonym groups transitively equivalent; this practice version permits direct alternatives from each matching group only, without transitive closure. Case-sensitive matching and single-space input are also local choices. Its optional spacing-preservation part is outside this exercise. This is not a confirmed MLE question.",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fb6ce51456d81e2b148f5925a1cd743"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-16"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-16"
+  }
+}
