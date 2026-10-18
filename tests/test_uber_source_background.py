@@ -33,7 +33,6 @@ NOTION_TO_SLUG = {
     "3e56ce51456d813195abdd2a91e1248c": "uber-parallel-prerequisite-tasks",
     "3e56ce51456d81a6a8a1e8cbdef37a0e": "uber-referral-revenue-topk",
     "3e56ce51456d819f99d7d11b45ae9882": "uber-first-local-minimum",
-    "3e56ce51456d81f7a162ee2f8b338719": "uber-sales-by-category",
     "3e56ce51456d81cb90c0e33137807664": "uber-weighted-random-sampler",
 }
 

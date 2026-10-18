@@ -447,6 +447,44 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(payload["problems"][0]["personal_status"]["completed"], True)
             self.assertEqual(payload["company_profiles"], [{"slug": "openai", "name": "OpenAI", "aliases": []}])
 
+    def test_catalog_removal_preserves_saved_progress_activity_and_custom_tests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            problems_root = root / "problems"
+            self._write_problem(problems_root, "retired", "1")
+            self._write_problem(problems_root, "retained", "2")
+            user_state = UserStateStore(root / ".deepcode/user-state.json")
+            activity = ActivityLogStore(root / ".deepcode/activity-log.json")
+            custom = CustomTestStore(root / ".deepcode/custom-tests.json")
+            for slug in ("retired", "retained"):
+                user_state.mark_completed(slug)
+            custom.replace_for("retired", [{
+                "name": "saved custom case", "test": "print(identity(7))", "expected_output": "7",
+            }])
+            context = ApiContext(store=ProblemStore(problems_root), user_state=user_state,
+                                 activity_log=activity, custom_tests=custom)
+            status, original_progress = handle_api_request(context, "GET", "/api/progress", {}, None)
+            self.assertEqual(status, 200)
+            saved_files = {store.path: store.path.read_bytes() for store in (user_state, activity, custom)}
+
+            # A content-only deployment removes a question, not its personal data.
+            for filename in ("problem.json", "tests.json"):
+                (problems_root / "retired" / filename).unlink()
+            (problems_root / "retired").rmdir()
+            restarted = ApiContext(store=ProblemStore(problems_root), user_state=user_state,
+                                   activity_log=activity, custom_tests=custom)
+            status, catalog = handle_api_request(restarted, "GET", "/api/problems", {}, None)
+            self.assertEqual(status, 200)
+            self.assertEqual([p["slug"] for p in catalog["problems"]], ["retained"])
+            self.assertTrue(catalog["problems"][0]["personal_status"]["completed"])
+            status, progress = handle_api_request(restarted, "GET", "/api/progress", {}, None)
+            self.assertEqual(status, 200)
+            self.assertEqual(progress["events"], original_progress["events"])
+            self.assertTrue(user_state.status_for("retired")["completed"])
+            self.assertEqual(custom.list_for("retired")[0]["name"], "saved custom case")
+            for path, content in saved_files.items():
+                self.assertEqual(path.read_bytes(), content, path)
+
     def test_passing_selected_test_does_not_mark_problem_complete(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = ProblemStore(Path(tmp) / "problems")

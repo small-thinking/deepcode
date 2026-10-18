@@ -114,9 +114,5 @@ class SystemsCodingPracticeSetDFixtureTest(unittest.TestCase):
     def test_timestamped_account_ledger_reference_solution_passes(self):
         self._assert_reference_solution_passes("timestamped-account-ledger")
 
-    def test_in_memory_relational_query_engine_reference_solution_passes(self):
-        self._assert_reference_solution_passes("in-memory-relational-query-engine")
-
-
 if __name__ == "__main__":
     unittest.main()

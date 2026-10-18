@@ -29,9 +29,5 @@ class SpaceXSpotifyCatalogGapFixtureTest(unittest.TestCase):
     def test_image_patch_tensor_axis_reordering_reference_solution_passes(self):
         self._assert_reference_solution_passes("image-patch-tensor-axis-reordering")
 
-    def test_sql_top_n_played_tracks_reference_solution_passes(self):
-        self._assert_reference_solution_passes("sql-top-n-played-tracks")
-
-
 if __name__ == "__main__":
     unittest.main()

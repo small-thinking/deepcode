@@ -152,7 +152,6 @@ class CompanyStoreTest(unittest.TestCase):
             {
                 "file-duplicate-groups",
                 "multi-tenant-rag-system",
-                "in-memory-relational-query-engine",
                 "spreadsheet-formula-engines",
             }.issubset({problem["slug"] for problem in openai["related_problems"]})
         )
