@@ -69,7 +69,7 @@ class ArrayWorkoutFixturesTest(unittest.TestCase):
         for folder in FOLDERS:
             path, metadata, _ = load(folder)
             problem = store.get_problem(metadata["slug"])
-            self.assertEqual(problem["companies"], [])
+            self.assertEqual(problem["companies"], ["General"])
             self.assertIn("api-workout", problem["tags"])
             demo, = problem["interactive_demos"]
             self.assertEqual(demo["section"], "interactive_demo")

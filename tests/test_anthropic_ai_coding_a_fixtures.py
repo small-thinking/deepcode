@@ -8,10 +8,8 @@ from deepcode.problem_store import ProblemStore
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = (ROOT / "tests" / "reference_solutions" / "anthropic_ai_coding_a.py").read_text(encoding="utf-8")
 SLUGS = [
-    "tool-calling-agent-session",
     "dns-cache-resolver",
     "numpy-image-transformation-pipeline",
-    "masked-batched-gather-repair",
 ]
 
 

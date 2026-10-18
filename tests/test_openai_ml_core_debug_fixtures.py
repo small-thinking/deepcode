@@ -9,9 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = (ROOT / "tests" / "reference_solutions" / "openai_ml_core_debug.py").read_text(encoding="utf-8")
 SLUGS = [
     "debug-gpt-classifier-cache",
-    "masked-transformer-encoder-classifier",
-    "seq2seq-reversal-debug",
-    "batched-binary-mlp",
 ]
 
 

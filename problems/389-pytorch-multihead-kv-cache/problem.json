@@ -9,7 +9,9 @@
     "attention",
     "autograd"
   ],
-  "companies": [],
+  "companies": [
+    "General"
+  ],
   "prompt": "Extend multi-head attention with a key/value cache for incremental language-model decoding.\n\nImplement `MHA(n_heads, dim)` with `forward(x, mask=None, kv_cache=None) -> (output, (K, V))`. Input `x` is the current floating chunk `(B, T, dim)`; output covers only that chunk. Expose biased `nn.Linear` layers `W_qkv: dim → 3 * dim` (Q, K, V order) and `W_o: dim → dim`.\n\nAppend current projected keys and values to the supplied cache, returning each with shape `(B, n_heads, P + T, dim // n_heads)`, where `P` is the previous cache length. A missing cache means `P=0`. Queries come from the current chunk. Preserve cache gradients and never mutate the old cache.\n\nUse scaled dot-product attention. The optional boolean mask broadcasts to `(B, n_heads, T, P + T)`; True permits attention and every query has an allowed key. Causality is caller-controlled: a causal chunk permits key `j` for query `i` when `j <= P + i`.\n\nAssert positive constructor dimensions and divisibility. Assume other shapes are compatible. Preserve dtype, device, and autograd; use CPU PyTorch without adding dropout or other transformer components.",
   "starter_code": "import torch\nfrom torch import nn\n\n\nclass MHA(nn.Module):\n    def __init__(self, n_heads, dim):\n        super().__init__()\n        # Define W_qkv and W_o.\n        pass\n\n    def forward(self, x, mask=None, kv_cache=None):\n        pass\n",
   "example": {

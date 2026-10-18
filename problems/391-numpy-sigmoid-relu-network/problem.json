@@ -8,7 +8,9 @@
     "numpy",
     "forward-pass"
   ],
-  "companies": [],
+  "companies": [
+    "General"
+  ],
   "prompt": "Implement `nn(x, W1, W2, b1, b2)` using NumPy:\n\n```text\nhidden = sigmoid(x @ W1 + b1)\noutput = relu(hidden @ W2 + b2)\n```\n\n`x: (B, input_dim)`, `W1: (input_dim, hidden_dim)`, `W2: (hidden_dim, output_dim)`, `b1: (hidden_dim,)`, and `b2: (output_dim,)` have compatible positive dimensions and finite floating values. Return `(B, output_dim)` without squeezing singleton dimensions. Accept array-like inputs and do not mutate inputs. Use a numerically stable sigmoid that stays finite without overflow warnings for preactivations as large as ±1000. ReLU clips negative values to zero; there is no softmax or training step.",
   "starter_code": "import numpy as np\n\n\ndef nn(x, W1, W2, b1, b2):\n    pass\n",
   "example": {

@@ -172,54 +172,6 @@ class TypedResourceRegistry:
         return True
 
 
-def _dimensions(m, n, k, element_bytes):
-    if not all(_is_positive_int(value) for value in (m, n, k, element_bytes)):
-        raise ValueError("invalid dimensions")
-
-
-def _tile(m, n, k, tile):
-    if not isinstance(tile, (tuple, list)) or len(tile) != 3:
-        raise ValueError("invalid tile")
-    tm, tn, tk = tile
-    if not all(_is_positive_int(value) for value in (tm, tn, tk)):
-        raise ValueError("invalid tile")
-    if m % tm != 0 or n % tn != 0 or k % tk != 0:
-        raise ValueError("tile does not divide dimensions")
-    return (tm, tn, tk)
-
-
-def estimate_tiled_matmul_cost(m, n, k, tile, element_bytes=4):
-    _dimensions(m, n, k, element_bytes)
-    tm, tn, tk = _tile(m, n, k, tile)
-    workspace_bytes = element_bytes * (tm * tk + tk * tn + tm * tn)
-    output_tiles = (m // tm) * (n // tn)
-    inner_blocks = k // tk
-    estimated_bytes = element_bytes * (output_tiles * inner_blocks * (tm * tk + tk * tn) + m * n)
-    flops = 2 * m * n * k
-    return {
-        "tile": (tm, tn, tk),
-        "workspace_bytes": workspace_bytes,
-        "estimated_bytes": estimated_bytes,
-        "arithmetic_intensity": float(flops) / estimated_bytes,
-    }
-
-
-def choose_matrix_tiling(m, n, k, tile_candidates, max_workspace_bytes, element_bytes=4):
-    _dimensions(m, n, k, element_bytes)
-    if not _is_positive_int(max_workspace_bytes):
-        raise ValueError("invalid workspace budget")
-    if not isinstance(tile_candidates, (list, tuple)) or not tile_candidates:
-        raise ValueError("invalid candidates")
-    feasible = []
-    for tile in tile_candidates:
-        cost = estimate_tiled_matmul_cost(m, n, k, tile, element_bytes)
-        if cost["workspace_bytes"] <= max_workspace_bytes:
-            feasible.append(cost)
-    if not feasible:
-        raise ValueError("no feasible tile")
-    return min(feasible, key=lambda cost: (cost["estimated_bytes"], cost["tile"]))
-
-
 class VersionedGetWhenDatabase:
     def __init__(self):
         self._records = {}
