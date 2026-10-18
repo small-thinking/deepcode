@@ -1,0 +1,128 @@
+[
+  {
+    "name": "[Stage 01] combine unequal batches and preserve inputs",
+    "input": "Two blocks of 1 and 2 rows",
+    "test": "import numpy as np\na=np.array([[1.,2.]])\nb=np.array([[3.,4.],[5.,6.]])\na0,b0=a.copy(),b.copy()\nr=combine_batches([a,b])\nassert r.shape==(3,2)\nnp.testing.assert_array_equal(r,[[1,2],[3,4],[5,6]])\nnp.testing.assert_array_equal(a,a0)\nnp.testing.assert_array_equal(b,b0)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 01] combine singleton shape",
+    "input": "One (1,1) block",
+    "test": "import numpy as np\nr=combine_batches([np.array([[7.]])])\nassert r.shape==(1,1)\nnp.testing.assert_array_equal(r,[[7.]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 02] filter shared mask and all-false boundary",
+    "input": "Keep rows 0 and 2, then none",
+    "test": "import numpy as np\nX=np.array([[1.,2.],[3.,4.],[5.,6.]])\ny=np.array([2,0,1]); keep=np.array([True,False,True])\na,b=filter_rows(X,y,keep)\nassert a.shape==(2,2) and b.shape==(2,)\nnp.testing.assert_array_equal(a,[[1,2],[5,6]])\nnp.testing.assert_array_equal(b,[2,1])\ne,f=filter_rows(X,y,np.array([False,False,False]))\nassert e.shape==(0,2) and f.shape==(0,)\nnp.testing.assert_array_equal(X,[[1,2],[3,4],[5,6]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 03] population moments and constant column",
+    "input": "Three rows, one constant feature",
+    "test": "import numpy as np\nX=np.array([[1.,5.],[3.,5.],[5.,5.]])\nm,s=fit_standardizer(X)\nassert m.shape==(1,2) and s.shape==(1,2)\nnp.testing.assert_allclose(m,[[3.,5.]])\nnp.testing.assert_allclose(s,[[np.sqrt(8/3),1.]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 03] near-zero standard deviation guard",
+    "input": "A feature varies by only 1e-10",
+    "test": "import numpy as np\nX=np.array([[2.,10.],[2.+1e-10,14.]])\nm,s=fit_standardizer(X)\nnp.testing.assert_allclose(m,[[2.+5e-11,12.]])\nnp.testing.assert_allclose(s,[[1.,2.]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 04] broadcast training statistics to held-out rows",
+    "input": "Column mean (2,10), scale (1,2)",
+    "test": "import numpy as np\nX=np.array([[1.,8.],[3.,12.]])\nX0=X.copy()\nr=standardize(X,np.array([[2.,10.]]),np.array([[1.,2.]]))\nassert r.shape==(2,2)\nnp.testing.assert_allclose(r,[[-1.,-1.],[1.,1.]])\nnp.testing.assert_array_equal(X,X0)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 05] seeded minibatches retain short tail and pairs",
+    "input": "Five paired rows, batch size 2, seed 7",
+    "test": "import numpy as np\nX=np.array([[10.],[20.],[30.],[40.],[50.]])\ny=np.array([1,2,3,4,5])\nbatches=make_minibatches(X,y,2,7)\nassert [xb.shape for xb,_ in batches]==[(2,1),(2,1),(1,1)]\nassert [yb.shape for _,yb in batches]==[(2,),(2,),(1,)]\norder=np.random.default_rng(7).permutation(5)\nnp.testing.assert_array_equal(np.concatenate([xb[:,0] for xb,_ in batches]),X[order,0])\nnp.testing.assert_array_equal(np.concatenate([yb for _,yb in batches]),y[order])\nnp.testing.assert_array_equal(X[:,0],[10,20,30,40,50])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 05] single full minibatch",
+    "input": "Batch size exceeds dataset size",
+    "test": "import numpy as np\nX=np.array([[1.],[2.]])\ny=np.array([0,1])\nbatches=make_minibatches(X,y,5,0)\nassert len(batches)==1 and batches[0][0].shape==(2,1)\nassert set(zip(batches[0][0][:,0],batches[0][1]))=={(1.,0),(2.,1)}\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 06] affine scores and bias broadcast",
+    "input": "Two rows, two features, three classes",
+    "test": "import numpy as np\nX=np.array([[1.,2.],[3.,4.]])\nW=np.array([[1.,-1.,2.],[2.,0.,-1.]])\nb=np.array([.5,1.,-2.])\nr=linear_logits(X,W,b)\nassert r.shape==(2,3)\nnp.testing.assert_allclose(r,[[5.5,0.,-2.],[11.5,-2.,0.]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 06] singleton affine dimensions",
+    "input": "One row and one class",
+    "test": "import numpy as np\nr=linear_logits(np.array([[2.]]),np.array([[3.]]),np.array([4.]))\nassert r.shape==(1,1)\nnp.testing.assert_allclose(r,[[10.]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 07] stable row softmax",
+    "input": "Large positive and negative logits",
+    "test": "import numpy as np\nwith np.errstate(over='raise',invalid='raise'):\n    p=softmax(np.array([[1000.,1001.],[-1000.,-1000.]]))\nassert p.shape==(2,2)\nnp.testing.assert_allclose(p[0],[1/(1+np.e),np.e/(1+np.e)])\nnp.testing.assert_allclose(p[1],[.5,.5])\nnp.testing.assert_allclose(p.sum(axis=1),[1.,1.])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 08] one-hot including singleton row",
+    "input": "Labels [2,0,2], three classes",
+    "test": "import numpy as np\nr=one_hot(np.array([2,0,2]),3)\nassert r.shape==(3,3)\nnp.testing.assert_array_equal(r,[[0,0,1],[1,0,0],[0,0,1]])\nassert one_hot(np.array([0]),1).shape==(1,1)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 09] cross entropy selects targets and clips zero",
+    "input": "One true class has probability zero",
+    "test": "import numpy as np\np=np.array([[.8,.2],[0.,1.]])\ny=np.array([0,0])\np0=p.copy()\nr=cross_entropy(p,y)\nassert isinstance(r,float)\nnp.testing.assert_allclose(r,-(np.log(.8)+np.log(1e-12))/2)\nnp.testing.assert_array_equal(p,p0)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 09] cross entropy singleton",
+    "input": "One row, target probability .75",
+    "test": "import numpy as np\nr=cross_entropy(np.array([[.25,.75]]),np.array([1]))\nnp.testing.assert_allclose(r,-np.log(.75))\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 10] mean linear gradients",
+    "input": "Two rows with hand-computed residuals",
+    "test": "import numpy as np\nX=np.array([[1.,2.],[3.,4.]])\np=np.array([[.75,.25],[.4,.6]])\ny=np.array([0,1])\ndW,db=linear_gradients(X,p,y)\nassert dW.shape==(2,2) and db.shape==(2,)\nnp.testing.assert_allclose(dW,[[.475,-.475],[.55,-.55]])\nnp.testing.assert_allclose(db,[.075,-.075])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 10] singleton gradient keeps matrix",
+    "input": "One example, one class",
+    "test": "import numpy as np\ndW,db=linear_gradients(np.array([[2.]]),np.array([[1.]]),np.array([0]))\nassert dW.shape==(1,1) and db.shape==(1,)\nnp.testing.assert_array_equal(dW,[[0.]])\nnp.testing.assert_array_equal(db,[0.])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 11] SGD step returns new arrays",
+    "input": "Learning rate 0.1",
+    "test": "import numpy as np\nW=np.array([[1.,2.],[3.,4.]])\nb=np.array([.5,-.5])\nW0,b0=W.copy(),b.copy()\na,c=sgd_step(W,b,np.array([[2.,-2.],[1.,1.]]),np.array([.25,-.25]),.1)\nnp.testing.assert_allclose(a,[[.8,2.2],[2.9,3.9]])\nnp.testing.assert_allclose(c,[.475,-.475])\nnp.testing.assert_array_equal(W,W0)\nnp.testing.assert_array_equal(b,b0)\nassert a is not W and c is not b\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 12] predictions top-k accuracy and confusion",
+    "input": "Four examples, three classes, k=2",
+    "test": "import numpy as np\np=np.array([[.1,.7,.2],[.5,.4,.1],[.2,.3,.5],[.1,.8,.1]])\ny=np.array([1,1,0,2])\nr=classification_metrics(p,y,2)\nassert set(r)=={'predictions','top_k','accuracy','top_k_accuracy','confusion'}\nnp.testing.assert_array_equal(r['predictions'],[1,0,2,1])\nnp.testing.assert_array_equal(r['top_k'],[[1,2],[0,1],[2,1],[1,0]])\nassert r['predictions'].shape==(4,) and r['top_k'].shape==(4,2)\nassert isinstance(r['accuracy'],float) and isinstance(r['top_k_accuracy'],float)\nnp.testing.assert_allclose([r['accuracy'],r['top_k_accuracy']],[.25,.5])\nnp.testing.assert_array_equal(r['confusion'],[[0,0,1],[1,1,0],[0,1,0]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 12] stable ties and unused true class",
+    "input": "Tied classes 0 and 1, k=C",
+    "test": "import numpy as np\np=np.array([[.5,.5,0.],[.2,.2,.6]])\ny=np.array([1,2])\nr=classification_metrics(p,y,3)\nnp.testing.assert_array_equal(r['predictions'],[0,2])\nnp.testing.assert_array_equal(r['top_k'],[[0,1,2],[2,0,1]])\nnp.testing.assert_allclose([r['accuracy'],r['top_k_accuracy']],[.5,1.])\nnp.testing.assert_array_equal(r['confusion'],[[0,0,0],[1,0,0],[0,0,1]])\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 13] one epoch matches independent scalar update loop",
+    "input": "Three rows, two minibatches; compare scalar reference",
+    "test": "import numpy as np\nimport math\nX=np.array([[1.,0.],[0.,1.],[1.,1.]])\ny=np.array([0,1,0])\nW=np.zeros((2,2)); b=np.zeros(2)\nW0,b0=W.copy(),b.copy()\nlr=.2; order=np.random.default_rng(3).permutation(3)\n# A scalar reference computes every two-class update from the current parameters.\nweights=[[0.,0.],[0.,0.]]; bias=[0.,0.]\nfor start in range(0,3,2):\n    ids=order[start:start+2]; dw=[[0.,0.],[0.,0.]]; db=[0.,0.]\n    for i in ids:\n        scores=[sum(float(X[i,d])*weights[d][c] for d in range(2))+bias[c] for c in range(2)]\n        shift=max(scores); exps=[math.exp(z-shift) for z in scores]; total=sum(exps)\n        for c in range(2):\n            residual=exps[c]/total-(1. if c==int(y[i]) else 0.)\n            db[c]+=residual\n            for d in range(2): dw[d][c]+=float(X[i,d])*residual\n    for c in range(2):\n        bias[c]-=lr*db[c]/len(ids)\n        for d in range(2): weights[d][c]-=lr*dw[d][c]/len(ids)\nactual_w,actual_b=train_epoch(X,y,W,b,lr,2,3)\nnp.testing.assert_allclose(actual_w,weights)\nnp.testing.assert_allclose(actual_b,bias)\nnp.testing.assert_array_equal(W,W0)\nnp.testing.assert_array_equal(b,b0)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "[Stage 13] zero learning rate leaves parameter values",
+    "input": "One row, zero learning rate",
+    "test": "import numpy as np\nX=np.array([[1.,2.]])\ny=np.array([1]); W=np.array([[.1,-.2],[.3,.4]]); b=np.array([1.,-1.])\na,c=train_epoch(X,y,W,b,0.,4,9)\nnp.testing.assert_array_equal(a,W)\nnp.testing.assert_array_equal(c,b)\nassert a is not W and c is not b\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  }
+]
