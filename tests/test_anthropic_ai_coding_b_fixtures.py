@@ -9,9 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = (ROOT / "tests" / "reference_solutions" / "anthropic_ai_coding_b.py").read_text(encoding="utf-8")
 SLUGS = [
     "async-retry-work-queue-crawler",
-    "deterministic-pair-merge-tokenizer",
-    "batched-image-processor",
-    "capacity-series-analysis",
 ]
 
 

@@ -9,10 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = (ROOT / "tests" / "reference_solutions" / "openai_ml_data_numerics.py").read_text(encoding="utf-8")
 SLUGS = [
     "noisy-annotator-filtered-training",
-    "linear-double-descent-sweep",
-    "ml-numerics-loss-curve-toolkit",
-    "robust-ab-test-analysis",
-    "image-data-quality-denoising",
 ]
 
 

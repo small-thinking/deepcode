@@ -1,52 +1,4 @@
-import copy
-
 import numpy as np
-
-
-def run_tool_session(initial_state, tools, actions, max_calls):
-    if not isinstance(initial_state, dict) or not isinstance(tools, dict):
-        raise ValueError("initial_state and tools must be mappings")
-    if not isinstance(actions, (list, tuple)):
-        raise ValueError("actions must be a sequence")
-    if isinstance(max_calls, bool) or not isinstance(max_calls, int) or max_calls <= 0:
-        raise ValueError("max_calls must be a positive integer")
-
-    state = copy.deepcopy(initial_state)
-    transcript = []
-    calls = 0
-    for action in actions:
-        if not isinstance(action, dict) or "type" not in action:
-            raise ValueError("malformed action")
-        action_type = action["type"]
-        if action_type == "final":
-            if "answer" not in action:
-                raise ValueError("final action requires an answer")
-            return {
-                "state": state,
-                "transcript": transcript,
-                "status": "complete",
-                "answer": copy.deepcopy(action["answer"]),
-            }
-        if action_type != "tool":
-            raise ValueError("unknown action type")
-        name = action.get("name")
-        arguments = action.get("arguments")
-        if not isinstance(name, str) or not isinstance(arguments, dict) or name not in tools:
-            raise ValueError("invalid tool action")
-        if calls >= max_calls:
-            raise RuntimeError("tool call limit exceeded")
-        updates = tools[name](copy.deepcopy(state), copy.deepcopy(arguments))
-        if not isinstance(updates, dict):
-            raise TypeError("tools must return update mappings")
-        copied_updates = copy.deepcopy(updates)
-        state.update(copied_updates)
-        transcript.append({
-            "name": name,
-            "arguments": copy.deepcopy(arguments),
-            "updates": copied_updates,
-        })
-        calls += 1
-    return {"state": state, "transcript": transcript, "status": "incomplete", "answer": None}
 
 
 def _normalize_name(name):
@@ -204,24 +156,3 @@ def transform_image(image, operations):
         else:
             raise ValueError("unknown operation")
     return result
-
-
-def masked_batched_gather(values, indices, fill_value=0):
-    if not isinstance(values, np.ndarray) or values.ndim != 3:
-        raise ValueError("values must be rank three")
-    if not isinstance(indices, np.ndarray) or indices.ndim != 2:
-        raise ValueError("indices must be rank two")
-    if indices.shape[0] != values.shape[0]:
-        raise ValueError("batch sizes must match")
-    if not np.issubdtype(indices.dtype, np.integer) or np.issubdtype(indices.dtype, np.bool_):
-        raise ValueError("indices must have an integer dtype")
-    items = values.shape[1]
-    if np.any(indices < -1) or np.any(indices >= items):
-        raise ValueError("index out of range")
-
-    output_dtype = np.result_type(values.dtype, np.asarray(fill_value).dtype)
-    valid = indices >= 0
-    gathered = np.full(indices.shape + (values.shape[2],), fill_value, dtype=output_dtype)
-    batch_rows, selected_rows = np.nonzero(valid)
-    gathered[batch_rows, selected_rows] = values[batch_rows, indices[valid]]
-    return gathered, valid

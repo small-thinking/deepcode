@@ -9,7 +9,9 @@
     "regression",
     "optimization"
   ],
-  "companies": [],
+  "companies": [
+    "General"
+  ],
   "prompt": "Implement `linear_regression_step(X, y, weights, bias, learning_rate)` to perform one full-batch gradient descent step for a linear regression model with an intercept.\n\nMinimize mean squared prediction error, averaged over samples, with no extra factor of 1/2 and no regularization. Update all weights and the bias simultaneously from their values at the start of the step.\n\nInputs:\n- `X`: a numeric Python list or NumPy array of shape `(n_samples, n_features)`.\n- `y`: targets of shape `(n_samples,)`.\n- `weights`: current coefficients of shape `(n_features,)`.\n- `bias` and `learning_rate`: numeric scalars.\n\nAssume valid, finite inputs with matching shapes and at least one sample. Return `(new_weights, new_bias)`: a weight vector with the original shape (NumPy array or list) and a numeric scalar bias. Do not mutate the inputs. NumPy is available.",
   "starter_code": "import numpy as np\n\n\ndef linear_regression_step(X, y, weights, bias, learning_rate):\n    # TODO: Return the updated weights and bias.\n    raise NotImplementedError\n",
   "example": {

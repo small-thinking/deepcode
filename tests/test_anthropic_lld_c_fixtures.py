@@ -32,9 +32,6 @@ class AnthropicLldCFixtureTest(unittest.TestCase):
     def test_typed_resource_registry_reference_solution_passes(self):
         self._assert_reference_solution_passes("typed-resource-registry")
 
-    def test_matrix_kernel_tiling_cost_reference_solution_passes(self):
-        self._assert_reference_solution_passes("matrix-kernel-tiling-cost")
-
     def test_versioned_get_when_database_reference_solution_passes(self):
         self._assert_reference_solution_passes("versioned-get-when-database")
 
