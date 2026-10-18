@@ -11,7 +11,6 @@ SLUGS = (
     "uber-parallel-prerequisite-tasks",
     "uber-referral-revenue-topk",
     "uber-first-local-minimum",
-    "uber-sales-by-category",
 )
 
 
