@@ -10,7 +10,8 @@
     "autograd"
   ],
   "companies": [
-    "Uber"
+    "Uber",
+    "General"
   ],
   "prompt": "Build a PyTorch multi-head self-attention layer from its learned projections.\n\nImplement `MHA(n_heads, dim)` with `forward(x, mask=None)`. Input `x` is a floating tensor `(B, T, dim)`; return `(B, T, dim)`. Expose biased `nn.Linear` layers `W_qkv: dim → 3 * dim` (Q, K, V order) and `W_o: dim → dim`. Split each projection into `n_heads`, use scaled dot-product attention, and merge heads in their original order.\n\n`mask` is optional and boolean, broadcastable to `(B, n_heads, T, T)`; True permits attention. Every query has an allowed key. A padding mask should be supplied as `(B, 1, 1, T)`. Causality is caller-controlled.\n\nAssert positive constructor dimensions with `dim` divisible by `n_heads`. Preserve dtype, device, and autograd without mutating inputs or parameters. Use CPU PyTorch; do not call `nn.MultiheadAttention` or `functional.scaled_dot_product_attention`. No other transformer components are required.",
   "starter_code": "import torch\nfrom torch import nn\n\n\nclass MHA(nn.Module):\n    def __init__(self, n_heads, dim):\n        super().__init__()\n        # Define W_qkv and W_o.\n        pass\n\n    def forward(self, x, mask=None):\n        pass\n",

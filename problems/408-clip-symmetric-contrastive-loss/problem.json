@@ -11,7 +11,8 @@
     "cross-entropy"
   ],
   "companies": [
-    "Uber"
+    "Uber",
+    "General"
   ],
   "prompt": "A multimodal retrieval model receives paired image and text embeddings: row `i` in each batch is a matching pair. Implement their CLIP-style symmetric contrastive loss in PyTorch.\n\n`clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True)` takes matching floating tensors `(B, D)` with positive dimensions and returns a scalar loss. Optionally L2-normalize each row, form all pairwise dot products divided by temperature, and average image-to-text and text-to-image cross-entropy. Diagonal entries are positives; other batch entries are negatives.\n\nPreserve dtype, device, and autograd without mutating inputs. Reject rank/shape mismatches or non-positive/non-finite temperature; `assert` is sufficient. Explain the effects of symmetry, normalization, and temperature.",
   "starter_code": "import math\n\nimport torch\nimport torch.nn.functional as F\n\n\ndef clip_contrastive_loss(image_embeddings, text_embeddings, temperature=0.07, normalize=True):\n    # Return the symmetric image-to-text/text-to-image cross-entropy loss.\n    pass\n",
