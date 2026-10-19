@@ -1331,11 +1331,17 @@ body.is-resizing .interactive-demo-frame {
 }
 
 .results {
+  display: flex;
+  flex-direction: column;
   background: var(--inset-bg);
   padding: 14px;
   min-height: 0;
   max-height: none;
   overflow: auto;
+}
+
+.results[hidden] {
+  display: none;
 }
 
 .running-results {
@@ -1441,6 +1447,7 @@ body.is-resizing .interactive-demo-frame {
 
 .result-summary {
   display: flex;
+  flex: 0 0 auto;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
@@ -1449,10 +1456,15 @@ body.is-resizing .interactive-demo-frame {
 
 .result-tabs {
   display: flex;
+  flex: 0 0 auto;
   gap: 6px;
   margin-bottom: 10px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.result-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .result-tab {
@@ -1491,6 +1503,9 @@ body.is-resizing .interactive-demo-frame {
 }
 
 .result-case {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
   border: 1px solid var(--line);
   border-left-width: 4px;
   border-radius: 8px;
@@ -3038,6 +3053,11 @@ body[data-theme="light"] .progress-page {
     display: flex;
     flex-direction: column;
     min-height: auto;
+  }
+
+  .results {
+    flex: 0 0 auto;
+    height: 360px;
   }
 
   .system-design-workspace {
