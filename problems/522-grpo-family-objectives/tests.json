@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Stage 1-2: per-prompt detached advantages, std convention and degenerate groups",
+    "test": "import torch\nr = torch.tensor([[0.,4.],[10.,10.],[1.,3.]], dtype=torch.float64, requires_grad=True)\nsaved = r.detach().clone()\nfor variant in ('grpo','dapo','gspo'):\n a = family_advantages(r, variant, eps=1.)\n torch.testing.assert_close(a, torch.tensor([[-2/3,2/3],[0.,0.],[-.5,.5]], dtype=r.dtype))\n assert not a.requires_grad and a.dtype == r.dtype\nassert not family_advantages(r,'dr_grpo').requires_grad\ntorch.testing.assert_close(family_advantages(r,'dr_grpo'), torch.tensor([[-2.,2.],[0.,0.],[-1.,1.]],dtype=r.dtype))\nfor variant in ('grpo','dr_grpo','dapo','gspo'):\n assert torch.equal(family_advantages(torch.tensor([[7.],[2.]]),variant),torch.zeros((2,1)))\nassert torch.equal(r.detach(), saved)\n"
+  },
+  {
+    "name": "Stage 1: zero baseline loss still has unequal-length policy gradients",
+    "test": "import torch\nx = torch.zeros((1,2,3),dtype=torch.float64,requires_grad=True)\nold = torch.zeros_like(x,requires_grad=True)\nr = torch.tensor([[0.,4.]],dtype=x.dtype,requires_grad=True)\nm = torch.tensor([[[True,False,False],[True,True,True]]])\nloss = family_policy_loss(x,old,r,m,eps=1.)\nassert loss.ndim == 0 and loss.dtype == x.dtype\nassert abs(loss.item()) < 1e-12\nloss.backward()\ntorch.testing.assert_close(x.grad,torch.tensor([[[1/3,0.,0.],[-1/9,-1/9,-1/9]]],dtype=x.dtype))\nassert old.grad is None and r.grad is None\n"
+  },
+  {
+    "name": "Stage 2: Dr GRPO removes std and uses supplied global C, not padded width",
+    "test": "import torch\nx = torch.zeros((1,2,3),dtype=torch.float64,requires_grad=True)\nm = torch.tensor([[[True,False,False],[True,True,True]]])\nr = torch.tensor([[0.,4.]],dtype=x.dtype)\nloss=family_policy_loss(x,x.detach().clone(),r,m,'dr_grpo',max_length=4,eps=1.)\nassert abs(loss.item()+.5)<1e-12\nloss.backward()\ntorch.testing.assert_close(x.grad,torch.tensor([[[.25,0.,0.],[-.25,-.25,-.25]]],dtype=x.dtype))\nother=family_policy_loss(x,x.detach(),r,m,'dr_grpo',max_length=8,eps=.01)\nassert abs(other.item()+.25)<1e-12\nscaled=family_policy_loss(x,x.detach(),3*r,m,'dr_grpo',max_length=4)\nassert abs(scaled.item()+1.5)<1e-12\n"
+  },
+  {
+    "name": "Stage 3: DAPO global mini-batch token mean differs from per-prompt means",
+    "test": "import torch\nx=torch.zeros((2,2,3),dtype=torch.float64,requires_grad=True)\nr=torch.tensor([[0.,4.],[0.,4.]],dtype=x.dtype)\nm=torch.tensor([[[1,0,0],[1,1,1]],[[1,0,0],[1,0,0]]],dtype=torch.bool)\nloss=family_policy_loss(x,x.detach(),r,m,'dapo',eps=1.)\nassert abs(loss.item()+2/9)<1e-12\nassert abs(loss.item()+1/6)>.01, 'do not average group-local token means'\nloss.backward()\nexpected=torch.tensor([[[1/9,0,0],[-1/9,-1/9,-1/9]],[[1/9,0,0],[-1/9,0,0]]],dtype=x.dtype)\ntorch.testing.assert_close(x.grad,expected)\n"
+  },
+  {
+    "name": "Stage 1: clipped surrogate respects positive and negative advantage branches",
+    "test": "import torch\nratios=torch.tensor([[[.6],[1.4],[.6],[1.4]]],dtype=torch.float64)\nx=ratios.log().requires_grad_()\nr=torch.tensor([[-1.,-1.,1.,1.]],dtype=x.dtype)\nloss=family_policy_loss(x,torch.zeros_like(x),r,torch.ones_like(x,dtype=torch.bool),eps=1.)\nassert abs(loss.item()-.05)<1e-12\nloss.backward()\ntorch.testing.assert_close(x.grad,torch.tensor([[[0.],[.175],[-.075],[0.]]],dtype=x.dtype))\n"
+  },
+  {
+    "name": "Stage 3: Clip Higher restores the positive response gradient without widening lower bound",
+    "test": "import torch\nx=torch.tensor([[[1.],[1.3]]],dtype=torch.float64).log().requires_grad_()\nr=torch.tensor([[0.,4.]],dtype=x.dtype)\nm=torch.ones_like(x,dtype=torch.bool)\nwide=family_policy_loss(x,torch.zeros_like(x),r,m,'dapo',clip_low=.2,clip_high=.4,eps=1.)\ngrad=torch.autograd.grad(wide,x)[0]\nassert abs(wide.item()+.1)<1e-12\nassert abs(grad[0,1,0].item()+13/30)<1e-12\nnarrow=family_policy_loss(x,torch.zeros_like(x),r,m,'dapo',clip_low=.2,clip_high=.2,eps=1.)\nassert torch.autograd.grad(narrow,x)[0][0,1,0] == 0\nlow=torch.tensor([[[.7],[1.]]],dtype=x.dtype).log().requires_grad_()\ny=family_policy_loss(low,torch.zeros_like(low),r,m,'dapo',clip_low=.2,clip_high=.4,eps=1.)\nassert torch.autograd.grad(y,low)[0][0,0,0] == 0\n"
+  },
+  {
+    "name": "Stage 4: GSPO uses geometric ratio and equal within-response logprob coefficients",
+    "test": "import torch\nratios=torch.tensor([[[1.,1.],[1.44,.64]]],dtype=torch.float64)\nx=ratios.log().requires_grad_()\nr=torch.tensor([[0.,4.]],dtype=x.dtype)\nm=torch.ones_like(x,dtype=torch.bool)\nloss=family_policy_loss(x,torch.zeros_like(x),r,m,'gspo',clip_low=.5,clip_high=1.,eps=1.)\n# sqrt(1.44 * .64) = .96; A=[-2/3,+2/3].\nassert abs(loss.item()-1/75)<1e-12\nloss.backward()\ntorch.testing.assert_close(x.grad,torch.tensor([[[1/6,1/6],[-.16,-.16]]],dtype=x.dtype))\n"
+  },
+  {
+    "name": "Stage 4: sequence clipping can stop both tokens while GRPO stops only one",
+    "test": "import torch\nx=torch.tensor([[[1.,1.],[4.,1.]]],dtype=torch.float64).log().requires_grad_()\nr=torch.tensor([[0.,4.]],dtype=x.dtype)\nm=torch.ones_like(x,dtype=torch.bool)\nseq=family_policy_loss(x,torch.zeros_like(x),r,m,'gspo',eps=1.)\nseq_grad=torch.autograd.grad(seq,x)[0]\nassert torch.equal(seq_grad[0,1],torch.zeros(2,dtype=x.dtype))\ntok=family_policy_loss(x,torch.zeros_like(x),r,m,'grpo',eps=1.)\ntok_grad=torch.autograd.grad(tok,x)[0]\nassert tok_grad[0,1,0]==0 and tok_grad[0,1,1]<0\nassert not torch.allclose(seq,tok)\n"
+  },
+  {
+    "name": "Stages 1-4: padding cannot overflow or receive gradients; snapshots stay detached",
+    "test": "import torch\nfor variant in ('grpo','dr_grpo','dapo','gspo'):\n x=torch.tensor([[[-1.,1000.],[-.9,-1.1]]],dtype=torch.float64,requires_grad=True)\n old=torch.tensor([[[-1.,-1000.],[-1.,-1.]]],dtype=x.dtype,requires_grad=True)\n r=torch.tensor([[0.,4.]],dtype=x.dtype,requires_grad=True)\n m=torch.tensor([[[True,False],[True,True]]])\n saved=[v.detach().clone() for v in (x,old,r,m)]\n loss=family_policy_loss(x,old,r,m,variant,max_length=4,eps=1.)\n assert torch.isfinite(loss) and loss.requires_grad\n loss.backward()\n assert torch.isfinite(x.grad).all() and x.grad[0,0,1]==0\n assert old.grad is None and r.grad is None\n assert all(torch.equal(a.detach(),b) for a,b in zip((x,old,r,m),saved))\n # Appending a masked position must change no objective, including Dr's C.\n extra=torch.full((1,2,1),1000.,dtype=x.dtype)\n padded=family_policy_loss(torch.cat([x.detach(),extra],-1),torch.cat([old.detach(),-extra],-1),r,m.new_tensor([[[1,0,0],[1,1,0]]]),variant,max_length=4,eps=1.)\n torch.testing.assert_close(padded,loss.detach())\n"
+  },
+  {
+    "name": "Stages 1-4: constant and singleton groups give differentiable zero in float32",
+    "test": "import torch\nfor size in (1,3):\n for variant in ('grpo','dr_grpo','dapo','gspo'):\n  x=torch.full((2,size,2),-1.,requires_grad=True)\n  loss=family_policy_loss(x,x.detach(),torch.ones((2,size)),torch.ones_like(x,dtype=torch.bool),variant,max_length=5)\n  assert loss.dtype==torch.float32 and loss.requires_grad and loss.item()==0\n  loss.backward()\n  assert torch.equal(x.grad,torch.zeros_like(x))\n"
+  },
+  {
+    "name": "Stage 5a: soft length penalty boundaries, saturation, dtype and detachment",
+    "test": "import torch\nr=torch.ones((1,7),dtype=torch.float64,requires_grad=True)\nlens=torch.tensor([[1,6,7,8,9,10,11]])\nsaved=r.detach().clone()\nshaped=soft_overlong_rewards(r,lens,10,4)\ntorch.testing.assert_close(shaped,torch.tensor([[1.,1.,.75,.5,.25,0.,0.]],dtype=r.dtype))\nassert not shaped.requires_grad and shaped.dtype==r.dtype\nassert torch.equal(r.detach(),saved)\ntorch.testing.assert_close(soft_overlong_rewards(torch.tensor([[2.,-1.]]),torch.tensor([[3,5]]),5,5),torch.tensor([[1.4,-2.]]))\n"
+  },
+  {
+    "name": "Stage 5b: refill complete groups, preserve all fields and stop at target",
+    "test": "import torch\ndef make_batch(ids, correct):\n c=torch.tensor(correct,dtype=torch.bool)\n k,g=c.shape\n return {'prompt_ids':torch.tensor(ids),\n         'responses':torch.arange(k*g*2).reshape(k,g,2),\n         'response_mask':torch.ones((k,g,2),dtype=torch.bool),\n         'old_logprobs':torch.arange(k*g*2,dtype=torch.float64).reshape(k,g,2).requires_grad_(),\n         'rewards':torch.arange(k*g,dtype=torch.float64).reshape(k,g).requires_grad_(),\n         'correct':c}\n\nfirst=make_batch([10,20,30],[[1,1,1],[0,1,0],[0,0,0]])\nsecond=make_batch([40,50],[[1,0,1],[0,1,1]])\nsources=[first,second]\ncount=[0]\ndef sample():\n i=count[0]; count[0]+=1\n assert i<2, 'collector called after target was reached'\n return sources[i]\nout=collect_informative_groups(sample,2,4)\nassert count[0]==2 and set(out)==set(first)\nfor key,value in out.items():\n expected=torch.cat([first[key][1:2].detach(),second[key][0:1].detach()],0)\n assert torch.equal(value,expected), key\n assert not value.requires_grad\n # Output is not an alias of callback buffers.\n if key=='old_logprobs':\n  with torch.no_grad(): first[key].add_(100)\n  assert torch.equal(value,expected)\nassert out['prompt_ids'].tolist()==[20,40]\n"
+  },
+  {
+    "name": "Stage 5b: repeated prompt IDs remain separate groups and inputs remain unchanged",
+    "test": "import torch\ndef make_batch(ids, correct):\n c=torch.tensor(correct,dtype=torch.bool)\n k,g=c.shape\n return {'prompt_ids':torch.tensor(ids),\n         'responses':torch.arange(k*g*2).reshape(k,g,2),\n         'response_mask':torch.ones((k,g,2),dtype=torch.bool),\n         'old_logprobs':torch.arange(k*g*2,dtype=torch.float64).reshape(k,g,2).requires_grad_(),\n         'rewards':torch.arange(k*g,dtype=torch.float64).reshape(k,g).requires_grad_(),\n         'correct':c}\n\nb=make_batch([7,7,8],[[1,0],[0,1],[1,1]])\nsaved={key:v.detach().clone() for key,v in b.items()}\nout=collect_informative_groups(lambda:b,2,1)\nassert out['prompt_ids'].tolist()==[7,7]\nassert all(torch.equal(b[key].detach(),v) for key,v in saved.items())\nout['responses'].fill_(99)\nassert torch.equal(b['responses'],saved['responses'])\n"
+  },
+  {
+    "name": "Stage 5b: homogeneous groups exhaust a bounded budget despite shaped reward variation",
+    "test": "import torch\ndef make_batch(ids, correct):\n c=torch.tensor(correct,dtype=torch.bool)\n k,g=c.shape\n return {'prompt_ids':torch.tensor(ids),\n         'responses':torch.arange(k*g*2).reshape(k,g,2),\n         'response_mask':torch.ones((k,g,2),dtype=torch.bool),\n         'old_logprobs':torch.arange(k*g*2,dtype=torch.float64).reshape(k,g,2).requires_grad_(),\n         'rewards':torch.arange(k*g,dtype=torch.float64).reshape(k,g).requires_grad_(),\n         'correct':c}\n\nb=make_batch([1,2],[[0,0],[1,1]])\ncalls=[0]\ndef sample():\n calls[0]+=1\n return b\ntry:\n collect_informative_groups(sample,1,3)\nexcept RuntimeError:\n pass\nelse:\n raise AssertionError('must fail after bounded uninformative batches')\nassert calls[0]==3\n"
+  },
+  {
+    "name": "Integration: collected rollout, shaped rewards, causal scoring and two updates on frozen old scores",
+    "test": "import torch\n# Token logits have sequence positions [0,1,2]; positions [0,1] predict tokens [1,2].\nfor variant in ('grpo','dr_grpo','dapo','gspo'):\n logits=torch.nn.Parameter(torch.zeros((1,2,3,3),dtype=torch.float64))\n tokens=torch.tensor([[[0,1,2],[0,2,1]]])\n m=torch.tensor([[[True,False],[True,True]]])\n def score():\n  return torch.log_softmax(logits[:,:,:-1],dim=-1).gather(-1,tokens[:,:,1:,None]).squeeze(-1)\n old=score().detach().clone()\n source={'prompt_ids':torch.tensor([5]),'responses':tokens[:,:,1:].clone(),\n         'response_mask':m,'old_logprobs':old,'rewards':torch.tensor([[0.,2.]],dtype=logits.dtype),\n         'correct':torch.tensor([[False,True]])}\n batch=collect_informative_groups(lambda:source,1,1)\n rewards=soft_overlong_rewards(batch['rewards'],m.sum(-1),3,1)\n frozen=batch['old_logprobs'].clone()\n optimizer=torch.optim.SGD([logits],lr=.03)\n for _ in range(2):\n  optimizer.zero_grad()\n  loss=family_policy_loss(score(),batch['old_logprobs'],rewards,m,variant,clip_high=.4,max_length=3,eps=1.)\n  assert torch.isfinite(loss)\n  loss.backward()\n  assert torch.isfinite(logits.grad).all() and logits.grad.abs().sum()>0\n  # Padding prediction and last unpaired sequence position have no gradient.\n  assert logits.grad[0,0,1:].abs().sum()==0 and logits.grad[:,:,2].abs().sum()==0\n  optimizer.step()\n assert torch.equal(batch['old_logprobs'],frozen)\n assert not torch.allclose(score().detach()[m],frozen[m])\n"
+  }
+]
