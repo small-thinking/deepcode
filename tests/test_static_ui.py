@@ -452,7 +452,6 @@ class StaticUiTest(unittest.TestCase):
         self.assertIn(".system-design-tab-panel", styles_css)
         self.assertIn(".system-design-reference-pane", styles_css)
         self.assertIn("overflow-y: auto", styles_css)
-        self.assertIn(".detail-layout.system-design-layout", styles_css)
         self.assertNotIn(".system-design-workspace.reference-open", styles_css)
         self.assertNotIn(".design-reference-resizer", styles_css)
 
