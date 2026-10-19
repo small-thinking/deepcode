@@ -3829,6 +3829,20 @@ function renderResults() {
   `;
 }
 
+function activateResultTab(index) {
+  const item = state.runResult?.results?.[index];
+  const panel = document.querySelector("#run-results .result-case");
+  if (!item || !panel) return;
+
+  state.activeResultIndex = index;
+  document.querySelectorAll(".result-tab").forEach((tab) => {
+    const active = Number(tab.dataset.resultIndex) === index;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+  });
+  panel.outerHTML = renderResultCase(item, index);
+}
+
 function activeRunTargetLabel() {
   if (Number.isInteger(state.runningCustomTestIndex)) {
     const customTest = state.customTests[state.runningCustomTestIndex];
@@ -4010,11 +4024,7 @@ function bindEvents() {
     handle.addEventListener("keydown", handlePaneResizeKeydown);
   });
   document.querySelectorAll(".result-tab").forEach((tab) => {
-    tab.addEventListener("click", () => {
-      saveCode(editorCode());
-      state.activeResultIndex = Number(tab.dataset.resultIndex) || 0;
-      render();
-    });
+    tab.addEventListener("click", () => activateResultTab(Number(tab.dataset.resultIndex)));
   });
   document.querySelector("#problem-timer-toggle")?.addEventListener("click", toggleProblemTimer);
   document.querySelector("#problem-timer-reset")?.addEventListener("click", resetProblemTimer);
