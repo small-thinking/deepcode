@@ -14,3 +14,7 @@ Before editing code or problem definitions, assume the local checkout may be sta
 Fetch again before publishing a PR or merging, check for newly landed changes, and rerun affected validation if integration changes the code. If the remote cannot be reached, state the freshness limitation; do not describe the checkout as up to date.
 
 Keep implementation on a feature branch or isolated worktree. Never reset, overwrite, or automatically stash unrelated work merely to refresh the repository.
+
+## Keep problem descriptions concise
+
+Prioritize the task, required input/API contract, a compact example or comparison table, and a few focused follow-up questions. Put extended explanations and derivations in linked references or existing demos instead of repeating them in descriptions. Keep every behavior required by the tests specified, even when shortening the prose.

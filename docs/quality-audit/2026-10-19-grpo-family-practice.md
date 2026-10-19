@@ -10,6 +10,8 @@ Keep the two existing exercises and add one staged exercise, rather than duplica
 
 The new exercise is General practice derived from papers. It has no company occurrence or frequency attribution. Follow-ups on all three problem pages are explicitly authored rehearsal prompts. Existing evaluator signatures, tests, starter code, demos, and saved drafts are unchanged.
 
+The descriptions keep the required contracts and a few follow-ups; extended derivations remain in the linked references. Repository instructions now make this brevity preference explicit.
+
 The common interface uses already gathered current/old log-probabilities `[B,G,T]`, one reward per response, and a boolean response mask. The five stages use the same tensors and supplied clipping helper:
 
 1. GRPO: population-standardized advantages, token ratios/clipping, then mean within each response and across responses.
