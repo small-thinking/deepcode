@@ -344,28 +344,9 @@ def streaming_entropy(blocks):
 
     def test_top_p_nucleus_sampling_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("top-p-nucleus-sampling")
-        solution = r"""import numpy as np
-
-
-def top_p_sample(logits, top_p, temperature=1.0):
-    values = np.asarray(logits, dtype=np.float64)
-    scaled = values / temperature
-    shifted = scaled - scaled.max()
-    probs = np.exp(shifted)
-    probs = probs / probs.sum()
-    ordered = sorted(range(len(probs)), key=lambda index: (-probs[index], index))
-
-    kept = []
-    mass = 0.0
-    for index in ordered:
-        kept.append(index)
-        mass += float(probs[index])
-        if mass >= top_p:
-            break
-
-    kept_probs = probs[kept] / mass
-    return int(np.random.choice(kept, p=kept_probs))
-"""
+        solution = (
+            ROOT / "tests/reference_solutions/top_k_top_p_sampling.py"
+        ).read_text(encoding="utf-8")
 
         result = run_submission(
             code=solution,

@@ -28,5 +28,65 @@
     "input": "logits = [2.0, 0.0], top_p = 0.8",
     "test": "cold = [top_p_sample([2.0, 0.0], 0.8, temperature=1.0) for _ in range(20)]\nhot = [top_p_sample([2.0, 0.0], 0.8, temperature=2.0) for _ in range(200)]\nassert cold == [0] * 20\nassert set(hot) == {0, 1}\nprint('ok')",
     "expected_output": "ok"
+  },
+  {
+    "name": "top-k keeps exactly k original token ids, breaking ties by index",
+    "input": "logits = [0, 3, 3, 3], top_k = 2",
+    "test": "import numpy as np\nnp.random.seed(105)\nsamples = [top_k_sample([0.0, 3.0, 3.0, 3.0], 2) for _ in range(200)]\nassert set(samples) == {1, 2}\nassert all(isinstance(token, int) for token in samples)\nassert all(sample_token([0.0, 3.0, 3.0, 3.0], top_k=2, top_p=0.4) == 1 for _ in range(20))\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "top-k samples proportionally instead of uniformly or greedily",
+    "input": "logits = log([0.5, 0.3, 0.2]), top_k = 2; conditional probabilities [0.625, 0.375]",
+    "test": "import numpy as np\nnp.random.seed(106)\nlogits = np.log([0.5, 0.3, 0.2])\nsamples = [top_k_sample(logits, 2) for _ in range(6000)]\nassert set(samples) == {0, 1}\nassert abs(samples.count(0) / len(samples) - 0.625) < 0.04\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "combined top-p uses the renormalized top-k distribution",
+    "input": "logits = log([0.5, 0.3, 0.2]), top_k = 2, top_p = 0.6; only token 0 survives",
+    "test": "import numpy as np\nlogits = np.log([0.5, 0.3, 0.2])\nsamples = [sample_token(logits, top_k=2, top_p=0.6) for _ in range(100)]\nassert samples == [0] * 100\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "combined sampling preserves original ids and conditional probabilities",
+    "input": "logits = log([0.1, 0.3, 0.2, 0.4]), top_k = 3, top_p = 0.7; IDs 3 and 1 survive with probabilities 4/7 and 3/7",
+    "test": "import numpy as np\nnp.random.seed(107)\nlogits = np.log([0.1, 0.3, 0.2, 0.4])\nsamples = [sample_token(logits, top_k=3, top_p=0.7) for _ in range(6000)]\nassert set(samples) == {1, 3}\nassert all(isinstance(token, int) for token in samples)\nassert abs(samples.count(3) / len(samples) - 4/7) < 0.04\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "top-k disabled, oversized, and singleton vocabularies",
+    "input": "top_k=None/0/10 on vocabulary size 3; top_k=1; one-token input",
+    "test": "import numpy as np\nnp.random.seed(108)\nfor k in (None, 0, 10):\n    samples = [sample_token([0.0, 0.0, 0.0], top_k=k) for _ in range(200)]\n    assert set(samples) == {0, 1, 2}\nfor k in (0, 10):\n    assert set(top_k_sample([0.0, 0.0, 0.0], k) for _ in range(200)) == {0, 1, 2}\nassert all(top_k_sample([0.0, 3.0, 1.0], 1) == 1 for _ in range(20))\nfor k in (None, 0, 1, 10):\n    assert sample_token([7.0], top_k=k, top_p=0.01) == 0\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "temperature is applied before the combined nucleus threshold",
+    "input": "logits = [2, 0, -4], top_k=2, top_p=0.8; T=1 keeps only 0, T=2 allows 0 and 1",
+    "test": "import numpy as np\nnp.random.seed(109)\nassert all(sample_token([2.0, 0.0, -4.0], top_k=2, top_p=0.8, temperature=1.0) == 0 for _ in range(20))\nhot = [sample_token([2.0, 0.0, -4.0], top_k=2, top_p=0.8, temperature=2.0) for _ in range(400)]\nassert set(hot) == {0, 1}\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "top-p includes the threshold-crossing token and respects an exact boundary",
+    "input": "probabilities [0.5, 0.25, 0.25]: p=0.5 keeps ID 0; p=0.6 adds ID 1",
+    "test": "import numpy as np\nnp.random.seed(110)\nlogits = np.log([0.5, 0.25, 0.25])\nassert all(top_p_sample(logits, 0.5) == 0 for _ in range(20))\nassert set(top_p_sample(logits, 0.6) for _ in range(200)) == {0, 1}\nassert set(sample_token(logits, top_k=3, top_p=0.6) for _ in range(200)) == {0, 1}\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "large common offsets, strided arrays, and lists do not mutate inputs",
+    "input": "large logits on noncontiguous NumPy view and Python list; lower original-index ties",
+    "test": "import numpy as np\nstorage = np.array([10003.0, -999.0, 10000.0, -998.0, 9999.0, -997.0])\nlogits = storage[::2]\nbefore = storage.copy()\nvalues = [10003.0, 10000.0, 9999.0]\noriginal = values[:]\nfor _ in range(20):\n    assert sample_token(logits, top_k=2, top_p=0.6) == 0\n    assert top_k_sample(values, 1) == 0\n    assert top_p_sample(values, 0.6) == 0\nassert np.array_equal(storage, before)\nassert values == original\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "finite extreme logits and temperatures preserve the distribution",
+    "input": "logits [1e308, -1e308] with temperature=1e308; tied huge logits with a tiny temperature",
+    "test": "import numpy as np\nnp.random.seed(111)\nsamples = [sample_token([1e308, -1e308], temperature=1e308) for _ in range(6000)]\nexpected = 1.0 / (1.0 + np.exp(-2.0))\nassert set(samples) == {0, 1}\nassert abs(samples.count(0) / len(samples) - expected) < 0.04\nassert set(sample_token([1e308, 1e308, -1e308], top_p=0.9, temperature=1e-300) for _ in range(200)) == {0, 1}\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "top-p-only sampling follows conditional probabilities",
+    "input": "logits = log([0.5, 0.3, 0.2]), top_p=0.7; IDs 0 and 1 have conditional probabilities 0.625 and 0.375",
+    "test": "import numpy as np\nnp.random.seed(112)\nlogits = np.log([0.5, 0.3, 0.2])\nsamples = [top_p_sample(logits, 0.7) for _ in range(6000)]\nassert set(samples) == {0, 1}\nassert abs(samples.count(0) / len(samples) - 0.625) < 0.04\nprint('ok')\n",
+    "expected_output": "ok"
   }
 ]
