@@ -1775,6 +1775,8 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     if (!state.runResult) {
       throw new Error("Runner stream ended before returning a result");
     }
+    const firstFailedIndex = (state.runResult.results || []).findIndex((item) => !item.passed);
+    state.activeResultIndex = Math.max(0, firstFailedIndex);
     if (state.runResult.status === "passed" && payload.test_index == null &&
         !payload.custom_only && !payload.custom_tests?.length) {
       pauseProblemTimer(problemSlug);
@@ -1791,7 +1793,7 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     state.runningTestIndex = null;
     state.runningCustomTestIndex = null;
     state.activeRunCheck = null;
-    render({ preserveWorkspaceView: true });
+    render({ preserveWorkspaceView: true, revealActiveResult: true });
   }
 }
 
@@ -2074,7 +2076,7 @@ function problemDisplayId(problem) {
   return problem?.display_id ?? problem?.id ?? "";
 }
 
-function render({ preserveWorkspaceView = false } = {}) {
+function render({ preserveWorkspaceView = false, revealActiveResult = false } = {}) {
   const editorView = preserveWorkspaceView ? captureEditorView() : null;
   const problemBody = preserveWorkspaceView ? document.querySelector("#problem-detail-panel .problem-body") : null;
   const problemScroll = problemBody ? { top: problemBody.scrollTop, left: problemBody.scrollLeft } : null;
@@ -2115,6 +2117,9 @@ function render({ preserveWorkspaceView = false } = {}) {
   }
   syncProblemTimer();
   scrollPendingCustomTestIntoView();
+  if (revealActiveResult) {
+    document.querySelector(".result-tab.active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
 }
 
 function companyStageSummary(stage) {

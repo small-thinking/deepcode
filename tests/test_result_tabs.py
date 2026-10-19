@@ -6,6 +6,64 @@ from pathlib import Path
 
 @unittest.skipUnless(shutil.which("node"), "Node is required for result tab checks")
 class ResultTabsTest(unittest.TestCase):
+    def test_completed_runs_select_and_reveal_first_failure_or_first_pass(self):
+        source = Path("frontend/app.js").read_text(encoding="utf-8").split("\n", 1)[1]
+        source = source[:source.rindex("\ntry {\n  migrateExistingCodeDrafts")]
+        script = r'''
+const assert = require('node:assert/strict');
+const localStorage = {getItem() {return null;}};
+const window = {addEventListener() {}};
+const saveSubmittedCodeVersion = () => {};
+let revealed = [];
+const document = {
+  querySelector(selector) {
+    if (selector === '.result-tab.active' && state.runResult?.results?.length) {
+      return {scrollIntoView(options) {revealed.push({index: state.activeResultIndex, ...options});}};
+    }
+    return null;
+  },
+  querySelectorAll: () => [],
+};
+''' + source + r'''
+renderDetail = bindEvents = mountEditor = applyPaneSizes = activateProblemTab = () => {};
+syncProblemTimer = scrollPendingCustomTestIntoView = () => {};
+startRunTimer = stopRunTimer = updateRunElapsed = pauseProblemTimer = syncProblemStatus = () => {};
+state.view = 'problems';
+state.selected = {slug: 'example'};
+let result, useStream;
+runTestsWithStream = async () => {
+  if (useStream) state.runResult = result;
+  return useStream;
+};
+api = async () => result;
+(async () => {
+  for (useStream of [true, false]) {
+    for (const scenario of [
+      {results: [{passed: true}, {passed: true}, {passed: false}, {passed: false}], selected: 2},
+      {results: [...Array(10).fill({passed: true}), {passed: false}], selected: 10},
+      {results: [{passed: false}, {passed: true}], selected: 0},
+      {results: [{passed: true}, {passed: true}], selected: 0},
+      {results: [], selected: 0},
+      {selected: 0},
+    ]) {
+      result = {status: 'finished', results: scenario.results};
+      state.activeResultIndex = 7; // a previous run's selection must not carry over
+      revealed = [];
+      await runPayload({code: 'pass'});
+      assert.equal(state.activeResultIndex, scenario.selected);
+      assert.deepEqual(revealed, scenario.results?.length
+        ? [{index: scenario.selected, block: 'nearest', inline: 'nearest'}] : []);
+      assert.equal(state.running, false);
+      assert.equal(state.error, null);
+    }
+  }
+})().catch(error => {console.error(error); process.exitCode = 1;});
+'''
+        result = subprocess.run(
+            ["node", "--input-type=commonjs"], input=script, capture_output=True, text=True
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_switching_cases_keeps_tabs_editor_and_scroll_positions(self):
         source = Path("frontend/app.js").read_text(encoding="utf-8")
         source = source.split("\n", 1)[1]  # browser module import
