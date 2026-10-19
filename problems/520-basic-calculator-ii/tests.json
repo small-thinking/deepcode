@@ -1,0 +1,74 @@
+[
+  {
+    "name": "multiplication precedes addition",
+    "input": "'3+2*2'",
+    "test": "print(calculate_ii('3+2*2'))",
+    "expected_output": "7"
+  },
+  {
+    "name": "integer division",
+    "input": "' 3/2 '",
+    "test": "print(calculate_ii(' 3/2 '))",
+    "expected_output": "1"
+  },
+  {
+    "name": "spaces around operators",
+    "input": "' 3+5 / 2 '",
+    "test": "print(calculate_ii(' 3+5 / 2 '))",
+    "expected_output": "5"
+  },
+  {
+    "name": "multi-digit number",
+    "input": "'12345'",
+    "test": "print(calculate_ii('12345'))",
+    "expected_output": "12345"
+  },
+  {
+    "name": "negative term truncates toward zero",
+    "input": "'0-7/2'",
+    "test": "print(calculate_ii('0-7/2'))",
+    "expected_output": "-3"
+  },
+  {
+    "name": "negative result",
+    "input": "'1-10*2+3'",
+    "test": "print(calculate_ii('1-10*2+3'))",
+    "expected_output": "-16"
+  },
+  {
+    "name": "left-associative division",
+    "input": "'18/3/2'",
+    "test": "print(calculate_ii('18/3/2'))",
+    "expected_output": "3"
+  },
+  {
+    "name": "mixed multiplication and division",
+    "input": "'7*3/2'",
+    "test": "print(calculate_ii('7*3/2'))",
+    "expected_output": "10"
+  },
+  {
+    "name": "left-associative subtraction",
+    "input": "'10-3-2'",
+    "test": "print(calculate_ii('10-3-2'))",
+    "expected_output": "5"
+  },
+  {
+    "name": "zero term",
+    "input": "'0*999+12'",
+    "test": "print(calculate_ii('0*999+12'))",
+    "expected_output": "12"
+  },
+  {
+    "name": "last number and trailing spaces",
+    "input": "' 12 + 34 * 2   '",
+    "test": "print(calculate_ii(' 12 + 34 * 2   '))",
+    "expected_output": "80"
+  },
+  {
+    "name": "division before later multiplication",
+    "input": "'0-7/2*3'",
+    "test": "print(calculate_ii('0-7/2*3'))",
+    "expected_output": "-9"
+  }
+]
