@@ -118,6 +118,9 @@ button {
 
 .page-detail {
   max-width: none;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 .topbar {
@@ -577,11 +580,14 @@ tbody tr:hover {
   display: grid;
   grid-template-columns: minmax(300px, var(--problem-pane-width)) 12px minmax(380px, 1fr);
   gap: 0;
-  min-height: calc(100vh - 104px);
+  flex: 1 1 0;
+  min-height: 0;
 }
 
-.detail-layout.system-design-layout {
-  height: calc(100vh - 104px);
+.detail-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
 }
 
 .detail-layout.problem-pane-collapsed {
@@ -663,6 +669,7 @@ body.is-resizing {
 
 .problem-topbar {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
@@ -765,7 +772,7 @@ body.is-resizing {
 .problem-body {
   padding: 18px;
   overflow: auto;
-  max-height: calc(100vh - 126px);
+  min-height: 0;
 }
 
 .problem-body h2,
@@ -1109,12 +1116,12 @@ pre {
 
 .editor-panel {
   display: grid;
-  grid-template-rows: auto minmax(220px, 1fr) 12px minmax(140px, var(--results-pane-height));
+  grid-template-rows: auto minmax(0, 1fr) 12px minmax(0, var(--results-pane-height));
   min-height: 0;
 }
 
 .editor-panel.results-collapsed {
-  grid-template-rows: auto minmax(220px, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .editor-panel.results-collapsed .code-results-resizer {
@@ -1615,17 +1622,19 @@ body.is-resizing .interactive-demo-frame {
 }
 
 .playground-page {
-  min-height: 100vh;
+  min-height: 0;
 }
 
 .playground-topbar {
+  flex: 0 0 auto;
   margin-bottom: 14px;
 }
 
 .playground-panel {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  min-height: calc(100vh - 112px);
+  flex: 1 1 0;
+  min-height: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -2983,6 +2992,11 @@ body[data-theme="light"] .progress-page {
     padding: 16px 0;
   }
 
+  .page-detail {
+    height: auto;
+    min-height: 100dvh;
+  }
+
   .topbar,
   .problem-topbar,
   .panel-header {
@@ -3036,9 +3050,18 @@ body[data-theme="light"] .progress-page {
   }
 
   .detail-layout {
+    flex: 0 0 auto;
     height: auto;
     min-height: auto;
     gap: 14px;
+  }
+
+  .detail-panel {
+    display: block;
+  }
+
+  .problem-body {
+    max-height: calc(100dvh - 126px);
   }
 
   .pane-resizer {
@@ -3096,6 +3119,7 @@ body[data-theme="light"] .progress-page {
   }
 
   .playground-panel {
+    flex: 0 0 auto;
     min-height: auto;
   }
 
