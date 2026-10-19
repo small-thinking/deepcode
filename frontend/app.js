@@ -1118,13 +1118,15 @@ function normalizePythonIndentation(code) {
     .join("\n");
 }
 
-function setEditorCode(value) {
+function setEditorCode(value, { preserveView = false } = {}) {
+  const view = preserveView ? captureEditorView() : null;
   if (codeEditor) {
     if (codeEditor.getValue() !== value) codeEditor.setValue(value, -1);
-    return;
+  } else {
+    const fallback = document.querySelector("#code-editor-fallback");
+    if (fallback) fallback.value = value;
   }
-  const fallback = document.querySelector("#code-editor-fallback");
-  if (fallback) fallback.value = value;
+  restoreEditorView(view);
 }
 
 function saveCode(value) {
@@ -1586,6 +1588,46 @@ async function removeDataLink() {
   render();
 }
 
+function captureEditorView() {
+  const sessionKey = editorSessionKey();
+  if (codeEditor) {
+    return {
+      sessionKey,
+      selection: codeEditor.selection.toJSON(),
+      scrollTop: codeEditor.session.getScrollTop(),
+      scrollLeft: codeEditor.session.getScrollLeft(),
+      focused: codeEditor.isFocused(),
+    };
+  }
+  const fallback = document.querySelector("#code-editor-fallback");
+  return fallback ? {
+    sessionKey,
+    selectionStart: fallback.selectionStart,
+    selectionEnd: fallback.selectionEnd,
+    selectionDirection: fallback.selectionDirection,
+    scrollTop: fallback.scrollTop,
+    scrollLeft: fallback.scrollLeft,
+    focused: document.activeElement === fallback,
+  } : null;
+}
+
+function restoreEditorView(view) {
+  if (!view || view.sessionKey !== editorSessionKey()) return;
+  if (codeEditor && view.selection) {
+    codeEditor.selection.fromJSON(view.selection);
+    if (view.focused) codeEditor.focus();
+    codeEditor.session.setScrollTop(view.scrollTop);
+    codeEditor.session.setScrollLeft(view.scrollLeft);
+  } else if (!codeEditor && Number.isInteger(view.selectionStart)) {
+    const fallback = document.querySelector("#code-editor-fallback");
+    if (!fallback) return;
+    fallback.setSelectionRange(view.selectionStart, view.selectionEnd, view.selectionDirection);
+    if (view.focused) fallback.focus({ preventScroll: true });
+    fallback.scrollTop = view.scrollTop;
+    fallback.scrollLeft = view.scrollLeft;
+  }
+}
+
 function teardownEditor() {
   if (!codeEditor) return;
   codeEditor.destroy();
@@ -1678,7 +1720,7 @@ function updateRunElapsed() {
 async function runTests(testIndex = null) {
   if (!state.selected) return;
   const code = normalizePythonIndentation(editorCode());
-  setEditorCode(code);
+  setEditorCode(code, { preserveView: true });
   saveCode(code);
   const payload = { code };
   if (Number.isInteger(testIndex)) payload.test_index = testIndex;
@@ -1695,7 +1737,7 @@ async function runCustomTests(customIndex = null) {
     return;
   }
   const code = normalizePythonIndentation(editorCode());
-  setEditorCode(code);
+  setEditorCode(code, { preserveView: true });
   saveCode(code);
   const payload = { code, custom_only: true, custom_tests: customTests };
   await runPayload(payload, { customIndex: Number.isInteger(customIndex) ? customIndex : "all" });
@@ -1708,7 +1750,7 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     saveSubmittedCodeVersion(localStorage, state.selected.slug, payload.code);
   } catch {
     state.error = "Run cancelled — could not save a code version. Browser storage may be full or unavailable.";
-    render();
+    render({ preserveEditorView: true });
     return;
   }
   state.running = true;
@@ -1720,7 +1762,7 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
   state.runningCustomTestIndex = Number.isInteger(customIndex) || customIndex === "all" ? customIndex : null;
   state.error = null;
   startRunTimer();
-  render();
+  render({ preserveEditorView: true });
   updateRunElapsed();
   try {
     const didStream = await runTestsWithStream(payload);
@@ -1749,7 +1791,7 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     state.runningTestIndex = null;
     state.runningCustomTestIndex = null;
     state.activeRunCheck = null;
-    render();
+    render({ preserveEditorView: true });
   }
 }
 
@@ -2032,7 +2074,8 @@ function problemDisplayId(problem) {
   return problem?.display_id ?? problem?.id ?? "";
 }
 
-function render() {
+function render({ preserveEditorView = false } = {}) {
+  const editorView = preserveEditorView ? captureEditorView() : null;
   teardownEditor();
   if (state.view === "playground") {
     renderPlayground();
@@ -2060,6 +2103,7 @@ function render() {
   mountEditor();
   if (state.selected) activateProblemTab(state.activeTab);
   applyPaneSizes();
+  restoreEditorView(editorView);
   syncProblemTimer();
   scrollPendingCustomTestIntoView();
 }
