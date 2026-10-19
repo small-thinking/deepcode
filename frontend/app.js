@@ -1750,7 +1750,7 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     saveSubmittedCodeVersion(localStorage, state.selected.slug, payload.code);
   } catch {
     state.error = "Run cancelled — could not save a code version. Browser storage may be full or unavailable.";
-    render({ preserveEditorView: true });
+    render({ preserveWorkspaceView: true });
     return;
   }
   state.running = true;
@@ -1762,7 +1762,7 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
   state.runningCustomTestIndex = Number.isInteger(customIndex) || customIndex === "all" ? customIndex : null;
   state.error = null;
   startRunTimer();
-  render({ preserveEditorView: true });
+  render({ preserveWorkspaceView: true });
   updateRunElapsed();
   try {
     const didStream = await runTestsWithStream(payload);
@@ -1791,7 +1791,7 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     state.runningTestIndex = null;
     state.runningCustomTestIndex = null;
     state.activeRunCheck = null;
-    render({ preserveEditorView: true });
+    render({ preserveWorkspaceView: true });
   }
 }
 
@@ -2074,8 +2074,10 @@ function problemDisplayId(problem) {
   return problem?.display_id ?? problem?.id ?? "";
 }
 
-function render({ preserveEditorView = false } = {}) {
-  const editorView = preserveEditorView ? captureEditorView() : null;
+function render({ preserveWorkspaceView = false } = {}) {
+  const editorView = preserveWorkspaceView ? captureEditorView() : null;
+  const problemBody = preserveWorkspaceView ? document.querySelector("#problem-detail-panel .problem-body") : null;
+  const problemScroll = problemBody ? { top: problemBody.scrollTop, left: problemBody.scrollLeft } : null;
   teardownEditor();
   if (state.view === "playground") {
     renderPlayground();
@@ -2104,6 +2106,13 @@ function render({ preserveEditorView = false } = {}) {
   if (state.selected) activateProblemTab(state.activeTab);
   applyPaneSizes();
   restoreEditorView(editorView);
+  if (problemScroll) {
+    const body = document.querySelector("#problem-detail-panel .problem-body");
+    if (body) {
+      body.scrollTop = problemScroll.top;
+      body.scrollLeft = problemScroll.left;
+    }
+  }
   syncProblemTimer();
   scrollPendingCustomTestIntoView();
 }
