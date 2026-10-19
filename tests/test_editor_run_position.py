@@ -6,7 +6,7 @@ from pathlib import Path
 
 @unittest.skipUnless(shutil.which("node"), "Node is required for editor position checks")
 class EditorRunPositionTest(unittest.TestCase):
-    def test_runs_preserve_current_selection_scroll_and_keyboard_focus(self):
+    def test_runs_preserve_editor_view_and_problem_scroll(self):
         source = Path("frontend/app.js").read_text(encoding="utf-8").split("\n", 1)[1]
         source = source[:source.rindex("\ntry {\n  migrateExistingCodeDrafts")]
         script = r'''
@@ -15,8 +15,10 @@ const storage = new Map();
 const localStorage = {getItem: key => storage.get(key) ?? null,
   setItem: (key, value) => storage.set(key, value)};
 let fallback = null, kind = 'ace', storageFull = false;
+let problemBody = {scrollTop: 0, scrollLeft: 0};
 const document = {activeElement: null,
-  querySelector: selector => selector === '#code-editor-fallback' ? fallback : null,
+  querySelector: selector => selector === '#code-editor-fallback' ? fallback :
+    selector === '#problem-detail-panel .problem-body' ? problemBody : null,
   querySelectorAll: () => []};
 const window = {addEventListener() {}};
 const saveSubmittedCodeVersion = () => {if (storageFull) throw Error('Storage full');};
@@ -42,7 +44,7 @@ const makeFallback = code => ({value: code, selectionStart: 0, selectionEnd: 0,
   },
   focus() {document.activeElement = this;},
 });
-renderDetail = () => {};
+renderDetail = () => {problemBody = {scrollTop: 0, scrollLeft: 0};};
 bindEvents = () => {};
 activateProblemTab = () => {};
 syncProblemTimer = () => {};
@@ -73,10 +75,14 @@ state.customTests = [{name: 'custom'}];
 collectCustomTestInputs = () => {};
 isMlCodingProblem = () => true;
 let expected, finishPosition, mode;
+const initialProblemScroll = {scrollTop: 590, scrollLeft: 27};
+const finishProblemScroll = {scrollTop: 740, scrollLeft: 11};
 runTestsWithStream = async payload => {
   assert.equal(payload.code, '    pass\n'.repeat(90));
   assert.deepEqual(captureEditorView(), expected); // start-of-run rerender
+  assert.deepEqual(problemBody, initialProblemScroll);
   restoreEditorView(finishPosition); // user moved while the run was in progress
+  problemBody = {...finishProblemScroll};
   if (mode === 'error') throw Error('Runner unavailable');
   if (mode === 'fallback') return false;
   state.runResult = {status: mode};
@@ -91,8 +97,10 @@ api = async () => ({status: 'failed'});
         expected = position(focused);
         finishPosition = position(focused, 7);
         restoreEditorView(expected);
+        problemBody = {...initialProblemScroll};
         await runTests();
         assert.deepEqual(captureEditorView(), finishPosition); // completion/error rerender
+        assert.deepEqual(problemBody, finishProblemScroll);
         assert.equal(state.running, false);
         if (mode === 'error') assert.equal(state.error, 'Runner unavailable');
       }
@@ -101,21 +109,27 @@ api = async () => ({status: 'failed'});
       storage.clear(); mountEditor();
       expected = finishPosition = position(true);
       restoreEditorView(expected);
+      problemBody = {...initialProblemScroll};
       mode = 'failed';
       await runCustomTests(customIndex);
       assert.deepEqual(captureEditorView(), expected);
+      assert.deepEqual(problemBody, finishProblemScroll);
     }
     storage.clear(); mountEditor();
     expected = position(true); restoreEditorView(expected);
+    problemBody = {...initialProblemScroll};
     storageFull = true;
     await runTests();
     assert.deepEqual(captureEditorView(), expected);
+    assert.deepEqual(problemBody, initialProblemScroll);
     assert.match(state.error, /Run cancelled/);
     storageFull = false;
     state.selected = {slug: 'other'}; mountEditor();
     const fresh = captureEditorView();
     restoreEditorView(expected);
     assert.deepEqual(captureEditorView(), fresh); // never restore into another problem
+    render();
+    assert.deepEqual(problemBody, {scrollTop: 0, scrollLeft: 0});
     state.selected = {slug: 'workout', starter_code: initialCode};
   }
 })().catch(error => {console.error(error); process.exitCode = 1;});
