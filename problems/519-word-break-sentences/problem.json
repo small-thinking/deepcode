@@ -31,6 +31,10 @@
   },
   "references": [
     {
+      "label": "Original July 2021 Senior Backend SWE report \u2014 LC 140 (numeric homophone)",
+      "url": "https://www.1point3acres.com/interview/thread/776845"
+    },
+    {
       "label": "Original Moveworks SWE interview report \u2014 Word Break II round",
       "url": "https://leetcode.com/discuss/post/4683241/Moveworks-or-L4-or-Bangalore-or-Dec-2023/"
     },
@@ -48,18 +52,18 @@
     }
   ],
   "created_at": "2026-10-16",
-  "background_note": "The first-person December 2023 L4/SWE report links its second coding round to Word Break II but gives no variant details. This is a classic Word Break II practice contract. Lexicographic sorting, unique output, and the exact function signature are local exercise conventions; the report does not establish them. This is not a confirmed MLE question. An independent June 2026 Staff SWE report supplies a visually checked screenshot of the same base task and an optional extension allowing spaces in the text or glossary entries; that underspecified spacing extension is not required here.",
+  "background_note": "The first-person December 2023 L4/SWE report links its second coding round to Word Break II but gives no variant details. This is a classic Word Break II practice contract. Lexicographic sorting, unique output, and the exact function signature are local exercise conventions; the report does not establish them. This is not a confirmed MLE question. An independent June 2026 Staff SWE report supplies a visually checked screenshot of the same base task and an optional extension allowing spaces in the text or glossary entries; that underspecified spacing extension is not required here. The July 2021 Senior Backend report independently identifies LC 140 by a numeric homophone, without extra segmentation constraints; its source is now consolidated here.",
   "interview_frequency": {
     "Moveworks": {
       "source_record_ids": [
         "3fb6ce51456d8176a4f1da76a1bacd20"
       ],
       "stars": 2,
-      "synced_at": "2026-10-16"
+      "synced_at": "2026-10-19"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-10-16"
+    "synced_at": "2026-10-19"
   }
 }

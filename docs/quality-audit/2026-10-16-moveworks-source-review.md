@@ -30,3 +30,16 @@ All finite company-index reports were body-attempted, with a deleted-body limita
 Seven executable exercises have 44 visible cases. Reference solutions pass evaluator and browser checks; written reference-answer tabs, original links, signal tiers and the company hub were checked. Text-justification snippets assert exact spacing because stdout normalization could otherwise hide spacing errors; a wrong-padding solution is rejected.
 
 Browser execution uses separate QA state. Validation submissions are not user practice, and the delivered collection starts without test-generated completion records. The change is additive to the current main branch and does not restore Fireworks exercises intentionally removed there. No application code or dependencies changed.
+
+
+## Coding-only coverage repair — 2026-10-19
+
+A targeted reread of 873861 (both reply pages), 776845 (all replies), 1131055, and 1123889 distinguishes a read receipt from exercise coverage. The existing Hangman and unique-substring contracts remain covered. The MLE string-scoring report remains source-incomplete; its separate SWE Jaccard exercise does not fill the missing original formula.
+
+- Added `basic-calculator-ii`: the LC 227 task explicitly named by numeric homophone in the original Senior Backend report at https://www.1point3acres.com/interview/thread/776845 .
+- Added `basic-calculator-iii`: the same report names LC 772. A separate first-person November reply adds decimals and error handling. The exercise keeps integer evaluation and a decimal/error follow-up separate, and labels the latter's grammar, real division, exception API and bounds as local reconstruction choices. The 2022 bolo reply also names 772, but its cross-post event/role relationship is unresolved.
+- Added 776845 to the existing `word-break-sentences` references. Its LC 140 mention is an independent historical SWE source; it creates no duplicate exercise.
+- The new calculator pages are SWE supplements; the generic calculator/recommendation wording in 873861 does not establish an exact MLE calculator contract.
+- The calculator fixtures exercise precedence, associativity, nested parentheses, unary signs, integer truncation, decimals and malformed input. Wrong floor division, integer-mode real division and silently swallowed parse errors must fail. QA uses separate practice state.
+
+This repair is coding-only; billing, text-search and other design leads remain outside its scope.

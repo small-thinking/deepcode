@@ -1,0 +1,146 @@
+[
+  {
+    "name": "parenthesized precedence",
+    "input": "'2*(3+4)'",
+    "test": "print(calculate_iii('2*(3+4)'))",
+    "expected_output": "14"
+  },
+  {
+    "name": "nested expression",
+    "input": "'2*(5+5*2)/3+(6/2+8)'",
+    "test": "print(calculate_iii('2*(5+5*2)/3+(6/2+8)'))",
+    "expected_output": "21"
+  },
+  {
+    "name": "deep mixed expression",
+    "input": "'(2+6*3+5-(3*14/7+2)*5)+3'",
+    "test": "print(calculate_iii('(2+6*3+5-(3*14/7+2)*5)+3'))",
+    "expected_output": "-12"
+  },
+  {
+    "name": "negative numerator truncation",
+    "input": "'(0-7)/2'",
+    "test": "print(calculate_iii('(0-7)/2'))",
+    "expected_output": "-3"
+  },
+  {
+    "name": "negative denominator truncation",
+    "input": "'7/(0-2)'",
+    "test": "print(calculate_iii('7/(0-2)'))",
+    "expected_output": "-3"
+  },
+  {
+    "name": "left-associative integer division",
+    "input": "'18/3/2'",
+    "test": "print(calculate_iii('18/3/2'))",
+    "expected_output": "3"
+  },
+  {
+    "name": "spaces and nesting",
+    "input": "' 12 + ( 3 * (4 - 2) ) '",
+    "test": "print(calculate_iii(' 12 + ( 3 * (4 - 2) ) '))",
+    "expected_output": "18"
+  },
+  {
+    "name": "unary sign before parentheses",
+    "input": "'-(2+3)*4'",
+    "test": "print(calculate_iii('-(2+3)*4'))",
+    "expected_output": "-20"
+  },
+  {
+    "name": "unary sign after operator",
+    "input": "'3*-2+7'",
+    "test": "print(calculate_iii('3*-2+7'))",
+    "expected_output": "1"
+  },
+  {
+    "name": "integer mode stays integral",
+    "input": "'7/2'",
+    "test": "print(calculate_iii('7/2'))",
+    "expected_output": "3"
+  },
+  {
+    "name": "decimal precedence",
+    "input": "'1.5*(2+3)/2'",
+    "test": "import math\nvalue = calculate_decimal('1.5*(2+3)/2')\nassert isinstance(value, float)\nassert math.isclose(value, 3.75, rel_tol=1e-9, abs_tol=1e-9)",
+    "expected_output": ""
+  },
+  {
+    "name": "real division",
+    "input": "'7/2'",
+    "test": "import math\nvalue = calculate_decimal('7/2')\nassert isinstance(value, float)\nassert math.isclose(value, 3.5, rel_tol=1e-9, abs_tol=1e-9)",
+    "expected_output": ""
+  },
+  {
+    "name": "negative real division",
+    "input": "'(0-7)/2'",
+    "test": "import math\nvalue = calculate_decimal('(0-7)/2')\nassert isinstance(value, float)\nassert math.isclose(value, -3.5, rel_tol=1e-9, abs_tol=1e-9)",
+    "expected_output": ""
+  },
+  {
+    "name": "decimal leading zero and rounding",
+    "input": "'0.1+0.2'",
+    "test": "import math\nvalue = calculate_decimal('0.1+0.2')\nassert isinstance(value, float)\nassert math.isclose(value, 0.3, rel_tol=1e-9, abs_tol=1e-9)",
+    "expected_output": ""
+  },
+  {
+    "name": "spaces and unary signs",
+    "input": "' - ( 1.25 + +2.75 ) / 2 '",
+    "test": "import math\nvalue = calculate_decimal(' - ( 1.25 + +2.75 ) / 2 ')\nassert isinstance(value, float)\nassert math.isclose(value, -2.0, rel_tol=1e-9, abs_tol=1e-9)",
+    "expected_output": ""
+  },
+  {
+    "name": "left-associative real division",
+    "input": "'9/2/3'",
+    "test": "import math\nvalue = calculate_decimal('9/2/3')\nassert isinstance(value, float)\nassert math.isclose(value, 1.5, rel_tol=1e-9, abs_tol=1e-9)",
+    "expected_output": ""
+  },
+  {
+    "name": "unary after binary operator",
+    "input": "'1+-2.5'",
+    "test": "import math\nvalue = calculate_decimal('1+-2.5')\nassert isinstance(value, float)\nassert math.isclose(value, -1.5, rel_tol=1e-9, abs_tol=1e-9)",
+    "expected_output": ""
+  },
+  {
+    "name": "reject empty input",
+    "input": "['', '   ']",
+    "test": "for expression in ['', '   ']:\n    try:\n        calculate_decimal(expression)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(expression)",
+    "expected_output": ""
+  },
+  {
+    "name": "reject malformed operators",
+    "input": "['1+', '*2', '1+*2']",
+    "test": "for expression in ['1+', '*2', '1+*2']:\n    try:\n        calculate_decimal(expression)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(expression)",
+    "expected_output": ""
+  },
+  {
+    "name": "reject mismatched parentheses",
+    "input": "['(1+2', '1+2)', '()']",
+    "test": "for expression in ['(1+2', '1+2)', '()']:\n    try:\n        calculate_decimal(expression)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(expression)",
+    "expected_output": ""
+  },
+  {
+    "name": "reject missing operators",
+    "input": "['1 2', '2(3)', '(2)3']",
+    "test": "for expression in ['1 2', '2(3)', '(2)3']:\n    try:\n        calculate_decimal(expression)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(expression)",
+    "expected_output": ""
+  },
+  {
+    "name": "reject malformed decimal literals",
+    "input": "['.5', '1.', '1.2.3']",
+    "test": "for expression in ['.5', '1.', '1.2.3']:\n    try:\n        calculate_decimal(expression)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(expression)",
+    "expected_output": ""
+  },
+  {
+    "name": "reject unsupported tokens",
+    "input": "['1e2', '2**3', 'abc+1']",
+    "test": "for expression in ['1e2', '2**3', 'abc+1']:\n    try:\n        calculate_decimal(expression)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(expression)",
+    "expected_output": ""
+  },
+  {
+    "name": "reject division by zero",
+    "input": "['1/0', '2/(1-1)', '0.5/0.0']",
+    "test": "for expression in ['1/0', '2/(1-1)', '0.5/0.0']:\n    try:\n        calculate_decimal(expression)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(expression)",
+    "expected_output": ""
+  }
+]

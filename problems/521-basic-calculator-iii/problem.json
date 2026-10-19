@@ -1,0 +1,59 @@
+{
+  "category": "Coding",
+  "tags": [
+    "strings",
+    "parsing",
+    "operator-precedence",
+    "swe-supplement",
+    "recursive-descent",
+    "validation"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-19",
+  "id": "521",
+  "slug": "basic-calculator-iii",
+  "title": "Basic Calculator III and Decimal Follow-up (LC 772, SWE Supplement)",
+  "difficulty": "hard",
+  "prompt": "Implement two functions without `eval`, `exec`, or an existing expression evaluator.\n\nPart 1 \u2014 `calculate_iii(s)`: evaluate integer expressions with `+`, `-`, `*`, `/`, ASCII spaces, and nested parentheses. Multiplication/division precede addition/subtraction; each level is left-associative. Integer division truncates toward zero at each division. Return an integer. Input is valid and never divides by zero. For this practice contract, unary `+`/`-` are also accepted before a number or parenthesized expression, including after a binary operator. Examples: `2*(5+5*2)/3+(6/2+8)` returns `21`; `(0-7)/2` returns `-3`.\n\nPart 2 \u2014 `calculate_decimal(s)`: practice the separately reported decimal/error follow-up. Accept the same operators, parentheses, spaces, and unary signs, with integer literals or decimal literals of the form `digits.digits`. Use real division and return a float; tests compare with absolute/relative tolerance 1e-9. For example, `1.5*(2+3)/2` returns `3.75`, and `7/2` returns `3.5` here but `3` in Part 1.\n\nIn Part 2 raise `ValueError` for empty/space-only input, illegal characters, missing operands or operators, unmatched parentheses, malformed numbers, or division by zero. Message text is unrestricted. Reject exponent notation, implicit multiplication (`2(3)`), `.5`, `1.`, and spaces within a number (`1 2`). Unary signs follow the recursive grammar `factor := ('+' | '-') factor | number | '(' expression ')'`, so `1+-2` is valid.\n\nInputs have at most 1,000 characters, nesting/sign depth at most 50, and numeric values/intermediate results of magnitude at most 1e12. Aim for O(n) scanning time and O(depth) auxiliary stack space.\n\nEvidence boundary: the original post names LC 772; a different candidate reports adding decimals and error handling. The Part 2 grammar, real division, float return, exception type, bounds, and unary-sign conventions above are explicit local reconstruction choices, not verbatim interview requirements.",
+  "starter_code": "def calculate_iii(s):\n    pass\n\n\ndef calculate_decimal(s):\n    pass\n",
+  "example": {
+    "input": "calculate_iii('2*(3+4)'); calculate_decimal('1.5*(2+3)/2')",
+    "output": "14; 3.75",
+    "reasoning": "Parentheses are evaluated first. Integer and decimal modes have different division semantics."
+  },
+  "references": [
+    {
+      "label": "Original Senior Backend SWE report \u2014 LC 772; replies include decimal/error variant",
+      "url": "https://www.1point3acres.com/interview/thread/776845"
+    },
+    {
+      "label": "LeetCode 772 \u2014 Basic Calculator III",
+      "url": "https://leetcode.com/problems/basic-calculator-iii/"
+    }
+  ],
+  "background_note": "The July 2021 Senior Backend/SWE report identifies LC 772 by a numeric homophone. KenZhuJMHK independently reports a November 2021 onsite using LC 772 plus decimal support and error handling, and notes the need to skip spaces. The exact follow-up grammar and error behavior were not published; this exercise labels its executable reconstruction explicitly. The same thread also contains a 2022 reply by bolo naming LC 772, but its cross-post event/role relationship is unresolved and does not establish an additional confirmed MLE contract.",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fe6ce51456d81218de2d9455cd4ae02"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-19"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-19"
+  }
+}

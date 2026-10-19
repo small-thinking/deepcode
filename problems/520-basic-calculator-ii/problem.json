@@ -1,0 +1,57 @@
+{
+  "category": "Coding",
+  "tags": [
+    "strings",
+    "parsing",
+    "operator-precedence",
+    "swe-supplement"
+  ],
+  "companies": [
+    "Moveworks"
+  ],
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-19",
+  "id": "520",
+  "slug": "basic-calculator-ii",
+  "title": "Basic Calculator II (LC 227, SWE Supplement)",
+  "difficulty": "medium",
+  "prompt": "Implement `calculate_ii(s)` to evaluate a valid expression containing nonnegative integer literals, binary `+`, `-`, `*`, `/`, and ASCII spaces. There are no parentheses or unary operators. Multiplication and division bind more tightly than addition and subtraction; operators at the same precedence are left-associative. Integer division truncates toward zero, including when a running term is negative. Return an integer.\n\nDo not use `eval`, `exec`, or an existing expression evaluator. You may assume the input is valid, has at least one number, never divides by zero, and fits in a signed 32-bit integer at every intermediate step. Aim for O(n) time and O(1) auxiliary space.\n\nExamples: `3+2*2` returns `7`; `0-7/2` returns `-3`; `18/3/2` returns `3`.",
+  "starter_code": "def calculate_ii(s):\n    pass\n",
+  "example": {
+    "input": "calculate_ii(' 3+5 / 2 ')",
+    "output": "5",
+    "reasoning": "Evaluate 5 / 2 as 2, then add 3. Spaces do not affect token boundaries."
+  },
+  "references": [
+    {
+      "label": "Original Senior Backend SWE report \u2014 LC 227 and LC 772 in one coding round",
+      "url": "https://www.1point3acres.com/interview/thread/776845"
+    },
+    {
+      "label": "LeetCode 227 \u2014 Basic Calculator II contract",
+      "url": "https://leetcode.com/problems/basic-calculator-ii/"
+    }
+  ],
+  "background_note": "The July 2021 Senior Backend report identifies LC 227 using a numeric homophone and says it was paired with LC 772 in a 45-minute round. This is historical SWE evidence, not a confirmed MLE-specific contract. The function name is a local practice convention; the standard valid-input integer contract is preserved. The separate decimal/error reply concerns LC 772, not this exercise.",
+  "interview_frequency": {
+    "Moveworks": {
+      "source_record_ids": [
+        "3fe6ce51456d817c854feb787d5079b9"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-19"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-19"
+  }
+}
