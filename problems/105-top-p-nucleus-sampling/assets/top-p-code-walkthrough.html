@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Top-p sampling: probability mass to code</title>
+<title>Top-p-only walkthrough: probability mass to code</title>
 <style>
 :root {
   color-scheme: light;
@@ -56,7 +56,7 @@ figcaption {
       alt="Six-step Top-p sampling walkthrough with matching NumPy code: scale logits, apply softmax, sort probabilities, accumulate through the threshold, renormalize the nucleus, and randomly sample one retained token."
     >
     <figcaption>
-      With top_p = 0.80, the nucleus keeps A, B, and C because their cumulative probability first reaches the threshold at 0.83.
+      Top-p-only mode: with top_p = 0.80, the nucleus keeps A, B, and C because their cumulative probability first reaches the threshold at 0.83.
     </figcaption>
   </figure>
 </main>

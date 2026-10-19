@@ -1,7 +1,7 @@
 {
   "id": "105",
   "slug": "top-p-nucleus-sampling",
-  "title": "Top-p (Nucleus) Sampling",
+  "title": "Top-k, Top-p, and Combined Token Sampling",
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
@@ -9,7 +9,9 @@
     "decoding",
     "sampling",
     "softmax",
-    "top-p"
+    "top-k",
+    "top-p",
+    "temperature"
   ],
   "companies": [
     "Mistral AI"
@@ -27,12 +29,12 @@
     "stars": 2,
     "synced_at": "2026-10-04"
   },
-  "prompt": "Implement `top_p_sample(logits, top_p, temperature=1.0) -> int` for one LLM decoding step.\n\n`logits` is a non-empty one-dimensional list or NumPy array, `top_p` is in `(0, 1]`, and `temperature` is positive. Apply temperature scaling and softmax, keep the smallest set of highest-probability tokens whose cumulative probability reaches `top_p`, then sample from the renormalized probabilities of those tokens. Return the sampled token's original index as a Python `int`.\n\nYou may use NumPy, but implement the top-p logic yourself. Assume the inputs are valid. Top-k filtering and the full autoregressive decoding loop are outside this exercise.",
-  "starter_code": "import numpy as np\n\n\ndef top_p_sample(logits, top_p, temperature=1.0):\n    pass\n",
+  "prompt": "Practice three next-token sampling modes in one NumPy exercise: Top-k, Top-p (nucleus), and their combination. All functions receive **logits**, not probabilities, and return the sampled token's original index as a Python `int`.\n\n### Implement three functions\n\n1. `sample_token(logits, top_k=None, top_p=1.0, temperature=1.0)` implements the shared pipeline below.\n2. `top_k_sample(logits, top_k, temperature=1.0)` performs Top-k only. It may delegate to `sample_token` with `top_p=1.0`.\n3. `top_p_sample(logits, top_p, temperature=1.0)` performs Top-p only. Preserve this existing API; it may delegate to `sample_token` with Top-k disabled.\n\n### Shared pipeline\n\n- Apply positive temperature scaling: `logits / temperature`. Larger logits still rank ahead of smaller ones, so Top-k can be selected before or after scaling.\n- **Top-k:** retain exactly the highest `min(top_k, vocab_size)` logits. Break ties by smaller original token index. `top_k=None` or `top_k=0` disables this filter.\n- Compute a **numerically stable softmax over the retained candidates**. These probabilities must sum to one before applying Top-p.\n- **Top-p:** sort the remaining candidates by descending probability, with the same tie rule. Keep the smallest prefix whose cumulative probability is **at least** `top_p`, including the token that first reaches or crosses the threshold. `top_p=1.0` retains every Top-k survivor.\n- Renormalize that prefix and sample from its probabilities. Return the original vocabulary index, not its position in the sorted prefix.\n\nThe combination is **Top-k followed by Top-p**. Top-p uses the distribution after Top-k filtering and renormalization; applying Top-p first, or accumulating the original full-vocabulary probabilities after Top-k, changes the answer.\n\n### Example that distinguishes the order\n\nFor `logits = np.log([0.5, 0.3, 0.2])`, `top_k=2`, and `top_p=0.6`, Top-k keeps token IDs 0 and 1. Their normalized probabilities are `[0.625, 0.375]`, so token 0 alone reaches the Top-p threshold. The combined sampler must return `0`. Top-k alone samples IDs 0 and 1 with probabilities 0.625 and 0.375.\n\n### Inputs and scope\n\n`logits` is a nonempty one-dimensional list or NumPy array of finite numbers. `temperature` is finite and positive, `top_p` is in `(0, 1]`, and `top_k` is `None` or a nonnegative integer; values larger than the vocabulary size retain all tokens. Assume valid inputs. Do not mutate them. Use NumPy, implement the filtering logic yourself, and preserve stable behavior for large common logit offsets. No new standalone softmax function, batched sampling, or full autoregressive generation loop is required.\n\nTop-k chooses a **count** using the logit ranking; Top-p chooses a **probability mass** using softmax probabilities. The existing poster illustrates the Top-p-only mode.",
+  "starter_code": "import numpy as np\n\n\ndef sample_token(logits, top_k=None, top_p=1.0, temperature=1.0):\n    # Shared pipeline: temperature -> Top-k -> softmax -> Top-p -> sample.\n    pass\n\n\ndef top_k_sample(logits, top_k, temperature=1.0):\n    pass\n\n\ndef top_p_sample(logits, top_p, temperature=1.0):\n    pass\n",
   "example": {
-    "input": "logits = [3.0, 1.0, 0.0], top_p = 0.6, temperature = 1.0",
+    "input": "logits = np.log([0.5, 0.3, 0.2]); sample_token(logits, top_k=2, top_p=0.6)",
     "output": "0",
-    "reasoning": "Token 0 alone has more than 0.6 of the probability mass, so it is the entire nucleus and must be sampled."
+    "reasoning": "Top-k retains IDs 0 and 1; renormalizing gives [0.625, 0.375]. Token 0 alone reaches 0.6, so combined sampling is deterministic."
   },
   "environment": {
     "language": "python",
@@ -75,7 +77,7 @@
     {
       "path": "assets/top-p-nucleus-sampling-poster.png",
       "alt": "Six-step Top-p sampling walkthrough with matching NumPy code: scale logits, apply softmax, sort probabilities, accumulate through the threshold, renormalize the nucleus, and randomly sample one retained token.",
-      "caption": "Code-synchronized example with top_p = 0.80. The nucleus keeps A, B, and C because their cumulative probability first reaches the threshold at 0.83.",
+      "caption": "Top-p-only example: with top_p = 0.80, the nucleus keeps A, B, and C because their cumulative probability first reaches the threshold at 0.83.",
       "section": "interactive_demo"
     }
   ],
@@ -85,7 +87,7 @@
       "id": "top-p-code-walkthrough",
       "kind": "standalone_html",
       "path": "assets/top-p-code-walkthrough.html",
-      "title": "Top-p sampling: probability mass to code",
+      "title": "Top-p-only walkthrough: probability mass to code",
       "section": "interactive_demo",
       "presentation": {
         "theme": "sync",
@@ -95,5 +97,6 @@
       }
     }
   ],
-  "created_at": "2026-06-13"
+  "created_at": "2026-06-13",
+  "background_note": "The original Mistral report supports the Top-p question. Top-k and combined sampling are local practice extensions requested to consolidate the decoding topic, not additional reported interview questions. Exact-k tie-breaking, the disabled-k conventions, and this three-function API are local exercise requirements. Existing company attribution and frequency metadata continue to describe the original Top-p report only."
 }
