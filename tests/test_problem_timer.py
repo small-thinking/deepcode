@@ -6,6 +6,81 @@ from pathlib import Path
 
 class ProblemTimerTest(unittest.TestCase):
     @unittest.skipUnless(shutil.which("node"), "Node is required to exercise the timer")
+    def test_reset_actions_restart_timer_from_zero(self):
+        source = Path("frontend/app.js").read_text(encoding="utf-8")
+        timers = source[source.index("function loadProblemTimers() {"):source.index("function mainNavigation() {")]
+        reset_code = source[source.index("async function resetCode()"):source.index("function problemCompleted(")]
+        reset_answer = source[source.index("function resetSystemDesignAnswer()"):source.index("function editorSessionKey()")]
+        script = r'''
+const assert = require('node:assert/strict');
+const PROBLEM_TIMERS_KEY = 'deepcode-problem-timers';
+const storage = new Map();
+const localStorage = {
+  getItem: key => storage.get(key) ?? null,
+  setItem: (key, value) => storage.set(key, value),
+  removeItem: key => storage.delete(key),
+};
+let now = 10000;
+Date.now = () => now;
+let problemTimer = null;
+const intervals = new Map();
+let intervalId = 0;
+const setInterval = callback => { intervals.set(++intervalId, callback); return intervalId; };
+const clearInterval = id => intervals.delete(id);
+const button = {textContent: '', setAttribute: (key, value) => { button[key] = value; }};
+const display = {textContent: ''};
+const document = {querySelector: selector => selector === '#problem-timer-toggle' ? button : display};
+const state = {selected: {slug: 'example', starter_code: 'starter'}, running: false};
+const unsavedProblemDrafts = new Map();
+let failStorage = false;
+const saveCodeVersion = () => { if (failStorage) throw new Error('Quota'); };
+const editorCode = () => 'draft';
+const codeKey = slug => `code:${slug}`;
+const resetEditorHistory = () => {};
+const updateCodeSaveStatus = () => {};
+const api = async () => ({});
+const syncProblemStatus = () => {};
+const render = () => syncProblemTimer();
+const isSystemDesignProblem = problem => Boolean(problem);
+const systemDesignAnswerKey = slug => `answer:${slug}`;
+const syncSystemDesignAnswer = () => {};
+''' + timers + reset_code + reset_answer + r'''
+(async () => {
+  for (const reset of [resetProblemTimer, resetCode, resetSystemDesignAnswer]) {
+    for (const saved of [
+      {elapsedMs: 0, startedAt: null},
+      {elapsedMs: 9000, startedAt: null},
+      {elapsedMs: 9000, startedAt: now - 5000},
+    ]) {
+      saveProblemTimer('example', saved);
+      saveProblemTimer('other', {elapsedMs: 4000, startedAt: null});
+      syncProblemTimer();
+      await reset();
+      assert.deepEqual(problemTimerFor('example'), {elapsedMs: 0, startedAt: now});
+      assert.deepEqual(problemTimerFor('other'), {elapsedMs: 4000, startedAt: null});
+      assert.equal(display.textContent, '00:00:00');
+      assert.equal(button.textContent, 'Pause');
+      assert.equal(button['aria-pressed'], 'true');
+      assert.equal(intervals.size, 1);
+      now += 2000;
+      intervals.get(problemTimer)();
+      assert.equal(display.textContent, '00:00:02');
+    }
+  }
+  // A cancelled code reset must leave the existing timer untouched.
+  const before = problemTimerFor('example');
+  failStorage = true;
+  await resetCode();
+  assert.deepEqual(problemTimerFor('example'), before);
+  failStorage = false;
+  state.running = true;
+  await resetCode();
+  assert.deepEqual(problemTimerFor('example'), before);
+})().catch(error => { console.error(error); process.exit(1); });
+'''
+        subprocess.run(["node", "-e", script], check=True, capture_output=True, text=True)
+
+    @unittest.skipUnless(shutil.which("node"), "Node is required to exercise the timer")
     def test_problem_entry_starts_fresh_timer(self):
         source = Path("frontend/app.js").read_text(encoding="utf-8")
         timers = source[source.index("function loadProblemTimers() {"):source.index("function mainNavigation() {")]
