@@ -2,7 +2,7 @@
   {
     "name": "matches an independent symmetric cross-entropy reference",
     "input": "non-normalized double-precision embeddings",
-    "test": "import torch\nimport torch.nn.functional as F\ntorch.manual_seed(11)\nimages=torch.randn(4,5,dtype=torch.double,requires_grad=True)\ntexts=torch.randn(4,5,dtype=torch.double,requires_grad=True)\nactual=clip_contrastive_loss(images,texts,temperature=.2)\ni=images/images.norm(dim=1,keepdim=True); t=texts/texts.norm(dim=1,keepdim=True)\nlogits=i@t.T/.2; labels=torch.arange(4)\nexpected=(F.cross_entropy(logits,labels)+F.cross_entropy(logits.T,labels))/2\ntorch.testing.assert_close(actual,expected)\nga=torch.autograd.grad(actual,(images,texts)); ge=torch.autograd.grad(expected,(images,texts))\nfor got,want in zip(ga,ge): torch.testing.assert_close(got,want)\nprint('ok')",
+    "test": "import torch\nimport torch.nn.functional as F\ntorch.manual_seed(11)\nimages=torch.randn(4,5,dtype=torch.double,requires_grad=True)\ntexts=torch.randn(4,5,dtype=torch.double,requires_grad=True)\nactual=clip_contrastive_loss(images,texts,temperature=.2)\ni=images/images.norm(dim=1,keepdim=True); t=texts/texts.norm(dim=1,keepdim=True)\nlogits=i@t.T/.2; labels=torch.arange(4)\nexpected=(F.cross_entropy(logits,labels)+F.cross_entropy(logits.T,labels))/2\ntorch.testing.assert_close(actual,expected,rtol=1e-4,atol=1e-5)\nga=torch.autograd.grad(actual,(images,texts)); ge=torch.autograd.grad(expected,(images,texts))\nfor got,want in zip(ga,ge): torch.testing.assert_close(got,want,rtol=1e-4,atol=1e-5)\nprint('ok')",
     "expected_output": "ok"
   },
   {
@@ -13,8 +13,32 @@
   },
   {
     "name": "rejects rank, shape, and temperature contract violations",
-    "input": "rank mismatch, shape mismatch, zero, infinite, and negative temperatures",
-    "test": "import torch\ncases = [(torch.ones(2), torch.ones(2), 0.1), (torch.ones(2, 3), torch.ones(3, 3), 0.1), (torch.ones(2, 3), torch.ones(2, 3), 0), (torch.ones(2, 3), torch.ones(2, 3), float('inf')), (torch.ones(2, 3), torch.ones(2, 3), -1)]\nfor images, texts, temp in cases:\n    try:\n        clip_contrastive_loss(images, texts, temp)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError((images.shape, texts.shape, temp))\nprint('ok')\n",
+    "input": "rank-1/rank-3 inputs, batch/feature mismatches, and zero, negative, infinite or NaN temperature",
+    "test": "import torch\ncases = [(torch.ones(2, 3), torch.ones(2, 3), float('nan')), (torch.ones(2, 3), torch.ones(2, 4), 0.1), (torch.ones(2, 3), torch.ones(2), 0.1), (torch.ones(2, 2, 3), torch.ones(2, 2, 3), 0.1), (torch.ones(2), torch.ones(2), 0.1), (torch.ones(2, 3), torch.ones(3, 3), 0.1), (torch.ones(2, 3), torch.ones(2, 3), 0), (torch.ones(2, 3), torch.ones(2, 3), float('inf')), (torch.ones(2, 3), torch.ones(2, 3), -1)]\nfor images, texts, temp in cases:\n    try:\n        clip_contrastive_loss(images, texts, temp)\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError((images.shape, texts.shape, temp))\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "asymmetric retrieval averages both directions and keeps diagonal targets",
+    "input": "distinct row/column losses; paired and text-only permutations",
+    "test": "import torch\nimages = torch.eye(3)\ntexts = torch.tensor([[5., 0., -2.], [4., 5., 1.], [-1., 2., 3.]])\ndef expected_loss(images, texts):\n    logits = images @ texts.T / 2.\n    diagonal = logits.diagonal()\n    row_loss = (logits.logsumexp(dim=1) - diagonal).mean()\n    column_loss = (logits.logsumexp(dim=0) - diagonal).mean()\n    return (row_loss + column_loss) / 2, row_loss, column_loss\nexpected, row_loss, column_loss = expected_loss(images, texts)\nassert abs((row_loss - column_loss).item()) > .01\nactual = clip_contrastive_loss(images, texts, temperature=2., normalize=False)\ntorch.testing.assert_close(actual, expected, rtol=1e-4, atol=1e-5)\norder = torch.tensor([2, 0, 1])\npaired = clip_contrastive_loss(images[order], texts[order], 2., False)\ntorch.testing.assert_close(paired, expected, rtol=1e-4, atol=1e-5)\nreordered = clip_contrastive_loss(images, texts[order], 2., False)\nreordered_expected, _, _ = expected_loss(images, texts[order])\ntorch.testing.assert_close(reordered, reordered_expected, rtol=1e-4, atol=1e-5)\nassert abs((reordered_expected - expected).item()) > .1\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "row normalization ignores positive scales and tied candidates give log batch size",
+    "input": "independent row scales; identical nonzero embeddings; normalized input preservation",
+    "test": "import math\nimport torch\nimages = torch.tensor([[1., -2., 3.], [-3., 1., 2.], [2., 4., -1.]])\ntexts = torch.tensor([[3., -1., 1.], [-2., 3., 1.], [1., 2., -4.]])\nsnapshots = [images.clone(), texts.clone()]\nbaseline = clip_contrastive_loss(images, texts, .3)\nscaled = clip_contrastive_loss(images * torch.tensor([[.1], [7.], [30.]]),\n                               texts * torch.tensor([[11.], [.2], [4.]]), .3)\ntorch.testing.assert_close(scaled, baseline, rtol=1e-4, atol=1e-5)\nfor tensor, snapshot in zip((images, texts), snapshots):\n    assert torch.equal(tensor, snapshot), 'Do not normalize inputs in place'\ntied_images = torch.tensor([[1., -2., 3.]]).repeat(4, 1)\ntied_texts = torch.tensor([[-1., 2., 1.]]).repeat(4, 1)\nfor normalize in (True, False):\n    loss = clip_contrastive_loss(tied_images, tied_texts, .3, normalize)\n    torch.testing.assert_close(loss, torch.tensor(math.log(4)), rtol=1e-4, atol=1e-5)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "noncontiguous embeddings preserve scalar dtype and gradients in both modes",
+    "input": "CPU float32/float64; transposed inputs; normalized and raw gradients",
+    "test": "import torch\ntorch.manual_seed(408)\nfor dtype in (torch.float32, torch.float64):\n    for normalize in (True, False):\n        images = torch.randn(5, 3, dtype=dtype).T.requires_grad_()\n        texts = torch.randn(5, 3, dtype=dtype).T.requires_grad_()\n        assert not images.is_contiguous() and not texts.is_contiguous()\n        snapshots = [images.clone(), texts.clone()]\n        actual = clip_contrastive_loss(images, texts, .7, normalize)\n        assert actual.ndim == 0\n        assert actual.dtype == dtype and actual.device == images.device\n        i, t = images, texts\n        if normalize:\n            i = images / images.norm(dim=-1, keepdim=True)\n            t = texts / texts.norm(dim=-1, keepdim=True)\n        logits = i @ t.T / .7\n        expected = ((logits.logsumexp(dim=1) - logits.diagonal()).mean()\n                    + (logits.logsumexp(dim=0) - logits.diagonal()).mean()) / 2\n        torch.testing.assert_close(actual, expected, rtol=1e-4, atol=1e-5)\n        actual_grads = torch.autograd.grad(actual, (images, texts))\n        expected_grads = torch.autograd.grad(expected, (images, texts))\n        for got, want in zip(actual_grads, expected_grads):\n            assert torch.isfinite(got).all() and got.abs().sum() > 0\n            torch.testing.assert_close(got, want, rtol=1e-4, atol=1e-5)\n        for tensor, snapshot in zip((images, texts), snapshots):\n            assert torch.equal(tensor, snapshot)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "temperature extremes stay finite without explicitly logging softmax probabilities",
+    "input": "small positive temperature, confident wrong matches, and large-temperature uniform limit",
+    "test": "import math\nimport torch\nimages = torch.eye(2, requires_grad=True)\ntexts = torch.tensor([[0., 1.], [1., 0.]], requires_grad=True)\nfor normalize in (True, False):\n    loss = clip_contrastive_loss(images, texts, temperature=1e-4, normalize=normalize)\n    assert torch.isfinite(loss)\n    torch.testing.assert_close(loss, torch.tensor(10000.), rtol=1e-4, atol=1e-5)\n    grads = torch.autograd.grad(loss, (images, texts))\n    assert all(torch.isfinite(g).all() and g.abs().sum() > 0 for g in grads)\n    matched = clip_contrastive_loss(images, images, temperature=1e-4, normalize=normalize)\n    torch.testing.assert_close(matched, torch.tensor(0.), rtol=1e-4, atol=1e-5)\n    flat = clip_contrastive_loss(images, texts, temperature=1e6, normalize=normalize)\n    torch.testing.assert_close(flat, torch.tensor(math.log(2)), rtol=1e-4, atol=1e-5)\nprint('ok')\n",
     "expected_output": "ok"
   }
 ]
