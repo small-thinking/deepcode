@@ -259,13 +259,12 @@ function toggleProblemTimer() {
 
 function resetProblemTimer() {
   if (!state.selected) return;
-  saveProblemTimer(state.selected.slug, { elapsedMs: 0, startedAt: null });
-  stopProblemTimer();
-  updateProblemTimerDisplay();
+  saveProblemTimer(state.selected.slug, { elapsedMs: 0, startedAt: Date.now() });
+  syncProblemTimer();
   const button = document.querySelector("#problem-timer-toggle");
   if (button) {
-    button.textContent = "Start";
-    button.setAttribute("aria-pressed", "false");
+    button.textContent = "Pause";
+    button.setAttribute("aria-pressed", "true");
   }
 }
 
@@ -889,6 +888,7 @@ function resetSystemDesignAnswer() {
   if (!isSystemDesignProblem(state.selected)) return;
   localStorage.removeItem(systemDesignAnswerKey(state.selected.slug));
   syncSystemDesignAnswer(state.selected);
+  resetProblemTimer();
   render();
 }
 
@@ -1908,6 +1908,7 @@ async function resetCode() {
     return;
   }
   resetEditorHistory(starterCode);
+  resetProblemTimer();
   state.runResult = null;
   state.activeResultIndex = 0;
   state.error = null;
