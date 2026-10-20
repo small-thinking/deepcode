@@ -2,7 +2,7 @@
 
 Each coding problem keeps its existing `deepcode-code:<slug>` localStorage key as the current, automatically saved working draft. Opening a problem reads that draft, so the latest edit is displayed by default. On the first load after this upgrade, all existing problem drafts in this browser are copied into version history as **Existing draft**, including problems that are not opened. Exact matches already in history are reused; the working-draft keys remain unchanged.
 
-Running all tests, an individual test, or custom tests automatically saves the submitted code as a snapshot before execution. No name entry or manual save step is needed. Typing only updates the working draft. Consecutive submissions of identical code reuse the newest snapshot; submitting changed code (including a previously used approach) creates a new latest version. Failed test attempts are saved too.
+Running all tests automatically saves the submitted code as a snapshot only after the full suite passes. Failed/error runs, individual tests, and custom-only tests do not create submission snapshots. No name entry or manual save step is needed. Typing and unsuccessful attempts still update the working draft. Consecutive successful submissions of identical code reuse the newest snapshot; a successful submission of changed code (including a previously used approach) creates a new latest version. Existing snapshots and protective backups before reset/restore remain unchanged.
 
 A completion marker (`deepcode-code-versions-migrated:v1`) prevents later typing, reloads, or intentional deletions from creating or restoring snapshots. If migration is interrupted or storage is full, it can safely retry on reload without duplicating completed copies. A visible banner reports incomplete migration.
 
@@ -26,9 +26,11 @@ Versions are ordered newest first and never overwritten or automatically evicted
 
 **Delete version** removes only the selected snapshot ID, leaving the working draft and other problems unchanged. **Undo delete** recovers the most recent deletion while History remains open. Deletes and undo operations re-read storage and only update the UI after a successful write. Deleting the last version leaves an empty schema envelope, so intentionally restored code remains protected from starter refresh.
 
-Malformed/unsupported history or unavailable/full storage aborts version mutations. A submission that cannot be saved is cancelled with a visible error. Clearing browser site data removes drafts and versions; another browser/device/origin does not share them. This is not server-side synchronization. Playground sessions and System Design answers retain their existing behavior.
+Malformed/unsupported history or unavailable/full storage aborts version mutations. Runs still execute when version storage is unavailable; if a passing submission cannot be saved, a visible error reports the save failure while preserving its test result and completion status. Clearing browser site data removes drafts and versions; another browser/device/origin does not share them. This is not server-side synchronization. Playground sessions and System Design answers retain their existing behavior.
 
 ## Browser checks
+
+The checks and screenshots below record the earlier save-on-submission behavior. The current pass-only policy is covered by the automated checks described above and by the code-version tests.
 
 Tested in the Codex in-app browser against the feature worktree on `http://127.0.0.1:8851`, using isolated browser storage and test-only server state. No changes were made to the normal service on port 8848.
 

@@ -273,73 +273,84 @@ assert.deepEqual(loadCodeVersions(localStorage, 'beta'), []);
         source = Path("frontend/app.js").read_text(encoding="utf-8")
         return source[source.index("async function runTests("):source.index("async function runTestsWithStream(")]
 
-    def test_runs_save_exact_payload_before_stream_or_fallback_even_on_failure(self):
+    def test_only_full_suite_passes_save_versions_after_results_arrive(self):
         self.run_js(r"""
 const state = {selected: {slug: 'alpha'}, running: false};
-let payload, mode, streamCalls = 0, apiCalls = 0, timerStarts = 0, timerStops = 0;
 const render = () => {};
 const updateRunElapsed = () => {};
-const startRunTimer = () => {timerStarts++;};
-const stopRunTimer = () => {timerStops++;};
+const startRunTimer = () => {};
+const stopRunTimer = () => {};
 const syncProblemStatus = () => {};
-const assertSaved = received => {
-  assert.deepEqual(received, payload);
-  assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, payload.code);
+const pauseProblemTimer = () => {};
+let result, mode, before;
+const runTestsWithStream = async payload => {
+  assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), before);
   assert.equal(state.running, true);
-};
-const runTestsWithStream = async received => {
-  streamCalls++;
-  assertSaved(received);
   if (mode === 'stream-error') throw new Error('Stream unavailable');
-  if (mode === 'fallback') return false;
-  state.runResult = {passed: false, error: 'Assertion failed'};
+  if (mode === 'missing-result') return true;
+  if (mode === 'fallback' || mode === 'fallback-error') return false;
+  state.runResult = result;
   return true;
 };
-const api = async (url, options) => {
-  apiCalls++;
-  assert.equal(url, '/api/problems/alpha/run');
-  assert.equal(options.method, 'POST');
-  assertSaved(JSON.parse(options.body));
-  throw new Error('Runner unavailable');
+const api = async () => {
+  assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), before);
+  if (mode === 'fallback-error') throw new Error('Runner unavailable');
+  return result;
 };
-for (mode of ['streamed-failure', 'stream-error', 'fallback']) {
-  payload = {code: `\t${mode}  \r\n\n`, test_index: 0};
-  await runPayload(payload, {testIndex: 0});
-  assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, payload.code);
-  assert.equal(state.running, false);
-  assert.equal(state.runningTestIndex, null);
-  if (mode === 'streamed-failure') assert.equal(state.runResult.passed, false);
-  else assert.match(state.error, /unavailable/);
+for (mode of ['stream', 'fallback', 'stream-error', 'fallback-error', 'missing-result']) {
+  for (const status of ['passed', 'failed', 'error']) {
+    for (const scope of [{}, {test_index: 0}, {custom_only: true, custom_tests: [{}]}, {custom_tests: [{}]}]) {
+      const payload = {code: `  ${mode}-${status}-${JSON.stringify(scope)}  \r\n\n`, ...scope};
+      before = loadCodeVersions(localStorage, 'alpha');
+      result = {status, results: [{passed: status === 'passed'}]};
+      await runPayload(payload);
+      const after = loadCodeVersions(localStorage, 'alpha');
+      const shouldSave = ['stream', 'fallback'].includes(mode) && status === 'passed' && Object.keys(scope).length === 0;
+      if (shouldSave) {
+        assert.equal(after.length, before.length + 1);
+        assert.equal(after[0].code, payload.code);
+        assert.deepEqual(after.slice(1), before);
+        // Consecutive identical passing submissions still reuse the snapshot.
+        before = after;
+        await runPayload(payload);
+        assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), after);
+      } else {
+        assert.deepEqual(after, before);
+      }
+      assert.equal(state.running, false);
+      assert.equal(state.runningTestIndex, null);
+    }
+  }
 }
-assert.equal(loadCodeVersions(localStorage, 'alpha').length, 3);
-assert.equal(streamCalls, 3);
-assert.equal(apiCalls, 1);
-assert.equal(timerStarts, 3);
-assert.equal(timerStops, 3);
 """, app_code=self.run_functions())
 
-    def test_run_aborts_before_execution_when_version_storage_is_full(self):
+    def test_history_storage_failure_preserves_passing_result_and_status(self):
         self.run_js(r"""
-const state = {selected: {slug: 'alpha'}, running: false, runResult: {previous: true}, runLogs: ['previous log']};
-let rendered = 0;
-const render = () => {rendered++;};
-const startRunTimer = () => assert.fail('must not start timer');
-const runTestsWithStream = async () => assert.fail('must not start stream');
-const api = async () => assert.fail('must not call runner');
+const result = {status: 'passed', results: [{passed: true}], problem_status: {completed: true}};
+const state = {selected: {slug: 'alpha'}, running: false};
+const render = () => {};
+const startRunTimer = () => {};
+const stopRunTimer = () => {};
+const updateRunElapsed = () => {};
+let paused = false, synced = false, ran = false;
+const pauseProblemTimer = slug => {assert.equal(slug, 'alpha'); paused = true;};
+const syncProblemStatus = (slug, status) => {assert.equal(slug, 'alpha'); assert.deepEqual(status, result.problem_status); synced = true;};
+const runTestsWithStream = async () => {ran = true; state.runResult = result; return true;};
 saveSubmittedCodeVersion(localStorage, 'alpha', 'previous code');
 localStorage.setItem('deepcode-code:alpha', 'current draft');
 const before = new Map(entries);
 failKey = codeVersionsKey('alpha');
 await runPayload({code: 'new submission'});
 assert.deepEqual(entries, before);
+assert.equal(ran, true);
+assert.equal(paused, true);
+assert.equal(synced, true);
 assert.equal(state.running, false);
-assert.deepEqual(state.runResult, {previous: true});
-assert.deepEqual(state.runLogs, ['previous log']);
-assert.match(state.error, /could not save a code version/i);
-assert.equal(rendered, 1);
+assert.deepEqual(state.runResult, result);
+assert.match(state.error, /All tests passed, but the code version could not be saved/);
 """, app_code=self.run_functions())
 
-    def test_custom_runs_save_the_normalized_code_actually_submitted(self):
+    def test_custom_runs_keep_normalized_draft_without_history_snapshots(self):
         self.run_js(r"""
 const state = {selected: {slug: 'alpha'}, running: false, customTests: [{input: 'first'}, {input: 'second'}]};
 let editor = '\tprint("custom")\r\n', collected = 0, calls = 0;
@@ -359,7 +370,7 @@ const runTestsWithStream = async payload => {
   assert.equal(payload.custom_only, true);
   assert.deepEqual(payload.custom_tests, calls ? state.customTests : [state.customTests[1]]);
   assert.equal(state.runningCustomTestIndex, calls ? 'all' : 1);
-  assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, payload.code);
+  assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), []);
   calls++;
   state.runResult = {passed: false};
   return true;
@@ -370,7 +381,7 @@ assert.equal(calls, 2);
 assert.equal(collected, 2);
 assert.equal(editor, normalized);
 assert.equal(localStorage.getItem('deepcode-code:alpha'), normalized);
-assert.equal(loadCodeVersions(localStorage, 'alpha').length, 1);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), []);
 """, app_code=self.run_functions())
 
     def test_corrupt_or_future_histories_are_never_overwritten(self):

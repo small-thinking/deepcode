@@ -1746,13 +1746,6 @@ async function runCustomTests(customIndex = null) {
 async function runPayload(payload, { testIndex = null, customIndex = null } = {}) {
   if (!state.selected || state.running) return;
   const problemSlug = state.selected.slug;
-  try {
-    saveSubmittedCodeVersion(localStorage, state.selected.slug, payload.code);
-  } catch {
-    state.error = "Run cancelled — could not save a code version. Browser storage may be full or unavailable.";
-    render({ preserveWorkspaceView: true });
-    return;
-  }
   state.running = true;
   state.runResult = null;
   state.runLogs = [];
@@ -1780,6 +1773,11 @@ async function runPayload(payload, { testIndex = null, customIndex = null } = {}
     if (state.runResult.status === "passed" && payload.test_index == null &&
         !payload.custom_only && !payload.custom_tests?.length) {
       pauseProblemTimer(problemSlug);
+      try {
+        saveSubmittedCodeVersion(localStorage, problemSlug, payload.code);
+      } catch {
+        state.error = "All tests passed, but the code version could not be saved. Browser storage may be full or unavailable.";
+      }
     }
     if (state.runResult.problem_status) {
       syncProblemStatus(state.selected.slug, state.runResult.problem_status);
@@ -3188,7 +3186,7 @@ function renderDetail() {
             <button class="primary-button" id="run-tests" ${runButtonState} aria-busy="${state.running}">
               ${runButtonContent}
             </button>
-            <span id="code-save-status" class="code-save-status ${unsavedProblemDrafts.has(problem.slug) ? "save-failed" : ""}" role="status">${unsavedProblemDrafts.has(problem.slug) ? "Draft not saved — browser storage is full or unavailable" : "Draft autosaved · Runs saved in History"}</span>
+            <span id="code-save-status" class="code-save-status ${unsavedProblemDrafts.has(problem.slug) ? "save-failed" : ""}" role="status">${unsavedProblemDrafts.has(problem.slug) ? "Draft not saved — browser storage is full or unavailable" : "Draft autosaved · History saves code after all tests pass"}</span>
           </div>
           <div class="code-pane">
             <div id="code-editor" class="code-editor ace-editor"></div>
