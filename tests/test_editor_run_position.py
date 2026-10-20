@@ -115,14 +115,19 @@ api = async () => ({status: 'failed'});
       assert.deepEqual(captureEditorView(), expected);
       assert.deepEqual(problemBody, finishProblemScroll);
     }
-    storage.clear(); mountEditor();
-    expected = position(true); restoreEditorView(expected);
-    problemBody = {...initialProblemScroll};
-    storageFull = true;
-    await runTests();
-    assert.deepEqual(captureEditorView(), expected);
-    assert.deepEqual(problemBody, initialProblemScroll);
-    assert.match(state.error, /Run cancelled/);
+    for (mode of ['passed', 'failed']) {
+      storage.clear(); mountEditor();
+      expected = position(true); finishPosition = position(true, 7);
+      restoreEditorView(expected);
+      problemBody = {...initialProblemScroll};
+      storageFull = true;
+      await runTests();
+      assert.deepEqual(captureEditorView(), finishPosition);
+      assert.deepEqual(problemBody, finishProblemScroll);
+      assert.equal(state.runResult.status, mode);
+      if (mode === 'passed') assert.match(state.error, /All tests passed, but the code version could not be saved/);
+      else assert.equal(state.error, null);
+    }
     storageFull = false;
     state.selected = {slug: 'other'}; mountEditor();
     const fresh = captureEditorView();
