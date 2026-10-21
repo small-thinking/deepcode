@@ -579,7 +579,47 @@ assert.throws(() => syncStarterCode(problem), /Quota/);
 assert.deepEqual(entries, before);
 """, app_code=self.draft_functions())
 
-    def test_reset_aborts_before_editor_or_server_changes_on_storage_failure(self):
+    def test_reset_restores_starter_without_reading_or_writing_saved_history(self):
+        source = Path("frontend/app.js").read_text(encoding="utf-8")
+        reset_function = source[source.index("async function resetCode()"):source.index("function problemCompleted(")]
+        self.run_js(r"""
+const state = {selected: {slug: 'alpha', starter_code: 'starter'}, runResult: {old: true}};
+const codeKey = slug => `deepcode-code:${slug}`;
+const editorCode = () => {throw new Error('Reset must not snapshot editor code');};
+let resetCalls = 0, timerCalls = 0, apiCalls = 0, renderCalls = 0, syncCalls = 0;
+const resetEditorHistory = code => {assert.equal(code, 'starter'); resetCalls++;};
+const resetProblemTimer = () => {timerCalls++;};
+const status = {completed: false};
+const api = async (path, options) => {
+  assert.equal(path, '/api/problems/alpha/reset');
+  assert.equal(options.method, 'POST');
+  apiCalls++;
+  return {problem_status: status};
+};
+const syncProblemStatus = (slug, value) => {
+  assert.equal(slug, 'alpha'); assert.deepEqual(value, status); syncCalls++;
+};
+const render = () => {renderCalls++;};
+const updateCodeSaveStatus = () => {throw new Error('Unexpected reset failure');};
+const saved = saveSubmittedCodeVersion(localStorage, 'alpha', 'passing solution');
+// Reset works even if History is full, absent, or unreadable.
+for (const history of [JSON.stringify({schemaVersion: 1, versions: saved}), null, '{unreadable']) {
+  if (history === null) entries.delete(codeVersionsKey('alpha'));
+  else entries.set(codeVersionsKey('alpha'), history);
+  localStorage.setItem(codeKey('alpha'), 'last persisted draft');
+  unsavedProblemDrafts.set('alpha', 'unsaved draft');
+  failKey = codeVersionsKey('alpha');
+  await resetCode();
+  assert.equal(localStorage.getItem(codeKey('alpha')), 'starter');
+  assert.equal(unsavedProblemDrafts.has('alpha'), false);
+  assert.equal(localStorage.getItem(codeVersionsKey('alpha')), history);
+  assert.equal(state.runResult, null);
+  assert.equal(state.error, null);
+}
+assert.deepEqual([resetCalls, timerCalls, apiCalls, renderCalls, syncCalls], [3, 3, 3, 3, 3]);
+""", app_code=reset_function)
+
+    def test_reset_aborts_before_editor_or_server_changes_on_draft_storage_failure(self):
         source = Path("frontend/app.js").read_text(encoding="utf-8")
         reset_function = source[source.index("async function resetCode()"):source.index("function problemCompleted(")]
         self.run_js(r"""
@@ -592,19 +632,15 @@ const api = async () => {apiCalls++; return {};};
 const render = () => {renderCalls++;};
 const updateCodeSaveStatus = (...args) => {notice = args;};
 localStorage.setItem(codeKey('alpha'), 'last persisted draft');
-// Backup failure must not overwrite any previously saved draft.
-failKey = codeVersionsKey('alpha');
-await resetCode();
-assert.equal(localStorage.getItem(codeKey('alpha')), 'last persisted draft');
-assert.equal(localStorage.getItem(codeVersionsKey('alpha')), null);
-assert.equal(resetCalls + apiCalls + renderCalls, 0);
-assert.equal(notice[1], true);
-assert.deepEqual(state.runResult, {old: true});
-// If only replacement fails, the editor text is still backed up safely.
+saveSubmittedCodeVersion(localStorage, 'alpha', 'passing solution');
+unsavedProblemDrafts.set('alpha', 'unsaved editor text');
+const before = new Map(entries);
 failKey = codeKey('alpha');
 await resetCode();
-assert.equal(localStorage.getItem(codeKey('alpha')), 'last persisted draft');
-assert.equal(loadCodeVersions(localStorage, 'alpha')[0].code, 'unsaved editor text');
+assert.deepEqual(entries, before);
+assert.equal(unsavedProblemDrafts.get('alpha'), 'unsaved editor text');
 assert.equal(resetCalls + apiCalls + renderCalls, 0);
+assert.equal(notice[1], true);
+assert.match(notice[0], /could not save starter code/);
 assert.deepEqual(state.runResult, {old: true});
 """, app_code=reset_function)
