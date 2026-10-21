@@ -1,0 +1,20 @@
+[
+  {
+    "name": "RMS scaling without centering",
+    "input": "nonzero-mean rows and distinct feature scales",
+    "test": "import torch\nx = torch.tensor([[3., 4.], [-1., 7.]])\ngamma = torch.tensor([2., -0.5])\ny = rms_norm(x, gamma)\nexpected = torch.nn.functional.rms_norm(x, (2,), gamma, eps=1e-5)\nassert y.shape == x.shape and y.dtype == x.dtype\nassert torch.allclose(y, expected, atol=1e-6, rtol=1e-5)\nassert y[0].mean().abs() > 0.1\nprint('ok')",
+    "expected_output": "ok"
+  },
+  {
+    "name": "zero and single-feature rows",
+    "input": "zero row, D=1, eps=0.25",
+    "test": "import torch\nfor x in (torch.tensor([[0., 0.], [0.001, -0.002]]), torch.tensor([[3.], [-4.], [0.]])):\n    gamma = torch.full((x.shape[-1],), 2.)\n    y = rms_norm(x, gamma, eps=0.25)\n    expected = torch.nn.functional.rms_norm(x, (x.shape[-1],), gamma, eps=0.25)\n    assert torch.isfinite(y).all() and torch.allclose(y, expected, atol=1e-6)\nprint('ok')",
+    "expected_output": "ok"
+  },
+  {
+    "name": "float64 and unchanged inputs",
+    "input": "noncontiguous matrix, N=1, and eps=0.02",
+    "test": "import torch\nfor x in (torch.tensor([[1., 4.], [-2., 8.], [3., 9.]], dtype=torch.float64).T, torch.tensor([[1., 4., 9.]], dtype=torch.float64)):\n    gamma = torch.tensor([0.5, 2., -1.], dtype=x.dtype)\n    old_x, old_gamma = x.clone(), gamma.clone()\n    y = rms_norm(x, gamma, eps=0.02)\n    expected = torch.nn.functional.rms_norm(x, (3,), gamma, eps=0.02)\n    assert y.shape == x.shape and y.dtype == x.dtype\n    assert torch.allclose(y, expected, atol=1e-9, rtol=1e-7)\n    assert torch.equal(x, old_x) and torch.equal(gamma, old_gamma)\nprint('ok')",
+    "expected_output": "ok"
+  }
+]

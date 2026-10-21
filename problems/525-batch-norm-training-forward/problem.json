@@ -1,0 +1,51 @@
+{
+  "id": "525",
+  "slug": "batch-norm-training-forward",
+  "title": "Normalization II: BatchNorm Training Forward",
+  "category": "ML Coding",
+  "difficulty": "easy",
+  "tags": [
+    "pytorch",
+    "normalization-series",
+    "normalization",
+    "general-practice"
+  ],
+  "companies": [
+    "General"
+  ],
+  "prompt": "Implement `batch_norm(x, gamma, beta, eps=1e-5)` in PyTorch for **training forward only**. Input `x` has shape `(N,D)`; `gamma` and `beta` have shape `(D,)`. Normalize each feature over the N batch rows to zero mean using population variance (divide by N), then apply featurewise scale `gamma` and shift `beta`. Add `eps` inside the square root. No running statistics or evaluation mode are required.\n\nAssume valid finite CPU float32 or float64 tensors with matching dtype, `N >= 1`, `D >= 1`, and `eps > 0`. Return a tensor of shape `(N,D)` with the same dtype. Do not modify inputs. Use basic tensor operations, not ready-made normalization functions. No input-validation code is required.",
+  "starter_code": "import torch\n\n\ndef batch_norm(x, gamma, beta, eps=1e-5):\n    raise NotImplementedError\n",
+  "example": {
+    "input": "x = torch.tensor([[1., 2.], [3., 6.]]); gamma = torch.ones(2); beta = torch.zeros(2); batch_norm(x, gamma, beta)",
+    "output": "tensor([[-1.0000, -1.0000], [1.0000, 1.0000]]) approximately",
+    "reasoning": "Each feature uses statistics from the two batch rows."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-21",
+  "references": [
+    {
+      "label": "Interview context — miHoYo candidate profile; original post not located",
+      "url": "https://www.nowcoder.com/users/259446603"
+    },
+    {
+      "label": "Primary paper — Batch Normalization",
+      "url": "https://arxiv.org/abs/1502.03167"
+    },
+    {
+      "label": "Technical reference — PyTorch BatchNorm1d",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.BatchNorm1d.html"
+    }
+  ],
+  "background_note": "Authored General training-forward practice. A miHoYo candidate-profile report mentions BatchNorm training and inference code, but its original post was not located. This exercise deliberately covers only current-batch population statistics; it has no running-state or inference API. N=1 is a valid mathematical boundary here, unlike the ready-made PyTorch training function."
+}

@@ -1,0 +1,51 @@
+{
+  "id": "526",
+  "slug": "rms-norm-forward",
+  "title": "Normalization III: RMSNorm",
+  "category": "ML Coding",
+  "difficulty": "easy",
+  "tags": [
+    "pytorch",
+    "normalization-series",
+    "normalization",
+    "general-practice"
+  ],
+  "companies": [
+    "General"
+  ],
+  "prompt": "Implement `rms_norm(x, gamma, eps=1e-5)` in PyTorch. Input `x` has shape `(N,D)`; `gamma` has shape `(D,)`. Divide each row by the square root of its mean squared feature value plus `eps`, then apply featurewise scale `gamma`. Do not subtract a mean or add a bias.\n\nAssume valid finite CPU float32 or float64 tensors with matching dtype, `N >= 1`, `D >= 1`, and `eps > 0`. Return a tensor of shape `(N,D)` with the same dtype. Do not modify inputs. Use basic tensor operations, not ready-made normalization functions. No input-validation code is required.",
+  "starter_code": "import torch\n\n\ndef rms_norm(x, gamma, eps=1e-5):\n    raise NotImplementedError\n",
+  "example": {
+    "input": "x = torch.tensor([[3., 4.]]); gamma = torch.ones(2); rms_norm(x, gamma)",
+    "output": "tensor([[0.8485, 1.1314]]) approximately",
+    "reasoning": "RMSNorm scales each row without centering it."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-21",
+  "references": [
+    {
+      "label": "Interview context — Meituan RMSNorm CUDA C report; exercise is CPU PyTorch",
+      "url": "https://www.nowcoder.com/feed/main/detail/a7c9d695438e428aafe1f2510c7e2389?sourceSSR=users"
+    },
+    {
+      "label": "Primary paper — Root Mean Square Layer Normalization",
+      "url": "https://arxiv.org/abs/1910.07467"
+    },
+    {
+      "label": "Technical reference — PyTorch RMSNorm",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.RMSNorm.html"
+    }
+  ],
+  "background_note": "The linked Meituan report explicitly asks for an RMSNorm CUDA C implementation. This authored General exercise covers the CPU PyTorch forward operation only, not that kernel contract. It uses an explicit eps=1e-5 default rather than PyTorch RMSNorm's dtype-dependent default."
+}

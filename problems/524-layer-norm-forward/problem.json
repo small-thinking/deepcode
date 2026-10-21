@@ -1,0 +1,51 @@
+{
+  "id": "524",
+  "slug": "layer-norm-forward",
+  "title": "Normalization I: LayerNorm",
+  "category": "ML Coding",
+  "difficulty": "easy",
+  "tags": [
+    "pytorch",
+    "normalization-series",
+    "normalization",
+    "general-practice"
+  ],
+  "companies": [
+    "General"
+  ],
+  "prompt": "Implement `layer_norm(x, gamma, beta, eps=1e-5)` in PyTorch. Input `x` has shape `(N,D)`; `gamma` and `beta` have shape `(D,)`. Normalize each row over its D features to zero mean using population variance (divide by D), then apply featurewise scale `gamma` and shift `beta`. Add `eps` inside the square root.\n\nAssume valid finite CPU float32 or float64 tensors with matching dtype, `N >= 1`, `D >= 1`, and `eps > 0`. Return a tensor of shape `(N,D)` with the same dtype. Do not modify inputs. Use basic tensor operations, not ready-made normalization functions. No input-validation code is required.",
+  "starter_code": "import torch\n\n\ndef layer_norm(x, gamma, beta, eps=1e-5):\n    raise NotImplementedError\n",
+  "example": {
+    "input": "x = torch.tensor([[1., 3.]]); gamma = torch.ones(2); beta = torch.zeros(2); layer_norm(x, gamma, beta)",
+    "output": "tensor([[-1.0000, 1.0000]]) approximately",
+    "reasoning": "The two features share one mean and variance."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-21",
+  "references": [
+    {
+      "label": "Interview context — ByteDance LayerNorm coding report; exercise API is authored",
+      "url": "https://www.nowcoder.com/discuss/623651948142620672"
+    },
+    {
+      "label": "Primary paper — Layer Normalization",
+      "url": "https://arxiv.org/abs/1607.06450"
+    },
+    {
+      "label": "Technical reference — PyTorch LayerNorm",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html"
+    }
+  ],
+  "background_note": "The linked ByteDance report explicitly mentions LayerNorm coding. This is an authored General exercise with a simplified two-dimensional API, not a verbatim company question."
+}
