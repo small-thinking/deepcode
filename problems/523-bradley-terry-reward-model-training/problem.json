@@ -1,0 +1,49 @@
+{
+  "id": "523",
+  "slug": "bradley-terry-reward-model-training",
+  "title": "Train a Bradley–Terry Reward Model",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "bradley-terry",
+    "reward-model",
+    "pairwise-preference",
+    "pytorch",
+    "training-loop",
+    "general-practice"
+  ],
+  "companies": [
+    "General"
+  ],
+  "prompt": "An encoder has already converted each `(prompt, response)` into a fixed feature vector. Given a small list of human preferences, train a reward model that scores the chosen response above the rejected response.\n\nUse one shared linear head `r(x) = x @ w`, without a bias, initialized to zero. For chosen and rejected scores `c` and `r`, Bradley–Terry assigns the observed preference probability:\n\n`P(chosen preferred) = exp(c) / (exp(c) + exp(r))`.\n\nImplement the three starter interfaces:\n\n| Interface | Contract |\n| --- | --- |\n| `RewardModel(input_dim)` | Map features `(B,D)` to scores `(B,)`, including `B=1`. |\n| `bt_loss(chosen_scores, rejected_scores)` | Return the mean negative natural log-likelihood as a scalar tensor `()`, preserving gradients to both score inputs. |\n| `train_reward_model(pairs, epochs=20, batch_size=4, lr=0.1)` | Create and train a fresh model; return `(model, loss_history)`. |\n\n**Data.** Each `pairs[i]` is `(chosen_features, rejected_features)` for the same prompt. Features are finite, contiguous CPU `torch.float32` tensors `(D,)`, have L2 norm at most 1, and do not require gradients. Assume valid inputs: `1 <= N <= 256`, `1 <= D <= 32`, integer `0 <= epochs <= 50`, positive integer `batch_size` (possibly greater than N), and `0 < lr <= 0.1`. All records share D. Repeated records, identical features, and conflicting preferences are valid; there are no tie labels. Do not modify the inputs.\n\n**Training.** Use ordinary SGD without momentum, weight decay, or other regularization. Process records in input order, without shuffling. Each batch, including the final partial batch, contributes one update using its mean loss. Stop after the requested epochs; no convergence threshold is required.\n\n**History.** Return a Python `float` list of length `epochs+1`: the initial full-dataset mean loss, followed by the full-dataset mean loss re-evaluated after each completed epoch. Do not retain computation graphs for logging. Full-dataset loss need not decrease every epoch.\n\nUse CPU float32 throughout. The loss must remain finite and differentiable for scores in `[-10_000,10_000]`; extremely small values may underflow to zero. `nn.Linear`, autograd, `torch.optim.SGD`, batching/indexing, standard stable mathematical primitives, and API documentation are allowed. Do not call a ready-made classification loss or preference trainer. No encoder or tokenizer implementation is needed.\n\nAllow about **45 minutes**, including checks. Follow-ups: Why omit a shared bias? What happens with conflicting or perfectly separable preferences? How would you compare two responses at inference time?",
+  "starter_code": "import torch\nfrom torch import nn\n\n\nclass RewardModel(nn.Module):\n    def __init__(self, input_dim: int):\n        super().__init__()\n        # One shared, zero-initialized linear head without bias.\n        raise NotImplementedError\n\n    def forward(self, features: torch.Tensor) -> torch.Tensor:\n        # (B, D) -> (B,)\n        raise NotImplementedError\n\n\ndef bt_loss(chosen_scores: torch.Tensor,\n            rejected_scores: torch.Tensor) -> torch.Tensor:\n    # Mean preference negative log-likelihood; return a scalar tensor.\n    raise NotImplementedError\n\n\ndef train_reward_model(pairs: list[tuple[torch.Tensor, torch.Tensor]],\n                       epochs: int = 20, batch_size: int = 4,\n                       lr: float = 0.1) -> tuple[RewardModel, list[float]]:\n    raise NotImplementedError\n",
+  "example": {
+    "input": "pairs = [(torch.tensor([1., 0.]), torch.tensor([-1., 0.]))]; model, losses = train_reward_model(pairs, epochs=1, batch_size=1, lr=0.1); scores = model(torch.eye(2))",
+    "output": "scores ≈ tensor([0.1000, 0.0000]); losses ≈ [0.693147, 0.598139]",
+    "reasoning": "Starting from equal scores, one SGD update raises the reward for the chosen feature vector relative to the rejected one."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-20",
+  "references": [
+    {
+      "label": "Technical background: InstructGPT reward-model objective, section 3.5 (not interview provenance)",
+      "url": "https://arxiv.org/abs/2203.02155"
+    },
+    {
+      "label": "PyTorch: SGD optimizer API",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.optim.SGD.html"
+    }
+  ],
+  "background_note": "Authored General interview practice based on the Bradley–Terry reward-model objective, not a recovered company question. Frozen features, a zero-initialized linear head, sequential SGD batches, and the history API are exercise conventions. Reference implementation is maintained separately from the candidate starter."
+}
