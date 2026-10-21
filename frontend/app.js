@@ -1898,11 +1898,10 @@ async function resetCode() {
   const slug = state.selected.slug;
   const starterCode = state.selected.starter_code || "";
   try {
-    saveCodeVersion(localStorage, slug, editorCode(), "Before reset", { onlyIfChanged: true });
     localStorage.setItem(codeKey(slug), starterCode);
     unsavedProblemDrafts.delete(slug);
   } catch {
-    updateCodeSaveStatus("Reset cancelled — could not preserve your draft in browser storage", true);
+    updateCodeSaveStatus("Reset cancelled — could not save starter code in browser storage", true);
     return;
   }
   resetEditorHistory(starterCode);

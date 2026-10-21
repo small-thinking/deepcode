@@ -92,7 +92,7 @@ The editor's browser-local **History** automatically saves code only after a
 full-suite pass and only when its exact text differs from the latest saved entry.
 Repeating the same passing code adds no entry. Passing with A, then B, then A
 saves all three versions because each differs from the immediately preceding
-entry. Selected-test, custom-test, and failed runs add no automatic snapshots.
+entry. Reset, selected-test, custom-test, and failed runs add no automatic snapshots.
 
 ## Local Deployment
 

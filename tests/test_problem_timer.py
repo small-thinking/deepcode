@@ -15,9 +15,13 @@ class ProblemTimerTest(unittest.TestCase):
 const assert = require('node:assert/strict');
 const PROBLEM_TIMERS_KEY = 'deepcode-problem-timers';
 const storage = new Map();
+let failStorage = false;
 const localStorage = {
   getItem: key => storage.get(key) ?? null,
-  setItem: (key, value) => storage.set(key, value),
+  setItem: (key, value) => {
+    if (failStorage && key === 'code:example') throw new Error('Quota');
+    storage.set(key, value);
+  },
   removeItem: key => storage.delete(key),
 };
 let now = 10000;
@@ -32,9 +36,6 @@ const display = {textContent: ''};
 const document = {querySelector: selector => selector === '#problem-timer-toggle' ? button : display};
 const state = {selected: {slug: 'example', starter_code: 'starter'}, running: false};
 const unsavedProblemDrafts = new Map();
-let failStorage = false;
-const saveCodeVersion = () => { if (failStorage) throw new Error('Quota'); };
-const editorCode = () => 'draft';
 const codeKey = slug => `code:${slug}`;
 const resetEditorHistory = () => {};
 const updateCodeSaveStatus = () => {};
