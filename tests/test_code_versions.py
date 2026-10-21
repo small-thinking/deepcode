@@ -213,6 +213,23 @@ assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), [empty, returned, chan
 assert.deepEqual(loadCodeVersions(localStorage, 'beta'), []);
 """)
 
+    def test_submission_compares_with_latest_stored_backup_not_latest_submission(self):
+        self.run_js(r"""
+const submitted = saveSubmittedCodeVersion(localStorage, 'alpha', 'solution A')[0];
+const backup = saveCodeVersion(localStorage, 'alpha', 'solution B', 'Before reset')[0];
+const before = localStorage.getItem(codeVersionsKey('alpha'));
+// Matching the latest entry skips writes regardless of how that entry was saved.
+failKey = codeVersionsKey('alpha');
+assert.deepEqual(saveSubmittedCodeVersion(localStorage, 'alpha', 'solution B'), [backup, submitted]);
+assert.equal(localStorage.getItem(codeVersionsKey('alpha')), before);
+failKey = null;
+// A later save from another tab must become the comparison point immediately.
+const otherTab = saveSubmittedCodeVersion(localStorage, 'alpha', 'solution C')[0];
+const returned = saveSubmittedCodeVersion(localStorage, 'alpha', 'solution B')[0];
+assert.notEqual(returned.id, backup.id);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha'), [returned, otherTab, backup, submitted]);
+""")
+
     def test_delete_uses_selected_id_and_problem_even_with_duplicate_names(self):
         self.run_js(r"""
 const first = saveCodeVersion(localStorage, 'alpha', 'first', 'Same name')[0];
@@ -322,6 +339,40 @@ for (mode of ['stream', 'fallback', 'stream-error', 'fallback-error', 'missing-r
     }
   }
 }
+""", app_code=self.run_functions())
+
+    def test_repeated_passing_code_still_updates_completion_without_history_write(self):
+        self.run_js(r"""
+const result = {status: 'passed', results: [{passed: true}], problem_status: {completed: true}};
+const state = {selected: {slug: 'alpha'}, running: false};
+const render = () => {};
+const startRunTimer = () => {};
+const stopRunTimer = () => {};
+const updateRunElapsed = () => {};
+let pauses = 0, syncs = 0, runs = 0;
+const pauseProblemTimer = slug => {assert.equal(slug, 'alpha'); pauses++;};
+const syncProblemStatus = (slug, status) => {
+  assert.equal(slug, 'alpha');
+  assert.deepEqual(status, result.problem_status);
+  syncs++;
+};
+const runTestsWithStream = async () => {runs++; state.runResult = result; return true;};
+for (const code of ['solution A', 'solution B', 'solution A']) {
+  await runPayload({code});
+  const before = new Map(entries);
+  failKey = codeVersionsKey('alpha');
+  await runPayload({code});
+  assert.deepEqual(entries, before);
+  assert.equal(state.error, null);
+  assert.equal(state.running, false);
+  assert.deepEqual(state.runResult, result);
+  failKey = null;
+}
+assert.equal(runs, 6);
+assert.equal(pauses, runs);
+assert.equal(syncs, runs);
+assert.deepEqual(loadCodeVersions(localStorage, 'alpha').map(version => version.code),
+  ['solution A', 'solution B', 'solution A']);
 """, app_code=self.run_functions())
 
     def test_history_storage_failure_preserves_passing_result_and_status(self):

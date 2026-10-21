@@ -30,7 +30,8 @@ export function saveCodeVersion(storage, slug, code, name = "", { onlyIfChanged 
   return [version, ...versions];
 }
 
-// Repeating the same submission does not fill History with identical snapshots.
+// Compare exact code with the latest saved entry, including backups and drafts.
+// Returning to an older solution after a different entry creates a new snapshot.
 export function saveSubmittedCodeVersion(storage, slug, code) {
   const versions = loadCodeVersions(storage, slug);
   if (versions[0]?.code === code) return versions;
