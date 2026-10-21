@@ -43,7 +43,7 @@ class GrpoTrainingLoopContractTest(unittest.TestCase):
                 "reference shares current policy storage",
                 "self.reference_logits = policy_logits.detach().clone()",
                 "self.reference_logits = self.policy_logits.detach()",
-                "exact forward KL uses prompt rows and keeps reference fixed",
+                "reference snapshot is independent of initialization and current logits",
             ),
             (
                 "log difference used as ratio",
@@ -55,13 +55,13 @@ class GrpoTrainingLoopContractTest(unittest.TestCase):
                 "optimistic clipping branch",
                 "torch.minimum(ratio * advantages, clipped * advantages)",
                 "torch.maximum(ratio * advantages, clipped * advantages)",
-                "stale importance ratio uses exponent and sign-sensitive clipping",
+                "clipping selects pessimistic branch for both advantage signs",
             ),
             (
                 "gradients accumulate between steps",
                 "        self.optimizer.zero_grad()\n",
                 "",
-                "step returns pre-update loss and follows fresh SGD gradient each call",
+                "step clears preexisting gradients and does not reuse stale gradients",
             ),
         )
         broken = REFERENCE
