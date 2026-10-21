@@ -35,6 +35,10 @@
   "created_at": "2026-10-21",
   "references": [
     {
+      "label": "Series guide and interview evidence — Notion",
+      "url": "https://app.notion.com/p/4006ce51456d81458496d2fa022abf9f?pvs=204"
+    },
+    {
       "label": "Interview context — Meituan RMSNorm CUDA C report; exercise is CPU PyTorch",
       "url": "https://www.nowcoder.com/feed/main/detail/a7c9d695438e428aafe1f2510c7e2389?sourceSSR=users"
     },
