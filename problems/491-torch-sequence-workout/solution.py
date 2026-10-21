@@ -14,9 +14,14 @@ def valid_token_mask(lengths, max_len):
     return torch.arange(max_len, device=lengths.device) < lengths[:, None]
 
 
-def masked_mean(x, mask):
+def masked_mean_pooling(x, mask):
+    """Average valid token vectors into one feature vector per sequence."""
     valid = x.masked_fill(~mask.unsqueeze(-1), 0)
     return valid.sum(dim=1) / mask.sum(dim=1, keepdim=True)
+
+
+# Earlier helper name, retained for existing solutions.
+masked_mean = masked_mean_pooling
 
 
 def split_features(x, left_width):
@@ -51,7 +56,7 @@ def train_step(model, optimizer, x, lengths, labels):
     model.train()
     optimizer.zero_grad()
     mask = valid_token_mask(lengths, x.shape[1])
-    pooled = masked_mean(x, mask)
+    pooled = masked_mean_pooling(x, mask)
     loss = classification_loss(model(pooled), labels)
     loss.backward()
     optimizer.step()
@@ -62,7 +67,7 @@ def evaluate_batch(model, x, lengths, labels):
     model.eval()
     with torch.no_grad():
         mask = valid_token_mask(lengths, x.shape[1])
-        logits = model(masked_mean(x, mask))
+        logits = model(masked_mean_pooling(x, mask))
         predictions = logits.argmax(dim=-1)
         loss = classification_loss(logits, labels)
         accuracy = (predictions == labels).float().mean().item()

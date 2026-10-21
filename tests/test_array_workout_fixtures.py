@@ -64,6 +64,21 @@ class ArrayWorkoutFixturesTest(unittest.TestCase):
                 ))
                 self.assertEqual(first["passed"], 0, first)
 
+    def test_pooling_name_accepts_legacy_drafts_without_hiding_new_helper_errors(self):
+        path, problem, tests = load(FOLDERS[1])
+        code = (path / "solution.py").read_text()
+        pooling_tests = [case for case in tests if case["name"].startswith("[Part 4]")]
+        legacy = code.replace("masked_mean = masked_mean_pooling\n", "")
+        legacy = legacy.replace("masked_mean_pooling", "masked_mean")
+        broken_new = code + "\ndef masked_mean_pooling(x, mask):\n    return None\n"
+        for variant, expected in ((legacy, len(pooling_tests)), (broken_new, 0)):
+            with self.subTest(legacy=variant == legacy):
+                result = evaluate_submission(EvaluationRequest(
+                    code=variant, problem=problem, tests=pooling_tests,
+                    environment=problem["environment"],
+                ))
+                self.assertEqual(result["passed"], expected, result)
+
     def test_catalog_declares_scoped_coding_demos(self):
         store = ProblemStore(ROOT / "problems")
         for folder in FOLDERS:
@@ -137,7 +152,7 @@ class ArrayWorkoutFixturesTest(unittest.TestCase):
                 lengths = torch.tensor(data["lengths"])
                 mask = scope["valid_token_mask"](lengths, 3)
                 np.testing.assert_array_equal(data["mask"], mask.numpy())
-                pooled = scope["masked_mean"](x, mask)
+                pooled = scope["masked_mean_pooling"](x, mask)
                 np.testing.assert_allclose(data["pooled"], pooled.numpy())
                 model = torch.nn.Linear(2, 2, dtype=torch.float64)
                 with torch.no_grad():
