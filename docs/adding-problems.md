@@ -202,7 +202,9 @@ folder, `title` must describe the iframe for assistive technology, and
 or `interactive_demo` for `ml_coding`, `ml_modeling`, `ml_torch_modeling`, and
 `ml_torch_lab`. System Design keeps its Reference answer placement. Coding
 problems show an **Interactive Demo** tab beside Problem, Tests, and Env only
-when a demo is declared. Switching these tabs keeps the editor and demo state
+when a demo or static image asset declares `section: "interactive_demo"`.
+Static diagrams render after any interactive walkthroughs in this tab; an HTML
+demo is optional. Switching these tabs keeps the editor and demo state
 mounted; the iframe loads on first opening its tab. Keyboard users can use
 Left/Right, Home, and End to move between tabs. The problem pane owns scrolling
 and can be widened with the existing pane divider. Use the same metadata as

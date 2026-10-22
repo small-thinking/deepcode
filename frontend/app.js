@@ -3217,9 +3217,10 @@ function renderDetail() {
 }
 
 function hasCodingInteractiveDemos(problem) {
-  return !isSystemDesignProblem(problem) && (problem.interactive_demos || []).some(
-    (demo) => demo.section === "interactive_demo"
-  );
+  return !isSystemDesignProblem(problem) && [
+    ...(problem.interactive_demos || []),
+    ...(problem.assets || []),
+  ].some((item) => item.section === "interactive_demo");
 }
 
 function tabButton(tab, label) {
@@ -3275,7 +3276,10 @@ function renderProblemTab(problem, env, tab = state.activeTab) {
     return [renderProblemEnvironment(env), renderDataLinkSetup(problem)].join("");
   }
   if (tab === "demo" && hasCodingInteractiveDemos(problem)) {
-    return renderInteractiveDemos(problem, "interactive_demo");
+    return [
+      renderInteractiveDemos(problem, "interactive_demo"),
+      renderProblemAssets(problem, "interactive_demo"),
+    ].join("");
   }
   return renderProblemDescription(problem);
 }

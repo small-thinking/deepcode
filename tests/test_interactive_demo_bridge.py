@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 import unittest
@@ -5,6 +6,42 @@ from pathlib import Path
 
 
 class InteractiveDemoBridgeTest(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("node"), "Node is required to exercise demo rendering")
+    def test_coding_demo_tab_supports_static_diagrams_without_an_iframe(self):
+        source = Path("frontend/app.js").read_text(encoding="utf-8")
+        functions = source[source.index("function hasCodingInteractiveDemos("):source.index("function renderProblemBlock(")]
+        problem = json.loads(Path("problems/110-two-layer-numpy-network/problem.json").read_text())
+        self.assertEqual(len(problem["assets"]), 3)
+        self.assertTrue(all(asset["section"] == "interactive_demo" for asset in problem["assets"]))
+        script = """
+const assert = require('node:assert/strict');
+const isSystemDesignProblem = p => p.evaluation?.type === 'system_design';
+const state = {activeTab: 'description'};
+const renderProblemDescription = () => 'prompt';
+const renderProblemTests = () => '';
+const renderCustomTests = () => '';
+const renderProblemEnvironment = () => '';
+const renderDataLinkSetup = () => '';
+const renderInteractiveDemos = (p, section) => (p.interactive_demos || [])
+  .filter(d => d.section === section).map(() => '<iframe></iframe>').join('');
+const renderProblemAssets = (p, section) => (p.assets || [])
+  .filter(a => a.section === section).map(a => `<img alt="${a.alt}">`).join('');
+""" + functions + "\nconst problem = " + json.dumps(problem) + ";\n" + """
+assert.equal(hasCodingInteractiveDemos(problem), true);
+const html = renderProblemTab(problem, {}, 'demo');
+assert.equal((html.match(/<img /g) || []).length, 3);
+assert.ok(!html.includes('<iframe'));
+assert.equal(renderProblemTab(problem, {}, 'description'), 'prompt');
+assert.ok(renderProblemPanels(problem, {}).includes('id="problem-demo-panel"'));
+assert.equal(hasCodingInteractiveDemos({...problem, assets: []}), false);
+assert.equal(hasCodingInteractiveDemos({...problem, evaluation: {type: 'system_design'}}), false);
+const mixed = {...problem, interactive_demos: [{section: 'interactive_demo'}]};
+const mixedHtml = renderProblemTab(mixed, {}, 'demo');
+assert.ok(mixedHtml.startsWith('<iframe></iframe><img '));
+assert.equal(hasCodingInteractiveDemos({...mixed, assets: []}), true);
+"""
+        subprocess.run(["node", "-e", script], check=True, capture_output=True, text=True)
+
     @unittest.skipUnless(shutil.which("node"), "Node is required to exercise the JS bridge")
     def test_scroll_requires_known_visible_frame_and_matching_version(self):
         source = Path("frontend/app.js").read_text(encoding="utf-8")
