@@ -26,18 +26,22 @@ class BradleyTerryRewardModelContractTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed", result)
         self.assertEqual(result["passed"], len(CHECKS), result)
 
-    def test_checks_accept_zero_and_custom_nonzero_initialization(self):
-        for initialization in ("nn.init.zeros_(self.head.weight)",
-                               "nn.init.constant_(self.head.weight, -0.4)"):
-            code = REFERENCE.replace(
-                "self.head = nn.Linear(input_dim, 1, bias=False)",
-                "self.head = nn.Linear(input_dim, 1, bias=False)\n        " + initialization,
-            )
-            for check in CHECKS:
-                with self.subTest(initialization=initialization, check=check["name"]):
-                    namespace = {}
-                    exec(compile(code, initialization, "exec"), namespace)
-                    exec(check["test"], namespace)
+    def test_checks_accept_bias_options_and_initializations(self):
+        for use_bias in (False, True):
+            for initialization in ("", "nn.init.zeros_(self.head.weight)",
+                                   "nn.init.constant_(self.head.weight, -0.4)"):
+                constructor = f"self.head = nn.Linear(input_dim, 1, bias={use_bias})"
+                if use_bias:
+                    constructor += "\n        nn.init.constant_(self.head.bias, 0.7)"
+                if initialization:
+                    constructor += "\n        " + initialization
+                code = REFERENCE.replace("self.head = nn.Linear(input_dim, 1)", constructor)
+                for check in CHECKS:
+                    with self.subTest(bias=use_bias, initialization=initialization,
+                                      check=check["name"]):
+                        namespace = {}
+                        exec(compile(code, "bias and initialization variant", "exec"), namespace)
+                        exec(check["test"], namespace)
 
     def test_checks_reject_common_loss_and_training_mistakes(self):
         mutations = (
@@ -51,6 +55,8 @@ class BradleyTerryRewardModelContractTest(unittest.TestCase):
              "range(0, len(pairs) - batch_size + 1, batch_size)", 4),
             ("logged last batch instead of epoch evaluation", "loss_history.append(evaluate_loss())",
              "loss_history.append(loss.item())", 4),
+            ("incorrect shared bias update", "optimizer.step()",
+             "optimizer.step()\n            with torch.no_grad():\n                model.head.bias.add_(lr)", 2),
         )
         for name, old, new, check_index in mutations:
             with self.subTest(name=name):
