@@ -26,6 +26,19 @@ class BradleyTerryRewardModelContractTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed", result)
         self.assertEqual(result["passed"], len(CHECKS), result)
 
+    def test_checks_accept_zero_and_custom_nonzero_initialization(self):
+        for initialization in ("nn.init.zeros_(self.head.weight)",
+                               "nn.init.constant_(self.head.weight, -0.4)"):
+            code = REFERENCE.replace(
+                "self.head = nn.Linear(input_dim, 1, bias=False)",
+                "self.head = nn.Linear(input_dim, 1, bias=False)\n        " + initialization,
+            )
+            for check in CHECKS:
+                with self.subTest(initialization=initialization, check=check["name"]):
+                    namespace = {}
+                    exec(compile(code, initialization, "exec"), namespace)
+                    exec(check["test"], namespace)
+
     def test_checks_reject_common_loss_and_training_mistakes(self):
         mutations = (
             ("reversed preference", "chosen_scores - rejected_scores",
