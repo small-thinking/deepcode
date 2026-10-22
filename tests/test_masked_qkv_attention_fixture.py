@@ -22,6 +22,19 @@ class MaskedQKVAttentionFixtureTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed", result)
         self.assertEqual(result["passed"], 5)
 
+    def test_saved_solutions_with_legacy_function_name_still_pass(self):
+        code = (ROOT / "tests/reference_solutions/masked_qkv_attention.py").read_text()
+        code = code.replace("def scaled_dot_product_attention(", "def masked_qkv_attention(")
+        result = self.evaluate(code)
+        self.assertEqual(result["status"], "passed", result)
+
+    def test_native_reference_import_does_not_replace_submission(self):
+        code = "def scaled_dot_product_attention(q, k, v, mask=None):\n    raise AssertionError('submission was called')\n"
+        result = self.evaluate(code)
+        self.assertEqual(result["passed"], 0, result)
+        for case in result["results"]:
+            self.assertIn("submission was called", case["actual_output"])
+
     def test_float32_intermediates_allow_normal_rounding(self):
         code = (ROOT / "tests/reference_solutions/masked_qkv_attention.py").read_text()
         code = code.replace(
