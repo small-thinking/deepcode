@@ -55,7 +55,7 @@ class KVCacheLayoutContractTest(unittest.TestCase):
             with self.subTest(layout=name):
                 result = self.evaluate(code)
                 self.assertEqual(result["status"], "passed", result)
-                self.assertEqual(result["passed"], 3)
+                self.assertEqual(result["passed"], result["total"])
 
     def test_incorrect_cache_implementations_still_fail(self):
         split = (FOLDER / "solution.py").read_text()
@@ -75,6 +75,59 @@ class KVCacheLayoutContractTest(unittest.TestCase):
             with self.subTest(bug=name):
                 result = self.evaluate(code, cache_only=True)
                 self.assertNotEqual(result["status"], "passed", result)
+
+
+    def test_added_cases_reject_bugs_that_the_original_three_allowed(self):
+        problem = json.loads((FOLDER / "problem.json").read_text())
+        cases = json.loads((FOLDER / "tests.json").read_text())
+        split = (FOLDER / "solution.py").read_text()
+        variants = (
+            (
+                "hardcoded two heads",
+                split.replace("self.n_heads = n_heads", "self.n_heads = 2")
+                     .replace("self.head_dim = dim // n_heads", "self.head_dim = dim // 2"),
+                "cached chunks with varied head counts, head widths, and floating dtypes",
+            ),
+            (
+                "collapsed per-head masks",
+                split.replace(
+                    "        if mask is not None:\n",
+                    "        if mask is not None and mask.ndim == 4:\n"
+                    "            mask = mask[:, :1]\n"
+                    "        if mask is not None:\n",
+                ),
+                "external prefix cache: mask broadcasting, gradients, and no mutation",
+            ),
+            (
+                "implicit causality when mask is absent",
+                split.replace(
+                    "        if mask is not None:\n",
+                    "        if mask is None:\n"
+                    "            mask = torch.ones(t, k.shape[2], dtype=torch.bool, device=x.device).tril(k.shape[2] - t)\n"
+                    "        if mask is not None:\n",
+                ),
+                "causality is caller-controlled for unmasked prefill and multi-token decode",
+            ),
+            (
+                "unstable exponential softmax",
+                split.replace("scores.softmax(dim=-1)",
+                              "(scores.exp() / scores.exp().sum(dim=-1, keepdim=True))"),
+                "large finite logits remain stable during cached decoding",
+            ),
+        )
+        for name, code, target in variants:
+            with self.subTest(bug=name):
+                self.assertNotEqual(code, split)
+                def run(selected):
+                    return evaluate_submission(EvaluationRequest(
+                        code=code, problem=problem, tests=selected,
+                        environment=problem["environment"], runtime={},
+                    ))
+                before = run(cases[:3])
+                self.assertEqual(before["status"], "passed", before)
+                after = run([case for case in cases if case["name"] == target])
+                self.assertEqual(after["total"], 1)
+                self.assertEqual(after["status"], "failed", after)
 
 
 if __name__ == "__main__":
