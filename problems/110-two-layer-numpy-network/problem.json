@@ -27,8 +27,8 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `TwoLayerNet` using only NumPy: two affine layers with ReLU between them and a numerically stable softmax output.\n\n- `__init__(input_dim, hidden_dim, output_dim)`: initialize weights and biases.\n- `forward(X)`: return class probabilities of shape `(n_samples, output_dim)`.\n- `loss(X, y)`: return mean cross-entropy for integer class labels.\n- `train_step(X, y, learning_rate=0.1)`: take one gradient descent step and return the updated loss.\n\nChoose your own initialization and internal implementation.",
-  "starter_code": "import numpy as np\n\n\nclass TwoLayerNet:\n    def __init__(self, input_dim, hidden_dim, output_dim):\n        pass\n\n    def forward(self, X):\n        pass\n\n    def loss(self, X, y):\n        pass\n\n    def train_step(self, X, y, learning_rate=0.1):\n        pass\n",
+  "prompt": "Implement `TwoLayerNet` using only NumPy: two affine layers with ReLU between them and a numerically stable softmax output.\n\n- `__init__(input_dim, hidden_dim, output_dim)`: initialize weights and biases.\n- `forward(X)`: return class probabilities of shape `(n_samples, output_dim)`.\n- `loss(preds, y)`: return mean cross-entropy from normalized class probabilities `preds` of shape `(n_samples, output_dim)` and integer labels `y` of shape `(n_samples,)`. Each `y[i]` is a zero-based class index. Use the supplied probabilities directly without modifying them; do not run `forward` inside `loss`.\n- `train_step(X, y, learning_rate=0.1)`: take one gradient descent step and return the updated loss.\n\nChoose your own initialization and internal implementation.",
+  "starter_code": "import numpy as np\n\n\nclass TwoLayerNet:\n    def __init__(self, input_dim, hidden_dim, output_dim):\n        pass\n\n    def forward(self, X):\n        pass\n\n    def loss(self, preds, y):\n        pass\n\n    def train_step(self, X, y, learning_rate=0.1):\n        pass\n",
   "example": {
     "input": "net = TwoLayerNet(2, 4, 3); probs = net.forward([[1.0, -1.0]])",
     "output": "probs.shape == (1, 3) and probs.sum(axis=1) == [1.0]",

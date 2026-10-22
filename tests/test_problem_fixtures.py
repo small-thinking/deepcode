@@ -1448,8 +1448,8 @@ class TwoLayerNet:
         probs = exp_scores / exp_scores.sum(axis=1, keepdims=True)
         return probs
 
-    def loss(self, X, y):
-        probs = self.forward(X)
+    def loss(self, preds, y):
+        probs = np.asarray(preds, dtype=float)
         y = np.asarray(y, dtype=int)
         return float(-np.mean(np.log(probs[np.arange(len(y)), y] + 1e-12)))
 
@@ -1476,7 +1476,7 @@ class TwoLayerNet:
         self.b1 -= learning_rate * grad_b1
         self.W2 -= learning_rate * grad_W2
         self.b2 -= learning_rate * grad_b2
-        return self.loss(X, y)
+        return self.loss(self.forward(X), y)
 """
 
         variants = {
@@ -1501,6 +1501,9 @@ class TwoLayerNet:
         for label, code in {
             "fixed divisor": solution.replace("grad_logits /= n", "grad_logits /= 2"),
             "no update": solution.replace("learning_rate *", "0.0 *"),
+            "forward inside loss": solution.replace(
+                "probs = np.asarray(preds, dtype=float)", "probs = self.forward(preds)"
+            ),
             "sum loss": solution.replace("np.mean(np.log", "np.sum(np.log"),
         }.items():
             with self.subTest(mutant=label):
