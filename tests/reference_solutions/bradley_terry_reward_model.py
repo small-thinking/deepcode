@@ -5,7 +5,7 @@ from torch import nn
 class RewardModel(nn.Module):
     def __init__(self, input_dim: int):
         super().__init__()
-        self.head = nn.Linear(input_dim, 1, bias=False)
+        self.head = nn.Linear(input_dim, 1)
 
     def forward(self, features: torch.Tensor) -> torch.Tensor:
         return self.head(features).squeeze(-1)
