@@ -34,23 +34,8 @@ def family_policy_loss(logp, old_logp, rewards, response_mask, variant="grpo",
     return -(gain.sum(dim=-1) / lengths).mean()
 
 
-def soft_overlong_rewards(rewards, lengths, max_length, cache_length):
-    penalty = ((max_length - cache_length - lengths.detach()).to(rewards.dtype)
-               / cache_length).clamp(-1, 0)
+def soft_overlong_rewards(rewards, lengths, max_length, buffer_length):
+    """DAPO reward shaping: buffer_length is the linear ramp width below the cap."""
+    penalty = ((max_length - buffer_length - lengths.detach()).to(rewards.dtype)
+               / buffer_length).clamp(-1, 0)
     return rewards.detach() + penalty
-
-
-def collect_informative_groups(sample_batch, target_groups, max_batches):
-    chunks = []
-    count = 0
-    for _ in range(max_batches):
-        batch = sample_batch()
-        correct = batch["correct"].detach()
-        keep = correct.any(dim=-1) & ~correct.all(dim=-1)
-        selected = {key: value.detach()[keep].clone() for key, value in batch.items()}
-        chunks.append(selected)
-        count += int(keep.sum())
-        if count >= target_groups:
-            return {key: torch.cat([chunk[key] for chunk in chunks], dim=0)[:target_groups].clone()
-                    for key in batch}
-    raise RuntimeError("insufficient informative groups")

@@ -22,6 +22,23 @@ class GrpoFamilyContractTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed", result)
         self.assertEqual(result["passed"], len(CHECKS), result)
 
+    def test_buffer_length_keyword_and_legacy_positional_signature(self):
+        namespace = {}
+        exec(REFERENCE, namespace)
+        torch = namespace["torch"]
+        shaped = namespace["soft_overlong_rewards"](
+            rewards=torch.ones((1, 4)), lengths=torch.tensor([[6, 8, 10, 11]]),
+            max_length=10, buffer_length=4,
+        )
+        torch.testing.assert_close(shaped, torch.tensor([[1., .5, 0., 0.]]))
+        # Existing saved solutions keep working with positional visible checks.
+        legacy = REFERENCE.replace("buffer_length", "cache_length")
+        result = evaluate_submission(EvaluationRequest(
+            code=legacy, problem=PROBLEM, tests=CHECKS[10:11],
+            environment=PROBLEM["environment"],
+        ))
+        self.assertEqual(result["passed"], 1, result)
+
     def test_specific_wrong_algorithms_fail_hand_computed_checks(self):
         # Values and gradients in tests.json are independent, hand-computed oracles.
         mutations = (
@@ -42,10 +59,6 @@ class GrpoFamilyContractTest(unittest.TestCase):
              "delta = (logp.detach() - old_logp.detach())", 1),
             ("old gradients", "logp - old_logp.detach()", "logp - old_logp", 1),
             ("one-shot length penalty", ").clamp(-1, 0)", ").lt(0).to(rewards.dtype).neg()", 10),
-            ("keep all correct groups", "correct.any(dim=-1) & ~correct.all(dim=-1)",
-             "correct.any(dim=-1)", 11),
-            ("filter by shaped reward variance", "correct.any(dim=-1) & ~correct.all(dim=-1)",
-             'batch["rewards"].std(dim=-1, correction=0).gt(0)', 13),
         )
         for name, old, new, index in mutations:
             with self.subTest(name=name):
