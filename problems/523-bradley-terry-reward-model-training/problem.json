@@ -45,5 +45,21 @@
       "url": "https://docs.pytorch.org/docs/stable/generated/torch.optim.SGD.html"
     }
   ],
-  "background_note": "Authored General interview practice based on the Bradley–Terry reward-model objective, not a recovered company question. Frozen features, a shared linear head, sequential SGD batches, and the history API are exercise conventions. Reference implementation is maintained separately from the candidate starter."
+  "background_note": "Authored General interview practice based on the Bradley–Terry reward-model objective, not a recovered company question. Frozen features, a shared linear head, sequential SGD batches, and the history API are exercise conventions. Reference implementation is maintained separately from the candidate starter.",
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "bt-loss-lab",
+      "kind": "standalone_html",
+      "path": "assets/bt-loss-lab.html",
+      "title": "Bradley–Terry: score gaps, loss curves, and shared-head training",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 960
+      }
+    }
+  ]
 }
