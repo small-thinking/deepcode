@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DPO: relative odds, beta, and frozen gradients</title>
+<style>
+:root{color-scheme:light;--background:#f8f9fb;--surface:#fff;--surfaceInset:#eff3f8;--border:#dce3ec;--text:#17263a;--body:#36465b;--muted:#63738a;--accent:#285dcd;--accentSoft:#eaf0ff;--positive:#16734f;--positiveSoft:#e8f5ef;--danger:#b43e41;--dangerSoft:#fceff0;--policy:#2864cd;--reference:#ad6421;--margin:#7955b8}
+[data-theme=dark]{--background:#111824;--surface:#1b2534;--surfaceInset:#253247;--border:#38485e;--text:#edf3ff;--body:#c5d2e4;--muted:#a6b5cb;--accent:#8db3ff;--accentSoft:#253a5d;--positive:#85d9b3;--positiveSoft:#1c3e34;--danger:#ffa1a5;--dangerSoft:#462b36;--policy:#8eb8ff;--reference:#f5b27d;--margin:#c7a7fa}
+*{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--text);font:14px/1.5 system-ui,sans-serif}.demo{max-width:650px;margin:auto;padding:18px 16px 26px}h1{font-size:26px;line-height:1.16;letter-spacing:-.65px;margin:6px 0 10px}h2{font-size:17px;line-height:1.3;margin:0 0 8px}h3{font-size:14px;margin:0}p{margin:7px 0 12px;color:var(--body)}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--accent);font-weight:750}.small{font-size:12px;color:var(--muted)}.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px;margin:12px 0}.control{display:grid;grid-template-columns:1fr auto;gap:3px 8px;margin:9px 0}.control input{grid-column:1/-1;width:100%;accent-color:var(--accent);margin:4px 0}.control label{font-weight:600}.control.policy label{color:var(--policy)}.control.reference label{color:var(--reference)}output,.value{font-variant-numeric:tabular-nums;font-weight:700}.views,.presets{display:flex;flex-wrap:wrap;gap:6px}.views{margin-top:15px}.views button{flex:1;min-width:95px}.presets button{font-size:12px;padding:7px 9px}button,select,input{font:inherit}button{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:7px;cursor:pointer}button[aria-pressed=true]{background:var(--accentSoft);color:var(--accent);border-color:var(--accent)}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.equation{font:13px/1.7 ui-monospace,monospace;overflow-wrap:anywhere}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}.metric{background:var(--surfaceInset);padding:9px;border-radius:8px}.metric span{display:block;font-size:11px;color:var(--muted)}.metric strong{font-size:20px;font-variant-numeric:tabular-nums}.verdict{padding:11px 12px;border-left:3px solid var(--margin);background:var(--accentSoft);margin:12px 0}.verdict strong{display:block}.verdict p{font-size:13px;margin:5px 0 0}.plot{width:100%;height:190px;display:block;margin:8px 0}.plot text,.graph text{fill:var(--muted);font:12px system-ui,sans-serif}.plot .label,.graph .label{fill:var(--text)}.gaps{height:225px}.graph{width:100%;height:290px;display:block}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}.policy-ink{color:var(--policy)}.reference-ink{color:var(--reference)}.margin-ink{color:var(--margin)}.code{background:var(--surfaceInset);border-radius:8px;padding:10px;font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0}.code span{display:block;border-left:3px solid transparent;padding-left:6px}.code span.active{background:var(--accentSoft);border-left-color:var(--accent)}details{margin:12px 0}summary{font-weight:650;cursor:pointer}details p{font-size:13px}table{width:100%;border-collapse:collapse;font-size:12px;margin:9px 0}th,td{text-align:left;padding:7px 4px;border-bottom:1px solid var(--border)}.freeze-label{display:flex;gap:8px;align-items:center;font-weight:650}.freeze-label input{accent-color:var(--accent);width:18px;height:18px}.notice{background:var(--positiveSoft);padding:9px 11px;border-radius:7px;font-size:13px}.notice.error{background:var(--dangerSoft)}[hidden]{display:none!important}.scene{min-height:330px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:380px){.demo{padding:12px 10px 20px}h1{font-size:23px}.card{padding:11px}.metric{padding:7px}.metric strong{font-size:17px}.views button{padding:7px 4px;font-size:12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="demo">
+<div class="eyebrow">DPO · One labeled preference pair</div>
+<h1>How much did the preference shift?</h1>
+<p>Compare policy with a frozen reference, turn that difference into a loss, then trace where gradients flow.</p>
+<div class="card">
+  <div class="control policy"><label for="policy-gap">Policy gap gπ · log π(chosen) − log π(rejected)</label><output id="policy-value" for="policy-gap"></output><input id="policy-gap" type="range" min="-6" max="6" step="0.1" value="2"></div>
+  <div class="control reference"><label for="reference-gap">Reference gap gref · fixed during training</label><output id="reference-value" for="reference-gap"></output><input id="reference-gap" type="range" min="-6" max="6" step="0.1" value="1"></div>
+  <div class="control"><label for="beta">Beta β · scales the relative margin</label><output id="beta-value" for="beta"></output><input id="beta" type="range" min="0.05" max="10" step="0.05" value="0.5"></div>
+  <div class="presets" aria-label="Synthetic example pairs"><button data-preset="equal">Policy equals reference</button><button data-preset="improved">Improved, still rejects</button><button data-preset="behind">Reference is ahead</button><button id="reset">Reset example</button></div>
+  <p class="small">Synthetic examples. Moving the reference slider selects a different baseline; DPO does not train the reference. Beta is fixed during each training run.</p>
+</div>
+<nav class="views" aria-label="DPO learning view"><button id="view-gaps" data-view="gaps" aria-pressed="true" aria-controls="gaps-scene">1. Compare gaps</button><button id="view-loss" data-view="loss" aria-pressed="false" aria-controls="loss-scene">2. Loss &amp; beta</button><button id="view-gradients" data-view="gradients" aria-pressed="false" aria-controls="gradients-scene">3. Freeze reference</button></nav>
+<section id="gaps-scene" class="scene" aria-label="Compare chosen-to-rejected log odds">
+<div class="card"><h2>Two log-probability gaps, one relative margin</h2>
+<div class="legend"><span class="policy-ink">● Policy gπ</span><span class="reference-ink">◆ Reference gref</span></div>
+<svg id="gap-plot" class="plot gaps" role="img" aria-label="Policy and reference gaps on one axis; their difference is the relative margin"></svg>
+<div class="equation margin-ink" id="margin-equation"></div>
+<div class="verdict"><strong id="gap-verdict"></strong><p id="gap-explanation"></p></div>
+<p class="small">A gap is a log probability ratio: gπ = log[π(chosen) / π(rejected)]. Positive means chosen is more likely than rejected under that model.</p>
+</div>
+<details><summary>Inspect the four sequence log-probabilities</summary><p>One possible set of supplied values, constructed with midpoint −8. Common offsets cancel, so the gaps alone determine this loss.</p><table><thead><tr><th>Log-probability</th><th>Chosen</th><th>Rejected</th></tr></thead><tbody><tr><th>Policy</th><td id="raw-pc"></td><td id="raw-pr"></td></tr><tr><th>Reference</th><td id="raw-rc"></td><td id="raw-rr"></td></tr></tbody></table></details>
+<details><summary>Relative improvement is specific to this pair</summary><p>Δ &gt; 0 means the chosen/rejected probability ratio increased relative to reference. It does not prove general response quality improved, or even that chosen became more likely in absolute terms.</p><table><thead><tr><th>Example probability</th><th>Chosen</th><th>Rejected</th><th>Other responses</th></tr></thead><tbody><tr><th>Reference</th><td>0.4</td><td>0.4</td><td>0.2</td></tr><tr><th>Policy</th><td>0.3</td><td>0.1</td><td>0.6</td></tr></tbody></table><p>Here Δ = log(3) &gt; 0, even though chosen fell from 0.4 to 0.3. Shared model parameters can also make training pairs compete.</p></details>
+</section>
+<section id="loss-scene" class="scene" aria-label="Explore the preference probability and DPO loss" hidden>
+<div class="card"><h2>A likelihood for the observed preference</h2><div class="equation" id="logit-equation"></div><div class="metrics"><div class="metric"><span>Preference likelihood q</span><strong id="probability-value"></strong></div><div class="metric"><span>Single-pair loss −log q</span><strong id="loss-value"></strong></div><div class="metric"><span>Slope ∂ℓ/∂gπ</span><strong id="slope-value"></strong></div></div>
+<h3>q = sigmoid(βΔ)</h3><svg id="probability-plot" class="plot" role="img" aria-label="Predicted preference likelihood versus policy minus reference gap"></svg>
+<h3>ℓ = −log(q) = softplus(−βΔ)</h3><svg id="loss-plot" class="plot" role="img" aria-label="DPO loss versus policy minus reference gap"></svg>
+<p class="small">Each marker uses the current Δ. The vertical dashed line is Δ = 0: q = 0.5 and ℓ = log(2). q models the observed preference; it is not the language model's probability of generating chosen, nor a measured human win rate.</p>
+<div class="verdict"><strong id="loss-verdict"></strong><p id="beta-explanation"></p></div>
+</div>
+<details><summary>Why beta is not simply “a bigger update”</summary><p>At a fixed margin, ∂ℓ/∂gπ = −β sigmoid(−βΔ). At Δ = 0 its magnitude is β/2. When Δ is already positive, a larger β can saturate sigmoid and make the gradient smaller.</p><p>In the underlying reward-minus-KL objective, β is the coefficient of the KL penalty to the reference. For a fixed reward function, larger β favors staying closer to reference: π*(y|x) ∝ πref(y|x) exp(r(y,x)/β). This is an optimum-level interpretation, not a guarantee about every finite training run.</p><p>For a target preference likelihood q, the required margin is Δ = log(q/(1−q)) / β. A larger β therefore needs less policy/reference separation to represent the same preference confidence.</p></details>
+<details><summary>From one pair to a batch</summary><p>The training data label chosen as preferred. Independent pair likelihoods multiply; their negative log becomes a sum. The exercise returns the mean across B pairs. Each row's policy log-probability gradients are −β sigmoid(−βΔ)/B for chosen and the opposite for rejected.</p></details>
+</section>
+<section id="gradients-scene" class="scene" aria-label="Inspect frozen reference gradient paths" hidden>
+<div class="card"><h2>Same forward value. Different backward graph.</h2><label class="freeze-label"><input id="freeze-reference" type="checkbox" checked>Detach the reference gap</label><p class="small">Assume all four input tensors require gradients, as in the failing check. Toggle detach to expose the unwanted reference branch.</p>
+<svg id="gradient-graph" class="graph" role="img" aria-label="Forward DPO computation and backward gradients; the reference branch stops when detached"></svg>
+<div id="freeze-status" class="notice" aria-live="polite"></div>
+<table><thead><tr><th>Input log-probability</th><th>Autograd gradient · B = 1</th></tr></thead><tbody><tr><td>policy_chosen_logps</td><td id="grad-pc"></td></tr><tr><td>policy_rejected_logps</td><td id="grad-pr"></td></tr><tr><td>ref_chosen_logps</td><td id="grad-rc"></td></tr><tr><td>ref_rejected_logps</td><td id="grad-rr"></td></tr></tbody></table>
+<p class="small">These are derivatives with respect to supplied log-probabilities. Actual model updates combine them through shared parameters; they are not independent probability assignments. Detach stops autograd, not the arithmetic dependence of the displayed loss on reference values.</p>
+</div>
+</section>
+<div class="card"><h2>Connect the picture to the code</h2><p class="small">One mean-reduced implementation. Highlighted lines match the active view.</p><pre class="code" id="code"><span id="code-policy">policy_gap = policy_chosen_logps - policy_rejected_logps</span><span id="code-reference"></span><span id="code-logits">preference_logits = beta * (policy_gap - reference_gap)</span><span id="code-loss">loss = -F.logsigmoid(preference_logits).mean()</span></pre></div>
+<p class="small" id="summary" aria-live="polite"></p>
+<p class="small">Teaching explorer with synthetic values. The problem and evaluator define the implementation contract. No user code or practice state is changed.</p>
+<noscript><p>This explorer requires JavaScript. The formula is ℓ = softplus(−β(gπ − gref)); reference remains fixed.</p></noscript>
+</main>
+<script>
+'use strict';
+// BEGIN DPO MATH
+function softplus(x){return Math.max(0,x)+Math.log1p(Math.exp(-Math.abs(x)));}
+function sigmoid(x){const e=Math.exp(-Math.abs(x));return x>=0?1/(1+e):e/(1+e);}
+function dpoValues(policyGap,referenceGap,beta,freeze=true){
+  const margin=policyGap-referenceGap,logit=beta*margin;
+  const gradient=-beta*sigmoid(-logit);
+  return {margin,logit,probability:sigmoid(logit),loss:softplus(-logit),gradient,
+    policyChosen:gradient,policyRejected:-gradient,
+    referenceChosen:freeze?0:-gradient,referenceRejected:freeze?0:gradient};
+}
+const presets={equal:{policy:2,reference:2,beta:.5},improved:{policy:-1,reference:-3,beta:.5},behind:{policy:1,reference:3,beta:.5}};
+// END DPO MATH
+const el=id=>document.getElementById(id);
+const state={view:'gaps',policy:2,reference:1,beta:.5,freeze:true};
+const fmt=(x,n=3)=>(Math.abs(x)<.5*10**-n?0:x).toFixed(n);
+const txt=(x,y,value,anchor='middle',cls='')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" class="${cls}">${value}</text>`;
+let heightFrame=0,lastHeight=0;
+function reportHeight(){
+  cancelAnimationFrame(heightFrame);
+  heightFrame=requestAnimationFrame(()=>{const height=Math.ceil(document.querySelector('.demo').getBoundingClientRect().height);if(height!==lastHeight){lastHeight=height;window.parent.postMessage({type:'deepcode:interactive-demo-height',version:1,height},'*');}});
+}
+function gapPlot(v){
+  const svg=el('gap-plot'),w=Math.max(260,svg.clientWidth||500),l=30,r=w-20;
+  const X=x=>l+(x+6)/12*(r-l);
+  let s=`<path d="M${l} 147H${r}" fill="none" stroke="var(--muted)"/><path d="M${X(0)} 27V147" stroke="var(--muted)" stroke-dasharray="3 4"/>`;
+  for(const x of [-6,-3,0,3,6])s+=txt(X(x),165,x);
+  for(const [label,value,y,color,diamond]of [['Reference',state.reference,63,'var(--reference)',true],['Policy',state.policy,112,'var(--policy)',false]]){
+    s+=txt(l, y-19,`${label} gap = ${fmt(value,1)}`,'start','label');
+    s+=`<path d="M${X(0)} ${y}H${X(value)}" stroke="${color}" stroke-width="3"/>`;
+    s+=diamond?`<path d="M${X(value)} ${y-6}l6 6 -6 6 -6 -6Z" fill="${color}"/>`:`<circle cx="${X(value)}" cy="${y}" r="6" fill="${color}"/>`;
+  }
+  s+=`<path d="M${X(state.reference)} 181V190H${X(state.policy)}V181" fill="none" stroke="var(--margin)" stroke-width="2"/>`;
+  s+=txt((l+r)/2,215,`Relative margin Δ = ${fmt(v.margin)}`,'middle','label');
+  svg.setAttribute('viewBox',`0 0 ${w} 225`);svg.innerHTML=s;
+}
+function curvePlot(id,fn,current,ymax,ylabel){
+  const svg=el(id),w=Math.max(260,svg.clientWidth||500),l=45,r=w-12,t=12,b=142;
+  const X=x=>l+(x+12)/24*(r-l),Y=y=>b-y/ymax*(b-t);
+  let s='';
+  for(const val of [0,ymax/2,ymax])s+=`<path d="M${l} ${Y(val)}H${r}" stroke="var(--border)"/>`+txt(l-7,Y(val)+4,fmt(val,ymax===1?1:ymax>10?0:2),'end');
+  s+=`<path d="M${l} ${t}V${b}H${r}" fill="none" stroke="var(--muted)"/><path d="M${X(0)} ${t}V${b}" stroke="var(--muted)" stroke-dasharray="3 4"/>`;
+  for(const val of [-12,-6,0,6,12])s+=txt(X(val),161,val);
+  let d='';for(let i=0;i<=240;i++){const x=-12+i/10;d+=`${i?'L':'M'}${X(x)},${Y(fn(x))}`;}
+  const cx=X(current),cy=Y(fn(current));
+  s+=`<path d="${d}" fill="none" stroke="var(--margin)" stroke-width="2.5"/><path d="M${cx} ${b}V${cy}H${l}" stroke="var(--margin)" stroke-dasharray="3 3" fill="none"/><circle cx="${cx}" cy="${cy}" r="5" fill="var(--margin)" stroke="var(--surface)" stroke-width="1.5"/>`;
+  s+=txt((l+r)/2,185,'Δ = policy gap − reference gap','middle','label');
+  svg.setAttribute('viewBox',`0 0 ${w} 190`);svg.setAttribute('aria-label',`${ylabel}; current margin ${fmt(current)}, value ${fmt(fn(current))}`);svg.innerHTML=s;
+}
+function gradientGraph(v){
+  const svg=el('gradient-graph'),w=Math.max(260,svg.clientWidth||500),left=w*.26,right=w*.74,mid=w/2,bw=Math.min(150,w*.44);
+  let s='';
+  function box(x,y,label,value,color){return `<rect x="${x-bw/2}" y="${y}" width="${bw}" height="48" rx="7" fill="var(--surfaceInset)" stroke="${color}"/>`+txt(x,y+19,label,'middle','label')+txt(x,y+37,value);}
+  s+=box(left,12,'Policy gap',fmt(state.policy),'var(--policy)')+box(right,12,state.freeze?'Reference · detach':'Reference · live',fmt(state.reference),'var(--reference)');
+  s+=`<path d="M${left} 60V90H${mid}V108M${right} 60V90H${mid}" stroke="var(--muted)" fill="none"/>`;
+  s+=box(mid,108,'z = β(gπ − gref)',fmt(v.logit),'var(--margin)');
+  s+=`<path d="M${mid} 156V191" stroke="var(--muted)"/>`+txt(mid+8,177,'↓','start');
+  s+=box(mid,191,'Loss = softplus(−z)',fmt(v.loss),'var(--margin)');
+  s+=`<path d="M${left-15} 239V81" stroke="var(--policy)" stroke-width="2" stroke-dasharray="5 4" fill="none"/>`+txt(left-15,78,'↑')+txt(8,266,`Policy gradient ${fmt(v.gradient)}`,'start');
+  const refColor=state.freeze?'var(--muted)':'var(--danger)';
+  s+=`<path d="M${right+15} 239V81" stroke="${refColor}" stroke-width="2" stroke-dasharray="5 4" fill="none"/>`;
+  s+=txt(right+15,78,state.freeze?'⊣':'↑')+txt(w-8,283,state.freeze?'Reference: stopped':`Unwanted reference gradient ${fmt(-v.gradient)}`,'end');
+  svg.setAttribute('viewBox',`0 0 ${w} 290`);svg.innerHTML=s;
+}
+function render(){
+  const v=dpoValues(state.policy,state.reference,state.beta,state.freeze);
+  el('policy-value').textContent=fmt(state.policy,1);el('reference-value').textContent=fmt(state.reference,1);el('beta-value').textContent=fmt(state.beta,2);
+  for(const name of ['gaps','loss','gradients']){el(name+'-scene').hidden=state.view!==name;el('view-'+name).setAttribute('aria-pressed',String(state.view===name));}
+  el('margin-equation').textContent=`Δ = gπ − gref = ${fmt(state.policy,1)} − (${fmt(state.reference,1)}) = ${fmt(v.margin)}`;
+  el('gap-verdict').textContent=v.margin>0?'Higher chosen/rejected odds than reference':v.margin<0?'Lower chosen/rejected odds than reference':'Same chosen/rejected odds as reference';
+  const ordering=state.policy>0?'Policy currently assigns chosen a higher probability than rejected.':state.policy<0?'Policy still assigns rejected a higher probability than chosen.':'Policy assigns the two responses equal probability.';
+  el('gap-explanation').textContent=ordering+' '+(v.margin>0?'The relative odds shifted toward the labeled chosen response.':v.margin<0?'The relative margin is negative, even if policy already favors chosen.':'Matching gaps gives loss log(2), regardless of their common value.');
+  for(const [id,gap,sign]of [['raw-pc',state.policy,1],['raw-pr',state.policy,-1],['raw-rc',state.reference,1],['raw-rr',state.reference,-1]])el(id).textContent=fmt(-8+sign*gap/2);
+  el('logit-equation').textContent=`Δ = ${fmt(v.margin)} → z = βΔ = ${fmt(v.logit)} → q = sigmoid(z)`;
+  el('probability-value').textContent=fmt(v.probability);el('loss-value').textContent=fmt(v.loss);el('slope-value').textContent=fmt(v.gradient);
+  el('loss-verdict').textContent=v.margin>0?'Positive margin → q > 0.5 → loss < log(2)':v.margin<0?'Negative margin → q < 0.5 → loss > log(2)':'Zero margin → q = 0.5 → loss = log(2)';
+  el('beta-explanation').textContent=v.margin>0?'At this fixed positive margin, raising beta moves q toward 1 and lowers the loss. The gradient can eventually shrink as the sigmoid saturates.':v.margin<0?'At this fixed negative margin, raising beta moves q toward 0 and raises the loss: the observed preference is less likely under the implicit model.':'At zero margin, beta does not change q or loss. It changes the policy-gap slope: −beta/2.';
+  const freeze=el('freeze-status');freeze.classList.toggle('error',!state.freeze);freeze.textContent=state.freeze?'Reference is frozen. This is the gradient behavior required by the exercise.':'Reference receives gradients. This reproduces the failing “reference preferences matter and are frozen” check.';
+  el('grad-pc').textContent=fmt(v.policyChosen);el('grad-pr').textContent=fmt(v.policyRejected);el('grad-rc').textContent=state.freeze?'None (detached)':fmt(v.referenceChosen);el('grad-rr').textContent=state.freeze?'None (detached)':fmt(v.referenceRejected);
+  el('code-reference').textContent=`reference_gap = (ref_chosen_logps - ref_rejected_logps)${state.freeze?'.detach()':''}`;
+  for(const id of ['policy','reference','logits','loss'])el('code-'+id).classList.toggle('active',state.view==='gaps'?['policy','reference'].includes(id):state.view==='loss'?['logits','loss'].includes(id):id==='reference');
+  if(state.view==='gaps')gapPlot(v);
+  if(state.view==='loss'){curvePlot('probability-plot',x=>sigmoid(state.beta*x),v.margin,1,'Preference likelihood q');curvePlot('loss-plot',x=>softplus(-state.beta*x),v.margin,Math.max(1,softplus(state.beta*12)*1.05),'Single-pair DPO loss');}
+  if(state.view==='gradients')gradientGraph(v);
+  el('summary').textContent=`Current example: policy gap ${fmt(state.policy,1)}, reference gap ${fmt(state.reference,1)}, beta ${fmt(state.beta,2)}. Margin ${fmt(v.margin)}, preference likelihood ${fmt(v.probability)}, loss ${fmt(v.loss)}. Reference gradients ${state.freeze?'stopped':'enabled (incorrect for this exercise)'}.`;
+  reportHeight();
+}
+for(const [id,key]of [['policy-gap','policy'],['reference-gap','reference'],['beta','beta']])el(id).addEventListener('input',event=>{state[key]=Number(event.target.value);render();});
+for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>{state.view=button.dataset.view;render();});
+function syncControls(){el('policy-gap').value=state.policy;el('reference-gap').value=state.reference;el('beta').value=state.beta;el('freeze-reference').checked=state.freeze;}
+for(const button of document.querySelectorAll('[data-preset]'))button.addEventListener('click',()=>{Object.assign(state,presets[button.dataset.preset]);syncControls();render();});
+el('freeze-reference').addEventListener('change',event=>{state.freeze=event.target.checked;render();});
+el('reset').addEventListener('click',()=>{Object.assign(state,{view:'gaps',policy:2,reference:1,beta:.5,freeze:true});syncControls();render();});
+window.addEventListener('message',event=>{
+  if(event.source!==window.parent||event.data?.type!=='deepcode:interactive-demo-theme'||event.data?.version!==1||!['light','dark'].includes(event.data.theme))return;
+  document.documentElement.dataset.theme=event.data.theme;document.documentElement.style.colorScheme=event.data.theme;
+  for(const key of ['background','surface','surfaceInset','border','text','body','muted','accent','accentSoft','positive','positiveSoft','danger','dangerSoft']){const value=event.data.tokens?.[key];if(typeof value==='string'&&CSS.supports('color',value))document.documentElement.style.setProperty('--'+key,value);}
+  render();
+});
+new ResizeObserver(render).observe(document.querySelector('.demo'));
+window.addEventListener('load',reportHeight);render();window.parent.postMessage({type:'deepcode:interactive-demo-ready',version:1},'*');
+</script>
+</body>
+</html>

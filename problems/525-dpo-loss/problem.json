@@ -41,5 +41,21 @@
       "url": "https://arxiv.org/abs/2305.18290"
     }
   ],
-  "background_note": "Authored General practice for the standard sigmoid DPO objective, not a recovered company interview question. Sequence log-probabilities are supplied to focus on the loss; this exercise does not train a complete language model. The reference implementation is maintained separately from the candidate starter."
+  "background_note": "Authored General practice for the standard sigmoid DPO objective, not a recovered company interview question. Sequence log-probabilities are supplied to focus on the loss; this exercise does not train a complete language model. The reference implementation is maintained separately from the candidate starter.",
+  "interactive_demos": [
+    {
+      "schema_version": 1,
+      "id": "dpo-loss-lab",
+      "kind": "standalone_html",
+      "path": "assets/dpo-loss-lab.html",
+      "title": "DPO: relative preference odds, beta, and frozen reference gradients",
+      "section": "interactive_demo",
+      "presentation": {
+        "theme": "sync",
+        "fallback_theme": "light",
+        "height": "content",
+        "fallback_height": 960
+      }
+    }
+  ]
 }
