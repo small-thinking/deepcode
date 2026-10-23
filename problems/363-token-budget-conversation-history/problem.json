@@ -26,7 +26,7 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement ConversationHistory with add(role, content) and get_recent(max_tokens) -> list[tuple[str, str]]. add appends one message chronologically. A message's token count is len(content.split()); its role does not count toward the budget. get_recent returns the longest contiguous suffix of messages whose total token count is at most max_tokens, preserving chronological order. If the newest message alone exceeds the budget, return an empty list.\n\nRoles are nonempty strings and contents are strings. max_tokens is a nonnegative integer. Invalid inputs raise an error. Treat whitespace-only content as a zero-token message and preserve its original content in the returned tuple. Aim for O(log n + output size) per read.\n\nInvalid inputs may be rejected with `assert`.",
+  "prompt": "Implement `ConversationHistory` for messages arriving from oldest to newest. Each message has a `role` (for example, `user`, `assistant`, or `system`) and a string `content`.\n\n### Operations\n\n- `add(role, content)`: append one message to the history.\n- `get_recent(max_tokens) -> list[tuple[str, str]]`: return as many of the newest messages as the budget allows, as `(role, content)` tuples in oldest-to-newest order. Querying does not remove any stored messages.\n\nA message costs `len(content.split())` tokens; the role costs nothing. Return whole messages forming a **contiguous suffix**: you may drop older messages, but cannot skip a newer message to include an older one. If the newest message exceeds the budget, return `[]`. An empty history also returns `[]`.\n\nFor messages with token counts `[2, 1, 2]` (oldest to newest):\n\n| Budget | Returned messages | Total tokens |\n| --- | --- | --- |\n| 3 | Last two | 3 |\n| 2 | Last one | 2 |\n| 1 | None | 0 |\n\n### Practice contract\n\n`role` must be a nonempty string, `content` a string, and `max_tokens` a nonnegative integer (not a boolean). Reject invalid inputs with `ValueError` or `AssertionError`. Empty or whitespace-only content costs zero tokens and must be retained when it extends a valid suffix. Preserve the original role and content exactly.\n\nSupport repeated reads with different budgets. Aim for `O(log n + k)` per read, where `n` is the number of stored messages and `k` is the number returned.",
   "starter_code": "class ConversationHistory:\n    def __init__(self):\n        pass\n\n    def add(self, role, content):\n        pass\n\n    def get_recent(self, max_tokens):\n        pass\n",
   "example": {
     "input": "history.add('user', 'one two'); history.add('assistant', 'three'); history.add('user', 'four five'); history.get_recent(3)",
@@ -48,5 +48,6 @@
   "evaluation": {
     "type": "ml_modeling"
   },
-  "created_at": "2026-09-02"
+  "created_at": "2026-09-02",
+  "background_note": "Reconstructed practice version. The first-person Sierra report names a conversation-history exercise and links to InterviewDB; it does not disclose the detailed contract. The page’s Question 1 is labeled AI Insights. This exercise uses that summary’s token-budgeted suffix model with a Python class API; validation, zero-token messages, and non-destructive reads are explicit practice conventions, not verified interview wording."
 }

@@ -10,8 +10,13 @@
     "test": "history = ConversationHistory()\nhistory.add('user', 'one')\nhistory.add('assistant', '   \\t ')\nassert history.get_recent(0) == [('assistant', '   \\t ')]\nassert history.get_recent(10) == [('user', 'one'), ('assistant', '   \\t ')]"
   },
   {
+    "name": "queries preserve history and select the earliest valid suffix",
+    "input": "empty history, zero-token messages, and varying budgets",
+    "test": "history = ConversationHistory()\nassert history.get_recent(0) == []\nhistory.add('system', '')\nhistory.add('user', 'one two')\nhistory.add('assistant', 'three')\nassert history.get_recent(1) == [('assistant', 'three')]\nassert history.get_recent(0) == []\nassert history.get_recent(3) == [('system', ''), ('user', 'one two'), ('assistant', 'three')]\nhistory.add('user', 'four')\nassert history.get_recent(2) == [('assistant', 'three'), ('user', 'four')]"
+  },
+  {
     "name": "validates roles contents and budgets",
     "input": "empty roles, non-string content, and invalid budgets",
-    "test": "history = ConversationHistory()\nfor call in (\n    lambda: history.add(\"\", \"ok\"),\n    lambda: history.add(\"user\", 3),\n    lambda: history.get_recent(-1),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
+    "test": "history = ConversationHistory()\nfor call in (\n    lambda: history.add(\"\", \"ok\"),\n    lambda: history.add(\"user\", 3),\n    lambda: history.get_recent(-1),\n    lambda: history.get_recent(True),\n    lambda: history.get_recent(1.5),\n):\n    try:\n        call()\n    except (ValueError, AssertionError):\n        pass\n    else:\n        raise AssertionError(\"expected input validation error\")"
   }
 ]
