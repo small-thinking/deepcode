@@ -1,0 +1,63 @@
+{
+  "id": "411",
+  "slug": "canva-confusion-matrix-evaluator",
+  "title": "Complete a Multiclass Classification Evaluator",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "classification",
+    "metrics",
+    "confusion-matrix"
+  ],
+  "companies": [
+    "Canva"
+  ],
+  "prompt": "Complete the supplied `Evaluator` for a multiclass classifier. `build_matrix(actuals, predictions)` should build the confusion matrix for two equal-length lists of string labels, with actual labels as rows and predictions as columns. Each call replaces the previous matrix. Reject unequal input lengths with `AssertionError` or `ValueError`.\n\n`calculate_metrics()` should return a `LabelMetrics` for every label appearing in either input: its actual sample count, precision, recall, and F1. Return labels in sorted order, use `0.0` for a metric with an undefined denominator, and return an empty list for empty inputs. The `ConfusionMatrix` and `LabelMetrics` helpers are provided.",
+  "starter_code": "from collections import Counter\nfrom dataclasses import dataclass\n\n\n# PROVIDED: one immutable result per label.\n@dataclass(frozen=True)\nclass LabelMetrics:\n    label: str\n    num_actual_samples: int\n    precision: float\n    recall: float\n    f1: float\n\n\n# PROVIDED: rows are actual labels; columns are predicted labels.\nclass ConfusionMatrix:\n    def __init__(self):\n        self._counts = Counter()\n\n    def add(self, actual, predicted):\n        self._counts[actual, predicted] += 1\n\n    def get(self, actual, predicted):\n        return self._counts[actual, predicted]\n\n    def all_labels(self):\n        return sorted({label for pair in self._counts for label in pair})\n\n\nclass Evaluator:\n    # PROVIDED: store the matrix built for the current evaluation.\n    def __init__(self):\n        self.matrix = ConfusionMatrix()\n\n    def build_matrix(self, actuals, predictions):\n        # TODO: replace self.matrix with the counts for these paired labels.\n        raise NotImplementedError\n\n    def calculate_metrics(self):\n        # TODO: return one LabelMetrics per label in sorted order.\n        raise NotImplementedError\n",
+  "example": {
+    "input": "actuals=['cat','cat','dog'], predictions=['cat','dog','dog']",
+    "output": "cat: support=2, precision=1.0, recall=0.5, f1=2/3; dog: support=1, precision=0.5, recall=1.0, f1=2/3",
+    "reasoning": "The single error is an actual cat predicted as dog."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 2,
+    "packages": [],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "interview_frequency": {
+    "Canva": {
+      "stars": 2,
+      "source_record_ids": [
+        "3d76ce51456d81afbd55cd3f5bf77971"
+      ],
+      "synced_at": "2026-09-22"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-09-22"
+  },
+  "references": [
+    {
+      "label": "Canonical source contract and local exercise conventions",
+      "url": "https://www.notion.so/3d76ce51456d81afbd55cd3f5bf77971"
+    },
+    {
+      "label": "Original phone-screen report and code screenshots",
+      "url": "https://www.1point3acres.com/home/thread/1054026"
+    },
+    {
+      "label": "Related candidate report linking the phone-screen task",
+      "url": "https://www.1point3acres.com/interview/thread/1064047"
+    },
+    {
+      "label": "Metric definitions and undefined-denominator options (technical reference)",
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_fscore_support.html"
+    }
+  ],
+  "created_at": "2026-09-22"
+}
