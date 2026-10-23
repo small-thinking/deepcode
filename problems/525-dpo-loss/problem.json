@@ -1,0 +1,45 @@
+{
+  "id": "525",
+  "slug": "dpo-loss",
+  "title": "Direct Preference Optimization (DPO) Loss",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "dpo",
+    "pairwise-preference",
+    "loss-functions",
+    "pytorch",
+    "post-training",
+    "general-practice"
+  ],
+  "companies": [
+    "General"
+  ],
+  "prompt": "Implement `dpo_loss(policy_chosen_logps, policy_rejected_logps, ref_chosen_logps, ref_rejected_logps, beta=0.1)` for a batch of chosen/rejected response pairs sharing the same prompt within each pair.\n\nEach of the four inputs is a CPU `torch.float32` tensor of shape `(B,)`, with `1 <= B <= 256`. Each entry is the **sum** of natural-log token probabilities over one response, including EOS if present, excluding prompt and padding tokens. These sequence log-probabilities have already been computed; no tokenizer, language model, or training loop is required.\n\nCompared with [Bradley\u2013Terry reward-model training](#/problems/bradley-terry-reward-model-training), DPO replaces learned reward scores with implicit rewards from the policy and a fixed reference:\n\n| Objective | Chosen-minus-rejected preference logit `z` |\n| --- | --- |\n| BT | `chosen_score - rejected_score` |\n| DPO | `beta * ((policy_chosen_logps - ref_chosen_logps) - (policy_rejected_logps - ref_rejected_logps))` |\n\nIn both cases, `P(chosen preferred) = sigmoid(z)`. Return the **mean negative log-likelihood**, `mean(-log(sigmoid(z)))`, as a scalar tensor `()`.\n\n**Contract.** Preserve gradients to both policy inputs. Treat both reference inputs as constants, even if they have `requires_grad=True`; their gradients must be absent or zero. Do not modify any inputs. Assume valid, finite log-probabilities in `[-10_000, 0]` and a Python float `0 < beta <= 10`. Keep CPU float32 and remain finite and differentiable throughout this range; extremely small losses and gradients may underflow to zero.\n\nUse stable mathematical primitives such as `logsigmoid`, `softplus`, or `logaddexp`, and PyTorch autograd. Do not call a ready-made DPO trainer or classification loss. Allow about **20 minutes**.\n\nFollow-ups: Why is the initial loss `log(2)` when policy equals reference, even if chosen and rejected have different log-probabilities? Why do we sum response-token log-probabilities rather than average them? How does changing beta affect the preference logit and its gradient?\n",
+  "starter_code": "import torch\n\n\ndef dpo_loss(policy_chosen_logps: torch.Tensor,\n             policy_rejected_logps: torch.Tensor,\n             ref_chosen_logps: torch.Tensor,\n             ref_rejected_logps: torch.Tensor,\n             beta: float = 0.1) -> torch.Tensor:\n    # All inputs: (B,). Return a scalar mean loss.\n    # Backpropagate through policy log-probs only.\n    raise NotImplementedError\n",
+  "example": {
+    "input": "policy_chosen_logps = torch.tensor([-2.]); policy_rejected_logps = torch.tensor([-4.]); ref_chosen_logps = torch.tensor([-3.]); ref_rejected_logps = torch.tensor([-4.]); beta = 0.5",
+    "output": "tensor(0.4741)",
+    "reasoning": "The policy gap is 2, the reference gap is 1, and z = 0.5 * (2 - 1) = 0.5. The loss is -log(sigmoid(0.5)), approximately 0.474077."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-23",
+  "references": [
+    {
+      "label": "Technical background: DPO paper, section 4 and Appendix B (not interview provenance)",
+      "url": "https://arxiv.org/abs/2305.18290"
+    }
+  ],
+  "background_note": "Authored General practice for the standard sigmoid DPO objective, not a recovered company interview question. Sequence log-probabilities are supplied to focus on the loss; this exercise does not train a complete language model. The reference implementation is maintained separately from the candidate starter."
+}
