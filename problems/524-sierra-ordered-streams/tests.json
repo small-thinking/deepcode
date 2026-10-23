@@ -1,0 +1,52 @@
+[
+  {
+    "name": "[Part 1] Ordered values, duplicates, and shared cursor",
+    "input": "items = [-3, 0, 0, 5]; mix .next() and next(stream)",
+    "test": "s = OrderedIntStream([-3, 0, 0, 5])\nassert iter(s) is s\nassert s.next() == -3\nassert next(s) == 0\nassert list(s) == [0, 5]\nfor _ in range(2):\n    try:\n        s.next()\n    except StopIteration:\n        pass\n    else:\n        raise AssertionError('An exhausted stream must stay exhausted')\n"
+  },
+  {
+    "name": "[Part 1] Empty stream",
+    "input": "items = []",
+    "test": "s = OrderedIntStream([])\nassert list(s) == []\ntry:\n    next(s)\nexcept StopIteration:\n    pass\nelse:\n    raise AssertionError('Empty input must raise StopIteration')\n"
+  },
+  {
+    "name": "[Part 2] Multiples start at the base",
+    "input": "base = 3; read six values",
+    "test": "s = MultiplesStream(3)\nassert iter(s) is s\nassert s.next() == 3\nassert next(s) == 6\nassert [s.next() for _ in range(4)] == [9, 12, 15, 18]\n"
+  },
+  {
+    "name": "[Part 2] Independent streams, including base one",
+    "input": "bases = 1, 4",
+    "test": "a, b = MultiplesStream(1), MultiplesStream(4)\nassert [a.next(), b.next(), a.next(), b.next(), b.next()] == [1, 4, 2, 8, 12]\n"
+  },
+  {
+    "name": "[Part 3] Merge finite streams and preserve every duplicate",
+    "input": "inputs = [[-2, 2, 2], [], [-2, 1, 2, 7], [0, 3]]",
+    "test": "s = MergeStream([OrderedIntStream(v) for v in [[-2, 2, 2], [], [-2, 1, 2, 7], [0, 3]]])\nassert list(s) == [-2, -2, 0, 1, 2, 2, 2, 3, 7]\nfor _ in range(2):\n    try:\n        next(s)\n    except StopIteration:\n        pass\n    else:\n        raise AssertionError('An exhausted merge must stay exhausted')\n"
+  },
+  {
+    "name": "[Part 3] No inputs or all empty",
+    "input": "inputs = []; inputs = [[], []]",
+    "test": "assert list(MergeStream([])) == []\nassert list(MergeStream([OrderedIntStream([]), OrderedIntStream([])])) == []\n"
+  },
+  {
+    "name": "[Part 3] Finite stream plus infinite multiples",
+    "input": "inputs = [OrderedIntStream([1, 4]), MultiplesStream(3)]; read seven",
+    "test": "s = MergeStream([OrderedIntStream([1, 4]), MultiplesStream(3)])\nassert iter(s) is s\nassert [next(s) for _ in range(7)] == [1, 3, 4, 6, 9, 12, 15]\n"
+  },
+  {
+    "name": "[Part 3] Merge infinite streams with equal values",
+    "input": "bases = 2, 3; read ten values",
+    "test": "s = MergeStream([MultiplesStream(2), MultiplesStream(3)])\nassert [s.next() for _ in range(10)] == [2, 3, 4, 6, 6, 8, 9, 10, 12, 12]\n"
+  },
+  {
+    "name": "[Part 3] Continue already consumed inputs",
+    "input": "consume one value from each input before merging",
+    "test": "a, b = OrderedIntStream([1, 3, 8]), MultiplesStream(2)\nassert a.next() == 1\nassert b.next() == 2\ns = MergeStream([a, b])\nassert [s.next() for _ in range(6)] == [3, 4, 6, 8, 8, 10]\n"
+  },
+  {
+    "name": "[Part 3] Read lazily through the supplied interface",
+    "input": "custom streams with bounded lookahead; read five values",
+    "test": "class GuardedStream(Stream):\n    def __init__(self, start, step):\n        self.value = start\n        self.step = step\n        self.reads = 0\n\n    def next(self):\n        self.reads += 1\n        assert self.reads <= 6, 'Do not materialize a source stream'\n        value = self.value\n        self.value += self.step\n        return value\n\na, b = GuardedStream(0, 100), GuardedStream(1, 1)\ns = MergeStream([a, b])\nassert a.reads <= 1 and b.reads <= 1, 'At most one initial head per input'\nfor n in range(5):\n    assert s.next() == n\n    assert a.reads + b.reads <= n + 3, 'At most one upcoming value per input'\n"
+  }
+]

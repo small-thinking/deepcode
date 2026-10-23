@@ -1,0 +1,62 @@
+{
+  "id": "524",
+  "slug": "sierra-ordered-streams",
+  "title": "Ordered Integer, Multiples, and Merge Streams",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "iterator",
+    "streams",
+    "heap",
+    "lazy-evaluation",
+    "composition"
+  ],
+  "companies": [
+    "Sierra"
+  ],
+  "interview_frequency": {
+    "Sierra": {
+      "stars": 2,
+      "source_record_ids": [
+        "4026ce51456d8184965dc4f0e6c6b808"
+      ],
+      "synced_at": "2026-10-23"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-23"
+  },
+  "prompt": "Implement three classes using the supplied `Stream` interface. Calling `stream.next()` or Python's `next(stream)` consumes one value; `iter(stream)` returns the same stream. Exhausted finite streams keep raising `StopIteration`.\n\n### Part 1 \u2014 Ordered integer stream\n\n`OrderedIntStream(items)` yields a finite, nondecreasing list of integers in its given order, including duplicates. The caller will not modify `items` during iteration.\n\n### Part 2 \u2014 Multiples stream\n\n`MultiplesStream(base)`, for a positive integer `base`, yields `base, 2 * base, 3 * base, ...` indefinitely. Generate values as requested.\n\n### Part 3 \u2014 Merge stream\n\n`MergeStream(streams)` consumes distinct input `Stream` objects from their current positions and yields all their values in nondecreasing order. Inputs may be finite or infinite. Preserve every occurrence of equal values. Empty inputs are allowed; the merge is exhausted when every input is exhausted.\n\nConsume incrementally: buffer at most one upcoming value per input, rather than materializing the inputs. With `k` inputs, use O(k) auxiliary space and O(log(k + 1)) work per returned value after initialization. Do not reset or recreate input streams.\n\n| Stream | First values |\n| --- | --- |\n| `OrderedIntStream([-2, 1, 1])` | `-2, 1, 1`, then exhausted |\n| `MultiplesStream(3)` | `3, 6, 9, ...` |\n| Merge of `[1, 4]` and multiples of 3 | `1, 3, 4, 6, 9, ...` |\n\nFollow-up: explain how you handle equal values and why the merge can produce a finite prefix even when an input is infinite.",
+  "starter_code": "class Stream:\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        return self.next()\n\n    def next(self):\n        raise NotImplementedError\n\n\nclass OrderedIntStream(Stream):\n    def __init__(self, items):\n        pass\n\n    def next(self):\n        pass\n\n\nclass MultiplesStream(Stream):\n    def __init__(self, base):\n        pass\n\n    def next(self):\n        pass\n\n\nclass MergeStream(Stream):\n    def __init__(self, streams):\n        pass\n\n    def next(self):\n        pass\n",
+  "example": {
+    "input": "s = MergeStream([OrderedIntStream([1, 4]), MultiplesStream(3)]); [s.next() for _ in range(7)]",
+    "output": "[1, 3, 4, 6, 9, 12, 15]",
+    "reasoning": "Consume only the requested prefix; the multiples stream has no end."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Original interview report and candidate follow-up \u2014 three stream stages",
+      "url": "https://www.1point3acres.com/interview/thread/1165332"
+    },
+    {
+      "label": "Canonical question and source cross-check",
+      "url": "https://app.notion.com/p/4026ce51456d8184965dc4f0e6c6b808"
+    },
+    {
+      "label": "Python iterator protocol",
+      "url": "https://docs.python.org/3/library/stdtypes.html#iterator-types"
+    }
+  ],
+  "background_note": "The original Sierra report describes ordered-integer, multiples, and merge-stream stages; a candidate follow-up confirms that sequence and compares merging to merge sort. The exact interface was not published. The supplied Python protocol, presorted list precondition, positive multiples starting at the base, infinite multiples stream, duplicate preservation, exhaustion behavior, current-position semantics, and complexity requirements are explicit local practice conventions. They make a consistent executable reconstruction; they are not claimed as verbatim interviewer requirements.",
+  "created_at": "2026-10-23"
+}
