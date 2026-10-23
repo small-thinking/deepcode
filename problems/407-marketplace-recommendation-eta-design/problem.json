@@ -13,7 +13,7 @@
   "companies": [
     "Uber"
   ],
-  "prompt": "Design an end-to-end ML system for a marketplace. Choose either restaurant recommendation/feed ranking or ETA prediction.\n\nDefine the request and prediction output, then explain training data, serving, cold start, freshness, fallbacks, and evaluation. State scale and latency assumptions and discuss delayed labels and feedback loops.",
+  "prompt": "Design an end-to-end ML system for a marketplace. Choose either restaurant recommendation/feed ranking or ETA prediction.\n\nDefine the request and prediction output, then explain training data, serving, cold start, freshness, fallbacks, and evaluation. State scale and latency assumptions and discuss delayed labels and feedback loops.\n\nFor the recommendation variant, explain how your system serves a new user with no interaction history and how the design changes as feedback arrives.",
   "evaluation": {
     "type": "system_design"
   },
@@ -41,6 +41,10 @@
     {
       "label": "LinkedIn: Uber MLE-2 real-time ETA design experience",
       "url": "https://www.linkedin.com/posts/nitindas230202_interviewexperience-mle-sde-activity-7497360304184418304-lOd0"
+    },
+    {
+      "label": "First-person Uber SDE-ML2 report: recommendations for new users",
+      "url": "https://www.reddit.com/r/leetcode/comments/1n8tyxi/my_uber_sdeml2_interview_journey_didnt_make_it/"
     }
   ],
   "created_at": "2026-09-08",
@@ -50,11 +54,11 @@
         "3d66ce51456d819e96f4fdb72083dc76"
       ],
       "stars": 2,
-      "synced_at": "2026-09-10"
+      "synced_at": "2026-09-22"
     }
   },
   "interview_frequency_total": {
     "stars": 2,
-    "synced_at": "2026-09-10"
+    "synced_at": "2026-09-22"
   }
 }
