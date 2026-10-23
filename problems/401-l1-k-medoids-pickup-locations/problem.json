@@ -1,21 +1,23 @@
 {
   "id": "401",
   "slug": "l1-k-medoids-pickup-locations",
-  "title": "L1 K-Medoids Pickup Locations",
+  "title": "L1 K-Medians Shuttle Pickup Locations",
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
-    "clustering"
+    "clustering",
+    "k-medians",
+    "facility-location"
   ],
   "companies": [
     "Uber"
   ],
-  "prompt": "A ride-hailing team wants to choose shared pickup points from rider locations. Implement `k_medoids(points, k)` for a small list of 2D integer rider coordinates. Return `(medoid_indices, total_cost)`, where cost is the sum of each rider's Manhattan distance to its nearest selected rider. Each rider, including duplicates, contributes separately. Indices must be sorted. For nonempty input, k is a positive integer; select min(k, N) distinct indices. Empty input returns ([], 0).\n\nUse this deterministic greedy-plus-swap heuristic: start with no medoids; repeatedly add the candidate minimizing total cost, breaking ties by smallest index. Then examine every one-medoid-for-one-nonmedoid swap and choose the lowest-cost strictly improving replacement; tied replacement sets use lexicographically smallest sorted indices. Repeat until no strict improvement exists. Do not mutate points. This is a local optimum, not a guarantee of the global optimum for K > 1.\n\nPickup locations must be rider coordinates (medoids). An arbitrary coordinate-wise L1 median need not be a rider, so the unrestricted facility-location variant is different. For K = 1 choose the best rider, with index tie-breaking. Explain the objective and why unrestricted coordinate-wise medians cannot simply solve this contract.",
-  "starter_code": "def k_medoids(points, k):\n    pass\n",
+  "prompt": "Given the coordinates of `N` people, choose `K` shuttle pickup locations so the total L1 distance from each person to their nearest pickup location is minimized. This is the k-medians objective under Manhattan distance, where the best center of a fixed cluster is the coordinate-wise median.\n\nImplement `k_medians(points, k)`. `points` is a nonempty list of two-dimensional integer coordinates and `1 <= k <= len(points)`. Return `(pickup_locations, total_cost)`, where `pickup_locations` contains `K` coordinates in lexicographic order and `total_cost` is the resulting sum of nearest-pickup L1 distances. Pickup locations do not have to be input points. Do not mutate `points`.\n\nUse a deterministic method. A practical heuristic is acceptable; explain its convergence and whether it guarantees the global optimum. The single-pickup case should achieve the minimum total L1 distance.",
+  "starter_code": "def k_medians(points, k):\n    pass\n",
   "example": {
-    "input": "k_medoids([(0,0),(1,0),(9,0),(10,0)], 2)",
-    "output": "([1, 2], 2)",
-    "reasoning": "Greedy initialization chooses index 1, then index 2. Each pair contributes distance 1 and no swap strictly improves cost."
+    "input": "k_medians([(0,0),(1,0),(9,0),(10,0)], 2)",
+    "output": "for example, ([(0, 0), (9, 0)], 2)",
+    "reasoning": "The two pickup locations represent the two visible groups. Other deterministic locations with the same cost are also valid."
   },
   "environment": {
     "language": "python",
@@ -35,6 +37,18 @@
     {
       "label": "1Point3Acres: Uber MLE coding from scratch question bank",
       "url": "https://www.1point3acres.com/interview/problems/company/uber/mle-onsite-ml-coding-from-scratch"
+    },
+    {
+      "label": "Inbyte: K Shuttle Pickup Locations",
+      "url": "https://www.inbyte.org/interview/uber/k-shuttle-pickup-locations"
+    },
+    {
+      "label": "Crack ML Interview: Uber k-median under L1",
+      "url": "https://crackmlinterview.com/topic/clustering"
+    },
+    {
+      "label": "PracHub: Choose K pickup locations minimizing L1 distance",
+      "url": "https://prachub.com/coding-questions/choose-k-pickup-locations-minimizing-l1-distance"
     }
   ],
   "created_at": "2026-09-08",
