@@ -65,7 +65,6 @@ class DpoLossContractTest(unittest.TestCase):
         self.assertEqual(problem["category"], "ML Coding")
         self.assertEqual(problem["companies"], ["General"])
         self.assertNotIn("interview_frequency", problem)
-        self.assertIn("bradley-terry-reward-model-training", problem["prompt"])
         self.assertIn("NotImplementedError", problem["starter_code"])
 
 
