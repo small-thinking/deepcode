@@ -1,0 +1,44 @@
+[
+  {
+    "name": "singleton example uses the reference-corrected preference gap",
+    "input": "B=1, beta=0.5; z=0.5",
+    "test": "import math\nimport torch\n\ndef t(values, grad=False):\n    return torch.tensor(values, dtype=torch.float32, requires_grad=grad)\n\ndef close(actual, expected):\n    torch.testing.assert_close(actual, expected, rtol=2e-5, atol=2e-6)\n\npc, pr, rc, rr = t([-2.], True), t([-4.], True), t([-3.]), t([-4.])\nloss = dpo_loss(pc, pr, rc, rr, beta=0.5)\nassert loss.shape == () and loss.dtype == torch.float32\nassert loss.device.type == 'cpu'\nclose(loss, t(math.log1p(math.exp(-0.5))))\ngc, gr = torch.autograd.grad(loss, (pc, pr))\nclose(gc, t([-0.5 / (1 + math.exp(0.5))]))\nclose(gr, -gc)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "policy equal to reference gives log two with nonzero policy gradients",
+    "input": "unequal chosen/rejected log-probs, default beta",
+    "test": "import math\nimport torch\n\ndef t(values, grad=False):\n    return torch.tensor(values, dtype=torch.float32, requires_grad=grad)\n\ndef close(actual, expected):\n    torch.testing.assert_close(actual, expected, rtol=2e-5, atol=2e-6)\n\npc, pr = t([-2., -7., -3.], True), t([-5., -1., -3.], True)\nloss = dpo_loss(pc, pr, pc.detach().clone(), pr.detach().clone())\nclose(loss, t(math.log(2)))\ngc, gr = torch.autograd.grad(loss, (pc, pr))\nclose(gc, t([-0.1 / 6] * 3))\nclose(gr, -gc)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "mixed preferences use a batch mean and both policy gradients",
+    "input": "z=[1,-2,0], beta=0.5; independent scalar oracle",
+    "test": "import math\nimport torch\n\ndef t(values, grad=False):\n    return torch.tensor(values, dtype=torch.float32, requires_grad=grad)\n\ndef close(actual, expected):\n    torch.testing.assert_close(actual, expected, rtol=2e-5, atol=2e-6)\n\npc, pr = t([-1., -6., -4.], True), t([-5., -2., -7.], True)\nrc, rr = t([-2., -3., -2.]), t([-4., -3., -5.])\nloss = dpo_loss(pc, pr, rc, rr, beta=0.5)\nexpected = (math.log1p(math.exp(-1)) + 2 + math.log1p(math.exp(-2)) + math.log(2)) / 3\nclose(loss, t(expected))\ngc, gr = torch.autograd.grad(loss, (pc, pr))\nclose(gc, t([-0.5 / (3 * (1 + math.exp(z))) for z in [1, -2, 0]]))\nclose(gr, -gc)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "reference preferences matter and are frozen",
+    "input": "reference inputs require gradients; policy favors chosen but reference favors it more",
+    "test": "import math\nimport torch\n\ndef t(values, grad=False):\n    return torch.tensor(values, dtype=torch.float32, requires_grad=grad)\n\ndef close(actual, expected):\n    torch.testing.assert_close(actual, expected, rtol=2e-5, atol=2e-6)\n\npc, pr = t([-1., -3.], True), t([-3., -3.], True)\nrc, rr = t([-1., -5.], True), t([-5., -1.], True)\nbefore = [x.detach().clone() for x in (pc, pr, rc, rr)]\nloss = dpo_loss(pc, pr, rc, rr, beta=0.5)\n# Policy gaps [2,0], reference gaps [4,-4], z=[-1,2].\nclose(loss, t((1 + math.log1p(math.exp(-1)) + math.log1p(math.exp(-2))) / 2))\ngrads = torch.autograd.grad(loss, (pc, pr, rc, rr), allow_unused=True)\nclose(grads[0], t([-0.5 / (2 * (1 + math.exp(z))) for z in [-1, 2]]))\nclose(grads[1], -grads[0])\nassert all(g is None or torch.count_nonzero(g) == 0 for g in grads[2:])\nassert all(torch.equal(x.detach(), old) for x, old in zip((pc, pr, rc, rr), before))\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "beta scales the corrected gap before the logistic loss",
+    "input": "beta in [0.01,0.5,2,10] with z=2*beta",
+    "test": "import math\nimport torch\n\ndef t(values, grad=False):\n    return torch.tensor(values, dtype=torch.float32, requires_grad=grad)\n\ndef close(actual, expected):\n    torch.testing.assert_close(actual, expected, rtol=2e-5, atol=2e-6)\n\nfor beta in (0.01, 0.5, 2., 10.):\n    pc, pr = t([-1.], True), t([-4.], True)\n    loss = dpo_loss(pc, pr, t([-2.]), t([-3.]), beta=beta)\n    close(loss, t(math.log1p(math.exp(-2 * beta))))\n    gc, gr = torch.autograd.grad(loss, (pc, pr))\n    close(gc, t([-beta / (1 + math.exp(2 * beta))]))\n    close(gr, -gc)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "extreme log-probabilities keep loss and gradients finite",
+    "input": "z=[-200000,200000,0], beta=10",
+    "test": "import math\nimport torch\n\ndef t(values, grad=False):\n    return torch.tensor(values, dtype=torch.float32, requires_grad=grad)\n\ndef close(actual, expected):\n    torch.testing.assert_close(actual, expected, rtol=2e-5, atol=2e-6)\n\npc, pr = t([-10000., 0., -10000.], True), t([0., -10000., -10000.], True)\nloss = dpo_loss(pc, pr, t([0., -10000., -10000.]), t([-10000., 0., -10000.]), beta=10.)\nassert torch.isfinite(loss)\nclose(loss, t((200000 + math.log(2)) / 3))\ngc, gr = torch.autograd.grad(loss, (pc, pr))\nassert torch.isfinite(gc).all() and torch.isfinite(gr).all()\nclose(gc, t([-10 / 3, 0., -5 / 3]))\nclose(gr, -gc)\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "common offsets cancel and the full batch range is supported",
+    "input": "B=256; sum reduction, exponentiating sequence log-probs, and input mutation are incorrect",
+    "test": "import math\nimport torch\n\ndef t(values, grad=False):\n    return torch.tensor(values, dtype=torch.float32, requires_grad=grad)\n\ndef close(actual, expected):\n    torch.testing.assert_close(actual, expected, rtol=2e-5, atol=2e-6)\n\npc = torch.linspace(-5, -2, 256).requires_grad_()\npr = torch.linspace(-4, -3, 256).requires_grad_()\nrc, rr = torch.full((256,), -4.), torch.full((256,), -5.)\nbefore = [x.detach().clone() for x in (pc, pr, rc, rr)]\nloss = dpo_loss(pc, pr, rc, rr, beta=0.3)\nlogits = [0.3 * ((float(c) - float(r)) - 1) for c, r in zip(pc.detach(), pr.detach())]\nexpected = sum(math.log1p(math.exp(-z)) for z in logits) / 256\nclose(loss, t(expected))\nshifted = dpo_loss(pc - 100, pr - 100, rc - 20, rr - 20, beta=0.3)\nclose(shifted, loss)\nassert all(torch.equal(x.detach(), old) for x, old in zip((pc, pr, rc, rr), before))\nprint(\"ok\")\n",
+    "expected_output": "ok"
+  }
+]
