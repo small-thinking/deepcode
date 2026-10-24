@@ -344,18 +344,16 @@ def streaming_entropy(blocks):
 
     def test_top_p_nucleus_sampling_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("top-p-nucleus-sampling")
-        solution = (
-            ROOT / "tests/reference_solutions/top_k_top_p_sampling.py"
-        ).read_text(encoding="utf-8")
-
-        result = run_submission(
+        solution = (ROOT / "tests/reference_solutions/top_k_top_p_sampling.py").read_text(encoding="utf-8")
+        self.assertEqual(problem["environment"]["runtime"], "pytorch")
+        self.assertEqual(problem["environment"]["packages"], ["torch"])
+        result = evaluate_submission(EvaluationRequest(
+            problem=problem,
             code=solution,
             tests=problem["tests"],
-            timeout_seconds=problem["environment"]["timeout_seconds"],
-            comparator=problem["environment"]["comparator"],
-        )
-
-        self.assertEqual(result["status"], "passed")
+            environment=problem["environment"],
+        ))
+        self.assertEqual(result["status"], "passed", result["results"])
         self.assertEqual(result["passed"], len(problem["tests"]))
 
     def test_weighted_dataset_batcher_reference_solution_passes(self):
