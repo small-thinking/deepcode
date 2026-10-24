@@ -1,31 +1,22 @@
-import numpy as np
+import torch
 
 
 def sample_token(logits, top_k=None, top_p=1.0, temperature=1.0):
-    values = np.asarray(logits, dtype=np.float64)
-    # Stable descending order also breaks ties by original token index.
-    ordered = np.argsort(-values, kind="stable")
+    ordered = torch.argsort(logits, descending=True, stable=True)
     if top_k is not None and top_k > 0:
         ordered = ordered[:top_k]
-
-    # Top-p uses probabilities normalized over the Top-k survivors.
-    selected = values[ordered]
-    with np.errstate(over="ignore", under="ignore"):
-        scaled = selected / temperature
-        if not np.isfinite(scaled).all():
-            scaled = (selected - selected.max()) / temperature
-        weights = np.exp(scaled - scaled.max())
-    probabilities = weights / weights.sum()
-    count = len(ordered)
+    selected = logits[ordered].to(torch.float64)
+    scaled = selected / temperature
+    if not torch.isfinite(scaled).all():
+        scaled = (selected - selected.max()) / temperature
+    probabilities = torch.softmax(scaled, dim=-1)
+    count = ordered.numel()
     if top_p < 1.0:
-        count = min(
-            count,
-            int(np.searchsorted(np.cumsum(probabilities), top_p, side="left")) + 1,
-        )
-    kept = ordered[:count]
-    kept_probabilities = probabilities[:count]
-    kept_probabilities = kept_probabilities / kept_probabilities.sum()
-    return int(np.random.choice(kept, p=kept_probabilities))
+        count = min(count, int((probabilities.cumsum(0) < top_p).sum().item()) + 1)
+    kept_probs = probabilities[:count]
+    kept_probs = kept_probs / kept_probs.sum()
+    sampled = torch.multinomial(kept_probs, 1)
+    return int(ordered[sampled].item())
 
 
 def top_k_sample(logits, top_k, temperature=1.0):
