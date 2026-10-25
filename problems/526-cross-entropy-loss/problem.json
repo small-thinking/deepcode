@@ -1,0 +1,49 @@
+{
+  "id": "526",
+  "slug": "cross-entropy-loss",
+  "title": "Cross-Entropy Loss from Logits",
+  "category": "ML Coding",
+  "difficulty": "medium",
+  "tags": [
+    "pytorch",
+    "cross-entropy",
+    "loss-functions",
+    "numerical-stability",
+    "masking",
+    "general-practice"
+  ],
+  "companies": [
+    "General"
+  ],
+  "prompt": "Implement `cross_entropy_loss(logits, targets, mask=None)` in PyTorch without calling a ready-made loss.\n\n| Input | Classification | Aligned language-model tokens |\n| --- | --- | --- |\n| Raw logits | `(B, C)` | `(B, T, V)` |\n| Integer targets | `(B,)` | `(B, T)` |\n| Optional boolean mask | `(B,)` | `(B, T)` |\n\nClasses always occupy the **last axis**. Logits are CPU float32 or float64, finite and in `[-10_000, 10_000]`; dimensions are positive. Targets are long tensors. When `mask` is supplied, `True` means include that position; excluded targets may be `-100`. Otherwise every position participates and every target is valid. Included targets are valid class indices. Assume compatible shapes/devices; inputs may be noncontiguous.\n\nFor each included position, compute the negative log probability of its target class. Return the **mean over all included positions** as a scalar tensor `()`, preserving logits dtype/device and gradients. Excluded logits must receive zero gradients. Raise `ValueError` if the mask includes no positions. Do not modify inputs.\n\nUse stable tensor primitives such as `log_softmax`, `logsumexp`, and `gather`; do not use `cross_entropy`, `nll_loss`, `CrossEntropyLoss`, or another ready-made loss. The result and gradients must remain finite over the input range. Token logits/targets are **already causally aligned**: do not shift them inside this function. For token inputs, this is a loss mask, not an attention mask: the caller excludes prompt/padding and includes real EOS when appropriate.\n\nAllow about **20–30 minutes**. Follow-ups: Why avoid `log(softmax(logits))`? How does a global token mean differ from averaging each response first? How are SFT, cross-entropy, and KL related?",
+  "starter_code": "import torch\n\n\ndef cross_entropy_loss(logits: torch.Tensor,\n                       targets: torch.Tensor,\n                       mask: torch.Tensor | None = None) -> torch.Tensor:\n    # logits: [B,C] or [B,T,V]; targets/mask: logits.shape[:-1].\n    # Return a scalar mean over included positions; preserve autograd.\n    raise NotImplementedError\n",
+  "example": {
+    "input": "logits = torch.tensor([[0., 0.], [1.0986123, 0.]]); targets = torch.tensor([0, 1])",
+    "output": "tensor(1.0397)",
+    "reasoning": "The target probabilities are 1/2 and 1/4. The mean negative log probability is (log(2) + log(4)) / 2, approximately 1.039721."
+  },
+  "environment": {
+    "language": "python",
+    "runtime": "pytorch",
+    "timeout_seconds": 15,
+    "packages": [
+      "torch"
+    ],
+    "comparator": "exact"
+  },
+  "evaluation": {
+    "type": "ml_coding"
+  },
+  "created_at": "2026-10-25",
+  "references": [
+    {
+      "label": "PyTorch cross-entropy: reference semantics, not interview provenance",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.cross_entropy.html"
+    },
+    {
+      "label": "PyTorch log_softmax: stable log probabilities",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.log_softmax.html"
+    }
+  ],
+  "background_note": "Authored General practice, not a recovered company interview question. This standalone loss exercise complements the NumPy/PyTorch workouts, Bradley–Terry reward model, DPO, and CLIP contrastive loss. It does not implement causal alignment or a full language-model training loop. The reference solution is maintained separately from the candidate starter."
+}
