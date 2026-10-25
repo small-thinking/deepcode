@@ -4,7 +4,6 @@ import ast
 import json
 import os
 import queue
-import re
 import subprocess
 import sys
 import tempfile
@@ -14,6 +13,7 @@ from pathlib import Path
 from typing import Any, Callable, Generator, TextIO
 
 from deepcode.evaluators.base import EvaluationRequest
+from deepcode.evaluators.errors import format_python_error, starts_python_traceback
 from deepcode.evaluators.ml_coding import (
     _build_script,
     _native_resource_limiter,
@@ -23,12 +23,6 @@ from deepcode.evaluators.ml_coding import (
 
 
 ResourceLimiterFactory = Callable[[], Callable[[], None]]
-_TRACEBACK_HEADER = "Traceback (most recent call last):"
-_TRACEBACK_FRAME_RE = re.compile(
-    r'^(?P<indent>\s*)File "(?P<path>[^"]+)", line (?P<line>\d+), in (?P<context>.+)$'
-)
-_SUBMISSION_SCRIPT_NAMES = {"submission_check.py", "submission_test.py"}
-_SUBMISSION_PATH_RE = re.compile(r'File "[^"]*[\\/](submission_(?:check|test)\.py)"')
 _ASSERTION_MISMATCH_PREFIX = "DEEPCODE_ASSERTION_MISMATCH:"
 _ASSERTION_MISMATCH_LIMIT = 2_000
 _ASSERTION_MISMATCH_HELPERS = f'''import json as _deepcode_json
@@ -185,7 +179,7 @@ def _run_single_check(
 
     stdout = process.stdout.strip()
     stderr = process.stderr.strip()
-    actual_output = _format_output(process.returncode, stdout, stderr)
+    actual_output = _format_output(process.returncode, stdout, stderr, code, str(script_path))
     return process.returncode == 0, actual_output, _extract_assertion_mismatch(stderr)
 
 
@@ -198,6 +192,7 @@ def _run_single_check_stream(
 ) -> Generator[dict[str, Any], None, tuple[bool, str, dict[str, str | None] | None]]:
     script = _build_script(code, _instrument_simple_equality_assertions(test_code))
     output: dict[str, list[str]] = {"stdout": [], "stderr": []}
+    traceback_lines: list[str] = []
     timed_out = False
     returncode = 1
 
@@ -243,19 +238,26 @@ def _run_single_check_stream(
                 continue
 
             output[stream_name].append(text)
-            display_text = _rewrite_submission_paths(text) if stream_name == "stderr" else text
-            yield {"type": "log", "stream": stream_name, "text": display_text}
+            # Ordinary logs stay live; buffer from the start of a traceback so
+            # library frames never flash on screen before they can be filtered.
+            if stream_name == "stderr" and (traceback_lines or starts_python_traceback(text)):
+                traceback_lines.append(text)
+            else:
+                yield {"type": "log", "stream": stream_name, "text": text}
 
         returncode = process.wait()
         for reader in readers:
             reader.join(timeout=0.1)
 
+    if traceback_lines:
+        display = format_python_error("".join(traceback_lines), code, str(script_path))
+        yield {"type": "log", "stream": "stderr", "text": display + "\n"}
     if timed_out:
         return False, f"Timed out after {timeout_seconds} seconds", None
 
     stdout = "".join(output["stdout"]).strip()
     stderr = "".join(output["stderr"]).strip()
-    actual_output = _format_output(returncode, stdout, stderr)
+    actual_output = _format_output(returncode, stdout, stderr, code, str(script_path))
     return returncode == 0, actual_output, _extract_assertion_mismatch(stderr)
 
 
@@ -383,72 +385,9 @@ def _modeling_env(runtime: dict[str, Any]) -> dict[str, str]:
     return env
 
 
-def _format_output(returncode: int, stdout: str, stderr: str) -> str:
+def _format_output(returncode: int, stdout: str, stderr: str, code: str, script_path: str) -> str:
     if returncode != 0:
-        return _format_failure_output(stderr) or stdout or f"Process exited with code {returncode}"
+        return format_python_error(stderr, code, script_path) or stdout or f"Process exited with code {returncode}"
     if stderr:
-        return f"{stdout}\n{stderr}".strip()
+        return f"{stdout}\n{format_python_error(stderr, code, str(script_path))}".strip()
     return stdout
-
-
-def _format_failure_output(stderr: str) -> str:
-    return _strip_internal_traceback_frames(stderr)
-
-
-def _strip_internal_traceback_frames(stderr: str) -> str:
-    lines = stderr.splitlines()
-    if not lines:
-        return stderr
-    if lines[0] != _TRACEBACK_HEADER:
-        return _rewrite_submission_paths(stderr)
-
-    output = [lines[0]]
-    kept_frame = False
-    index = 1
-    while index < len(lines):
-        frame_match = _TRACEBACK_FRAME_RE.match(lines[index])
-        if not frame_match:
-            output.extend(lines[index:])
-            break
-
-        frame_lines = [_format_traceback_frame(frame_match)]
-        index += 1
-        while (
-            index < len(lines)
-            and not _TRACEBACK_FRAME_RE.match(lines[index])
-            and _is_frame_context_line(lines[index])
-        ):
-            frame_lines.append(lines[index])
-            index += 1
-
-        if _is_submission_script(frame_match.group("path")):
-            output.extend(frame_lines)
-            kept_frame = True
-
-    if not kept_frame:
-        return _rewrite_submission_paths(stderr)
-    return "\n".join(output)
-
-
-def _format_traceback_frame(frame_match: re.Match[str]) -> str:
-    script_name = _path_basename(frame_match.group("path"))
-    return (
-        f'{frame_match.group("indent")}File "{script_name}", '
-        f'line {frame_match.group("line")}, in {frame_match.group("context")}'
-    )
-
-
-def _is_frame_context_line(line: str) -> bool:
-    return line.startswith("    ")
-
-
-def _is_submission_script(path: str) -> bool:
-    return _path_basename(path) in _SUBMISSION_SCRIPT_NAMES
-
-
-def _path_basename(path: str) -> str:
-    return path.replace("\\", "/").rsplit("/", 1)[-1]
-
-
-def _rewrite_submission_paths(output: str) -> str:
-    return _SUBMISSION_PATH_RE.sub(r'File "\1"', output)

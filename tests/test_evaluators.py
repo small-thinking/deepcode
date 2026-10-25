@@ -266,7 +266,8 @@ class EvaluatorRegistryTest(unittest.TestCase):
 
         actual_output = result["results"][0]["actual_output"]
         self.assertEqual(result["status"], "failed")
-        self.assertIn('File "submission_check.py"', actual_output)
+        self.assertIn("Line 6 in forward", actual_output)
+        self.assertNotIn("submission_check.py", actual_output)
         self.assertIn("return x.masked_fill", actual_output)
         self.assertIn("RuntimeError", actual_output)
         self.assertNotIn("site-packages", actual_output)
@@ -286,7 +287,8 @@ class EvaluatorRegistryTest(unittest.TestCase):
         )
 
         stderr_text = "".join(event["text"] for event in events if event["type"] == "log" and event["stream"] == "stderr")
-        self.assertIn('File "submission_check.py"', stderr_text)
+        self.assertIn("Line 2 in boom", stderr_text)
+        self.assertNotIn("submission_check.py", stderr_text)
         self.assertNotIn("deepcode-modeling-", stderr_text)
 
     def test_ml_modeling_normalizes_mixed_tab_indentation(self):

@@ -10,6 +10,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from deepcode.evaluators.errors import format_python_error, starts_python_traceback
+
 
 PLAYGROUND_TIMEOUT_SECONDS = 30
 MAX_CODE_CHARS = 100_000
@@ -54,6 +56,9 @@ def run_playground(code: str, timeout_seconds: int | float = PLAYGROUND_TIMEOUT_
 
         stdout, stdout_truncated = _read_output(stdout_path)
         stderr, stderr_truncated = _read_output(stderr_path)
+
+    if stderr and any(starts_python_traceback(line) for line in stderr.splitlines()):
+        stderr = format_python_error(stderr, code, str(script_path))
 
     duration_ms = round((time.monotonic() - started_at) * 1000)
     status = "timed_out" if timed_out else "completed" if returncode == 0 else "error"
