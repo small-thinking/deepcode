@@ -1,0 +1,50 @@
+[
+  {
+    "name": "known classification probabilities",
+    "input": "two samples and two classes",
+    "test": "import math\nimport torch\nx = torch.tensor([[0.,0.],[math.log(3),0.]], dtype=torch.float64)\ny = torch.tensor([0,1])\nloss = cross_entropy_loss(x,y)\nassert isinstance(loss,torch.Tensor) and loss.shape == ()\ntorch.testing.assert_close(loss,x.new_tensor((math.log(2)+math.log(4))/2))\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "matches reference values and gradients",
+    "input": "random float64 multiclass logits",
+    "test": "import torch\nimport torch.nn.functional as F\nx = torch.randn(4,7,generator=torch.Generator().manual_seed(31),dtype=torch.float64,requires_grad=True)\ny = torch.tensor([6,0,4,2])\nsnapshot = x.detach().clone()\nloss = cross_entropy_loss(x,y)\nexpected = F.cross_entropy(x,y)\ntorch.testing.assert_close(loss,expected)\ngot, = torch.autograd.grad(loss,x)\nwant, = torch.autograd.grad(expected,x)\ntorch.testing.assert_close(got,want)\nassert torch.equal(x.detach(),snapshot)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "stable for extreme logits and per-row shifts",
+    "input": "large confident wrong predictions",
+    "test": "import math\nimport torch\nx = torch.tensor([[10000.,-10000.],[-10000.,10000.],[9999.,9999.]],requires_grad=True)\ny = torch.tensor([1,0,1])\nloss = cross_entropy_loss(x,y)\nassert torch.isfinite(loss)\ntorch.testing.assert_close(loss,x.new_tensor((40000.+math.log(2))/3))\nloss.backward()\nassert torch.isfinite(x.grad).all()\nshifted = x.detach()+torch.tensor([[0.],[0.],[-9999.]])\ntorch.testing.assert_close(cross_entropy_loss(shifted,y),loss.detach())\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "masked token mean uses valid-token count",
+    "input": "unequal response lengths and ignored -100 labels",
+    "test": "import math\nimport torch\nx = torch.tensor([[[0.,0.],[0.,math.log(3)],[3.,-2.]],[[0.,math.log(7)],[1.,-1.],[4.,2.]]],dtype=torch.float64)\ny = torch.tensor([[0,0,-100],[0,-100,-100]])\nm = torch.tensor([[True,True,False],[True,False,False]])\nsnapshot = (x.clone(),y.clone(),m.clone())\nloss = cross_entropy_loss(x,y,m)\ntorch.testing.assert_close(loss,x.new_tensor((math.log(2)+math.log(4)+math.log(8))/3))\nfor got,want in zip((x,y,m),snapshot): assert torch.equal(got,want)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "excluded positions have zero gradients",
+    "input": "masked batch with arbitrary padded logits",
+    "test": "import torch\nimport torch.nn.functional as F\nx = torch.randn(2,3,5,generator=torch.Generator().manual_seed(7),dtype=torch.float64,requires_grad=True)\ny = torch.tensor([[2,-100,4],[-100,1,-100]])\nm = y != -100\nloss = cross_entropy_loss(x,y,m)\nexpected = F.cross_entropy(x[m],y[m])\ngot, = torch.autograd.grad(loss,x)\nwant, = torch.autograd.grad(expected,x)\ntorch.testing.assert_close(loss,expected)\ntorch.testing.assert_close(got,want)\nassert torch.equal(got[~m],torch.zeros_like(got[~m]))\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "singleton dimensions dtype and classification mask",
+    "input": "float32/float64, C=1, and masked classification",
+    "test": "import torch\nfor dtype in (torch.float32,torch.float64):\n x = torch.tensor([[[4.]]],dtype=dtype,requires_grad=True)\n y = torch.tensor([[0]])\n loss = cross_entropy_loss(x,y)\n assert loss.shape == () and loss.dtype == dtype and loss.device == x.device\n torch.testing.assert_close(loss,x.new_tensor(0.))\n loss.backward()\n torch.testing.assert_close(x.grad,torch.zeros_like(x))\n x2 = torch.tensor([[0.,0.,0.],[1.,2.,3.]],dtype=dtype,requires_grad=True)\n y2 = torch.tensor([1,-100]); m = torch.tensor([True,False])\n loss2 = cross_entropy_loss(x2,y2,m)\n torch.testing.assert_close(loss2,x2.new_tensor(3.).log())\n assert loss2.dtype == dtype\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "noncontiguous inputs and all-true masks",
+    "input": "class-last tensors with transposed leading axes",
+    "test": "import torch\nimport torch.nn.functional as F\nx = torch.randn(3,2,4,generator=torch.Generator().manual_seed(17),dtype=torch.float64).transpose(0,1).requires_grad_()\ny = torch.tensor([[0,1],[2,3],[1,0]]).transpose(0,1)\nassert not x.is_contiguous() and not y.is_contiguous()\nexpected = F.cross_entropy(x.reshape(-1,4),y.reshape(-1))\nfor m in (None,torch.ones_like(y,dtype=torch.bool)):\n loss = cross_entropy_loss(x,y,m)\n torch.testing.assert_close(loss,expected)\nprint('ok')\n",
+    "expected_output": "ok"
+  },
+  {
+    "name": "rejects a mask with no included positions",
+    "input": "all-false classification and token masks",
+    "test": "import torch\nfor shape in ((2,3),(1,2,4)):\n x = torch.zeros(shape)\n y = torch.full(shape[:-1],-100,dtype=torch.long)\n m = torch.zeros(shape[:-1],dtype=torch.bool)\n try:\n  cross_entropy_loss(x,y,m)\n except ValueError:\n  pass\n else:\n  raise AssertionError('Expected ValueError for no valid positions')\nprint('ok')\n",
+    "expected_output": "ok"
+  }
+]
