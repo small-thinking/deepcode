@@ -50,6 +50,8 @@ From the browser you can:
 
 Submissions and Playground scripts execute on your machine as short-lived Python subprocesses with a timeout and basic resource limits. Playground runs are capped at 30 seconds and their captured output is limited. This is useful for personal practice, but it is not a hardened sandbox for untrusted code.
 
+Python failures show the exception reason and relevant editor line numbers, source, and carets. Library paths and generated test-runner frames are omitted; failures inside generated checks are labeled `Test check`. Modeling logs stream ordinary output immediately and format tracebacks before displaying them.
+
 PyTorch is installed by the normal `uv sync` setup. Stdout-based `ml_coding`
 problems can opt into `"runtime": "pytorch"` in the `problem.json` `environment` object, with an
 explicit `timeout_seconds` (allow time for importing PyTorch, e.g. 10 seconds).

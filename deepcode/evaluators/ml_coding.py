@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from deepcode.evaluators.base import EvaluationRequest
+from deepcode.evaluators.errors import format_python_error
 from deepcode.evaluators.submission import normalize_python_indentation
 
 
@@ -126,9 +127,9 @@ def _run_single_test(
     stdout = process.stdout.strip()
     stderr = process.stderr.strip()
     if process.returncode != 0:
-        return stderr or stdout or f"Process exited with code {process.returncode}"
+        return format_python_error(stderr, code, str(script_path)) or stdout or f"Process exited with code {process.returncode}"
     if stderr:
-        return f"{stdout}\n{stderr}".strip()
+        return f"{stdout}\n{format_python_error(stderr, code, str(script_path))}".strip()
     return stdout
 
 
