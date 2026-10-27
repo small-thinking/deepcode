@@ -1,30 +1,33 @@
-import math
-
 import torch
 
 
 def blockwise_attention(Q, K, V, block_size):
-    tensors = [torch.as_tensor(x) for x in (Q, K, V)]
-    Q, K, V = [x if x.is_floating_point() else x.to(torch.get_default_dtype()) for x in tensors]
-    assert type(block_size) is int and block_size > 0
-    assert all(x.ndim == 2 and all(x.shape) for x in (Q, K, V))
-    assert Q.shape[1] == K.shape[1] and K.shape[0] == V.shape[0]
-    assert Q.dtype == K.dtype == V.dtype and Q.device == K.device == V.device
-    output_tiles = []
-    scale = math.sqrt(Q.shape[1])
-    for start in range(0, Q.shape[0], block_size):
-        queries = Q[start:start + block_size]
-        rows = queries.shape[0]
-        maximum = Q.new_full((rows, 1), -torch.inf)
-        denominator = Q.new_zeros((rows, 1))
-        numerator = Q.new_zeros((rows, V.shape[1]))
-        for col in range(0, K.shape[0], block_size):
-            scores = queries @ K[col:col + block_size].T / scale
-            new_maximum = torch.maximum(maximum, scores.amax(dim=1, keepdim=True))
-            old_scale = (maximum - new_maximum).exp()
-            tile_weights = (scores - new_maximum).exp()
-            numerator = numerator * old_scale + tile_weights @ V[col:col + block_size]
-            denominator = denominator * old_scale + tile_weights.sum(dim=1, keepdim=True)
-            maximum = new_maximum
-        output_tiles.append(numerator / denominator)
-    return torch.cat(output_tiles, dim=0)
+    batch, _, d = Q.shape
+    dv = V.shape[-1]
+    q_blocks = Q.split(block_size, dim=-2)
+    k_blocks = K.split(block_size, dim=-2)
+    v_blocks = V.split(block_size, dim=-2)
+    outputs = []
+
+    for q in q_blocks:
+        # q: (B, Bq, d); statistics: (B, Bq, 1) and (B, Bq, dv)
+        bq = q.shape[-2]
+        m = q.new_full((batch, bq, 1), -float("inf"))
+        l = q.new_zeros((batch, bq, 1))
+        u = q.new_zeros((batch, bq, dv))
+
+        for k, v in zip(k_blocks, v_blocks):
+            # scores: (B, Bq, Bk)
+            scores = q @ k.transpose(-2, -1) / (d ** 0.5)
+            new_m = torch.maximum(m, scores.amax(dim=-1, keepdim=True))
+
+            # Rescale previous statistics to the new maximum.
+            old_scale = torch.exp(m - new_m)
+            p = torch.exp(scores - new_m)
+            l = old_scale * l + p.sum(dim=-1, keepdim=True)
+            u = old_scale * u + p @ v
+            m = new_m
+
+        outputs.append(u / l)
+
+    return torch.cat(outputs, dim=-2)  # (B, Tq, dv)
