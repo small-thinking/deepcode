@@ -1,17 +1,37 @@
 [
   {
-    "name": "computes per-example focal loss and all reductions",
+    "name": "known per-example losses and all reductions",
     "input": "one positive and one negative prediction",
-    "test": "import numpy as np\nlabels = np.array([1, 0])\nprobabilities = np.array([0.9, 0.2])\nnone = binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction='none')\nexpected = np.array([-0.25 * 0.1**2 * np.log(0.9), -0.75 * 0.2**2 * np.log(0.8)])\nassert none.shape == (2,)\nassert np.allclose(none, expected, atol=1e-15)\nassert np.isclose(binary_focal_loss(labels, probabilities, 0.25, 2.0, 'sum'), expected.sum())\nassert np.isclose(binary_focal_loss(labels, probabilities, 0.25, 2.0, 'mean'), expected.mean())"
+    "test": "import math\nimport torch\ny = torch.tensor([1, 0])\np = torch.tensor([0.9, 0.2], dtype=torch.float64)\nexpected = p.new_tensor([-0.25 * 0.1**2 * math.log(0.9), -0.75 * 0.2**2 * math.log(0.8)])\nfor reduction in ('none', 'sum', 'mean'):\n    actual = binary_focal_loss(y, p, reduction=reduction)\n    want = expected if reduction == 'none' else getattr(expected, reduction)()\n    assert isinstance(actual, torch.Tensor) and actual.shape == want.shape\n    assert actual.dtype == p.dtype and actual.device == p.device\n    torch.testing.assert_close(actual, want, rtol=1e-12, atol=1e-15)\n"
   },
   {
-    "name": "uses the correct label-dependent probability, weight, and focal factor",
-    "input": "easy and hard positive and negative examples",
-    "test": "import numpy as np\nlabels = np.array([1, 1, 0, 0])\nprobabilities = np.array([0.95, 0.15, 0.05, 0.85])\nalpha = 0.25\ngamma = 2.0\nactual = binary_focal_loss(labels, probabilities, alpha=alpha, gamma=gamma, reduction='none')\npt = np.array([0.95, 0.15, 0.95, 0.15])\nalpha_t = np.array([alpha, alpha, 1 - alpha, 1 - alpha])\nexpected = -alpha_t * (1 - pt) ** gamma * np.log(pt)\nassert np.allclose(actual, expected, atol=1e-15)\nassert actual[0] < actual[1]\nassert actual[2] < actual[3]"
+    "name": "alpha gamma and label-dependent weights across a matrix",
+    "input": "non-default hyperparameters; easy and hard examples; reductions over every axis",
+    "test": "import math\nimport torch\ny = torch.tensor([[1, 1, 0], [0, 1, 0]])\np = torch.tensor([[.95, .15, .05], [.85, .55, .45]], dtype=torch.float64)\nbefore = (y.clone(), p.clone())\nfor alpha, gamma in ((.25, 2.), (.6, 1.5), (.03, .5), (.9, 4.)):\n    values = []\n    for label, prob in zip(y.flatten().tolist(), p.flatten().tolist()):\n        pt, weight = (prob, alpha) if label else (1-prob, 1-alpha)\n        values.append(-weight * (1-pt)**gamma * math.log(pt))\n    expected = p.new_tensor(values).reshape_as(p)\n    for reduction in ('none', 'sum', 'mean'):\n        actual = binary_focal_loss(y, p, alpha, gamma, reduction)\n        want = expected if reduction == 'none' else getattr(expected, reduction)()\n        assert actual.shape == want.shape and actual.dtype == p.dtype\n        torch.testing.assert_close(actual, want, rtol=1e-12, atol=1e-15)\nassert torch.equal(y, before[0]) and torch.equal(p, before[1])\n"
   },
   {
-    "name": "preserves batch shape and reduces every element",
-    "input": "a two-dimensional batch with a non-default alpha and gamma",
-    "test": "import numpy as np\nlabels = np.array([[1, 0, 1], [0, 1, 0]])\nprobabilities = np.array([[0.2, 0.2, 0.8], [0.8, 0.55, 0.45]])\nalpha = 0.6\ngamma = 1.5\nactual = binary_focal_loss(labels, probabilities, alpha=alpha, gamma=gamma, reduction='none')\npt = np.where(labels == 1, probabilities, 1 - probabilities)\nalpha_t = np.where(labels == 1, alpha, 1 - alpha)\nexpected = -alpha_t * (1 - pt) ** gamma * np.log(pt)\nassert actual.shape == labels.shape\nassert np.allclose(actual, expected, atol=1e-15)\nassert np.isclose(binary_focal_loss(labels, probabilities, alpha, gamma, 'sum'), expected.sum())\nassert np.isclose(binary_focal_loss(labels, probabilities, alpha, gamma, 'mean'), expected.mean())"
+    "name": "singleton dimensions label dtypes and floating dtype preservation",
+    "input": "rank-three singleton inputs and bool/int/float labels in float32 and float64",
+    "test": "import math\nimport torch\nfor dtype in (torch.float32, torch.float64):\n    for label_dtype in (torch.bool, torch.long, torch.float32):\n        p = torch.tensor([[[.25]]], dtype=dtype, requires_grad=True)\n        for label in (0, 1):\n            y = torch.full((1, 1, 1), label, dtype=label_dtype)\n            pt, weight = (.25, .37) if label else (.75, .63)\n            expected = p.new_tensor(-weight * (1-pt)**1.5 * math.log(pt))\n            for reduction in ('none', 'sum', 'mean'):\n                loss = binary_focal_loss(y, p, .37, 1.5, reduction)\n                assert isinstance(loss, torch.Tensor) and loss.dtype == dtype and loss.device == p.device\n                assert loss.shape == (p.shape if reduction == 'none' else torch.Size([]))\n                torch.testing.assert_close(loss.reshape(()), expected)\n"
+  },
+  {
+    "name": "analytic probability gradients and upstream weights for every reduction",
+    "input": "both labels; non-default hyperparameters; input preservation after backward",
+    "test": "import torch\ny = torch.tensor([[1, 0], [0, 1]])\nbase = torch.tensor([[.2, .3], [.8, .65]], dtype=torch.float64)\nalpha, gamma = .37, 1.5\nfor reduction in ('none', 'sum', 'mean'):\n    p = base.clone().requires_grad_()\n    before = (p.detach().clone(), y.clone())\n    loss = binary_focal_loss(y, p, alpha, gamma, reduction)\n    assert loss.requires_grad and loss.dtype == p.dtype\n    with torch.no_grad():\n        pos = alpha * (gamma*(1-p)**(gamma-1)*p.log() - (1-p)**gamma/p)\n        neg = (1-alpha) * (-gamma*p**(gamma-1)*torch.log1p(-p) + p**gamma/(1-p))\n        expected = torch.where(y == 1, pos, neg)\n    if reduction == 'none':\n        upstream = p.new_tensor([[1., -2.], [.5, 3.]])\n        got, = torch.autograd.grad(loss, p, upstream)\n        expected = expected * upstream\n    else:\n        got, = torch.autograd.grad(loss, p)\n        if reduction == 'mean': expected = expected / p.numel()\n    torch.testing.assert_close(got, expected, rtol=1e-10, atol=1e-12)\n    assert torch.equal(p.detach(), before[0]) and torch.equal(y, before[1])\n"
+  },
+  {
+    "name": "gradcheck on noncontiguous probabilities",
+    "input": "double precision numerical differentiation with fractional gamma",
+    "test": "import torch\np = torch.tensor([[.2, .4], [.7, .6], [.3, .8]], dtype=torch.float64).T.requires_grad_()\ny = torch.tensor([[1, 0], [0, 1], [1, 0]]).T\nassert not p.is_contiguous() and not y.is_contiguous()\nfor reduction in ('none', 'sum', 'mean'):\n    fn = lambda value: binary_focal_loss(y, value, .6, 1.5, reduction)\n    assert torch.autograd.gradcheck(fn, (p,), eps=1e-6, atol=1e-5, rtol=1e-4)\n"
+  },
+  {
+    "name": "near-boundary probabilities remain finite without clipping",
+    "input": "hard examples near zero and one; float32 and float64 losses and gradients",
+    "test": "import math\nimport torch\nfor dtype, small in ((torch.float32, 1e-6), (torch.float64, 1e-12)):\n    p = torch.tensor([small, 1-small, small, 1-small], dtype=dtype, requires_grad=True)\n    y = torch.tensor([1, 0, 0, 1])\n    expected = []\n    for label, value in zip(y.tolist(), p.detach().tolist()):\n        if label:\n            expected.append(-.3 * (1-value)**1.5 * math.log(value))\n        else:\n            expected.append(-.7 * value**1.5 * math.log1p(-value))\n    loss = binary_focal_loss(y, p, .3, 1.5, 'none')\n    assert torch.isfinite(loss).all()\n    torch.testing.assert_close(loss, p.new_tensor(expected), rtol=2e-5, atol=0.)\n    grad, = torch.autograd.grad(loss.sum(), p)\n    assert torch.isfinite(grad).all() and torch.all(grad != 0)\n# A clipping epsilon would change this hard-example loss and its gradient.\np = torch.tensor([1e-200], dtype=torch.float64, requires_grad=True)\nloss = binary_focal_loss(torch.tensor([1]), p)\ntorch.testing.assert_close(loss, p.new_tensor(-.25*math.log(1e-200)), rtol=1e-12, atol=0.)\ngrad, = torch.autograd.grad(loss, p)\ntorch.testing.assert_close(grad, p.new_tensor([-.25/1e-200]), rtol=1e-12, atol=0.)\n"
+  },
+  {
+    "name": "device preservation on CPU and available accelerators",
+    "input": "float32 loss and probability gradient remain on the input device",
+    "test": "import math\nimport torch\ndevices = ['cpu']\nif torch.cuda.is_available(): devices.append('cuda')\nif torch.backends.mps.is_available(): devices.append('mps')\nfor device in devices:\n    p = torch.tensor([.25, .75], dtype=torch.float32, device=device, requires_grad=True)\n    y = torch.tensor([1, 0], device=device)\n    loss = binary_focal_loss(y, p, .3, 1.5, 'none')\n    assert loss.device == p.device and loss.dtype == p.dtype and loss.shape == p.shape\n    expected = p.new_tensor([-.3*.75**1.5*math.log(.25), -.7*.75**1.5*math.log(.25)])\n    torch.testing.assert_close(loss, expected)\n    grad, = torch.autograd.grad(loss.sum(), p)\n    assert grad.device == p.device and torch.isfinite(grad).all()\n"
   }
 ]
