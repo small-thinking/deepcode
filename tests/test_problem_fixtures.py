@@ -16,31 +16,13 @@ ROOT = Path(__file__).resolve().parents[1]
 class ProblemFixtureTest(unittest.TestCase):
     def test_linear_regression_gradient_step_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("linear-regression-gradient-step")
-        solution = """import numpy as np
-
-
-def linear_regression_step(X, y, weights, bias, learning_rate):
-    X = np.asarray(X, dtype=float)
-    y = np.asarray(y, dtype=float)
-    weights = np.asarray(weights, dtype=float)
-    errors = X @ weights + bias - y
-    n_rows = X.shape[0]
-    weight_gradient = 2 / n_rows * (X.T @ errors)
-    bias_gradient = 2 / n_rows * errors.sum()
-    new_weights = weights - learning_rate * weight_gradient
-    new_bias = bias - learning_rate * bias_gradient
-    return new_weights, new_bias
-"""
-
-        result = run_submission(
-            code=solution,
-            tests=problem["tests"],
-            timeout_seconds=problem["environment"]["timeout_seconds"],
-            comparator=problem["environment"]["comparator"],
-        )
-
-        self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["passed"], len(problem["tests"]))
+        solution = (ROOT / "problems/016-linear-regression-gradient-step/solution.py").read_text()
+        result = evaluate_submission(EvaluationRequest(
+            code=solution, problem=problem, tests=problem["tests"],
+            environment=problem["environment"], runtime=problem.get("_runtime", {}),
+        ))
+        self.assertEqual(result["status"], "passed", result)
+        self.assertEqual(result["passed"], len(problem["tests"]), result)
 
     def test_ngram_next_character_model_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("ngram-next-character-model")
@@ -294,53 +276,13 @@ class MultiHeadSelfAttention(nn.Module):
 
     def test_streaming_logit_entropy_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("streaming-logit-entropy")
-        solution = r"""import numpy as np
-
-
-def entropy_from_logits(logits):
-    values = np.asarray(logits, dtype=np.float64)
-    if values.ndim != 1 or values.size == 0:
-        raise ValueError("logits must be a non-empty 1D sequence")
-    max_logit = values.max()
-    weights = np.exp(values - max_logit)
-    total = weights.sum()
-    logsumexp = max_logit + np.log(total)
-    return float(logsumexp - (weights @ values) / total)
-
-
-def streaming_entropy(blocks):
-    running_max = -np.inf
-    scaled_sum = 0.0
-    scaled_weighted_sum = 0.0
-    seen = False
-
-    for block in blocks:
-        values = np.asarray(block, dtype=np.float64)
-        if values.ndim != 1 or values.size == 0:
-            raise ValueError("each block must be a non-empty 1D sequence")
-        block_max = values.max()
-        new_max = max(running_max, block_max)
-        previous_scale = 0.0 if not seen else np.exp(running_max - new_max)
-        block_weights = np.exp(values - new_max)
-        scaled_sum = scaled_sum * previous_scale + block_weights.sum()
-        scaled_weighted_sum = scaled_weighted_sum * previous_scale + block_weights @ values
-        running_max = new_max
-        seen = True
-
-    if not seen:
-        raise ValueError("blocks must contain at least one block")
-    return float(running_max + np.log(scaled_sum) - scaled_weighted_sum / scaled_sum)
-"""
-
-        result = run_submission(
-            code=solution,
-            tests=problem["tests"],
-            timeout_seconds=problem["environment"]["timeout_seconds"],
-            comparator=problem["environment"]["comparator"],
-        )
-
-        self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["passed"], len(problem["tests"]))
+        solution = (ROOT / "problems/104-streaming-logit-entropy/solution.py").read_text()
+        result = evaluate_submission(EvaluationRequest(
+            code=solution, problem=problem, tests=problem["tests"],
+            environment=problem["environment"], runtime=problem.get("_runtime", {}),
+        ))
+        self.assertEqual(result["status"], "passed", result)
+        self.assertEqual(result["passed"], len(problem["tests"]), result)
 
     def test_top_p_nucleus_sampling_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("top-p-nucleus-sampling")
@@ -1423,88 +1365,28 @@ def fix_bootloader(lines):
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["passed"], len(problem["tests"]))
 
-    def test_two_layer_numpy_network_reference_solution_passes(self):
+    def test_two_layer_torch_manual_backward_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("two-layer-numpy-network")
-        solution = r"""import numpy as np
-
-
-class TwoLayerNet:
-    def __init__(self, input_dim, hidden_dim, output_dim, seed=0, weight_scale=0.1):
-        rng = np.random.default_rng(seed)
-        self.W1 = rng.normal(0.0, weight_scale, size=(input_dim, hidden_dim))
-        self.b1 = np.zeros(hidden_dim)
-        self.W2 = rng.normal(0.0, weight_scale, size=(hidden_dim, output_dim))
-        self.b2 = np.zeros(output_dim)
-
-    def forward(self, X):
-        X = np.asarray(X, dtype=float)
-        hidden_linear = X @ self.W1 + self.b1
-        hidden = np.maximum(hidden_linear, 0.0)
-        logits = hidden @ self.W2 + self.b2
-        shifted = logits - logits.max(axis=1, keepdims=True)
-        exp_scores = np.exp(shifted)
-        probs = exp_scores / exp_scores.sum(axis=1, keepdims=True)
-        return probs
-
-    def loss(self, preds, y):
-        probs = np.asarray(preds, dtype=float)
-        y = np.asarray(y, dtype=int)
-        return float(-np.mean(np.log(probs[np.arange(len(y)), y] + 1e-12)))
-
-    def train_step(self, X, y, learning_rate=0.1):
-        X = np.asarray(X, dtype=float)
-        y = np.asarray(y, dtype=int)
-        n = X.shape[0]
-        hidden_linear = X @ self.W1 + self.b1
-        hidden = np.maximum(hidden_linear, 0.0)
-        logits = hidden @ self.W2 + self.b2
-        shifted = logits - logits.max(axis=1, keepdims=True)
-        exp_scores = np.exp(shifted)
-        probs = exp_scores / exp_scores.sum(axis=1, keepdims=True)
-        grad_logits = probs.copy()
-        grad_logits[np.arange(n), y] -= 1.0
-        grad_logits /= n
-        grad_W2 = hidden.T @ grad_logits
-        grad_b2 = grad_logits.sum(axis=0)
-        grad_hidden = grad_logits @ self.W2.T
-        grad_hidden[hidden_linear <= 0.0] = 0.0
-        grad_W1 = X.T @ grad_hidden
-        grad_b1 = grad_hidden.sum(axis=0)
-        self.W1 -= learning_rate * grad_W1
-        self.b1 -= learning_rate * grad_b1
-        self.W2 -= learning_rate * grad_W2
-        self.b2 -= learning_rate * grad_b2
-        return self.loss(self.forward(X), y)
-"""
-
+        solution = (ROOT / "problems/110-two-layer-numpy-network/solution.py").read_text()
         variants = {
-            "original optional constructor": solution,
-            "private names and minimal constructor": solution.replace(
-                ", seed=0, weight_scale=0.1", ""
-            ).replace("default_rng(seed)", "default_rng(17)").replace(
-                "0.0, weight_scale", "0.0, 0.2"
-            ).replace("self.W1", "self.W_1").replace("self.W2", "self.W_2").replace(
-                "self.b1", "self.b_1"
-            ).replace("self.b2", "self.b_2"),
+            "original": solution,
+            "private internal names": solution.replace("self.W1", "self.W_1").replace("self.W2", "self.W_2").replace("self.b1", "self.b_1").replace("self.b2", "self.b_2"),
         }
         for label, code in variants.items():
-            with self.subTest(label=label):
+            with self.subTest(variant=label):
                 result = evaluate_submission(EvaluationRequest(
                     code=code, problem=problem, tests=problem["tests"],
                     environment=problem["environment"], runtime=problem.get("_runtime", {}),
                 ))
                 self.assertEqual(result["status"], "passed", result)
-                self.assertEqual(result["passed"], len(problem["tests"]))
-
+                self.assertEqual(result["passed"], len(problem["tests"]), result)
         for label, code in {
-            "fixed divisor": solution.replace("grad_logits /= n", "grad_logits /= 2"),
+            "fixed divisor": solution.replace("grad_logits /= len(y)", "grad_logits /= 2"),
             "no update": solution.replace("learning_rate *", "0.0 *"),
-            "forward inside loss": solution.replace(
-                "probs = np.asarray(preds, dtype=float)", "probs = self.forward(preds)"
-            ),
-            "sum loss": solution.replace("np.mean(np.log", "np.sum(np.log"),
+            "forward inside loss": solution.replace("selected = preds.gather", "selected = self.forward(preds).gather"),
+            "sum loss": solution.replace(".log().mean()", ".log().sum()"),
         }.items():
-            with self.subTest(mutant=label):
+            with self.subTest(mutation=label):
                 result = evaluate_submission(EvaluationRequest(
                     code=code, problem=problem, tests=problem["tests"],
                     environment=problem["environment"], runtime=problem.get("_runtime", {}),

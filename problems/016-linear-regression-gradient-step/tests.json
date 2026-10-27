@@ -1,44 +1,42 @@
 [
   {
     "name": "two feature update",
-    "input": "X = [[1.0, 2.0], [3.0, 4.0]], y = [1.0, 2.0], weights = [0.1, -0.2], bias = 0.3, learning_rate = 0.05",
-    "test": "import numpy as np\nX = np.asarray([[1.0, 2.0], [3.0, 4.0]])\ny = np.asarray([1.0, 2.0])\nweights = np.asarray([0.1, -0.2])\nnew_weights, new_bias = linear_regression_step(X, y, weights, 0.3, 0.05)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
-    "expected_output": "[[0.48, 0.34], 0.46]"
+    "input": "two feature update",
+    "test": "import torch\nX=torch.tensor([[1.0, 2.0], [3.0, 4.0]],dtype=torch.float64); y=torch.tensor([1.0, 2.0],dtype=X.dtype)\nw=torch.tensor([0.1, -0.2],dtype=X.dtype); b=X.new_tensor(0.3)\nsnapshot=[v.clone() for v in (X,y,w,b)]\na,c=linear_regression_step(X,y,w,b,0.05)\nassert isinstance(a,torch.Tensor) and isinstance(c,torch.Tensor)\nassert a.shape==w.shape and c.shape==()\nassert a.dtype==X.dtype and c.dtype==X.dtype and a.device==X.device and c.device==X.device\ntorch.testing.assert_close(a,X.new_tensor([0.48, 0.34]),rtol=1e-12,atol=1e-12)\ntorch.testing.assert_close(c,X.new_tensor(0.46),rtol=1e-12,atol=1e-12)\nfor v,old in zip((X,y,w,b),snapshot): assert torch.equal(v,old)\n"
   },
   {
     "name": "already optimal line",
-    "input": "X = [[1.0], [2.0], [3.0]], y = [2.0, 4.0, 6.0], weights = [2.0], bias = 0.0, learning_rate = 0.1",
-    "test": "import numpy as np\nX = np.asarray([[1.0], [2.0], [3.0]])\ny = np.asarray([2.0, 4.0, 6.0])\nweights = np.asarray([2.0])\nnew_weights, new_bias = linear_regression_step(X, y, weights, 0.0, 0.1)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
-    "expected_output": "[[2.0], 0.0]"
+    "input": "already optimal line",
+    "test": "import torch\nX=torch.tensor([[1.0], [2.0], [3.0]],dtype=torch.float64); y=torch.tensor([2.0, 4.0, 6.0],dtype=X.dtype)\nw=torch.tensor([2.0],dtype=X.dtype); b=X.new_tensor(0.0)\nsnapshot=[v.clone() for v in (X,y,w,b)]\na,c=linear_regression_step(X,y,w,b,0.1)\nassert isinstance(a,torch.Tensor) and isinstance(c,torch.Tensor)\nassert a.shape==w.shape and c.shape==()\nassert a.dtype==X.dtype and c.dtype==X.dtype and a.device==X.device and c.device==X.device\ntorch.testing.assert_close(a,X.new_tensor([2.0]),rtol=1e-12,atol=1e-12)\ntorch.testing.assert_close(c,X.new_tensor(0.0),rtol=1e-12,atol=1e-12)\nfor v,old in zip((X,y,w,b),snapshot): assert torch.equal(v,old)\n"
   },
   {
     "name": "zero initialized batch",
-    "input": "X = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]], y = [1.0, 2.0, 3.0], weights = [0.0, 0.0], bias = 0.0, learning_rate = 0.1",
-    "test": "import numpy as np\nX = np.asarray([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])\ny = np.asarray([1.0, 2.0, 3.0])\nweights = np.asarray([0.0, 0.0])\nnew_weights, new_bias = linear_regression_step(X, y, weights, 0.0, 0.1)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
-    "expected_output": "[[0.2667, 0.3333], 0.4]"
+    "input": "zero initialized batch",
+    "test": "import torch\nX=torch.tensor([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]],dtype=torch.float64); y=torch.tensor([1.0, 2.0, 3.0],dtype=X.dtype)\nw=torch.tensor([0.0, 0.0],dtype=X.dtype); b=X.new_tensor(0.0)\nsnapshot=[v.clone() for v in (X,y,w,b)]\na,c=linear_regression_step(X,y,w,b,0.1)\nassert isinstance(a,torch.Tensor) and isinstance(c,torch.Tensor)\nassert a.shape==w.shape and c.shape==()\nassert a.dtype==X.dtype and c.dtype==X.dtype and a.device==X.device and c.device==X.device\ntorch.testing.assert_close(a,X.new_tensor([0.26666666666666666, 0.3333333333333333]),rtol=1e-12,atol=1e-12)\ntorch.testing.assert_close(c,X.new_tensor(0.4),rtol=1e-12,atol=1e-12)\nfor v,old in zip((X,y,w,b),snapshot): assert torch.equal(v,old)\n"
   },
   {
-    "name": "plain list inputs",
-    "input": "X = [[2.0, -1.0], [0.0, 3.0]], y = [1.0, -2.0], weights = [0.5, -0.5], bias = -0.25, learning_rate = 0.2",
-    "test": "import numpy as np\nX = [[2.0, -1.0], [0.0, 3.0]]\ny = [1.0, -2.0]\nweights = [0.5, -0.5]\nnew_weights, new_bias = linear_regression_step(X, y, weights, -0.25, 0.2)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
-    "expected_output": "[[0.4, -0.6], -0.35]"
+    "name": "signed fractional update",
+    "input": "signed fractional update",
+    "test": "import torch\nX=torch.tensor([[2.0, -1.0], [0.0, 3.0]],dtype=torch.float64); y=torch.tensor([1.0, -2.0],dtype=X.dtype)\nw=torch.tensor([0.5, -0.5],dtype=X.dtype); b=X.new_tensor(-0.25)\nsnapshot=[v.clone() for v in (X,y,w,b)]\na,c=linear_regression_step(X,y,w,b,0.2)\nassert isinstance(a,torch.Tensor) and isinstance(c,torch.Tensor)\nassert a.shape==w.shape and c.shape==()\nassert a.dtype==X.dtype and c.dtype==X.dtype and a.device==X.device and c.device==X.device\ntorch.testing.assert_close(a,X.new_tensor([0.4, -0.6]),rtol=1e-12,atol=1e-12)\ntorch.testing.assert_close(c,X.new_tensor(-0.35),rtol=1e-12,atol=1e-12)\nfor v,old in zip((X,y,w,b),snapshot): assert torch.equal(v,old)\n"
   },
   {
-    "name": "does not mutate ndarray weights",
-    "input": "X = [[2.0, -1.0], [0.0, 3.0]], y = [1.0, -2.0], weights = [0.5, -0.5], bias = -0.25, learning_rate = 0.2",
-    "test": "import numpy as np\nX = np.asarray([[2.0, -1.0], [0.0, 3.0]])\ny = np.asarray([1.0, -2.0])\nweights = np.asarray([0.5, -0.5])\nnew_weights, new_bias = linear_regression_step(X, y, weights, -0.25, 0.2)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4), np.round(weights, 4).tolist()])",
-    "expected_output": "[[0.4, -0.6], -0.35, [0.5, -0.5]]"
+    "name": "does not mutate tensor weights",
+    "input": "does not mutate tensor weights",
+    "test": "import torch\nX=torch.tensor([[2.0, -1.0], [0.0, 3.0]],dtype=torch.float64); y=torch.tensor([1.0, -2.0],dtype=X.dtype)\nw=torch.tensor([0.5, -0.5],dtype=X.dtype); b=X.new_tensor(-0.25)\nsnapshot=[v.clone() for v in (X,y,w,b)]\na,c=linear_regression_step(X,y,w,b,0.2)\nassert isinstance(a,torch.Tensor) and isinstance(c,torch.Tensor)\nassert a.shape==w.shape and c.shape==()\nassert a.dtype==X.dtype and c.dtype==X.dtype and a.device==X.device and c.device==X.device\ntorch.testing.assert_close(a,X.new_tensor([0.4, -0.6]),rtol=1e-12,atol=1e-12)\ntorch.testing.assert_close(c,X.new_tensor(-0.35),rtol=1e-12,atol=1e-12)\nfor v,old in zip((X,y,w,b),snapshot): assert torch.equal(v,old)\n"
   },
   {
     "name": "zero features bias only update",
-    "input": "X = [[0.0, 0.0], [0.0, 0.0]], y = [2.0, -4.0], weights = [1.0, -1.0], bias = 0.5, learning_rate = 0.1",
-    "test": "import numpy as np\nX = np.asarray([[0.0, 0.0], [0.0, 0.0]])\ny = np.asarray([2.0, -4.0])\nweights = np.asarray([1.0, -1.0])\nnew_weights, new_bias = linear_regression_step(X, y, weights, 0.5, 0.1)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
-    "expected_output": "[[1.0, -1.0], 0.2]"
+    "input": "zero features bias only update",
+    "test": "import torch\nX=torch.tensor([[0.0, 0.0], [0.0, 0.0]],dtype=torch.float64); y=torch.tensor([2.0, -4.0],dtype=X.dtype)\nw=torch.tensor([1.0, -1.0],dtype=X.dtype); b=X.new_tensor(0.5)\nsnapshot=[v.clone() for v in (X,y,w,b)]\na,c=linear_regression_step(X,y,w,b,0.1)\nassert isinstance(a,torch.Tensor) and isinstance(c,torch.Tensor)\nassert a.shape==w.shape and c.shape==()\nassert a.dtype==X.dtype and c.dtype==X.dtype and a.device==X.device and c.device==X.device\ntorch.testing.assert_close(a,X.new_tensor([1.0, -1.0]),rtol=1e-12,atol=1e-12)\ntorch.testing.assert_close(c,X.new_tensor(0.2),rtol=1e-12,atol=1e-12)\nfor v,old in zip((X,y,w,b),snapshot): assert torch.equal(v,old)\n"
   },
   {
     "name": "single sample batch",
-    "input": "X = [[3.0, -2.0]], y = [4.0], weights = [1.0, 2.0], bias = -1.0, learning_rate = 0.1",
-    "test": "import numpy as np\nX = np.asarray([[3.0, -2.0]])\ny = np.asarray([4.0])\nweights = np.asarray([1.0, 2.0])\nnew_weights, new_bias = linear_regression_step(X, y, weights, -1.0, 0.1)\nprint([np.round(np.asarray(new_weights), 4).tolist(), round(float(new_bias), 4)])",
-    "expected_output": "[[4.6, -0.4], 0.2]"
+    "input": "single sample batch",
+    "test": "import torch\nX=torch.tensor([[3.0, -2.0]],dtype=torch.float64); y=torch.tensor([4.0],dtype=X.dtype)\nw=torch.tensor([1.0, 2.0],dtype=X.dtype); b=X.new_tensor(-1.0)\nsnapshot=[v.clone() for v in (X,y,w,b)]\na,c=linear_regression_step(X,y,w,b,0.1)\nassert isinstance(a,torch.Tensor) and isinstance(c,torch.Tensor)\nassert a.shape==w.shape and c.shape==()\nassert a.dtype==X.dtype and c.dtype==X.dtype and a.device==X.device and c.device==X.device\ntorch.testing.assert_close(a,X.new_tensor([4.6, -0.4]),rtol=1e-12,atol=1e-12)\ntorch.testing.assert_close(c,X.new_tensor(0.2),rtol=1e-12,atol=1e-12)\nfor v,old in zip((X,y,w,b),snapshot): assert torch.equal(v,old)\n"
+  },
+  {
+    "name": "manual gradients preserve dtype device and strided inputs",
+    "input": "autograd and optimizers disabled; scalar bias and zero learning rate",
+    "test": "from contextlib import ExitStack\nfrom unittest.mock import patch\nimport torch\nwith ExitStack() as guards:\n    for target in (\"torch.Tensor.backward\", \"torch.autograd.grad\", \"torch.autograd.backward\", \"torch.optim.SGD\", \"torch.optim.Adam\", \"torch.optim.AdamW\"):\n        guards.enter_context(patch(target, side_effect=AssertionError(\"Derive gradients and update by hand\")))\n    devices=['cpu']+(['cuda'] if torch.cuda.is_available() else [])+(['mps'] if torch.backends.mps.is_available() else [])\n    for device in devices:\n        for dtype in ([torch.float32] if device=='mps' else [torch.float32,torch.float64]):\n            X=torch.tensor([[1.,3.,2.,4.],[5.,7.,6.,8.]],dtype=dtype,device=device)[:,::2]\n            y=X.new_tensor([2.,3.]); w=X.new_tensor([.2,-.3]); bias=.4\n            assert not X.is_contiguous()\n            expected_w=w-.05*(2*X.T@(X@w+bias-y)/2)\n            expected_b=X.new_tensor(bias)-.05*2*(X@w+bias-y).mean()\n            a,b=linear_regression_step(X,y,w,bias,.05)\n            assert a.dtype==dtype and b.dtype==dtype and a.device==X.device and b.device==X.device\n            torch.testing.assert_close(a,expected_w); torch.testing.assert_close(b,expected_b)\n            a,b=linear_regression_step(X,y,w,bias,0.)\n            assert torch.equal(a,w) and b==bias\n"
   }
 ]

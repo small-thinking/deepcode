@@ -5,39 +5,35 @@
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
-    "numpy",
+    "pytorch",
     "regression",
     "optimization"
   ],
   "companies": [
     "General"
   ],
-  "prompt": "Implement `linear_regression_step(X, y, weights, bias, learning_rate)` to perform one full-batch gradient descent step for a linear regression model with an intercept.\n\nMinimize mean squared prediction error, averaged over samples, with no extra factor of 1/2 and no regularization. Update all weights and the bias simultaneously from their values at the start of the step.\n\nInputs:\n- `X`: a numeric Python list or NumPy array of shape `(n_samples, n_features)`.\n- `y`: targets of shape `(n_samples,)`.\n- `weights`: current coefficients of shape `(n_features,)`.\n- `bias` and `learning_rate`: numeric scalars.\n\nAssume valid, finite inputs with matching shapes and at least one sample. Return `(new_weights, new_bias)`: a weight vector with the original shape (NumPy array or list) and a numeric scalar bias. Do not mutate the inputs. NumPy is available.",
-  "starter_code": "import numpy as np\n\n\ndef linear_regression_step(X, y, weights, bias, learning_rate):\n    # TODO: Return the updated weights and bias.\n    raise NotImplementedError\n",
+  "prompt": "Implement `linear_regression_step(X, y, weights, bias, learning_rate)` using PyTorch tensors and manually derived gradients. Minimize mean squared prediction error, averaged over samples, with no factor of 1/2 and no regularization. Update weights and bias simultaneously from the values at the start of the step.\n\nInputs are finite, compatible tensors: `X: (N,D)`, `y: (N,)`, `weights: (D,)`, with `N >= 1`, all using the same float32/float64 dtype and device. Bias is a Python number or scalar tensor; learning rate is a Python scalar. Inputs do not require gradients. Assume valid inputs, including noncontiguous tensors.\n\nReturn new `(new_weights, new_bias)` tensors of shapes `(D,)` and `()`, preserving X's dtype/device. Do not mutate inputs. Derive both gradients yourself and apply the update with tensor arithmetic; do not use `backward`, `torch.autograd`, or optimizer helpers. Ordinary Tensor operations do not automatically differentiate anything. This is a handwritten-gradient exercise.",
+  "starter_code": "import torch\n\n\ndef linear_regression_step(X, y, weights, bias, learning_rate):\n    # Derive gradients manually; return new tensors without autograd or optimizers.\n    raise NotImplementedError\n",
   "example": {
-    "input": "X = [[1.0, 2.0], [3.0, 4.0]], y = [1.0, 2.0], weights = [0.1, -0.2], bias = 0.3, learning_rate = 0.05",
-    "output": "([0.48, 0.34], 0.46)",
+    "input": "X = torch.tensor([[1.,2.],[3.,4.]]); y = torch.tensor([1.,2.]); weights = torch.tensor([.1,-.2]); bias = .3; learning_rate = .05",
+    "output": "(tensor([0.48, 0.34]), tensor(0.46))",
     "reasoning": "Return the weight vector and scalar bias after one update."
   },
   "environment": {
     "language": "python",
-    "timeout_seconds": 2,
+    "timeout_seconds": 15,
     "packages": [
-      "numpy"
+      "torch"
     ],
-    "comparator": "numeric"
+    "comparator": "assertions"
   },
   "evaluation": {
-    "type": "ml_coding"
+    "type": "ml_torch_modeling"
   },
   "references": [
     {
       "label": "Related concept only: Exponent/Aced gradient descent (not a verified original coding prompt)",
       "url": "https://www.tryexponent.com/questions/4359/gradient-descent-and-model-optimization"
-    },
-    {
-      "label": "NumPy: matmul",
-      "url": "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html"
     },
     {
       "label": "scikit-learn: mean_squared_error",

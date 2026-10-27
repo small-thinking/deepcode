@@ -5,30 +5,29 @@
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
-    "numpy",
+    "pytorch",
     "optimization"
   ],
   "companies": [
     "Uber"
   ],
-  "prompt": "Implement `train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None)` using NumPy. Train either linear regression with mean squared error or binary logistic regression with binary cross-entropy using full-batch gradient descent.\n\n`X` has shape `(N, D)` and `y` has shape `(N,)`; logistic targets are 0 or 1. Return a `(D,)` weight vector, scalar bias, and loss history. Assume valid inputs.\n\nInitialize the weights to small random values and the bias to zero. Add optional L2 regularization to the weights (not the bias), and stop early when consecutive losses differ by at most `tol`. Return `(weights, bias, losses)`, where `losses` contains the initial loss and the loss after every update.\n\nDerive the gradients and implement backpropagation yourself—do not use sklearn, autograd, or optimizer helpers. Keep the logistic loss and sigmoid numerically stable.",
-  "starter_code": "import numpy as np\n\n\ndef train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None):\n    pass\n",
+  "prompt": "Implement `train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None)` using PyTorch tensors. Train linear regression with mean squared error or binary logistic regression with binary cross-entropy by full-batch gradient descent.\n\nX is `(N,D)` and y is `(N,)`, finite float32/float64 tensors on the same device and dtype, without gradients; logistic targets are 0 or 1. Assume valid inputs. Preserve inputs, dtype/device, and support noncontiguous X.\n\nInitialize the weights to small random values and the bias to zero. Use an independent random generator, leaving global RNG state unchanged. Return `(weights, bias, losses)`: a `(D,)` tensor, scalar tensor `()`, and Python float list with the initial loss and the loss after every update.\n\nThe objective is `mean((X@w+b-y)**2) + l2*sum(w**2)/2` for linear regression, or `mean(logaddexp(0,z)-y*z) + l2*sum(w**2)/2`, `z=X@w+b`, for logistic regression. Never regularize bias. Stop early when consecutive losses differ by at most `tol`; ignore early stopping if tol is None. Zero epochs returns only the initial loss.\n\nDerive the gradients and implement backpropagation yourself\u2014do not use sklearn, autograd, or optimizer helpers. Keep logistic loss and sigmoid numerically stable. Compute all gradients from the old parameters before updating. Torch tensor arithmetic is allowed; calling backward/autograd to obtain these gradients is not.",
+  "starter_code": "import torch\n\n\ndef train_regression(X, y, kind=\"linear\", lr=0.05, epochs=1000, l2=0.0, tol=None):\n    # Full-batch gradient descent with handwritten gradients.\n    raise NotImplementedError\n",
   "example": {
-    "input": "w, b, losses = train_regression([[1.]], [2.], epochs=0); (w.shape, b, len(losses))",
-    "output": "((1,), 0.0, 1)",
+    "input": "w, b, losses = train_regression(torch.tensor([[1.]]), torch.tensor([2.]), epochs=0); (w.shape, b, len(losses))",
+    "output": "(torch.Size([1]), tensor(0.), 1)",
     "reasoning": "Before training, the function returns one small randomly initialized weight, a zero bias, and the initial loss."
   },
   "environment": {
     "language": "python",
-    "runtime": "python",
     "timeout_seconds": 15,
     "packages": [
-      "numpy"
+      "torch"
     ],
-    "comparator": "exact"
+    "comparator": "assertions"
   },
   "evaluation": {
-    "type": "ml_coding"
+    "type": "ml_torch_modeling"
   },
   "interactive_demos": [
     {
