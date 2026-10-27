@@ -5,28 +5,29 @@
   "category": "ML Coding",
   "difficulty": "hard",
   "tags": [
-    "numpy",
+    "pytorch",
     "transformers",
     "attention",
     "grouped-query-attention",
-    "einsum"
+    "einsum",
+    "autograd"
   ],
   "companies": [
     "Datadog",
     "General"
   ],
-  "prompt": "Implement `grouped_query_attention(query, key, value) -> np.ndarray` with NumPy. Inputs have shapes `query: [B, Hq, Tq, D]`, `key: [B, Hkv, Tk, D]`, and `value: [B, Hkv, Tk, D]`, where `Hq` is divisible by `Hkv`. Query head `h` must attend to key/value head `h // (Hq // Hkv)`.\n\nFor each batch, query head, and query token, compute scaled dot-product attention over the `Tk` keys, using a numerically stable softmax and scale `1 / sqrt(D)`. Return the attended values with shape `[B, Hq, Tq, D]`. Convert array-like inputs with `np.asarray`; reject rank mismatches, zero dimensions, incompatible batch/token/feature sizes, and non-divisible head counts with `AssertionError`. No mask is part of this problem, and inputs must not be mutated.",
-  "starter_code": "import numpy as np\n\n\ndef grouped_query_attention(query, key, value):\n    pass\n",
+  "prompt": "Implement `grouped_query_attention(query, key, value) -> torch.Tensor` with PyTorch. These are already computed Q/K/V: query `[B, Hq, Tq, D]`, key/value `[B, Hkv, Tk, D]`. Query head h attends to KV head `h // (Hq // Hkv)`; Hq must be divisible by Hkv. Do not add learned projections, a mask, or a module API (the projected GQA exercise #390 covers those).\n\nFor every batch, query head, and query token, compute numerically stable scaled dot-product attention over Tk keys with scale `1 / sqrt(D)`. Return `[B, Hq, Tq, D]`. Inputs are finite float32/float64 tensors with matching dtype/device and representable scaled dot products. Convert array-like inputs with `torch.as_tensor` (non-floating inputs use the default floating dtype). Preserve dtype, device, and autograd to Q/K/V; do not mutate inputs or detach results.\n\nReject rank mismatches, zero dimensions, incompatible batch/head/token/feature sizes, dtype/device mismatches, and non-divisible head counts with `AssertionError`.",
+  "starter_code": "import torch\n\n\ndef grouped_query_attention(query, key, value):\n    # Inputs already contain Q/K/V; no learned projections are needed.\n    pass\n",
   "example": {
     "input": "grouped_query_attention(q, k, v) where q has four heads and k/v each have one head",
-    "output": "an array with four output heads",
+    "output": "a tensor with four output heads",
     "reasoning": "All four query heads share the one key/value head while keeping their query-dependent attention weights separate."
   },
   "environment": {
     "language": "python",
-    "timeout_seconds": 3,
+    "timeout_seconds": 15,
     "packages": [
-      "numpy"
+      "torch"
     ],
     "comparator": "assertions"
   },
@@ -44,9 +45,9 @@
       "url": "https://arxiv.org/abs/2305.13245"
     }
   ],
-  "background_note": "The saved Datadog report names handwritten GQA; its exact framework and API are not established by the author. The precomputed-Q/K/V dimensions and no-mask contract are preparation material, and NumPy validation rules are local exercise requirements. This variant and Projected Grouped-Query Attention in PyTorch link to the same canonical Notion page and the same interview report, not two independent occurrences. The Notion study guide calls this NumPy variant optional and the projected PyTorch module the graded study entry; the legacy DeepCode variant remains separately runnable for compatibility and retains its existing slug and tests. Authenticated verification on 2026-10-09 read 1181571: the Datadog author reports handwritten focal loss and GQA. Detailed Q/K/V shapes appear in separately labeled AI Insights, not in the author report. The canonical Notion DeepCode link targets pytorch-projected-grouped-query-attention; its existing signal is not duplicated onto this legacy NumPy variant.",
+  "background_note": "The saved Datadog report names handwritten GQA; its exact framework and API are not established by the author. The precomputed-Q/K/V dimensions and no-mask contract are preparation material, and validation rules are local exercise requirements. This variant and Projected Grouped-Query Attention in PyTorch link to the same canonical Notion page and the same interview report, not two independent occurrences. The Notion study guide calls the pure-Q/K/V variant optional and the projected PyTorch module the graded study entry; the legacy DeepCode variant remains separately runnable for compatibility and retains its existing slug and pure-Q/K/V API. Authenticated verification on 2026-10-09 read 1181571: the Datadog author reports handwritten focal loss and GQA. Detailed Q/K/V shapes appear in separately labeled AI Insights, not in the author report. The canonical Notion DeepCode link targets pytorch-projected-grouped-query-attention; its existing signal is not duplicated onto this legacy pure-Q/K/V variant. The local pure-Q/K/V exercise now uses PyTorch while retaining its slug, shapes, head mapping, and source boundary; it remains distinct from the projected module exercise #390.",
   "evaluation": {
-    "type": "ml_modeling"
+    "type": "ml_torch_modeling"
   },
   "created_at": "2026-09-02"
 }

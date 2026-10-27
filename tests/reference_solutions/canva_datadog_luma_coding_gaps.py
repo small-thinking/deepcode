@@ -68,55 +68,6 @@ class ImagePredictionService:
         return prediction
 
 
-def binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction="mean"):
-    labels = np.asarray(labels)
-    probabilities = np.asarray(probabilities, dtype=float)
-    positive = labels == 1
-    p_t = np.where(positive, probabilities, 1.0 - probabilities)
-    alpha_t = np.where(positive, float(alpha), 1.0 - float(alpha))
-    losses = -alpha_t * (1.0 - p_t) ** float(gamma) * np.log(p_t)
-    if reduction == "none":
-        return losses
-    if reduction == "sum":
-        return float(losses.sum())
-    return float(losses.mean())
-
-
-def grouped_query_attention(query, key, value):
-    try:
-        query = np.asarray(query, dtype=float)
-        key = np.asarray(key, dtype=float)
-        value = np.asarray(value, dtype=float)
-    except (TypeError, ValueError) as error:
-        raise AssertionError("attention inputs must be numeric") from error
-    if query.ndim != 4 or key.ndim != 4 or value.ndim != 4:
-        raise AssertionError("attention inputs must be rank four")
-    if any(dimension == 0 for array in (query, key, value) for dimension in array.shape):
-        raise AssertionError("attention dimensions must be non-zero")
-    batch, query_heads, query_tokens, width = query.shape
-    key_batch, key_heads, key_tokens, key_width = key.shape
-    value_batch, value_heads, value_tokens, value_width = value.shape
-    if (
-        batch != key_batch
-        or batch != value_batch
-        or key_heads != value_heads
-        or width != key_width
-        or width != value_width
-        or key_tokens != value_tokens
-        or query_heads % key_heads != 0
-    ):
-        raise AssertionError("incompatible grouped-attention shapes")
-    repeat = query_heads // key_heads
-    key_value_heads = np.arange(query_heads) // repeat
-    selected_key = key[:, key_value_heads, :, :]
-    selected_value = value[:, key_value_heads, :, :]
-    scores = np.einsum("bhtd,bhsd->bhts", query, selected_key) / math.sqrt(width)
-    scores = scores - scores.max(axis=-1, keepdims=True)
-    weights = np.exp(scores)
-    weights /= weights.sum(axis=-1, keepdims=True)
-    return np.einsum("bhts,bhsd->bhtd", weights, selected_value)
-
-
 class QueryFailed(RuntimeError):
     pass
 

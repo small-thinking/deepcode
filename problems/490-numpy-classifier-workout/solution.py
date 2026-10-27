@@ -1,8 +1,8 @@
-import numpy as np
+import torch
 
 
 def combine_batches(parts):
-    return np.concatenate(parts, axis=0)
+    return torch.cat(parts, dim=0)
 
 
 def filter_rows(X, y, keep):
@@ -10,10 +10,9 @@ def filter_rows(X, y, keep):
 
 
 def fit_standardizer(X):
-    mean = X.mean(axis=0, keepdims=True)
-    scale = X.std(axis=0, keepdims=True)
-    scale = np.where(scale < 1e-8, 1.0, scale)
-    return mean, scale
+    mean = X.mean(dim=0, keepdim=True)
+    scale = X.std(dim=0, correction=0, keepdim=True)
+    return mean, torch.where(scale < 1e-8, torch.ones_like(scale), scale)
 
 
 def standardize(X, mean, scale):
@@ -21,12 +20,10 @@ def standardize(X, mean, scale):
 
 
 def make_minibatches(X, y, batch_size, seed):
-    order = np.random.default_rng(seed).permutation(len(X))
-    batches = []
-    for start in range(0, len(X), batch_size):
-        idx = order[start:start + batch_size]
-        batches.append((X[idx], y[idx]))
-    return batches
+    generator = torch.Generator().manual_seed(seed)
+    order = torch.randperm(len(X), generator=generator).to(X.device)
+    return [(X[idx], y[idx]) for start in range(0, len(X), batch_size)
+            for idx in [order[start:start+batch_size]]]
 
 
 def linear_logits(X, W, b):
@@ -34,23 +31,23 @@ def linear_logits(X, W, b):
 
 
 def softmax(logits):
-    shifted = logits - logits.max(axis=1, keepdims=True)
-    exps = np.exp(shifted)
-    return exps / exps.sum(axis=1, keepdims=True)
+    shifted = logits - logits.amax(dim=1, keepdim=True)
+    exps = shifted.exp()
+    return exps / exps.sum(dim=1, keepdim=True)
 
 
 def one_hot(y, n_classes):
-    return np.eye(n_classes)[y]
+    return torch.eye(n_classes, dtype=torch.long, device=y.device)[y]
 
 
 def cross_entropy(probs, y):
-    selected = probs[np.arange(len(y)), y]
-    return float(-np.log(np.clip(selected, 1e-12, 1.0)).mean())
+    selected = probs.gather(1, y[:, None]).squeeze(1)
+    return -selected.clamp(1e-12, 1.).log().mean()
 
 
 def linear_gradients(X, probs, y):
     residual = probs - one_hot(y, probs.shape[1])
-    return X.T @ residual / len(X), residual.mean(axis=0)
+    return X.T @ residual / len(X), residual.mean(dim=0)
 
 
 def sgd_step(W, b, dW, db, lr):
@@ -58,21 +55,18 @@ def sgd_step(W, b, dW, db, lr):
 
 
 def classification_metrics(probs, y, k):
-    predictions = probs.argmax(axis=1)
-    top_k = np.argsort(-probs, axis=1, kind="stable")[:, :k]
-    C = probs.shape[1]
-    confusion = (one_hot(y, C).T @ one_hot(predictions, C)).astype(int)
-    return {
-        "predictions": predictions,
-        "top_k": top_k,
-        "accuracy": float(np.mean(predictions == y)),
-        "top_k_accuracy": float(np.mean(np.any(top_k == y[:, None], axis=1))),
-        "confusion": confusion,
-    }
+    order = torch.argsort(probs, dim=1, descending=True, stable=True)
+    predictions, top_k = order[:, 0], order[:, :k]
+    classes = probs.shape[1]
+    confusion = torch.bincount(y*classes+predictions, minlength=classes*classes).reshape(classes, classes)
+    return {"predictions": predictions, "top_k": top_k,
+            "accuracy": (predictions == y).sum().item() / len(y),
+            "top_k_accuracy": (top_k == y[:, None]).any(dim=1).sum().item() / len(y),
+            "confusion": confusion}
 
 
 def train_epoch(X, y, W, b, lr, batch_size, seed):
-    W_new, b_new = W.copy(), b.copy()
+    W_new, b_new = W.clone(), b.clone()
     for Xb, yb in make_minibatches(X, y, batch_size, seed):
         probs = softmax(linear_logits(Xb, W_new, b_new))
         dW, db = linear_gradients(Xb, probs, yb)

@@ -2,25 +2,30 @@
   {
     "name": "linear convergence and input preservation",
     "input": "linear convergence and input preservation",
-    "test": "import numpy as np\nX=np.array([[1.],[2.],[3.]])\ny=np.array([2.,4.,6.])\nw,b,h=train_regression(X,y,epochs=3000)\nnp.testing.assert_allclose(w,[2.],atol=1e-6)\nassert abs(b)<1e-6 and h[-1]<1e-12 and len(h)==3001\nnp.testing.assert_array_equal(X,[[1.],[2.],[3.]])\nnp.testing.assert_array_equal(y,[2.,4.,6.])\nprint('ok')\n",
+    "test": "import math\nimport torch\ntorch.set_default_dtype(torch.float64)\n\ndef close(actual, expected, rtol=1e-07, atol=0.0):\n    assert isinstance(actual, torch.Tensor)\n    torch.testing.assert_close(actual, torch.as_tensor(expected, dtype=actual.dtype, device=actual.device), rtol=rtol, atol=atol)\n\ndef equal(actual, expected):\n    close(actual, expected, rtol=0.0, atol=0.0)\nX = torch.tensor([[1.0], [2.0], [3.0]])\ny = torch.tensor([2.0, 4.0, 6.0])\n(w, b, h) = train_regression(X, y, epochs=3000)\nclose(w, [2.0], atol=1e-06)\nassert abs(b) < 1e-06 and h[-1] < 1e-12 and (len(h) == 3001)\nequal(X, [[1.0], [2.0], [3.0]])\nequal(y, [2.0, 4.0, 6.0])\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
     "name": "logistic fit and stable extremes",
     "input": "logistic fit and stable extremes",
-    "test": "import numpy as np\nw,b,h=train_regression([[-2.],[-1.],[1.],[2.]],[0,0,1,1],kind='logistic',epochs=500)\nassert w[0]>2 and abs(b)<1e-12 and h[-1]<.1\nwith np.errstate(over='raise',invalid='raise'):\n w,b,h=train_regression([[-1000.],[1000.]],[0,1],kind='logistic',lr=1,epochs=3)\nassert np.isfinite(h).all()\nprint('ok')\n",
+    "test": "import math\nimport torch\ntorch.set_default_dtype(torch.float64)\n\ndef close(actual, expected, rtol=1e-07, atol=0.0):\n    assert isinstance(actual, torch.Tensor)\n    torch.testing.assert_close(actual, torch.as_tensor(expected, dtype=actual.dtype, device=actual.device), rtol=rtol, atol=atol)\n\ndef equal(actual, expected):\n    close(actual, expected, rtol=0.0, atol=0.0)\n(w, b, h) = train_regression(torch.tensor([[-2.0], [-1.0], [1.0], [2.0]]), torch.tensor([0, 0, 1, 1]), kind='logistic', epochs=500)\nassert w[0] > 2 and abs(b) < 1e-12 and (h[-1] < 0.1)\n(w, b, h) = train_regression(torch.tensor([[-1000.0], [1000.0]]), torch.tensor([0, 1]), kind='logistic', lr=1, epochs=3)\nassert torch.isfinite(torch.tensor(h)).all()\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
     "name": "regularization gradients and loss history",
     "input": "regularization gradients and loss history",
-    "test": "import numpy as np\nw,b,h=train_regression([[1.],[1.]],[2.,2.],lr=.05,epochs=1000,l2=2)\nassert abs(w[0])<1e-6 and abs(b-2)<1e-6 and h[-1]<1e-10\nw,b,h=train_regression([[0.],[0.]],[3.,3.],lr=.05,epochs=1000,l2=5)\nassert abs(w[0])<1e-8 and abs(b-3)<1e-6\nprint('ok')\n",
+    "test": "import math\nimport torch\ntorch.set_default_dtype(torch.float64)\n\ndef close(actual, expected, rtol=1e-07, atol=0.0):\n    assert isinstance(actual, torch.Tensor)\n    torch.testing.assert_close(actual, torch.as_tensor(expected, dtype=actual.dtype, device=actual.device), rtol=rtol, atol=atol)\n\ndef equal(actual, expected):\n    close(actual, expected, rtol=0.0, atol=0.0)\n(w, b, h) = train_regression(torch.tensor([[1.0], [1.0]]), torch.tensor([2.0, 2.0]), lr=0.05, epochs=1000, l2=2)\nassert abs(w[0]) < 1e-06 and abs(b - 2) < 1e-06 and (h[-1] < 1e-10)\n(w, b, h) = train_regression(torch.tensor([[0.0], [0.0]]), torch.tensor([3.0, 3.0]), lr=0.05, epochs=1000, l2=5)\nassert abs(w[0]) < 1e-08 and abs(b - 3) < 1e-06\nprint('ok')\n",
     "expected_output": "ok"
   },
   {
     "name": "constant features zero epochs and early stopping",
     "input": "constant features zero epochs and early stopping",
-    "test": "import numpy as np\nw,b,h=train_regression([[2.,3.]],[1.],epochs=0)\nassert w.shape==(2,) and np.any(w!=0) and np.max(np.abs(w))<.1\nassert b==0 and len(h)==1 and np.isfinite(h[0])\nw,b,h=train_regression([[0.]],[0.],epochs=10,tol=0)\nassert b==0 and h==[0.,0.]\nprint('ok')\n",
+    "test": "import math\nimport torch\ntorch.set_default_dtype(torch.float64)\n\ndef close(actual, expected, rtol=1e-07, atol=0.0):\n    assert isinstance(actual, torch.Tensor)\n    torch.testing.assert_close(actual, torch.as_tensor(expected, dtype=actual.dtype, device=actual.device), rtol=rtol, atol=atol)\n\ndef equal(actual, expected):\n    close(actual, expected, rtol=0.0, atol=0.0)\n(w, b, h) = train_regression(torch.tensor([[2.0, 3.0]]), torch.tensor([1.0]), epochs=0)\nassert w.shape == (2,) and torch.any(w != 0) and (torch.max(torch.abs(w)) < 0.1)\nassert b == 0 and len(h) == 1 and math.isfinite(h[0])\n(w, b, h) = train_regression(torch.tensor([[0.0]]), torch.tensor([0.0]), epochs=10, tol=0)\nassert b == 0 and h == [0.0, 0.0]\nprint('ok')\n",
     "expected_output": "ok"
+  },
+  {
+    "name": "exact first step and objective with L2 on weights only",
+    "input": "compare one epoch against zero-epoch initialization; manual gradients and global RNG isolation",
+    "test": "from contextlib import ExitStack\nfrom unittest.mock import patch\nimport torch\nwith ExitStack() as guards:\n    for target in ('torch.Tensor.backward', 'torch.autograd.grad', 'torch.autograd.backward', 'torch.optim.SGD', 'torch.optim.Adam', 'torch.optim.AdamW'):\n        guards.enter_context(patch(target, side_effect=AssertionError('Derive gradients and update by hand')))\n    for dtype in (torch.float32, torch.float64):\n        X = torch.tensor([[1.0, 9.0, 2.0, 8.0], [-1.0, 7.0, 0.5, 6.0]], dtype=dtype)[:, ::2]\n        for (kind, y) in [('linear', X.new_tensor([2.0, -1.0])), ('logistic', X.new_tensor([1.0, 0.0]))]:\n            state = torch.random.get_rng_state().clone()\n            (w0, b0, h0) = train_regression(X, y, kind=kind, epochs=0, l2=0.7)\n            (w, b, h) = train_regression(X, y, kind=kind, epochs=1, lr=0.03, l2=0.7)\n            assert torch.equal(state, torch.random.get_rng_state())\n            r = 2 * (X @ w0 + b0 - y) if kind == 'linear' else (X @ w0 + b0).sigmoid() - y\n            torch.testing.assert_close(w, w0 - 0.03 * (X.T @ r / len(y) + 0.7 * w0))\n            torch.testing.assert_close(b, b0 - 0.03 * r.mean())\n            z = X @ w + b\n            data = (z - y).square().mean() if kind == 'linear' else (torch.logaddexp(torch.zeros_like(z), z) - y * z).mean()\n            assert len(h) == 2 and all((type(v) is float for v in h))\n            torch.testing.assert_close(X.new_tensor(h[-1]), data + 0.7 * w.square().sum() / 2)\n            assert w.dtype == dtype and b.dtype == dtype and (w.device == X.device) and (b.device == X.device)\n"
   }
 ]

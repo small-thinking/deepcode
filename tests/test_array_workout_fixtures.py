@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+import torch
 
 from deepcode.evaluators import EvaluationRequest, evaluate_submission
 from deepcode.problem_store import ProblemStore
@@ -107,25 +108,26 @@ class ArrayWorkoutFixturesTest(unittest.TestCase):
             self.assertNotRegex(scene["figure"] + scene["equation"], r"NaN|Infinity|undefined")
         return payload["data"]
 
-    def test_numpy_demo_matches_reference_at_control_boundaries(self):
+    def test_manual_torch_demo_matches_reference_at_control_boundaries(self):
         path, _, _ = load(FOLDERS[0])
         scope = {}
         exec((path / "solution.py").read_text(), scope)
         for feature, constant, rate in ((1, False, .2), (-2, True, .05), (6, False, .8)):
             with self.subTest(feature=feature, constant=constant, rate=rate):
                 data = self.demo(FOLDERS[0], dict(feature=feature, rate=rate, row=2, column=1), constant)
-                x = np.asarray(data["x"])
+                x = torch.tensor(data["x"], dtype=torch.float64)
                 mean, scale = scope["fit_standardizer"](x)
                 np.testing.assert_allclose(data["mu"], mean[0])
                 np.testing.assert_allclose(data["scale"], scale[0])
                 z = scope["standardize"](x, mean, scale)
                 np.testing.assert_allclose(data["z"], z)
-                w, b, y = np.array(data["w"]), np.array(data["b"]), np.array(data["y"])
+                w, b = torch.tensor(data["w"], dtype=torch.float64), torch.tensor(data["b"], dtype=torch.float64)
+                y = torch.tensor(data["y"])
                 logits = scope["linear_logits"](z, w, b)
                 p = scope["softmax"](logits)
                 np.testing.assert_allclose(data["logits"], logits)
                 np.testing.assert_allclose(data["p"], p)
-                self.assertAlmostEqual(data["loss"], scope["cross_entropy"](p, y))
+                self.assertAlmostEqual(data["loss"], scope["cross_entropy"](p, y).item())
                 dw, db = scope["linear_gradients"](z, p, y)
                 np.testing.assert_allclose(data["dw"], dw)
                 np.testing.assert_allclose(data["db"], db, atol=1e-15)

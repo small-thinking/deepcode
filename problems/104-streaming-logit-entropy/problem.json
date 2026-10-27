@@ -9,7 +9,8 @@
     "entropy",
     "log-sum-exp",
     "streaming",
-    "numpy"
+    "pytorch",
+    "autograd"
   ],
   "companies": [
     "OpenAI"
@@ -27,29 +28,25 @@
     "stars": 2,
     "synced_at": "2026-09-03"
   },
-  "prompt": "A language-model monitor needs the entropy of a token distribution, even when its logits arrive in blocks.\n\n- `entropy_from_logits(logits)`: given a non-empty 1D list or NumPy array, return the natural-log entropy of its softmax distribution.\n- `streaming_entropy(blocks)`: given an iterable of non-empty 1D logit blocks, return the entropy of the combined distribution using `O(1)` extra state besides the current block. Do not retain all logits.\n\nBoth functions must remain numerically stable for large logits. Reject empty input or an empty block; `assert` is sufficient. NumPy is available.",
-  "starter_code": "import numpy as np\n\n\ndef entropy_from_logits(logits):\n    # Return the softmax entropy using a stable log-sum-exp computation.\n    pass\n\n\ndef streaming_entropy(blocks):\n    # Return the same entropy while consuming one block at a time.\n    pass\n",
+  "prompt": "A language-model monitor needs entropy even when logits arrive in blocks. Implement both functions with PyTorch:\n\n- `entropy_from_logits(logits)`: return the natural-log entropy of the softmax of a non-empty 1D input.\n- `streaming_entropy(blocks)`: return the entropy of the combined distribution from a single-pass iterable of non-empty 1D blocks. Keep only O(1) running scalar statistics besides the current block; do not concatenate or retain all logits.\n\nInputs are finite float32/float64 tensors; array-like inputs may be converted with `torch.as_tensor` (non-floating inputs use the default floating dtype). All blocks share dtype and device after conversion. Return a zero-dimensional tensor preserving that dtype, device, and autograd. Do not mutate inputs or detach results. Autograd may retain intermediates for backward; the O(1) requirement concerns the forward running state.\n\nStay stable for large logits and common offsets, including equal float32 logits of magnitude 1e20. Reject empty input, empty/rank-mismatched blocks, and mixed block dtype/device with `ValueError` or `AssertionError`.",
+  "starter_code": "import torch\n\n\ndef entropy_from_logits(logits):\n    # Return a scalar tensor containing stable softmax entropy.\n    pass\n\n\ndef streaming_entropy(blocks):\n    # Consume blocks once, keeping only running scalar statistics.\n    pass\n",
   "example": {
-    "input": "logits = [0.0, 0.0, 0.0]",
-    "output": "1.098612",
+    "input": "logits = torch.tensor([0.0, 0.0, 0.0])",
+    "output": "tensor(1.0986)",
     "reasoning": "Uniform logits produce a uniform distribution over three classes, whose natural-log entropy is log(3)."
   },
   "environment": {
     "language": "python",
-    "timeout_seconds": 2,
+    "timeout_seconds": 15,
     "packages": [
-      "numpy"
+      "torch"
     ],
-    "comparator": "numeric"
+    "comparator": "assertions"
   },
   "references": [
     {
-      "label": "NumPy: exp",
-      "url": "https://numpy.org/doc/stable/reference/generated/numpy.exp.html"
-    },
-    {
-      "label": "NumPy: log",
-      "url": "https://numpy.org/doc/stable/reference/generated/numpy.log.html"
+      "label": "PyTorch tensor operations",
+      "url": "https://docs.pytorch.org/docs/stable/torch.html"
     },
     {
       "label": "Original interview report: 1Point3Acres 1177444",
@@ -65,7 +62,7 @@
     }
   ],
   "evaluation": {
-    "type": "ml_coding"
+    "type": "ml_torch_modeling"
   },
   "created_at": "2026-06-13"
 }
