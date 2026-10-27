@@ -68,20 +68,6 @@ class ImagePredictionService:
         return prediction
 
 
-def binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction="mean"):
-    labels = np.asarray(labels)
-    probabilities = np.asarray(probabilities, dtype=float)
-    positive = labels == 1
-    p_t = np.where(positive, probabilities, 1.0 - probabilities)
-    alpha_t = np.where(positive, float(alpha), 1.0 - float(alpha))
-    losses = -alpha_t * (1.0 - p_t) ** float(gamma) * np.log(p_t)
-    if reduction == "none":
-        return losses
-    if reduction == "sum":
-        return float(losses.sum())
-    return float(losses.mean())
-
-
 def grouped_query_attention(query, key, value):
     try:
         query = np.asarray(query, dtype=float)

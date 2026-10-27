@@ -38,7 +38,7 @@ class CanvaDatadogLumaCodingGapFixtureTest(unittest.TestCase):
                         imports.append(node.module or "")
                 self.assertFalse(any(name.split(".")[0] == "torch" for name in imports))
                 checked += 1
-        self.assertEqual(checked, 7)
+        self.assertEqual(checked, 6)
 
     def test_reference_solution_passes_every_coding_contract(self):
         store = ProblemStore(ROOT / "problems")
@@ -47,7 +47,8 @@ class CanvaDatadogLumaCodingGapFixtureTest(unittest.TestCase):
                 problem = store.get_problem(slug)
                 result = evaluate_submission(
                     EvaluationRequest(
-                        code=REFERENCE_SOLUTION,
+                        code=((ROOT / "tests/reference_solutions/binary_focal_loss.py").read_text()
+                              if slug == "binary-focal-loss" else REFERENCE_SOLUTION),
                         problem=problem,
                         tests=problem["tests"],
                         environment=problem["environment"],

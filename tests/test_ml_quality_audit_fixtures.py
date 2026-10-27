@@ -24,7 +24,7 @@ def run_cases(directory, source):
 class MLQualityAuditFixtures(unittest.TestCase):
     def test_reference_implementations_pass_remaining_contracts(self):
         for directory, source in (
-            ('366-binary-focal-loss', NUMPY_REFERENCE),
+            ('366-binary-focal-loss', (ROOT / 'tests/reference_solutions/binary_focal_loss.py').read_text()),
             ('367-grouped-query-attention', NUMPY_REFERENCE),
         ):
             with self.subTest(directory=directory):

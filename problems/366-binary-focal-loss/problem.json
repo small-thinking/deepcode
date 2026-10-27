@@ -5,7 +5,7 @@
   "category": "ML Coding",
   "difficulty": "medium",
   "tags": [
-    "numpy",
+    "pytorch",
     "loss-functions",
     "classification",
     "numerical-stability"
@@ -27,18 +27,18 @@
     "stars": 1,
     "synced_at": "2026-10-04"
   },
-  "prompt": "Implement `binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\")` using NumPy.\n\nYou may assume `labels` and `probabilities` are non-empty numeric arrays with the same shape; labels are 0 or 1, probabilities are strictly between 0 and 1, `0 < alpha < 1`, and `gamma > 0`. `reduction` is one of `\"none\"`, `\"sum\"`, or `\"mean\"`. Input validation is not required.\n\nFor each element, let `p_t = p` and `alpha_t = alpha` when the label is 1; otherwise let `p_t = 1-p` and `alpha_t = 1-alpha`. Return the focal loss `-alpha_t * (1-p_t)**gamma * log(p_t)`. With `reduction=\"none\"`, return the same-shape array of per-element losses. With `\"sum\"` or `\"mean\"`, return the corresponding scalar reduction.",
-  "starter_code": "import numpy as np\n\n\ndef binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\"):\n    pass\n",
+  "prompt": "Implement `binary_focal_loss(labels, probabilities, alpha=0.25, gamma=2.0, reduction=\"mean\")` using PyTorch tensor operations. Inputs are probabilities, not logits.\n\nAssume valid inputs: nonempty tensors of the same shape on the same device; labels contain 0 or 1 (boolean, integer, or floating); probabilities are float32/float64 and strictly between 0 and 1; `0 < alpha < 1`, `gamma > 0`. Alpha and gamma are Python scalars. `reduction` is `\"none\"`, `\"sum\"`, or `\"mean\"`. Input validation is not assessed.\n\nFor each element, select `p_t = p`, `alpha_t = alpha` for label 1; otherwise use `p_t = 1-p`, `alpha_t = 1-alpha`. The loss is `-alpha_t * (1-p_t)**gamma * log(p_t)`.\n\nReturn a Tensor with the probabilities' dtype/device: the same shape for `\"none\"`, or a scalar `()` for `\"sum\"`/`\"mean\"`, reducing over every element. Preserve autograd to probabilities and do not modify inputs. Support noncontiguous tensors. Use stable logarithms near 0 and 1 without clipping probabilities or adding epsilon; tested losses and gradients are representable. Implement the formula yourself; do not call a ready-made focal loss.\n\nFollow-ups: How do alpha and gamma affect easy versus hard examples? Why is this different from passing logits to a loss?",
+  "starter_code": "import torch\n\n\ndef binary_focal_loss(labels: torch.Tensor, probabilities: torch.Tensor,\n                      alpha=0.25, gamma=2.0, reduction=\"mean\") -> torch.Tensor:\n    # Preserve shape for \"none\", dtype/device, and gradients to probabilities.\n    raise NotImplementedError\n",
   "example": {
-    "input": "binary_focal_loss([1, 0], [0.9, 0.2], alpha=0.25, gamma=2.0, reduction='none')",
-    "output": "a length-two NumPy array of per-example focal losses",
-    "reasoning": "For each label, select its probability and class weight before applying the focal scaling factor."
+    "input": "binary_focal_loss(torch.tensor([1, 0]), torch.tensor([0.9, 0.2]), reduction='none')",
+    "output": "tensor([0.0003, 0.0067])",
+    "reasoning": "The positive term is -0.25 * 0.1**2 * log(0.9); the negative term is -0.75 * 0.2**2 * log(0.8)."
   },
   "environment": {
     "language": "python",
-    "timeout_seconds": 3,
+    "timeout_seconds": 15,
     "packages": [
-      "numpy"
+      "torch"
     ],
     "comparator": "assertions"
   },
@@ -49,7 +49,7 @@
     }
   ],
   "evaluation": {
-    "type": "ml_modeling"
+    "type": "ml_torch_modeling"
   },
   "created_at": "2026-09-02"
 }
