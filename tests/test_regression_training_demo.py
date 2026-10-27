@@ -12,7 +12,11 @@ class RegressionTrainingDemoTests(unittest.TestCase):
         problem = json.loads((PROBLEM_DIR / "problem.json").read_text(encoding="utf-8"))
         prompt = problem["prompt"]
 
-        self.assertIn("Initialize the weights to small random values", prompt)
+        self.assertIn("Initialize the weights randomly", prompt)
+        self.assertIn("the bias may be zero or random", prompt)
+        self.assertIn("Any random-number generator and initialization scale are allowed", prompt)
+        self.assertNotIn("small random values", prompt)
+        self.assertNotIn("Use an independent random generator", prompt)
         self.assertIn("implement backpropagation yourself", prompt)
         self.assertNotIn("Reconstructed executable contract", prompt)
         self.assertNotIn("Inputs are finite array-like", prompt)
@@ -46,8 +50,8 @@ class RegressionTrainingDemoTests(unittest.TestCase):
             "db = dz.mean()",
             "w = w - lr * dw",
             "b = b - lr * db",
-            "g = torch.Generator().manual_seed(0)",
-            "w = (torch.randn(D, generator=g) * 0.01).to(X)",
+            "w = torch.randn(D, dtype=X.dtype, device=X.device)",
+            "b = torch.randn((), dtype=X.dtype, device=X.device)",
             "Bias is not regularized",
             "type: 'deepcode:interactive-demo-ready'",
             "type: 'deepcode:interactive-demo-height'",

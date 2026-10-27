@@ -2,9 +2,8 @@ import torch
 
 
 def train_regression(X, y, kind="linear", lr=0.05, epochs=1000, l2=0.0, tol=None):
-    generator = torch.Generator().manual_seed(0)
-    w = (torch.randn(X.shape[1], generator=generator, dtype=X.dtype) * .01).to(X.device)
-    b = X.new_zeros(())
+    w = torch.randn(X.shape[1], dtype=X.dtype, device=X.device)
+    b = torch.randn((), dtype=X.dtype, device=X.device)
 
     def loss():
         z = X @ w + b
