@@ -58,15 +58,15 @@ class TorchStreamingAttentionContractTest(unittest.TestCase):
             ('dense', '''import torch
 import math
 def blockwise_attention(Q,K,V,block_size):
-    return (Q@K.T/math.sqrt(Q.shape[1])).softmax(-1)@V
+    return (Q@K.transpose(-2,-1)/math.sqrt(Q.shape[-1])).softmax(-1)@V
 ''', guard_case),
             ('SDPA', '''import torch
 def blockwise_attention(Q,K,V,block_size):
-    return torch.nn.functional.scaled_dot_product_attention(Q[None,None],K[None,None],V[None,None])[0,0]
+    return torch.nn.functional.scaled_dot_product_attention(Q,K,V)
 ''', guard_case),
             ('tile-local normalization', reference.replace(
-                'tile_weights = (scores - new_maximum).exp()',
-                'tile_weights = scores.softmax(dim=1)',
+                'p = torch.exp(scores - new_m)',
+                'p = scores.softmax(dim=-1)',
             ), 'matches a stable dense reference'),
         )
         for name, source, case in variants:
