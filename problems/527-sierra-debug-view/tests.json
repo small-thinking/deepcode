@@ -1,0 +1,72 @@
+[
+  {
+    "name": "[Part 1] Unsorted and touching chunks",
+    "input": "agent = [(10, 20, B), (0, 10, A), (30, 35, C)]",
+    "test": "actual = merge_chunks([(10, 20, 'B'), (0, 10, 'A'), (30, 35, 'C')], [(5, 8, 'U')], [])\nassert actual == [\n    {'role': 'agent', 'start': 0, 'end': 20, 'text': 'A B'},\n    {'role': 'user', 'start': 5, 'end': 8, 'text': 'U'},\n    {'role': 'agent', 'start': 30, 'end': 35, 'text': 'C'},\n]"
+  },
+  {
+    "name": "[Part 1] Nested intervals and stable text order",
+    "input": "same endpoints, nested intervals, and a later touching chunk",
+    "test": "actual = merge_chunks([(0, 10, 'A'), (0, 10, 'B'), (2, 3, 'C'), (10, 12, 'D')], [], [])\nassert actual == [{'role': 'agent', 'start': 0, 'end': 12, 'text': 'A B C D'}]"
+  },
+  {
+    "name": "[Part 1] Equal-start role order without cross-role merging",
+    "input": "all roles start at zero",
+    "test": "assert merge_chunks([(0, 4, 'A')], [(0, 8, 'U')], [(0, 2, 'T')]) == [\n    {'role': 'user', 'start': 0, 'end': 8, 'text': 'U'},\n    {'role': 'agent', 'start': 0, 'end': 4, 'text': 'A'},\n    {'role': 'tool', 'start': 0, 'end': 2, 'text': 'T'},\n]"
+  },
+  {
+    "name": "[Part 1] Empty lists and tool-only input",
+    "input": "empty input; isolated tool chunks",
+    "test": "assert merge_chunks([], [], []) == []\nassert merge_chunks([], [], [(8, 9, 'b'), (2, 4, 'a')]) == [\n    {'role': 'tool', 'start': 2, 'end': 4, 'text': 'a'},\n    {'role': 'tool', 'start': 8, 'end': 9, 'text': 'b'},\n]"
+  },
+  {
+    "name": "[Part 2] First interior user start interrupts",
+    "input": "agent [10, 30), users [20, 21), [25, 26)",
+    "test": "merged = merge_chunks([(10, 30, 'A')], [(25, 26, 'later'), (20, 21, 'first')], [(15, 18, 'T')])\nactual = mark_interruptions(merged)\nassert actual == [\n    {'role': 'agent', 'start': 10, 'end': 20, 'text': 'A ... [INTERRUPTED]', 'interrupted': True},\n    {'role': 'tool', 'start': 15, 'end': 18, 'text': 'T', 'interrupted': False},\n    {'role': 'user', 'start': 20, 'end': 21, 'text': 'first', 'interrupted': False},\n    {'role': 'user', 'start': 25, 'end': 26, 'text': 'later', 'interrupted': False},\n]"
+  },
+  {
+    "name": "[Part 2] Already speaking and endpoint ties are not interruptions",
+    "input": "earlier user overlap, same start, or agent-end start",
+    "test": "for user in [(5, 15, 'earlier'), (10, 15, 'same start'), (20, 25, 'at end')]:\n    actual = mark_interruptions(merge_chunks([(10, 20, 'A')], [user], []))\n    agent = next(item for item in actual if item['role'] == 'agent')\n    assert agent == {'role': 'agent', 'start': 10, 'end': 20, 'text': 'A', 'interrupted': False}"
+  },
+  {
+    "name": "[Part 2] Each agent is checked independently",
+    "input": "two agents interrupted by distinct user starts",
+    "test": "actual = mark_interruptions(merge_chunks([(0, 10, 'A'), (20, 30, 'B')], [(5, 6, 'U'), (25, 26, 'V')], []))\nagents = [item for item in actual if item['role'] == 'agent']\nassert [item['end'] for item in agents] == [5, 25]\nassert all(item['interrupted'] for item in agents)"
+  },
+  {
+    "name": "[Part 3] Positive adjacent gap",
+    "input": "user ends at 5; next agent starts at 12",
+    "test": "marked = mark_interruptions(merge_chunks([(12, 20, 'A')], [(0, 5, 'U')], []))\nassert insert_gaps(marked) == [\n    {'role': 'user', 'start': 0, 'end': 5, 'text': 'U', 'interrupted': False},\n    {'role': 'gap', 'start': 5, 'end': 12, 'text': '[7 ms gap]', 'interrupted': False},\n    {'role': 'agent', 'start': 12, 'end': 20, 'text': 'A', 'interrupted': False},\n]"
+  },
+  {
+    "name": "[Part 3] Tool activity breaks adjacency",
+    "input": "user, then tool, then agent",
+    "test": "marked = mark_interruptions(merge_chunks([(12, 20, 'A')], [(0, 5, 'U')], [(6, 8, 'T')]))\nassert insert_gaps(marked) == marked"
+  },
+  {
+    "name": "[Part 3] No gap on touching, overlap, or opposite roles",
+    "input": "zero/negative wait and agent-to-user transitions",
+    "test": "for user, agent in [((0, 10, 'U'), (10, 20, 'A')), ((0, 15, 'U'), (10, 20, 'A')), ((10, 20, 'U'), (0, 5, 'A'))]:\n    marked = mark_interruptions(merge_chunks([agent], [user], []))\n    assert insert_gaps(marked) == marked"
+  },
+  {
+    "name": "[Part 4] Even median ignores other durations",
+    "input": "gap durations 3, 8, with a long tool interval",
+    "test": "chunks = [\n    {'role': 'gap', 'start': 0, 'end': 3, 'text': '[3 ms gap]', 'interrupted': False},\n    {'role': 'tool', 'start': 3, 'end': 103, 'text': 'T', 'interrupted': False},\n    {'role': 'gap', 'start': 103, 'end': 111, 'text': '[8 ms gap]', 'interrupted': False},\n]\nassert thinking_time_p50(chunks) == 5.5"
+  },
+  {
+    "name": "[Part 4] Odd median and duplicate durations",
+    "input": "gap durations 9, 2, 2",
+    "test": "chunks = [dict(role='gap', start=0, end=duration, text=f'[{duration} ms gap]', interrupted=False) for duration in [9, 2, 2]]\nassert thinking_time_p50(chunks) == 2"
+  },
+  {
+    "name": "[All parts] Empty and singleton timelines",
+    "input": "empty pipeline and one agent",
+    "test": "assert mark_interruptions([]) == []\nassert insert_gaps([]) == []\nassert thinking_time_p50([]) == 0\nmarked = mark_interruptions(merge_chunks([(0, 10, 'A')], [], []))\nassert marked == [{'role': 'agent', 'start': 0, 'end': 10, 'text': 'A', 'interrupted': False}]\nassert insert_gaps(marked) == marked\nassert thinking_time_p50(marked) == 0"
+  },
+  {
+    "name": "[All parts] Pipeline example and input preservation",
+    "input": "all stages preserve inputs and produce gap P50 of 5",
+    "test": "from copy import deepcopy\nagent, user, tool = [(10, 20, 'Hello')], [(15, 16, 'Wait'), (0, 5, 'Hi')], []\noriginal = deepcopy((agent, user, tool))\nmerged = merge_chunks(agent, user, tool)\nassert (agent, user, tool) == original\nbefore = deepcopy(merged)\nmarked = mark_interruptions(merged)\nassert merged == before\nbefore_marked = deepcopy(marked)\ntimeline = insert_gaps(marked)\nassert marked == before_marked\nassert [item['role'] for item in timeline] == ['user', 'gap', 'agent', 'user']\nassert [item['end'] for item in timeline] == [5, 10, 15, 16]\nbefore_timeline = deepcopy(timeline)\nassert thinking_time_p50(timeline) == 5\nassert timeline == before_timeline\nmarked[0]['text'] = 'changed'\nassert merged == before\nassert timeline == before_timeline"
+  }
+]
