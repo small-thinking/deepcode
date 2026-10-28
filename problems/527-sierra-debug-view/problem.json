@@ -1,0 +1,66 @@
+{
+  "id": "527",
+  "slug": "sierra-debug-view",
+  "title": "Conversation Debug View: Merge, Interruptions, Gaps, and P50",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "intervals",
+    "sorting",
+    "merge",
+    "conversation",
+    "median"
+  ],
+  "companies": [
+    "Sierra"
+  ],
+  "interview_frequency": {
+    "Sierra": {
+      "stars": 2,
+      "source_record_ids": [
+        "3ef6ce51456d818486bbecbd0af00265"
+      ],
+      "synced_at": "2026-10-28"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-28"
+  },
+  "prompt": "Implement four functions to build a chronological debug view of a conversation. This is a batch-processing coding exercise; no UI is required.\n\nInputs are three lists of `(start, end, text)` chunks for agent, user, and tool activity. Times are nonnegative integer milliseconds with `start < end`; intervals are half-open `[start, end)`. Text is a nonempty string. Assume valid input. Never mutate an input list or dictionary.\n\n### Part 1 — `merge_chunks(agent_chunks, user_chunks, tool_chunks)`\n\nReturn dictionaries with exactly `role`, `start`, `end`, and `text`; roles are `user`, `agent`, or `tool`.\n\n- Within each role, sort by `(start, end)` stably, then merge touching or overlapping intervals. Keep the maximum end and join their original texts with one space in that sorted order.\n- Do not merge across roles. Order the combined result by start; equal starts use `user`, then `agent`, then `tool`.\n\n### Part 2 — `mark_interruptions(chunks)`\n\nTake Part 1's result. Return copies with an additional `interrupted` boolean, initially `False` for every entry.\n\nFor each agent interval, find the earliest user start **strictly inside** its original interval: `agent.start < user.start < agent.end`. If one exists, truncate the agent's end to that start, append exactly `\" ... [INTERRUPTED]\"` to its text, and set its flag to `True`. A user already speaking, starting simultaneously, or starting at the agent's end does not interrupt it. Keep every entry and its order; do not remerge afterward.\n\n### Part 3 — `insert_gaps(chunks)`\n\nTake Part 2's result. Between **adjacent entries** that are user then agent, insert a gap only if `agent.start > user.end`. Its fields are `role=\"gap\"`, `start=user.end`, `end=agent.start`, `text=\"[D ms gap]\"` with the integer duration replacing `D`, and `interrupted=False`. Tool activity or any other intervening entry breaks adjacency. Preserve the existing entries and order; do not resort.\n\n### Part 4 — `thinking_time_p50(chunks)`\n\nTake Part 3's result. Return the median of inserted gap durations only. For an even count, average the two middle values; with no gaps return `0`. Ignore all user, agent, and tool durations. Empty input is valid for every function.\n\nAim for `O(N log N)` total time and `O(N)` space for the batch pipeline, where `N` is the number of input chunks.\n\nFollow-up: replace the final sort with a heap-based multiway merge. For live arrival, what ordering guarantees, progress bounds, and end-of-stream signals are needed before emitting a chunk safely?",
+  "starter_code": "def merge_chunks(agent_chunks, user_chunks, tool_chunks):\n    pass\n\n\ndef mark_interruptions(chunks):\n    pass\n\n\ndef insert_gaps(chunks):\n    pass\n\n\ndef thinking_time_p50(chunks):\n    pass\n",
+  "example": {
+    "input": "merged = merge_chunks([(10, 20, 'Hello')], [(0, 5, 'Hi'), (15, 16, 'Wait')], [])\ntimeline = insert_gaps(mark_interruptions(merged))\n(timeline, thinking_time_p50(timeline))",
+    "output": "([{'role': 'user', 'start': 0, 'end': 5, 'text': 'Hi', 'interrupted': False},\n  {'role': 'gap', 'start': 5, 'end': 10, 'text': '[5 ms gap]', 'interrupted': False},\n  {'role': 'agent', 'start': 10, 'end': 15, 'text': 'Hello ... [INTERRUPTED]', 'interrupted': True},\n  {'role': 'user', 'start': 15, 'end': 16, 'text': 'Wait', 'interrupted': False}], 5)",
+    "reasoning": "The user at 15 interrupts the agent. The earlier adjacent user-to-agent gap lasts 5 ms; it is the only sample for P50."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "Canonical question, reported stages, and provenance",
+      "url": "https://app.notion.com/p/3ef6ce51456d818486bbecbd0af00265"
+    },
+    {
+      "label": "Original Debug View report and candidate follow-up",
+      "url": "https://www.1point3acres.com/bbs/thread-1155857-1-1.html"
+    },
+    {
+      "label": "Gap representation discussion",
+      "url": "https://www.1point3acres.com/bbs/thread-1155857-2-1.html"
+    },
+    {
+      "label": "Reference solution for this practice contract",
+      "url": "https://github.com/small-thinking/deepcode/blob/main/tests/reference_solutions/sierra_debug_view.py"
+    }
+  ],
+  "background_note": "Candidate reports support four stages: merging conversation chunks, interruptions, gap messages, and P50 thinking time. The user-supplied Sierra.md expands those stages. The exact API and edge rules were not published. Half-open intervals, same-role touching merges, stable text/tie order, strictly interior user starts, clipping and suffix format, adjacent-only gaps, median population, no-gap zero, and nonmutation are explicit local practice conventions, not verbatim interviewer requirements. This differs from Ordered Integer, Multiples, and Merge Streams: it changes intervals and annotates a conversation timeline. Live streaming is a discussion follow-up, not a tested API. The reference corrects the study file shortcut that could truncate an agent before its start.",
+  "created_at": "2026-10-28"
+}
