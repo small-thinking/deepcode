@@ -1180,78 +1180,7 @@ def cd(current_dir, new_dir, home="/home/me", links=None, home_map=None):
 
     def test_markdown_header_chunker_reference_solution_passes(self):
         problem = ProblemStore(ROOT / "problems").get_problem("markdown-header-chunker")
-        solution = r"""def _heading_level(line):
-    stripped = line.lstrip()
-    if len(stripped) == len(line) and stripped.startswith("#"):
-        hashes = len(stripped) - len(stripped.lstrip("#"))
-        if 1 <= hashes <= 6 and len(stripped) > hashes and stripped[hashes] == " ":
-            return hashes
-    return 0
-
-
-def _header_context(headers):
-    return "\n".join(headers) + "\n\n" if headers else ""
-
-
-def _append_piece(chunks, piece, headers, max_chars):
-    if not piece:
-        return
-    context = _header_context(headers)
-    if len(context) > max_chars:
-        raise ValueError("header context does not fit")
-    if len(piece) <= max_chars:
-        chunks.append(piece)
-        return
-    if not context:
-        for start in range(0, len(piece), max_chars):
-            chunks.append(piece[start:start + max_chars])
-        return
-    budget = max_chars - len(context)
-    if budget <= 0:
-        raise ValueError("header context does not fit")
-    body = piece[len(context):] if piece.startswith(context) else piece
-    for start in range(0, len(body), budget):
-        chunks.append(context + body[start:start + budget])
-
-
-def chunk_markdown(markdown, max_chars):
-    if max_chars <= 0:
-        raise ValueError("max_chars must be positive")
-    markdown = markdown.replace("\r\n", "\n").replace("\r", "\n")
-    blocks = markdown.split("\n\n") if markdown else []
-    chunks = []
-    current = ""
-    headers = []
-    in_fence = False
-
-    for block in blocks:
-        lines = block.split("\n")
-        for line in lines:
-            if line.startswith("```"):
-                in_fence = not in_fence
-            level = 0 if in_fence else _heading_level(line)
-            if level:
-                headers = headers[: level - 1] + [line]
-        prefix = "" if not current else "\n\n"
-        candidate = current + prefix + block if current else block
-        if len(candidate) <= max_chars:
-            current = candidate
-            continue
-        headers_only = current == "\n".join(headers)
-        if current and not headers_only:
-            _append_piece(chunks, current, headers, max_chars)
-        context = _header_context(headers)
-        next_piece = block if block in headers else context + block
-        if len(next_piece) <= max_chars:
-            current = next_piece
-        else:
-            _append_piece(chunks, next_piece, headers, max_chars)
-            current = ""
-
-    if current:
-        _append_piece(chunks, current, headers, max_chars)
-    return chunks
-"""
+        solution = (ROOT / "problems/121-markdown-header-chunker/solution.py").read_text()
 
         result = evaluate_submission(
             EvaluationRequest(
@@ -1263,7 +1192,7 @@ def chunk_markdown(markdown, max_chars):
             )
         )
 
-        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["status"], "passed", result)
         self.assertEqual(result["passed"], len(problem["tests"]))
 
     def test_bootloader_instruction_interpreter_reference_solution_passes(self):
