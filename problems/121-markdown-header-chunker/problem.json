@@ -27,12 +27,12 @@
     "stars": 1,
     "synced_at": "2026-09-03"
   },
-  "prompt": "Implement `chunk_markdown(markdown, max_chars)`.\n\nSplit a Markdown document into chunks whose Python `len()` is at most `max_chars`. Normalize CRLF and CR newlines to LF before processing.\n\nUse ATX headings (`#` through `######`) to maintain a level-aware active header stack. Ignore heading-looking lines inside fenced code blocks delimited by lines starting with triple backticks. When a new chunk starts inside a section, prefix the active headers in order, followed by a blank line, so the chunk keeps section context. This synthetic header context counts toward `max_chars`.\n\nPrefer splitting on blank-line paragraph boundaries. If a paragraph or line is too large, split it by character budget and repeat the active header context for every continuation chunk. If the required header context alone cannot fit in `max_chars`, raise an error. If `max_chars <= 0`, raise an error.\n\nInvalid inputs may be rejected with `assert`.",
+  "prompt": "Split a Markdown document into smaller pieces without losing which section each piece belongs to.\n\nImplement `chunk_markdown(markdown, max_chars) -> list[str]`. Return chunks in document order; each string can contain multiple lines and must have Python `len()` at most `max_chars`.\n\nIf a section continues in a new chunk, repeat its parent headings and current heading, one per line, then a blank line before the body. For example, text under `# Guide` / `## Install` needs both headings. After `## Usage`, use Guide / Usage instead. Repeated headings and newlines count toward the limit.\n\nFor this exercise:\n- Recognize `#` through `######` headings; ignore them inside code fences delimited by lines starting with triple backticks.\n- Prefer splitting between paragraphs (blank lines). If a paragraph or line cannot fit, split by character budget, repeating its headings on every continuation.\n- Normalize CRLF and CR to LF before splitting.\n- Raise an error if `max_chars <= 0` or required headings plus their separator leave no room for body text. `assert` is allowed.",
   "starter_code": "def chunk_markdown(markdown, max_chars):\n    # Return size-bounded Markdown chunks with active header context repeated.\n    pass\n",
   "example": {
-    "input": "markdown = '# Guide\\n\\n## Install\\n\\nFirst paragraph.\\n\\nSecond paragraph.', max_chars = 40",
-    "output": "['# Guide\\n\\n## Install\\n\\nFirst paragraph.', '# Guide\\n## Install\\n\\nSecond paragraph.']",
-    "reasoning": "The second chunk starts inside the Install section, so it repeats the active parent headers."
+    "input": "markdown = \"\"\"# Guide\n\n## Install\n\nFirst paragraph.\n\nSecond paragraph.\"\"\"\nmax_chars = 40",
+    "output": "[\n    \"\"\"# Guide\n\n## Install\n\nFirst paragraph.\"\"\",\n    \"\"\"# Guide\n## Install\n\nSecond paragraph.\"\"\"\n]",
+    "reasoning": "Two chunks, each 37 characters including newlines. Each list element is one multiline string. The second repeats # Guide and ## Install so its paragraph keeps the same section context."
   },
   "environment": {
     "language": "python",
