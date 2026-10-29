@@ -1,0 +1,49 @@
+{
+  "id": "532",
+  "slug": "atlassian-cross-product-rag",
+  "title": "Design Cross-Product Jira and Confluence Q&A",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "rag",
+    "retrieval",
+    "chatbot",
+    "enterprise"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "People use both Jira and Confluence to get their work done. Design a simple retrieval-augmented generation system that can answer questions using information from both products.\n\nStart by clarifying what users can ask and what an answer should contain. Walk through the data and request paths, then explain how you would know whether the system works.\n\n**Next round:** extend the idea to an internal chatbot that can access internal company data. Explain what you would reuse and what new decisions the chatbot introduces.\n\nNo corpus size, traffic, latency target or model is supplied. Ask for the assumptions that change your design, state a working scope, and justify the trade-offs. A written architecture and evaluation plan are expected; no code is required.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1166078",
+      "url": "https://www.1point3acres.com/bbs/thread-1166078-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d81df9811cc04f42a312e"
+    }
+  ],
+  "background_note": "The P50/MLSE candidate reports a short cross-product Jira/Confluence RAG exercise and a later internal-data chatbot design. Those are retained as two discussion stages of this family, not asserted to have identical requirements. Scale, permissions, model choices and evaluation details in the reference answer are proposed design decisions, not recovered interviewer constraints.",
+  "created_at": "2026-10-29",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions and state your assumptions. Then describe your design, evaluation, failure handling and trade-offs.",
+    "reference_answer": "## Clarify the answer contract\n\nAsk who uses the system, which Jira entities and Confluence spaces are connected, whether questions span both sources, and whether the chatbot is read-only. Distinguish finding a known issue from synthesizing a project status. For a working design, return an answer with source links or an explicit insufficient-evidence response. Do not invent a numerical scale requirement.\n\n## Data path\n\nConnectors ingest pages, issues and relevant comments with stable source IDs, versions, timestamps and access metadata. Keep source structure and links when chunking; an issue title/status and a page heading often carry useful context. Build lexical and embedding indexes with source filters. Incremental updates handle edits, deletions and permission changes; a full rebuild remains available for recovery. Track the indexed source version so stale answers can be diagnosed.\n\n## Request path\n\nAuthenticate the user and derive the accessible corpus server-side. Retrieve lexical and semantic candidates across sources, merge by source identity, optionally rerank, and provide a bounded evidence set to the generator. Link claims to passages and preserve source timestamps. Ask for clarification when the project or entity is ambiguous. A direct lookup can bypass generation. Never rely on the language model to decide which documents the user may access.\n\n## Evaluate and operate\n\nCreate representative single-source and cross-source questions with judged supporting passages. Measure retrieval recall separately from supported-answer quality, citations, abstention, freshness, latency and cost. Include contradictory and deleted documents and users with different permissions. Run a small user trial to measure task success rather than treating fluent answers as evidence. Version the index, model and prompts; trace retrieval failures separately from synthesis failures. A degraded path can return authorized search results when generation times out.\n\n## Extend to the chatbot\n\nAdd bounded conversation context and reference resolution, such as what “that issue” means in the next turn. Reuse the retrieval backend; do not assume a chat interface requires an autonomous multi-step agent. If users need other internal data, define a typed read-only tool and its permission boundary. Refresh permissions on each request and keep caches scoped to identity and corpus version. Discuss memory lifetime, ambiguity and session cost before adding persistent memory or actions.\n"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d81df9811cc04f42a312e"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-29"
+  }
+}

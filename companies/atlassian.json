@@ -1,0 +1,47 @@
+{
+  "slug": "atlassian",
+  "name": "Atlassian",
+  "summary": "Jira and Confluence maker; this profile links source-backed MLE/MLSE coding and ML system design practice.",
+  "stage": {
+    "company_state": "Company status not independently verified",
+    "funding_stage": "Not recorded in Opportunity 2026"
+  },
+  "links": [
+    {
+      "label": "Official engineering interview handbook",
+      "url": "https://www.atlassian.com/company/careers/resources/interviewing/engineering"
+    },
+    {
+      "label": "Opportunity 2026 interview collection",
+      "url": "https://app.notion.com/p/4086ce51456d8187af5ef5b08832efd6"
+    }
+  ],
+  "interview_process": {
+    "evidence_tier": "Official general engineering format plus role-specific candidate reports",
+    "summary": "The official general engineering handbook distinguishes data structures, code design and systems design. MLE/MLSE reports add ML design and project-depth discussions; a fixed loop is not established for every team.",
+    "stages": [
+      {
+        "name": "Coding and design",
+        "signal": "Practice follows the reported task and progressive follow-ups; a round labeled ML coding may still ask a generic data-structure task.",
+        "evidence_tier": "Original MLE/MLSE reports; not a universal team-specific process",
+        "sources": [
+          {
+            "label": "MLE P40 report",
+            "url": "https://www.1point3acres.com/bbs/thread-1160189-1-1.html"
+          },
+          {
+            "label": "Official general engineering handbook",
+            "url": "https://www.atlassian.com/company/careers/resources/interviewing/engineering"
+          }
+        ]
+      }
+    ]
+  },
+  "references": [
+    {
+      "label": "Official engineering interview handbook",
+      "url": "https://www.atlassian.com/company/careers/resources/interviewing/engineering"
+    }
+  ],
+  "updated_at": "2026-10-29"
+}

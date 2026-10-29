@@ -1,0 +1,60 @@
+{
+  "id": "529",
+  "slug": "atlassian-tennis-court-assignment",
+  "title": "Assign Tennis Bookings to Courts",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "intervals",
+    "scheduling",
+    "heap"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "A tennis club receives a list of bookings, each with a start and finish time. There is no fixed limit on courts. Return a plan assigning every booking to one court so that no court has overlapping bookings, using as few courts as possible.\n\n**Part 1.** Implement `assign_courts(bookings, maintenance=0) -> list[int]`. Return the court ID for each booking in its original input order. Court IDs are consecutive integers starting at 0; any valid minimum-court plan is accepted. The input may be unsorted and must not be modified.\n\n**Part 2.** A court now needs `maintenance` units of time after each booking. Extend your solution so the next booking on that court starts at or after `finish + maintenance`.\n\nPractice agreement: bookings are integer pairs `(start, finish)` with `start < finish`; maintenance is a nonnegative integer. Intervals are half-open, so a court is reusable exactly at its release time. Empty input returns `[]`.\n\n| Bookings | Maintenance | One optimal plan |\n| --- | --- | --- |\n| `[(0, 10), (5, 7), (10, 12)]` | `0` | `[0, 1, 0]` |\n| `[(0, 10), (5, 7), (10, 12)]` | `3` | `[0, 1, 1]` |\n\nExplain why your plan uses the minimum number of courts and give its time and space complexity.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1160189",
+      "url": "https://www.1point3acres.com/bbs/thread-1160189-1-1.html"
+    },
+    {
+      "label": "Original MLE/MLSE interview report — 1166078",
+      "url": "https://www.1point3acres.com/bbs/thread-1166078-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d81789555fca260c6faf0"
+    }
+  ],
+  "background_note": "The original MLE report asks for a minimum-court assignment and maintenance after a booking. The function signature, integer representation, original-order output, half-open equality rule and consecutive IDs are local executable conventions. No particular assignment or tie-break is required. A third maintenance-by-accumulated-usage stage from secondary preparation pages was not established by these original reports and is not required.",
+  "created_at": "2026-10-29",
+  "starter_code": "def assign_courts(bookings, maintenance=0):\n    pass\n",
+  "example": {
+    "input": "assign_courts([(0, 10), (5, 7), (10, 12)])",
+    "output": "[0, 1, 0]  # one valid answer",
+    "reasoning": "The first two bookings overlap. The third can reuse a court at time 10."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d81789555fca260c6faf0"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-29"
+  }
+}

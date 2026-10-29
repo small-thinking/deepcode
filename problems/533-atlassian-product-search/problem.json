@@ -1,0 +1,49 @@
+{
+  "id": "533",
+  "slug": "atlassian-product-search",
+  "title": "Design Search for an Atlassian Product",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "search",
+    "retrieval",
+    "ranking",
+    "evaluation"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "Design a search system for an Atlassian product.\n\nThe starting prompt does not name the product or searchable objects. Ask clarifying questions, then choose a concrete product and search surface as your working example. Make that choice explicit rather than treating it as supplied information.\n\nWalk through how documents become searchable, how a query produces ranked results, and how you would evaluate the system. Explain the assumptions and trade-offs you would discuss with the interviewer. No fixed traffic, corpus size or model is prescribed. This is a written ML system design exercise.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1166398",
+      "url": "https://www.1point3acres.com/bbs/thread-1166398-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d81938bf8ca9d7a622121"
+    }
+  ],
+  "background_note": "The original MLE report supplies only “search for one of the company products” and gives no product, scale or ranking details. This exercise deliberately preserves that open-ended starting point. Selecting Confluence below is an illustrative answer choice, not a recovered prompt. This task returns ranked search results; it does not automatically include the separate answer-augmentation contract.",
+  "created_at": "2026-10-29",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions and state your assumptions. Then describe your design, evaluation, failure handling and trade-offs.",
+    "reference_answer": "## Establish a concrete scope\n\nAsk whether the target is known-item lookup, exploratory discovery, issue search or cross-product search. Choose Confluence page search for this walkthrough and say so. Clarify supported languages, permissions, edits, deletes and whether the user expects keyword or natural-language queries. Estimate corpus size and QPS only after agreeing on a workload; derive which components those estimates stress.\n\n## Index and retrieve\n\nIngest page titles, sections, metadata and access rules with versioned updates. Normalize text, preserve identifiers and headings, and publish searchable snapshots. Start with lexical search for exact names and identifiers. Add semantic retrieval when evaluation shows vocabulary mismatch; hybrid retrieval should justify its cost. Merge candidates by page ID and measure recall independently of later ranking. Track indexing lag and implement deletion/tombstone propagation.\n\n## Rank and serve\n\nRank with query relevance, title/section matches, freshness and permitted user context. Popularity is a feature, not a substitute for relevance, and can amplify exposure bias. A learning-to-rank model can start from judged query-page pairs and carefully interpreted interaction logs. Preserve document access checks before snippets or results leave the service. Cache only with correct permission and index-version scope; use query deadlines and a lexical fallback if embedding or reranking services fail.\n\n## Train and evaluate\n\nSeparate training, validation and evaluation by time and prevent future page features from leaking into past labels. Use human relevance judgments for important query types and log impressions, positions, clicks and reformulations. A click is biased by exposure and does not always mean success. Evaluate recall, NDCG/MRR, no-result rate and task completion, with slices for exact IDs, long queries, new pages and different languages. Online tests need latency and authorization guardrails as well as engagement.\n\n## Follow the failure\n\nFor a bad result, first ask whether the page was ingested, authorized and retrieved, then inspect ranking and presentation. Report component latency, freshness and coverage separately. Roll out index and model changes independently with sampled traces and rollback. If the interviewer switches to another product, revisit entity types, query intent and labels instead of copying the same feature list.\n"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d81938bf8ca9d7a622121"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-29"
+  }
+}

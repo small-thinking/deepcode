@@ -1,0 +1,49 @@
+{
+  "id": "534",
+  "slug": "atlassian-work-log-agent",
+  "title": "Design an Agent for Employee Work-Log Questions",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "agents",
+    "retrieval",
+    "structured-data",
+    "evaluation"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "Design an agentic system that can automatically navigate and query employee work logs.\n\nStart by asking what a work log contains, where it lives, and what questions the user wants answered. Define the output and describe the end-to-end path from a user request to an answer.\n\nExplain when the system should make an exact lookup, search documents, ask a clarification question, or stop. Show how you would test its decisions and answer quality. Tool names, memory, data scale and the orchestration framework are choices for you to justify; none is prescribed by the starting prompt. No code is required.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1154305",
+      "url": "https://www.1point3acres.com/bbs/thread-1154305-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d812aa74ff230d4c66d96"
+    }
+  ],
+  "background_note": "The original candidate reports automatic navigation/querying of employee work logs. Their later response sketch discusses orchestration, retrieval, optional memory and entity parsing, but those are candidate solution choices, not mandatory interviewer follow-ups. The example questions and bounded read-only tool contract in the reference are local design choices.",
+  "created_at": "2026-10-29",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions and state your assumptions. Then describe your design, evaluation, failure handling and trade-offs.",
+    "reference_answer": "## Make the data and question concrete\n\nAsk whether work logs are structured time entries, issue activity, free-text notes or a mixture. A numerical question such as hours recorded last week needs a different path from a summary of work on a project. Clarify who is asking and what employee information they may access. Use read-only access for the first version; modifying logs is a separate product decision.\n\n## Tools and orchestration\n\nResolve employee/project names and time ranges against authoritative identifiers. If two employees have the same name, ask rather than guess. A structured query tool handles exact filters and aggregation. A document-search tool finds relevant narrative entries and returns source IDs and passages. Fetch full authorized entries only when necessary. The orchestrator chooses a short plan, executes typed tools, validates outputs and synthesizes the answer with references and a stated time range.\n\nKeep exact totals in deterministic code or a query engine rather than asking the model to add retrieved snippets. Use retrieval for explanations and summaries. Do not silently interpret “no indexed entry” as “no work happened.” Return missing-data or coverage qualifications where appropriate.\n\n## Control the loop\n\nBound tool calls, response size, elapsed time and token spend. Retry transient failures with a limit; distinguish an empty result from a timeout or permission denial. Retrieved log text is untrusted data and cannot grant tools or change instructions. Enforce authorization in the tools, not in a prompt. Optional session context may help resolve a follow-up pronoun, but persistent memory needs an explicit purpose, retention policy and permission refresh.\n\n## Evaluation\n\nBuild cases with expected employee identity, time range, tool choice, query result and supporting entries. Test ambiguous names, relative dates, incomplete ingestion, permission differences and contradictory notes. Measure task success, exact aggregation, citation support, clarification/abstention behavior, loop length, latency and cost. Compare with a simpler structured-query-plus-search baseline before claiming the agent adds value.\n\n## Deployment\n\nLog redacted tool traces with source versions and decisions, then inspect failures at entity resolution, query planning, retrieval and synthesis separately. Start with a small read-only pilot, retain a direct search fallback and add new tools only when a demonstrated question type needs them.\n"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d812aa74ff230d4c66d96"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-29"
+  }
+}
