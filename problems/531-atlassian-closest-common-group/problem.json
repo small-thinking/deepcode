@@ -1,0 +1,64 @@
+{
+  "id": "531",
+  "slug": "atlassian-closest-common-group",
+  "title": "Closest Common Group in an Employee Directory",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "tree",
+    "ancestry",
+    "organization-directory"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "Our employee directory is organized into groups. Groups form a tree, and each employee belongs to one group. Given two or more employees, return the closest group that contains all of them, directly or through descendant groups.\n\nImplement `closest_common_group(parent, employee_groups, employees) -> str`:\n\n- `parent` maps every group name to its parent group; the single root maps to `None`.\n- `employee_groups` maps each employee name to the group that directly contains them.\n- `employees` is the list of employees to look up.\n\nPractice agreement: the group tree is valid and connected, each employee belongs to exactly one existing group, and the query contains at least two distinct existing employees. Return a **group**, not an employee. Do not modify the inputs. No preprocessing interface is required.\n\n| Group | Parent | Direct employees |\n| --- | --- | --- |\n| Company | — | — |\n| Engineering | Company | — |\n| Search | Engineering | Alice, Bob |\n| Platform | Engineering | Carol |\n| Sales | Company | Dan |\n\nQueries: `Alice, Bob -> Search`; `Alice, Carol -> Engineering`; `Alice, Carol, Dan -> Company`.\n\nFollow-up for discussion: what changes if a group has multiple parents? Define what “closest” means when several incomparable common groups exist before choosing a representation or algorithm. This follow-up is not part of the executable tree contract.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1137604",
+      "url": "https://www.1point3acres.com/bbs/thread-1137604-1-1.html"
+    },
+    {
+      "label": "Original MLE/MLSE interview report — 1154305",
+      "url": "https://www.1point3acres.com/bbs/thread-1154305-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d81878a14d3ca1099d0c9"
+    },
+    {
+      "label": "Additional first-person SWE report — multiple-parent follow-up (separate role)",
+      "url": "https://www.reddit.com/r/leetcode/comments/1p2lvnr/unprofessional_coding_interview_atlassian/"
+    }
+  ],
+  "background_note": "Original MLE reports ask for the lowest common organizational group for multiple employees without publishing an input schema. The two dictionaries, valid-tree assumptions and callable API are local practice conventions. The DAG discussion is corroborated by a separate public SWE candidate report and a brief MLE variant, but neither establishes a unique tie rule, so no invented DAG behavior is tested. It remains distinct from Report Chain rendering/skip-level tasks.",
+  "created_at": "2026-10-29",
+  "starter_code": "def closest_common_group(parent, employee_groups, employees):\n    pass\n",
+  "example": {
+    "input": "parent = {'Company': None, 'Engineering': 'Company', 'Search': 'Engineering', 'Platform': 'Engineering'}; employee_groups = {'Alice': 'Search', 'Bob': 'Search', 'Carol': 'Platform'}; employees = ['Alice', 'Carol']",
+    "output": "'Engineering'",
+    "reasoning": "Engineering is the lowest group that contains both employees through its children."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d81878a14d3ca1099d0c9"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-29"
+  }
+}

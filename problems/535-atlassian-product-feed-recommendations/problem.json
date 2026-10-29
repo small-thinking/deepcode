@@ -1,0 +1,53 @@
+{
+  "id": "535",
+  "slug": "atlassian-product-feed-recommendations",
+  "title": "Design Product-Feed Recommendations",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "recommendation",
+    "candidate-generation",
+    "ranking",
+    "experimentation"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "Design a recommendation system for a product feed.\n\nClarify what the feed contains, who uses it, and what a successful recommendation means. Explain the data, model, serving path and evaluation, with the assumptions you need to make.\n\n**Related interview variant:** suppose the product is an Amazon-style shopping experience. How would your design differ between recommendations on the landing page and recommendations within a search experience?\n\nThe reports do not prescribe a catalog size, label, latency target or model family. State your working assumptions and explain which design decisions would change if they were wrong. A written ML system design is expected.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1160189",
+      "url": "https://www.1point3acres.com/bbs/thread-1160189-1-1.html"
+    },
+    {
+      "label": "Original MLE/MLSE interview report — 1154305",
+      "url": "https://www.1point3acres.com/bbs/thread-1154305-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d818a9e58cc0b5c03304a"
+    }
+  ],
+  "background_note": "Two original MLE reports describe a product-feed recommender and an Amazon-style recommender with landing-page versus search contexts. The latter is presented as a separate reported variant, not a follow-up proven to have occurred in the former interview. Product details, labels, model architecture and serving assumptions in the answer are illustrative. Generic Jira-recommender mentions with unknown targets were not promoted to this contract.",
+  "created_at": "2026-10-29",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions and state your assumptions. Then describe your design, evaluation, failure handling and trade-offs.",
+    "reference_answer": "## Define the recommendation unit\n\nAsk what an item is, how the feed is used and which outcome matters. For a working shopping example, choose useful product discovery that can lead to satisfactory purchases, with negative feedback, returns and latency as guardrails. A click objective alone can reward misleading suggestions. Clarify eligibility, available inventory and whether repeat exposure is acceptable.\n\n## Data and training\n\nLog impressions, positions, eligible candidates, interactions and mature outcomes with user/session context, item state and model versions. Build point-in-time features; a future purchase or current inventory snapshot must not leak into a past training example. Delayed purchase/return labels need a maturity window. Distinguish not-shown items from shown-but-ignored items and discuss controlled exploration or debiasing before treating implicit feedback as unbiased truth.\n\n## Retrieval and ranking\n\nRetrieve candidates from behavior-based, content-based and fresh/popular sources. A two-tower model can help at large scale, but a smaller catalog may not justify it. Measure candidate recall before optimizing the ranker. Score with user, item and session features; combine relevance and expected utility, then apply eligibility, diversity and repetition policies. Treat cold users and new products explicitly, using available context and content rather than fabricating behavior.\n\n## Home versus search\n\nA landing page has no explicit query, so longer-term preference, recent session behavior and exploration matter. Search has an immediate query intent: lexical/semantic match and hard query constraints should bound personalization. A highly clickable unrelated item is still a poor search result. Keep query-conditioned retrieval, relevance labels and evaluation slices separate from the queryless feed.\n\n## Serving and evaluation\n\nUse bounded retrieval and ranking stages with fresh eligibility checks. Cache carefully around inventory and user context; fall back to eligible popular or lexical results when personalization fails. Offline metrics include retrieval recall, ranking quality and calibration. Online experiments measure discovery/purchase success with return rates, repetition, diversity, latency and longer-term satisfaction. Inspect new-user, new-item and infrequent-category slices. Monitor feature freshness, exposure concentration and delayed outcome drift, and retain independent rollback for retrieval and ranking.\n"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d818a9e58cc0b5c03304a"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-29"
+  }
+}

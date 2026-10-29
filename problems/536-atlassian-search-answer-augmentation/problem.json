@@ -1,0 +1,49 @@
+{
+  "id": "536",
+  "slug": "atlassian-search-answer-augmentation",
+  "title": "Add Document Answers to Search Results",
+  "category": "ML System Design",
+  "difficulty": "hard",
+  "tags": [
+    "rag",
+    "search",
+    "intent-detection",
+    "grounding"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "We already have a search experience. For queries seeking a fact or asking how to do a task, we want to derive an answer from documents and show it alongside the ordinary search results. The documents may come from Confluence, Jira or Google Drive.\n\nDesign this augmentation layer. Explain how you decide which queries should receive an answer, how the answer is produced from documents, and how it fits into the existing search request path.\n\nWalk through a normal request and one case where the system should decline to show an answer. Discuss evaluation and the trade-offs that matter to the user. The starting prompt supplies no fixed model, classifier, corpus size or latency target; clarify those assumptions. This is a written design exercise, not an implementation task.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1137604",
+      "url": "https://www.1point3acres.com/bbs/thread-1137604-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d8158ae24c8d75415fe47"
+    }
+  ],
+  "background_note": "The original P50 MLE report explicitly describes detecting fact/task-seeking queries, obtaining answers from sources such as Confluence/Jira/Google Drive, and augmenting regular search results. The answer-card format, citations, access-control strategy, latency policy and proposed evaluation below are practice design choices. This output contract is distinct from search-only ranking and a standalone chatbot.",
+  "created_at": "2026-10-29",
+  "evaluation": {
+    "type": "system_design"
+  },
+  "response": {
+    "placeholder": "Start with clarifying questions and state your assumptions. Then describe your design, evaluation, failure handling and trade-offs.",
+    "reference_answer": "## Preserve the existing product contract\n\nClarify whether the normal search results must remain visible immediately and which answer types are useful. Choose a conservative first version that adds an optional answer card without replacing the underlying results. Navigational queries for a known page may be better served by search alone. Fact/task-seeking intent is not enough: the accessible corpus must actually contain supporting evidence.\n\n## Decide and retrieve\n\nRoute or classify queries using a baseline heuristic or a small model, then evaluate the false-positive cost of unnecessary or wrong answer cards. Retrieve relevant authorized documents from the existing search index or a hybrid evidence index. Preserve source IDs, sections, versions and timestamps. Rerank a bounded candidate set for answerability and relevance, separately from the ordinary search ranker. Permission checks apply to passages, snippets, caches and the final response.\n\n## Produce a supported answer\n\nGive the generator a bounded evidence bundle and require source references. For procedural questions, distinguish quoted organizational instructions from a model's inferred steps. Do not execute actions. Handle conflicting or outdated documents explicitly and abstain when the evidence is insufficient. The model cannot prove its own citations; use support checks and sampled human review, with deterministic validation of cited source IDs.\n\n## Fit the request path\n\nNormal results can return while the optional augmentation runs under its own deadline. If intent classification, retrieval or generation fails, keep useful search results and omit the answer. Cache by query, authorization scope and document/index version; stale permissions must not survive in a cached card. Budget reranking and generation cost and measure whether asynchronous presentation creates distracting shifts.\n\n## Evaluation and rollout\n\nBuild a judged query set covering facts, tasks, navigation, ambiguity, insufficient evidence and conflicting sources. Evaluate routing precision/recall, supporting-document recall, claim support, citation correctness, abstention and freshness separately. Online tests measure successful information finding, time to resolution and harmful/wrong answer reports alongside latency and cost. A fall in document clicks can mean either successful answers or displaced useful results, so do not interpret it alone. Start with limited query classes, audit failures and expand only when the evidence supports it.\n"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d8158ae24c8d75415fe47"
+      ],
+      "stars": 1,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 1,
+    "synced_at": "2026-10-29"
+  }
+}

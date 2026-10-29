@@ -1,0 +1,27 @@
+[
+  {
+    "name": "[Part 1] Window fills and then slides",
+    "input": "size = 3; values = [1, 3, 5, 7, 9]",
+    "test": "import math\ns = MovingAverage(3)\nactual = [s.next(x) for x in [1, 3, 5, 7, 9]]\nassert all(math.isclose(a, b) for a, b in zip(actual, [1, 2, 3, 5, 7]))\n"
+  },
+  {
+    "name": "[Part 1] Negative values and repeated evictions",
+    "input": "size = 2; values = [-4, 0, 8, -2, -2]",
+    "test": "s = MovingAverage(2)\nassert [s.next(x) for x in [-4, 0, 8, -2, -2]] == [-4, -2, 4, 3, -2]\n"
+  },
+  {
+    "name": "[Part 2] Increasing weights during warm-up and eviction",
+    "input": "size = 3; values = [1, 3, 5, 7, 9]",
+    "test": "import math\ns = WeightedMovingAverage(3)\nactual = [s.next(x) for x in [1, 3, 5, 7, 9]]\nexpected = [1, 7/3, 22/6, 34/6, 46/6]\nassert all(math.isclose(a, b) for a, b in zip(actual, expected))\n"
+  },
+  {
+    "name": "[Part 2] Weights follow position, not numeric value",
+    "input": "size = 2; values = [10, -2, 4, 0]",
+    "test": "import math\ns = WeightedMovingAverage(2)\nactual = [s.next(x) for x in [10, -2, 4, 0]]\nassert all(math.isclose(a, b) for a, b in zip(actual, [10, 2, 2, 4/3]))\n"
+  },
+  {
+    "name": "[Both parts] Size one and independent instances",
+    "input": "size = 1 and two independent windows",
+    "test": "for cls in [MovingAverage, WeightedMovingAverage]:\n    s = cls(1)\n    assert [s.next(x) for x in [4, -3, 0, 12]] == [4, -3, 0, 12]\n    a, b = cls(2), cls(2)\n    assert a.next(8) == 8\n    assert b.next(-5) == -5\n    assert a.next(8) == 8\n    assert b.next(-5) == -5\n"
+  }
+]

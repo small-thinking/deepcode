@@ -1,0 +1,61 @@
+{
+  "id": "530",
+  "slug": "atlassian-commodity-price-checkpoints",
+  "title": "Commodity Prices with Historical Checkpoints",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "data-structures",
+    "versioning",
+    "heap",
+    "binary-search"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "A stream sends `(timestamp, price)` updates for a commodity. Updates may arrive out of timestamp order, and a timestamp may be corrected. Build an in-memory component that accepts updates and returns the maximum price among the currently stored timestamp entries.\n\n**Part 1.** Implement `CommodityPrices.upsert(timestamp, price)` and `max_price()`. An upsert replaces the price at that timestamp. `max_price()` returns the maximum of the current entries, not the highest price ever received; return `None` before any update.\n\n**Part 2.** Every upsert returns a checkpoint ID. Add `get_price(timestamp, checkpoint)`, returning the price stored at that timestamp immediately after that checkpoint, or `None` if it did not exist yet. Later corrections must not change earlier answers.\n\nPractice agreement: checkpoints start at 1 and increase by one for every upsert, including an identical update. Checkpoint 0 is the empty initial state. Queries use a valid issued checkpoint or 0. Timestamps and prices are integers. There are no deletes. Favor efficient repeated reads and writes; avoid copying the entire price map on every update.\n\n| Operation | Result |\n| --- | --- |\n| `upsert(10, 8)` | `1` |\n| `upsert(5, 12)` | `2` |\n| `upsert(5, 3)` | `3` |\n| `max_price()` | `8` |\n| `get_price(5, 2)` / `get_price(5, 3)` | `12` / `3` |\n\nDiscuss the cost of a long stream of corrections and whether obsolete maximum-query state needs compaction.\n",
+  "references": [
+    {
+      "label": "Original MLE/MLSE interview report — 1137604",
+      "url": "https://www.1point3acres.com/bbs/thread-1137604-1-1.html"
+    },
+    {
+      "label": "Original MLE/MLSE interview report — 1154305",
+      "url": "https://www.1point3acres.com/bbs/thread-1154305-1-1.html"
+    },
+    {
+      "label": "Canonical question and source qualifications",
+      "url": "https://app.notion.com/p/4086ce51456d811eaffbf84a85c15846"
+    }
+  ],
+  "background_note": "Original MLE reports establish timestamp upserts, a current maximum, and timestamp lookup at a returned checkpoint. Exact method names, integer checkpoint numbering, inclusive snapshot semantics, missing-value behavior and checkpoint 0 are local practice agreements. No delete/current-latest-timestamp operation or maximum-over-all-history requirement is imported from different variants.",
+  "created_at": "2026-10-29",
+  "starter_code": "class CommodityPrices:\n    def __init__(self):\n        pass\n\n    def upsert(self, timestamp, price):\n        pass\n\n    def max_price(self):\n        pass\n\n    def get_price(self, timestamp, checkpoint):\n        pass\n",
+  "example": {
+    "input": "p = CommodityPrices(); p.upsert(10, 8); p.upsert(5, 12); p.upsert(5, 3); p.max_price()",
+    "output": "8",
+    "reasoning": "The correction replaces the old value 12; the remaining current prices are 8 and 3."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "interview_frequency": {
+    "Atlassian": {
+      "source_record_ids": [
+        "4086ce51456d811eaffbf84a85c15846"
+      ],
+      "stars": 2,
+      "synced_at": "2026-10-29"
+    }
+  },
+  "interview_frequency_total": {
+    "stars": 2,
+    "synced_at": "2026-10-29"
+  }
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "[Part 1] Empty and out-of-order timestamps",
+    "input": "upserts at 10, 2, 8",
+    "test": "p = CommodityPrices()\nassert p.max_price() is None\nassert p.get_price(10, 0) is None\nassert p.upsert(10, 8) == 1\nassert p.upsert(2, 12) == 2\nassert p.upsert(8, 5) == 3\nassert p.max_price() == 12\n"
+  },
+  {
+    "name": "[Part 1] Correcting the maximum can lower the answer",
+    "input": "prices 8, 12; replace 12 with 3",
+    "test": "p = CommodityPrices()\np.upsert(10, 8)\np.upsert(5, 12)\np.upsert(5, 3)\nassert p.max_price() == 8\np.upsert(10, 1)\nassert p.max_price() == 3\np.upsert(10, 20)\nassert p.max_price() == 20\n"
+  },
+  {
+    "name": "[Part 2] Inclusive checkpoints preserve corrected values",
+    "input": "timestamp 5 corrected at checkpoints 3 and 4",
+    "test": "p = CommodityPrices()\nassert p.upsert(10, 8) == 1\nassert p.upsert(5, 12) == 2\nassert p.upsert(5, 3) == 3\nassert p.upsert(5, 7) == 4\nassert [p.get_price(5, c) for c in range(5)] == [None, None, 12, 3, 7]\nassert [p.get_price(10, c) for c in range(5)] == [None, 8, 8, 8, 8]\nassert p.get_price(999, 4) is None\n"
+  },
+  {
+    "name": "[Part 2] Unrelated updates do not reset a timestamp version",
+    "input": "alternating corrections to two timestamps",
+    "test": "p = CommodityPrices()\nfor t, v in [(4, 5), (1, 9), (4, 2), (1, 6), (8, 11)]:\n    p.upsert(t, v)\nassert [p.get_price(4, c) for c in [1, 2, 3, 4, 5]] == [5, 5, 2, 2, 2]\nassert [p.get_price(1, c) for c in [1, 2, 3, 4, 5]] == [None, 9, 9, 6, 6]\nassert p.max_price() == 11\n"
+  },
+  {
+    "name": "[Both parts] Equal prices, repeated upserts and independent instances",
+    "input": "duplicate price entries and negative values",
+    "test": "p = CommodityPrices()\nassert p.upsert(1, -2) == 1\nassert p.upsert(2, -2) == 2\nassert p.upsert(1, -5) == 3\nassert p.max_price() == -2\nassert p.upsert(2, -2) == 4\nassert p.get_price(1, 2) == -2\nassert p.get_price(1, 4) == -5\nother = CommodityPrices()\nassert other.max_price() is None\nassert other.upsert(1, 100) == 1\nassert p.max_price() == -2\n"
+  }
+]
