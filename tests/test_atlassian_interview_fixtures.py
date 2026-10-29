@@ -10,6 +10,31 @@ CODING = ['atlassian-streaming-moving-average', 'atlassian-tennis-court-assignme
           'atlassian-commodity-price-checkpoints', 'atlassian-closest-common-group']
 DESIGN = ['atlassian-cross-product-rag', 'atlassian-product-search', 'atlassian-work-log-agent',
           'atlassian-product-feed-recommendations', 'atlassian-search-answer-augmentation']
+CHRONOLOGICAL_COURT_PLAN = '''
+import heapq
+
+def assign_courts(bookings, maintenance=0):
+    events = []
+    for booking_id, (start, finish) in enumerate(bookings):
+        events.append((start, 1, booking_id))
+        events.append((finish + maintenance, 0, booking_id))
+    available = []
+    assigned = {}
+    plan = []
+    next_court = 0
+    for _, is_start, booking_id in sorted(events):
+        if is_start:
+            if available:
+                court = heapq.heappop(available)
+            else:
+                court = next_court
+                next_court += 1
+            assigned[booking_id] = court
+            plan.append(court)  # Bug: event order is not original booking order.
+        else:
+            heapq.heappush(available, assigned.pop(booking_id))
+    return plan
+'''
 
 
 class AtlassianInterviewFixtureTest(unittest.TestCase):
@@ -49,6 +74,12 @@ class AtlassianInterviewFixtureTest(unittest.TestCase):
         self.assertEqual(self.evaluate(CODING[1], code)['status'], 'passed')
         code = REFERENCE + '\n_original_assign = assign_courts\ndef assign_courts(bookings, maintenance=0):\n    return _original_assign(bookings, 0)\n'
         self.assertNotEqual(self.evaluate(CODING[1], code, 'changes the optimum')['status'], 'passed')
+
+    def test_court_cases_reject_plans_returned_in_start_time_order(self):
+        for case_name in ('across booking permutations', 'maintenance-only conflicts'):
+            with self.subTest(case_name=case_name):
+                result = self.evaluate(CODING[1], CHRONOLOGICAL_COURT_PLAN, case_name)
+                self.assertNotEqual(result['status'], 'passed', result)
 
     def test_price_cases_reject_returning_latest_value_for_old_checkpoint(self):
         code = REFERENCE + '\nCommodityPrices.get_price = lambda self, timestamp, checkpoint: self.current.get(timestamp)\n'
