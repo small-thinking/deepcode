@@ -1,0 +1,37 @@
+[
+  {
+    "name": "[Base] Single lowest group",
+    "input": "Alice and Bob share Search; Alice and Carol share Engineering",
+    "test": "company = Node('Company')\nengineering = Node('Engineering', [company])\nsearch = Node('Search', [engineering])\nalice = Node('Alice', [search])\nbob = Node('Bob', [search])\ncarol = Node('Carol', [engineering])\nassert closest_common_groups([alice, bob]) == {search}\nassert closest_common_groups([alice, carol]) == {engineering}\n"
+  },
+  {
+    "name": "[DAG] Incomparable common groups",
+    "input": "Alice and Bob both have parents A and B; return both",
+    "test": "company = Node('Company')\na = Node('A', [company])\nb = Node('B', [company])\nalice = Node('Alice', [a, b])\nbob = Node('Bob', [a, b])\nresult = closest_common_groups([alice, bob])\nassert isinstance(result, set)\nassert result == {a, b}\nassert closest_common_groups([bob, alice]) == {a, b}\n"
+  },
+  {
+    "name": "[Multiple employees] Later employee narrows the answer",
+    "input": "Alice and Bob share A and B; Carol belongs only to B",
+    "test": "company = Node('Company')\na = Node('A', [company])\nb = Node('B', [company])\nalice = Node('Alice', [a, b])\nbob = Node('Bob', [a, b])\ncarol = Node('Carol', [b])\nassert closest_common_groups([alice, bob, carol]) == {b}\nassert closest_common_groups([carol, bob, alice]) == {b}\nassert closest_common_groups([bob, carol, alice]) == {b}\n"
+  },
+  {
+    "name": "[Reachability] Transitive ancestors and shortcut edges",
+    "input": "Redundant direct links must not make higher groups lowest",
+    "test": "top = Node('Top')\nmiddle = Node('Middle', [top])\nlow = Node('Low', [middle])\nalice = Node('Alice', [top, low])\nbob = Node('Bob', [middle, low])\nassert closest_common_groups([alice, bob]) == {low}\n# Both are lowest even though their distances from the top differ.\nx = Node('X', [top])\ndeep = Node('Deep', [middle])\np = Node('P', [x, deep])\nq = Node('Q', [x, deep])\nassert closest_common_groups([p, q]) == {x, deep}\n"
+  },
+  {
+    "name": "[DAG] Shared paths require all parents",
+    "input": "One employee reaches Company through two branches; the other uses another branch",
+    "test": "company = Node('Company')\nleft = Node('Left', [company])\nright = Node('Right', [company])\nbridge = Node('Bridge', [left, right])\nalice = Node('Alice', [left, bridge])\nbob = Node('Bob', [right])\nassert closest_common_groups([alice, bob]) == {right}\ncarol = Node('Carol', [company])\nassert closest_common_groups([alice, carol]) == {company}\n"
+  },
+  {
+    "name": "[Disconnected] No common group",
+    "input": "Separate roots, including a three-employee query whose pairwise overlaps differ",
+    "test": "a, b, c = Node('A'), Node('B'), Node('C')\np = Node('P', [a, b])\nq = Node('Q', [b, c])\nr = Node('R', [a, c])\nassert closest_common_groups([p, q]) == {b}\nassert closest_common_groups([p, q, r]) == set()\nisolated = Node('Isolated', [Node('Other root')])\nassert closest_common_groups([p, isolated]) == set()\n"
+  },
+  {
+    "name": "[Contract] Identity and unchanged inputs",
+    "input": "Different groups share the same name; queries must preserve all inputs",
+    "test": "top = Node('Same')\na = Node('Same', [top])\nb = Node('Same', [top])\nalice = Node('Employee', [a, b])\nbob = Node('Employee', [a, b])\nquery = [bob, alice]\nnodes = [top, a, b, alice, bob]\nbefore = [(n.name, n.parents, tuple(n.parents)) for n in nodes]\nsaved_query = list(query)\nassert closest_common_groups(query) == {a, b}\nassert closest_common_groups([alice, bob]) == {a, b}\nassert query == saved_query\nfor node, (name, parents, contents) in zip(nodes, before):\n    assert node.name == name\n    assert node.parents is parents\n    assert tuple(node.parents) == contents\n"
+  }
+]
