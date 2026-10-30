@@ -1,27 +1,27 @@
 [
   {
     "name": "[Base] Employees in the same group",
-    "input": "employees = ['Alice', 'Bob']",
-    "test": "parent = {'Company': None, 'Engineering': 'Company', 'Search': 'Engineering', 'Platform': 'Engineering', 'Sales': 'Company', 'Infra': 'Platform'}\nmembers = {'Alice': 'Search', 'Bob': 'Search', 'Carol': 'Platform', 'Dan': 'Sales', 'Eve': 'Engineering', 'Fran': 'Infra'}\nassert closest_common_group(parent, members, ['Alice', 'Bob']) == 'Search'\n"
+    "input": "employees = [alice, bob]",
+    "test": "alice, bob, carol, dan, eve, fran = [Node(name) for name in ('Alice', 'Bob', 'Carol', 'Dan', 'Eve', 'Fran')]\nsearch = Node('Search', [alice, bob])\ninfra = Node('Infra', [fran])\nplatform = Node('Platform', [carol, infra])\nengineering = Node('Engineering', [search, platform, eve])\nsales = Node('Sales', [dan])\ncompany = Node('Company', [engineering, sales])\nassert closest_common_group(company, [alice, bob]) is search\n"
   },
   {
     "name": "[Base] Siblings and unequal depths",
-    "input": "Alice + Carol; Alice + Fran",
-    "test": "parent = {'Company': None, 'Engineering': 'Company', 'Search': 'Engineering', 'Platform': 'Engineering', 'Sales': 'Company', 'Infra': 'Platform'}\nmembers = {'Alice': 'Search', 'Bob': 'Search', 'Carol': 'Platform', 'Dan': 'Sales', 'Eve': 'Engineering', 'Fran': 'Infra'}\nassert closest_common_group(parent, members, ['Alice', 'Carol']) == 'Engineering'\nassert closest_common_group(parent, members, ['Alice', 'Fran']) == 'Engineering'\n"
+    "input": "employees = [alice, carol]; [alice, fran]",
+    "test": "alice, bob, carol, dan, eve, fran = [Node(name) for name in ('Alice', 'Bob', 'Carol', 'Dan', 'Eve', 'Fran')]\nsearch = Node('Search', [alice, bob])\ninfra = Node('Infra', [fran])\nplatform = Node('Platform', [carol, infra])\nengineering = Node('Engineering', [search, platform, eve])\nsales = Node('Sales', [dan])\ncompany = Node('Company', [engineering, sales])\nassert closest_common_group(company, [alice, carol]) is engineering\nassert closest_common_group(company, [alice, fran]) is engineering\n"
   },
   {
     "name": "[Multiple employees] A later employee changes the answer",
-    "input": "employees = ['Alice', 'Bob', 'Dan']",
-    "test": "parent = {'Company': None, 'Engineering': 'Company', 'Search': 'Engineering', 'Platform': 'Engineering', 'Sales': 'Company', 'Infra': 'Platform'}\nmembers = {'Alice': 'Search', 'Bob': 'Search', 'Carol': 'Platform', 'Dan': 'Sales', 'Eve': 'Engineering', 'Fran': 'Infra'}\nassert closest_common_group(parent, members, ['Alice', 'Bob', 'Dan']) == 'Company'\nassert closest_common_group(parent, members, ['Fran', 'Alice', 'Carol']) == 'Engineering'\n"
+    "input": "employees = [alice, bob, dan]",
+    "test": "alice, bob, carol, dan, eve, fran = [Node(name) for name in ('Alice', 'Bob', 'Carol', 'Dan', 'Eve', 'Fran')]\nsearch = Node('Search', [alice, bob])\ninfra = Node('Infra', [fran])\nplatform = Node('Platform', [carol, infra])\nengineering = Node('Engineering', [search, platform, eve])\nsales = Node('Sales', [dan])\ncompany = Node('Company', [engineering, sales])\nassert closest_common_group(company, [alice, bob, dan]) is company\nassert closest_common_group(company, [fran, alice, carol]) is engineering\n"
   },
   {
-    "name": "[Membership] Direct group member and descendant",
-    "input": "employees = ['Eve', 'Alice']; ['Carol', 'Fran']",
-    "test": "parent = {'Company': None, 'Engineering': 'Company', 'Search': 'Engineering', 'Platform': 'Engineering', 'Sales': 'Company', 'Infra': 'Platform'}\nmembers = {'Alice': 'Search', 'Bob': 'Search', 'Carol': 'Platform', 'Dan': 'Sales', 'Eve': 'Engineering', 'Fran': 'Infra'}\nassert closest_common_group(parent, members, ['Eve', 'Alice']) == 'Engineering'\nassert closest_common_group(parent, members, ['Carol', 'Fran']) == 'Platform'\n"
+    "name": "[Tree] Employee leaves alongside subgroup children",
+    "input": "employees = [eve, alice]; [carol, fran]",
+    "test": "alice, bob, carol, dan, eve, fran = [Node(name) for name in ('Alice', 'Bob', 'Carol', 'Dan', 'Eve', 'Fran')]\nsearch = Node('Search', [alice, bob])\ninfra = Node('Infra', [fran])\nplatform = Node('Platform', [carol, infra])\nengineering = Node('Engineering', [search, platform, eve])\nsales = Node('Sales', [dan])\ncompany = Node('Company', [engineering, sales])\nassert closest_common_group(company, [eve, alice]) is engineering\nassert closest_common_group(company, [carol, fran]) is platform\n"
   },
   {
-    "name": "[Contract] Root membership and unchanged inputs",
-    "input": "employees directly in root and nested groups",
-    "test": "parent = {'Root': None, 'A': 'Root', 'B': 'A'}\nmembers = {'p': 'Root', 'q': 'B', 'r': 'A'}\nquery = ['q', 'p', 'r']\nsaved = (parent.copy(), members.copy(), query.copy())\nassert closest_common_group(parent, members, query) == 'Root'\nassert (parent, members, query) == saved\n"
+    "name": "[Contract] Root-level employee and unchanged tree",
+    "input": "root = Node('Root', [p, a]); employees = [q, p, r]",
+    "test": "p, q, r = Node('p'), Node('q'), Node('r')\nb = Node('B', [q])\na = Node('A', [b, r])\nroot = Node('Root', [p, a])\nquery = [q, p, r]\nnodes = [root, a, b, p, q, r]\nbefore = [(node.name, tuple(node.children)) for node in nodes]\nsaved_query = list(query)\nassert closest_common_group(root, query) is root\nassert [(node.name, tuple(node.children)) for node in nodes] == before\nassert query == saved_query\n"
   }
 ]

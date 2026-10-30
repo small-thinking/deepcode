@@ -79,16 +79,24 @@ class CommodityPrices:
         return history[index - 1][1] if index else None
 
 
-def closest_common_group(parent, employee_groups, employees):
-    def chain(group):
-        result = []
-        while group is not None:
-            result.append(group)
-            group = parent[group]
-        return result
+class Node:
+    def __init__(self, name, children=None):
+        self.name = name
+        self.children = list(children) if children is not None else []
 
-    first = chain(employee_groups[employees[0]])
-    common = set(first)
-    for employee in employees[1:]:
-        common.intersection_update(chain(employee_groups[employee]))
-    return next(group for group in first if group in common)
+
+def closest_common_group(root, employees):
+    targets = set(employees)
+    answer = None
+
+    def visit(node):
+        nonlocal answer
+        if not node.children:
+            return int(node in targets)
+        count = sum(visit(child) for child in node.children)
+        if count == len(targets) and answer is None:
+            answer = node
+        return count
+
+    visit(root)
+    return answer

@@ -86,7 +86,7 @@ class AtlassianInterviewFixtureTest(unittest.TestCase):
         self.assertNotEqual(self.evaluate(CODING[2], code, 'Inclusive checkpoints')['status'], 'passed')
 
     def test_group_case_rejects_using_only_the_first_two_employees(self):
-        code = REFERENCE + '\n_original_group = closest_common_group\ndef closest_common_group(parent, employee_groups, employees):\n    return _original_group(parent, employee_groups, employees[:2])\n'
+        code = REFERENCE + '\n_original_group = closest_common_group\ndef closest_common_group(root, employees):\n    return _original_group(root, employees[:2])\n'
         self.assertNotEqual(self.evaluate(CODING[3], code, 'later employee')['status'], 'passed')
 
 
