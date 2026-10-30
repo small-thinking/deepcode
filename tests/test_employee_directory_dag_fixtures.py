@@ -32,6 +32,28 @@ class EmployeeDirectoryDagFixtureTest(unittest.TestCase):
     def test_starter_does_not_pass(self):
         self.assertEqual(self.evaluate(self.problem["starter_code"])["passed"], 0)
 
+    def test_tree_only_solution_passes_part_1_but_not_part_2(self):
+        # Follow one parent chain: valid in Part 1, insufficient in Part 2.
+        tree_only = self.problem["starter_code"].replace("    pass", """    def chain(node):
+        path = []
+        while node.parents:
+            node = node.parents[0]
+            path.append(node)
+        return path
+
+    first_path = chain(employees[0])
+    common = set(first_path)
+    for employee in employees[1:]:
+        common.intersection_update(chain(employee))
+    for node in first_path:
+        if node in common:
+            return {node}
+    return set()""")
+        result = self.evaluate(tree_only, "[Part 1]")
+        self.assertEqual(result["status"], "passed", result)
+        result = self.evaluate(tree_only, "[Part 2]")
+        self.assertNotEqual(result["status"], "passed", result)
+
     def test_visible_cases_reject_common_dag_mistakes(self):
         mutations = [
             ("Incomparable", "return common - non_lowest", "return set(list(common - non_lowest)[:1])"),

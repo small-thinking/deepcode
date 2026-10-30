@@ -1,10 +1,11 @@
 {
   "id": "538",
   "slug": "employee-directory-dag",
-  "title": "Closest Common Groups in an Employee Directory DAG",
+  "title": "Closest Common Groups in an Employee Directory: Tree and DAG",
   "category": "Coding",
   "difficulty": "medium",
   "tags": [
+    "tree",
     "dag",
     "ancestry",
     "organization-directory"
@@ -12,14 +13,14 @@
   "companies": [
     "Atlassian"
   ],
-  "prompt": "An employee directory is a finite **directed acyclic graph (DAG)**. An employee or group may belong to multiple parent groups. Given employee nodes, return **all lowest common ancestor groups**.\n\nImplement `closest_common_groups(employees) -> set[Node]` using the provided node structure:\n\n```python\nclass Node:\n    def __init__(self, name, parents=None):\n        self.name = name\n        self.parents = list(parents) if parents is not None else []\n```\n\n- `parents` contains immediate parent **group nodes**; follow these links upward. There is no `children` field or root argument. A top-level group has `parents == []`.\n- `employees` is a list of at least two distinct employee nodes. Employees contain no other nodes in the directory. Assume a valid DAG; disconnected components and multiple top-level groups are allowed.\n- A **common ancestor group** is reachable from every queried employee by following one or more parent links.\n- A common group is **lowest** if no other common group is below it: no different common group can reach it by following parent links. Several incomparable groups may qualify; return all of them. Lowest is defined by reachability, not distance or depth.\n- Return a Python **set of the existing node objects**, or `set()` if there is no common group. Names are display labels and need not be unique. Do not modify nodes, parent lists, or the query list.\n\nFor this example, arrows point **from a node to its parents**:\n\n```text\nA, B         -> Company\nAlice, Bob   -> A, B\nCarol        -> B\n```\n\n| Employee nodes | Returned set |\n| --- | --- |\n| `[alice, bob]` | `{a, b}` |\n| `[alice, bob, carol]` | `{b}` |\n\nFollow-up: why can choosing one arbitrary pairwise LCA lose a valid answer when another employee is added?\n",
+  "prompt": "Find the closest common groups for employees in an organization. Implement `closest_common_groups(employees) -> set[Node]` in two stages, using the **same interface** in both parts:\n\n```python\nclass Node:\n    def __init__(self, name, parents=None):\n        self.name = name\n        self.parents = list(parents) if parents is not None else []\n```\n\n- `parents` lists immediate parent **group nodes**. Follow these links upward; nodes have no `children` field, and the function takes no root argument.\n- `employees` is a list of at least two distinct employee nodes. Employees contain no other nodes in the directory. Names are display labels and need not be unique.\n- Return a Python **set of existing group node objects**. Do not modify nodes, parent lists, or the query list.\n\n### Part 1: Tree\n\nThe directory is a single rooted **tree**, even though `parents` is a list: the root has `parents == []`, and every other node has exactly one parent. All queried employees belong to that tree.\n\nReturn the unique lowest common ancestor group as a **singleton set**.\n\nArrows below point **from a node to its parents**:\n\n```text\nEngineering, Sales -> Company\nSearch             -> Engineering\nAlice, Bob         -> Search\nCarol              -> Sales\n```\n\n| Employee nodes | Returned set |\n| --- | --- |\n| `[alice, bob]` | `{search}` |\n| `[alice, bob, carol]` | `{company}` |\n\n### Part 2: DAG\n\nExtend the same function to a finite **directed acyclic graph**: employees and groups may have multiple parents. Disconnected components and multiple top-level groups are allowed.\n\nReturn **all lowest common ancestor groups**, or `set()` if there is no common group:\n\n- A common group is reachable from every queried employee through one or more parent links.\n- A common group is **lowest** if no different common group can reach it through parent links. Several incomparable groups may qualify. Use reachability, not distance or depth.\n\n```text\nA, B       -> Company\nAlice, Bob -> A, B\nCarol      -> B\n```\n\n| Employee nodes | Returned set |\n| --- | --- |\n| `[alice, bob]` | `{a, b}` |\n| `[alice, bob, carol]` | `{b}` |\n\nTests labeled `[Part 1]` use only trees; `[Part 2]` tests exercise the DAG extension. One implementation may satisfy both parts.\n\nFollow-up: why can choosing one arbitrary pairwise LCA lose a valid answer in a DAG when another employee is added?\n",
   "starter_code": "class Node:\n    def __init__(self, name, parents=None):\n        self.name = name\n        self.parents = list(parents) if parents is not None else []\n\n\ndef closest_common_groups(employees):\n    pass\n",
   "example": {
-    "input": "company = Node('Company'); a = Node('A', [company]); b = Node('B', [company]); alice = Node('Alice', [a, b]); bob = Node('Bob', [a, b]); closest_common_groups([alice, bob])",
-    "output": "{a, b}  # existing Node objects",
-    "reasoning": "Both A and B contain Alice and Bob, and neither is an ancestor of the other. Company is common but is above both."
+    "input": "company = Node('Company'); search = Node('Search', [company]); alice = Node('Alice', [search]); bob = Node('Bob', [search]); closest_common_groups([alice, bob])",
+    "output": "{search}  # the existing group node, wrapped in a set",
+    "reasoning": "Part 1 uses single-parent links. Search is the unique lowest common group for Alice and Bob."
   },
-  "background_note": "Practice extension of the existing Atlassian employee-directory tree exercise. Related candidate reports discuss multiple-parent follow-ups, but the parents-only Node API, return-all-lowest contract, and empty-set behavior are local practice choices, not a verbatim reported interview contract. No additional interview-frequency signal is asserted for this extension.",
+  "background_note": "Two-part practice extension of the existing Atlassian employee-directory tree exercise. Related candidate reports discuss multiple-parent follow-ups, but the parents-only Node API, return-all-lowest contract, and empty-set behavior are local practice choices, not a verbatim reported interview contract. No additional interview-frequency signal is asserted for this extension.",
   "references": [
     {
       "label": "Related tree question and source qualifications",
