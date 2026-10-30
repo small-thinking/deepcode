@@ -12,7 +12,7 @@
   "companies": [
     "Atlassian"
   ],
-  "prompt": "Our employee directory is organized into groups. Groups form a tree, and each employee belongs to one group. Given two or more employees, return the closest group that contains all of them, directly or through descendant groups.\n\nImplement `closest_common_group(parent, employee_groups, employees) -> str`:\n\n- `parent` maps every group name to its parent group; the single root maps to `None`.\n- `employee_groups` maps each employee name to the group that directly contains them.\n- `employees` is the list of employees to look up.\n\nPractice agreement: the group tree is valid and connected, each employee belongs to exactly one existing group, and the query contains at least two distinct existing employees. Return a **group**, not an employee. Do not modify the inputs. No preprocessing interface is required.\n\n| Group | Parent | Direct employees |\n| --- | --- | --- |\n| Company | — | — |\n| Engineering | Company | — |\n| Search | Engineering | Alice, Bob |\n| Platform | Engineering | Carol |\n| Sales | Company | Dan |\n\nQueries: `Alice, Bob -> Search`; `Alice, Carol -> Engineering`; `Alice, Carol, Dan -> Company`.\n\nFollow-up for discussion: what changes if a group has multiple parents? Define what “closest” means when several incomparable common groups exist before choosing a representation or algorithm. This follow-up is not part of the executable tree contract.\n",
+  "prompt": "An employee directory is a rooted, multi-way tree. Every internal node is a **group**, and every leaf is an **employee**. Given two or more employee leaves, return their lowest common ancestor group.\n\nImplement `closest_common_group(root, employees) -> Node`:\n\nNode structure (provided in the starter code):\n\n```python\nclass Node:\n    def __init__(self, name, children=None):\n        self.name = name\n        self.children = list(children) if children is not None else []\n```\n\n- `name` is a display label; `children` is a list of child `Node` objects.\n- This is a **multi-way tree**, not a binary tree: a group has one or more children, which may be subgroups or employees. An employee leaf has `children == []`.\n- Nodes have **no `parent`, `left`, or `right` fields**. Traverse from `root` through `children`.\n- `root` is the company group. `employees` contains references to the employee nodes to query, not employee-name strings.\n- Return the existing group **node**, not its name or an employee node.\n\nAssume a valid tree and at least two distinct employee leaves, all belonging to that tree. Do not modify the tree or query list.\n\n```text\nCompany\n├── Engineering\n│   ├── Search\n│   │   ├── Alice\n│   │   └── Bob\n│   └── Platform\n│       └── Carol\n└── Sales\n    └── Dan\n```\n\n| Employee nodes | Returned group node |\n| --- | --- |\n| `[alice, bob]` | `search` |\n| `[alice, carol]` | `engineering` |\n| `[alice, carol, dan]` | `company` |\n\nFollow-up for discussion: what changes if groups have multiple parents (a DAG)? Define the answer when several incomparable common groups exist; the executable task covers only the tree.\n",
   "references": [
     {
       "label": "Original MLE/MLSE interview report — 1137604",
@@ -31,13 +31,13 @@
       "url": "https://www.reddit.com/r/leetcode/comments/1p2lvnr/unprofessional_coding_interview_atlassian/"
     }
   ],
-  "background_note": "Original MLE reports ask for the lowest common organizational group for multiple employees without publishing an input schema. The two dictionaries, valid-tree assumptions and callable API are local practice conventions. The DAG discussion is corroborated by a separate public SWE candidate report and a brief MLE variant, but neither establishes a unique tie rule, so no invented DAG behavior is tested. It remains distinct from Report Chain rendering/skip-level tasks.",
+  "background_note": "Original MLE reports ask for the lowest common organizational group for multiple employees without publishing an input schema. The Node class, group-internal/employee-leaf tree representation, node-reference query and return type are local practice conventions. The DAG discussion is corroborated by a separate public SWE candidate report and a brief MLE variant, but neither establishes a unique tie rule, so no invented DAG behavior is tested. It remains distinct from Report Chain rendering/skip-level tasks.",
   "created_at": "2026-10-29",
-  "starter_code": "def closest_common_group(parent, employee_groups, employees):\n    pass\n",
+  "starter_code": "class Node:\n    def __init__(self, name, children=None):\n        self.name = name\n        self.children = list(children) if children is not None else []\n\n\ndef closest_common_group(root, employees):\n    pass\n",
   "example": {
-    "input": "parent = {'Company': None, 'Engineering': 'Company', 'Search': 'Engineering', 'Platform': 'Engineering'}; employee_groups = {'Alice': 'Search', 'Bob': 'Search', 'Carol': 'Platform'}; employees = ['Alice', 'Carol']",
-    "output": "'Engineering'",
-    "reasoning": "Engineering is the lowest group that contains both employees through its children."
+    "input": "alice = Node('Alice'); bob = Node('Bob'); search = Node('Search', [alice, bob]); company = Node('Company', [search]); closest_common_group(company, [alice, bob])",
+    "output": "search  # the existing Node object",
+    "reasoning": "Search is the lowest internal node with both employee leaves below it."
   },
   "environment": {
     "language": "python",
