@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Mixed positions and duplicate digits",
+    "input": "secret=\"1807\", guess=\"7810\"; secret=\"1123\", guess=\"0111\"",
+    "test": "game = Solution()\nassert game.getHint(\"1807\", \"7810\") == \"1A3B\"\nassert game.getHint(\"1123\", \"0111\") == \"1A1B\""
+  },
+  {
+    "name": "All bulls and no matches",
+    "input": "secret=\"0011\", guess=\"0011\"; secret=\"0000\", guess=\"1111\"",
+    "test": "game = Solution()\nassert game.getHint(\"0011\", \"0011\") == \"4A0B\"\nassert game.getHint(\"0000\", \"1111\") == \"0A0B\""
+  },
+  {
+    "name": "All cows preserve repeated occurrences",
+    "input": "secret=\"1122\", guess=\"2211\"; secret=\"1234\", guess=\"4321\"",
+    "test": "game = Solution()\nassert game.getHint(\"1122\", \"2211\") == \"0A4B\"\nassert game.getHint(\"1234\", \"4321\") == \"0A4B\""
+  },
+  {
+    "name": "Limit cows by available occurrences after bulls",
+    "input": "duplicate guesses, matches already consumed by bulls, and unequal digit counts",
+    "test": "game = Solution()\nassert game.getHint(\"1122\", \"0001\") == \"0A1B\"\nassert game.getHint(\"1000\", \"0001\") == \"2A2B\"\nassert game.getHint(\"1110\", \"0111\") == \"2A2B\"\nassert game.getHint(\"1122\", \"1111\") == \"2A0B\"\nassert game.getHint(\"0012\", \"2200\") == \"0A3B\""
+  },
+  {
+    "name": "Single digits and leading zeros",
+    "input": "single-digit matches/misses and secret=\"0123\", guess=\"3012\"",
+    "test": "game = Solution()\nassert game.getHint(\"0\", \"0\") == \"1A0B\"\nassert game.getHint(\"0\", \"1\") == \"0A0B\"\nassert game.getHint(\"0123\", \"3012\") == \"0A4B\""
+  },
+  {
+    "name": "Repeated calls and maximum supported length",
+    "input": "one Solution instance; 1000-digit strings",
+    "test": "game = Solution()\nassert game.getHint(\"0123456789\" * 100, \"1234567890\" * 100) == \"0A1000B\"\nassert game.getHint(\"7\" * 1000, \"7\" * 1000) == \"1000A0B\"\nassert game.getHint(\"7\" * 1000, \"8\" * 1000) == \"0A0B\"\nassert game.getHint(\"12\", \"21\") == \"0A2B\""
+  }
+]

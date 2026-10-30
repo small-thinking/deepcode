@@ -1,0 +1,43 @@
+{
+  "id": "537",
+  "slug": "bulls-and-cows",
+  "title": "Bulls and Cows",
+  "category": "Coding",
+  "difficulty": "medium",
+  "tags": [
+    "string",
+    "counting",
+    "hash-table"
+  ],
+  "companies": [
+    "Atlassian"
+  ],
+  "prompt": "Implement `Solution.getHint(secret: str, guess: str) -> str` for a number-guessing game.\n\n- A **bull** is a digit that matches at the same position.\n- A **cow** is a matching digit at a different position, after removing all bulls. Each remaining digit occurrence can be matched only once.\n\nReturn `\"xAyB\"`, where `x` is the number of bulls and `y` is the number of cows. Digits may repeat, and leading zeros are significant.\n\nAssume both inputs contain only digits `0`–`9`, have equal length, and contain between 1 and 1000 characters.\n\n| secret | guess | hint |\n| --- | --- | --- |\n| `1807` | `7810` | `1A3B` |\n| `1123` | `0111` | `1A1B` |\n\nIn the second example, only one unmatched `1` can count as a cow.",
+  "starter_code": "class Solution:\n    def getHint(self, secret: str, guess: str) -> str:\n        pass\n",
+  "example": {
+    "input": "secret = \"1807\", guess = \"7810\"",
+    "output": "\"1A3B\"",
+    "reasoning": "The 8 matches its position. The 1, 0, and 7 are present at other positions."
+  },
+  "environment": {
+    "language": "python",
+    "timeout_seconds": 3,
+    "packages": [],
+    "comparator": "assertions"
+  },
+  "evaluation": {
+    "type": "ml_modeling"
+  },
+  "references": [
+    {
+      "label": "LeetCode 299 — Bulls and Cows (practice contract)",
+      "url": "https://leetcode.com/problems/bulls-and-cows/"
+    },
+    {
+      "label": "Atlassian MLE candidate report — describes a similar guessing game; exact rules unpublished",
+      "url": "https://www.1point3acres.com/bbs/thread-1166398-1-1.html"
+    }
+  ],
+  "background_note": "This exercise uses the standard LeetCode 299 practice contract and a locally paraphrased description. The Atlassian MLE report describes a similar guessing-game question, without publishing its complete rules. That report does not establish that this exact API or all LeetCode rules were used in the interview. No new interview occurrence or frequency tier is asserted.",
+  "created_at": "2026-10-29"
+}
